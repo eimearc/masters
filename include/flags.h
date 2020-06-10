@@ -7,3 +7,4 @@ DECLARE_int32(num_threads);
 DECLARE_bool(overwrite);
 DECLARE_int32(num_frames);
 DECLARE_string(file);
+DECLARE_bool(bench);

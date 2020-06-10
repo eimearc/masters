@@ -33,3 +33,4 @@ DEFINE_validator(num_threads, &ValidateNumThreads);
 DEFINE_bool(overwrite, false, "If true, overwrite the old CSV file for the benchmark.");
 DEFINE_int32(num_frames, 0, "Number of frames to render.");
 DEFINE_string(file,"time.csv","The path to the file where the output should be logged.");
+DEFINE_bool(bench, false, "If true, write the results of the run to file.");

@@ -33,14 +33,14 @@
 class EVulkan {
 public:
     void run() {
-        bench.open(FLAGS_file, FLAGS_overwrite);
+        if (FLAGS_bench) bench.open(FLAGS_file, FLAGS_overwrite);
         createGrid();
         auto start = bench.start();
         initVulkan();
         bench.startupTime(start);
         mainLoop();
         cleanup();
-        bench.close();
+        if (FLAGS_bench) bench.close();
     }
 
 ~EVulkan()=default;
