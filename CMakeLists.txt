@@ -26,7 +26,6 @@ link_libraries(Vulkan::Vulkan)
 
 # Add gflags.
 find_package(gflags REQUIRED)
-# target_link_libraries(evulkan gflags)
 
 set (SOURCES
     ${STB_INCLUDE_PATH}/gflags/gflags.h
@@ -57,7 +56,7 @@ set (SOURCES
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib)
 set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
 add_library(evulkan SHARED ${SOURCES})
-target_link_libraries(evulkan gflags)
+target_link_libraries(evulkan gflags) # Must only link to evulkan, otherwise get error in main.
 
 install(TARGETS evulkan DESTINATION lib)
 install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
@@ -67,9 +66,8 @@ set(
     ${VULKANROOT}/src/main.cpp
     ${UTILROOT}/src/bench.cpp
     ${UTILROOT}/src/util.cpp
-    # ${STB_INCLUDE_PATH}/gflags/gflags.h
 )
 
 add_executable(main ${MAIN_SOURCES})
 target_link_libraries(main evulkan)
-# set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")
+set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")
