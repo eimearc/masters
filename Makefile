@@ -1,38 +1,46 @@
 VULKAN_SDK_PATH = $(VULKAN_SDK)
+STB_INCLUDE_PATH = /usr/local/include/
 
 IDIR = include
-V_IDIR = vulkan/include
-GL_IDIR = gl/include
+IDIR_EXT = ../include
 ODIR = obj
+ODIR_EXT = obj
 SDIR = src
+SDIR_EXT = src
 
 CC=g++
-CFLAGS = -std=c++17 -I$(IDIR) -I$(GL_IDIR) -I$(V_IDIR)
-GLEW_PATH = /usr/local/lib/
-DEPS = $(V_IDIR)/evulkan.h $(GL_IDIR)/egl.h $(IDIR)/grid.h
+CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(STB_INCLUDE_PATH) -I$(STB_INCLUDE_PATH)gflags/ -I$(IDIR) -I$(IDIR_EXT)
+LDFLAGS = `pkg-config --static --libs glfw3` -L$(VULKAN_SDK_PATH)/lib -lvulkan -L/usr/local/lib/ -lgflags
+LDFLAGS += -L/usr/local/lib/ -lboost_thread-mt
 
-LDFLAGS = `pkg-config --static --libs glfw3`
-LDFLAGS += -L$(GLEW_PATH) -lGLEW -framework OpenGL -Lgl -lEGL
-LDFLAGS += -L$(VULKAN_SDK_PATH)/lib -lvulkan -Lvulkan -lEVulkan
-LDFLAGS += -L/usr/local/lib/ -lgflags
+_DEPS = evulkan.h evulkan_core.h evulkan_util.h
+_DEPS_EXT = cube.h grid.h vertex.h util.h flags.h threadpool.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+DEPS += $(patsubst %,$(IDIR_EXT)/%,$(_DEPS_EXT))
 
-_OBJ = util.o bench.o
+_OBJ =  descriptor.o instance.o render.o run.o buffer.o evulkan_core.o update_scene.o draw.o evulkan_util.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-all: $(OBJ) vulkan gl
+_OBJ_EXT = util.o flags.o bench.o
+OBJ_EXT = $(patsubst %,$(ODIR_EXT)/%,$(_OBJ_EXT))
 
-vulkan:
-	cd vulkan && $(MAKE)
+.PHONY: test clean vulkan
 
-gl:
-	cd gl && $(MAKE)
+vulkan: $(ODIR)/main.o $(OBJ) $(OBJ_EXT)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(ODIR)/%.o: $(SDIR)/%.cpp
+$(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-clean:
-	cd vulkan && $(MAKE) clean
-	cd gl && $(MAKE) clean
-	rm $(ODIR)/*.o
+$(ODIR_EXT)/%.o: $(SDIR_EXT)/%.cpp $(DEPS_EXT)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-.PHONY: vulkan gl all
+libEVulkan.a: $(OBJ) $(OBJ_EXT)
+	ar rcs $@ $^
+
+libs: libEVulkan.a
+
+clean:
+	rm vulkan || true
+	rm $(ODIR)/*.o || true
+	rm libEVulkan.a || true
