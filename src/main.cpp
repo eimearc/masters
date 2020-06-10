@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-DEFINE_bool(enable_validation,false,"Turn on validation layers for Vulkan.");
-
 int main(int argc, char **argv)
 {
     gflags::SetUsageMessage("A program for benchmarking Vulkan over multiple threads.");
@@ -22,6 +20,5 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    // exit(0); // TODO: figure out why this doesn't work.
     return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
-project (vulkan)
+project (evulkan)
 
 find_package(PkgConfig REQUIRED)
 set (CMAKE_CXX_STANDARD 17)
@@ -36,7 +36,7 @@ set (SOURCES
     ${VULKANROOT}/src/evulkan_core.cpp
     ${VULKANROOT}/src/evulkan_util.cpp
     ${VULKANROOT}/src/instance.cpp
-    ${VULKANROOT}/src/main.cpp
+    # ${VULKANROOT}/src/main.cpp
     ${VULKANROOT}/src/render.cpp
     ${VULKANROOT}/src/run.cpp
     ${VULKANROOT}/src/update_scene.cpp
@@ -55,5 +55,12 @@ set (SOURCES
     ${UTILROOT}/include/vertex.h
 )
 
-add_executable(vulkan ${SOURCES})
-set_target_properties(vulkan PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")
+# add_executable(evulkan ${SOURCES})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib)
+set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
+add_library(evulkan SHARED ${SOURCES})
+
+install(TARGETS evulkan DESTINATION lib)
+install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
+
+# set_target_properties(evulkan PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")
