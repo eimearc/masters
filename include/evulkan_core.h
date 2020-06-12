@@ -454,6 +454,7 @@ class Instance
     }
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
+    void createRenderPass();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -467,6 +468,7 @@ class Instance
     std::vector<VkImageView> m_swapChainImageViews;
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
+    VkRenderPass m_renderPass;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

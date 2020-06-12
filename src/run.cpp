@@ -28,10 +28,8 @@ void EVulkan::initVulkan()
     swapChainExtent=evkInstance.m_swapChainExtent;
     swapChainImageViews=evkInstance.m_swapChainImageViews;
 
-    EVkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.swapChainImageFormat = swapChainImageFormat;
-    renderPassInfo.physicalDevice = physicalDevice;
-    evkCreateRenderPass(device, &renderPassInfo, &renderPass);
+    evkInstance.createRenderPass();
+    renderPass=evkInstance.m_renderPass;
 
     EVkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
     evkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, &descriptorSetLayout);
