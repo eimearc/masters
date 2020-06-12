@@ -431,6 +431,7 @@ struct InstanceCreateInfo
     std::vector<const char*> validationLayers;
     GLFWwindow *window;
     std::vector<const char *> deviceExtensions;
+    uint8_t maxFramesInFlight;
 };
 
 class Instance
@@ -440,11 +441,14 @@ class Instance
     {
         m_deviceExtensions=pCreateInfo->deviceExtensions;
         m_validationLayers=pCreateInfo->validationLayers;
+        m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
+        m_window=pCreateInfo->window;
 
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
         createDevice();
+        createSwapChain();
     }
 
     VkInstance m_vkInstance;
@@ -454,15 +458,22 @@ class Instance
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
     VkDevice m_device;
+    VkSwapchainKHR m_swapChain;
+    std::vector<VkImage> m_swapChainImages;
+    VkFormat m_swapChainImageFormat;
+    VkExtent2D m_swapChainExtent;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
     void createDevice();
+    void createSwapChain();
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;
+    uint8_t m_maxFramesInFlight;
+    GLFWwindow *m_window;
 };
 
 } // namespace evk
