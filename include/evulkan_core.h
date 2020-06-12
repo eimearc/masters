@@ -417,3 +417,37 @@ void evkCreateVertexBuffer(
     VkBuffer *pBuffer,
     VkDeviceMemory *pBufferMemory,  
     ThreadPool &threadpool);
+
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
+    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    VkDebugUtilsMessengerEXT* pDebugMessenger);
+
+namespace evk
+{
+
+struct InstanceCreateInfo
+{
+    std::vector<const char*> validationLayers;
+    GLFWwindow *window;
+};
+
+class Instance
+{
+    public:
+    Instance(const InstanceCreateInfo *pCreateInfo)
+    {
+        createInstance(pCreateInfo->validationLayers);
+        createSurface(pCreateInfo->window);
+    }
+
+    VkInstance m_vkInstance;
+    VkDebugUtilsMessengerEXT m_debugMessenger;
+    VkSurfaceKHR m_surface;
+
+    private:
+    void createInstance(std::vector<const char*> validationLayers);
+    void createSurface(GLFWwindow *window);
+};
+
+} // namespace evk

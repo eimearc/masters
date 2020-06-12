@@ -4,17 +4,18 @@ void EVulkan::initVulkan()
 {
     evkCreateWindow(EVkCreateWindow{}, window);
 
-    EVkCreateInstance instanceInfo = {};
-    instanceInfo.appTitle = "Vulkan App";
-    instanceInfo.extensions = {VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
-    instanceInfo.validationLayers = validationLayers;
-    evkCreateInstance(&instanceInfo, &instance);
+    evk::InstanceCreateInfo instanceCreateInfo{
+        validationLayers,
+        window
+    };
+    evk::Instance evkInstance{&instanceCreateInfo};
+    instance=evkInstance.m_vkInstance;
+    debugMessenger=evkInstance.m_debugMessenger;
+    surface=evkInstance.m_surface;
 
-    evkSetupDebugMessenger(instance, &debugMessenger);
-
-    EVkSurfaceCreate surfaceInfo{};
-    surfaceInfo.window = window;
-    evkCreateSurface(instance, &surfaceInfo, &surface);
+    // EVkSurfaceCreate surfaceInfo{};
+    // surfaceInfo.window = window;
+    // evkCreateSurface(instance, &surfaceInfo, &surface);
     
     EVkPickPhysicalDevice pickInfo = {};
     pickInfo.surface = surface;
@@ -229,7 +230,7 @@ void EVulkan::cleanup()
 
     vkDestroyDevice(device, nullptr);
 
-    if (FLAGS_enable_validation)
+    if (validationLayers.size() > 0)
     {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
