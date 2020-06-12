@@ -430,6 +430,7 @@ struct InstanceCreateInfo
 {
     std::vector<const char*> validationLayers;
     GLFWwindow *window;
+    std::vector<const char *> deviceExtensions;
 };
 
 class Instance
@@ -437,17 +438,31 @@ class Instance
     public:
     Instance(const InstanceCreateInfo *pCreateInfo)
     {
+        m_deviceExtensions=pCreateInfo->deviceExtensions;
+        m_validationLayers=pCreateInfo->validationLayers;
+
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
+        pickPhysicalDevice(pCreateInfo->deviceExtensions);
+        createDevice();
     }
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
     VkSurfaceKHR m_surface;
+    VkPhysicalDevice m_physicalDevice;
+    VkQueue m_graphicsQueue;
+    VkQueue m_presentQueue;
+    VkDevice m_device;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
+    void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
+    void createDevice();
+
+    std::vector<const char *> m_deviceExtensions;
+    std::vector<const char *> m_validationLayers;
 };
 
 } // namespace evk

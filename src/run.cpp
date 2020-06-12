@@ -6,26 +6,18 @@ void EVulkan::initVulkan()
 
     evk::InstanceCreateInfo instanceCreateInfo{
         validationLayers,
-        window
+        window,
+        deviceExtensions
     };
     evk::Instance evkInstance{&instanceCreateInfo};
+
     instance=evkInstance.m_vkInstance;
     debugMessenger=evkInstance.m_debugMessenger;
     surface=evkInstance.m_surface;
-
-    // EVkSurfaceCreate surfaceInfo{};
-    // surfaceInfo.window = window;
-    // evkCreateSurface(instance, &surfaceInfo, &surface);
-    
-    EVkPickPhysicalDevice pickInfo = {};
-    pickInfo.surface = surface;
-    evkPickPhysicalDevice(instance, &pickInfo, &physicalDevice);
-
-    EVkDeviceCreateInfo deviceInfo = {};
-    deviceInfo.deviceExtensions = deviceExtensions;
-    deviceInfo.validationLayers = validationLayers;
-    deviceInfo.surface = surface;
-    evkCreateDevice(physicalDevice, &deviceInfo, &device, &graphicsQueue, &presentQueue);
+    physicalDevice=evkInstance.m_physicalDevice;
+    graphicsQueue=evkInstance.m_graphicsQueue;
+    presentQueue=evkInstance.m_presentQueue;
+    device=evkInstance.m_device;
 
     EVkSwapchainCreateInfo swapchainInfo = {};
     swapchainInfo.physicalDevice = physicalDevice;
