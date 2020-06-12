@@ -431,6 +431,10 @@ struct InstanceCreateInfo
     std::vector<const char*> validationLayers;
     GLFWwindow *window;
     std::vector<const char *> deviceExtensions;
+};
+
+struct SwapChainCreateInfo
+{
     uint8_t maxFramesInFlight;
 };
 
@@ -441,15 +445,15 @@ class Instance
     {
         m_deviceExtensions=pCreateInfo->deviceExtensions;
         m_validationLayers=pCreateInfo->validationLayers;
-        m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
         m_window=pCreateInfo->window;
 
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
         createDevice();
-        createSwapChain();
     }
+
+    void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -460,6 +464,7 @@ class Instance
     VkDevice m_device;
     VkSwapchainKHR m_swapChain;
     std::vector<VkImage> m_swapChainImages;
+    std::vector<VkImageView> m_swapChainImageViews;
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
@@ -468,7 +473,6 @@ class Instance
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
     void createDevice();
-    void createSwapChain();
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

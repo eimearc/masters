@@ -7,11 +7,9 @@ void EVulkan::initVulkan()
     evk::InstanceCreateInfo instanceCreateInfo{
         validationLayers,
         window,
-        deviceExtensions,
-        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+        deviceExtensions
     };
     evk::Instance evkInstance{&instanceCreateInfo};
-
     instance=evkInstance.m_vkInstance;
     debugMessenger=evkInstance.m_debugMessenger;
     surface=evkInstance.m_surface;
@@ -19,22 +17,16 @@ void EVulkan::initVulkan()
     graphicsQueue=evkInstance.m_graphicsQueue;
     presentQueue=evkInstance.m_presentQueue;
     device=evkInstance.m_device;
+
+    evk::SwapChainCreateInfo swapChainCreateInfo{
+        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    };
+    evkInstance.createSwapChain(&swapChainCreateInfo);
     swapChain=evkInstance.m_swapChain;
     swapChainImages=evkInstance.m_swapChainImages;
     swapChainImageFormat=evkInstance.m_swapChainImageFormat;
     swapChainExtent=evkInstance.m_swapChainExtent;
-
-    // EVkSwapchainCreateInfo swapchainInfo = {};
-    // swapchainInfo.physicalDevice = physicalDevice;
-    // swapchainInfo.surface = surface;
-    // swapchainInfo.window = window;
-    // swapchainInfo.numImages = MAX_FRAMES_IN_FLIGHT;
-    // evkCreateSwapchain(device, &swapchainInfo, &swapChain, &swapChainImages, &swapChainImageFormat, &swapChainExtent);
-    
-    EVkImageViewsCreateInfo imageViewsInfo = {};
-    imageViewsInfo.images = swapChainImages;
-    imageViewsInfo.swapChainImageFormat = swapChainImageFormat;
-    evkCreateImageViews(device, &imageViewsInfo, &swapChainImageViews);
+    swapChainImageViews=evkInstance.m_swapChainImageViews;
 
     EVkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.swapChainImageFormat = swapChainImageFormat;

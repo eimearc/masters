@@ -138,8 +138,10 @@ void evk::Instance::createDevice()
     vkGetDeviceQueue(m_device, indices.presentFamily.value(), 0, &m_presentQueue);
 }
 
-void evk::Instance::createSwapChain()
+void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
 {
+    m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
+
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physicalDevice, m_surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -193,6 +195,16 @@ void evk::Instance::createSwapChain()
 
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
+
+    // Create swap chain image views.
+    m_swapChainImageViews.resize(m_swapChainImages.size());
+    for (uint32_t i = 0; i < m_swapChainImages.size(); i++) {
+        m_swapChainImageViews[i] = createImageView(
+            m_device,
+            m_swapChainImages[i],
+            m_swapChainImageFormat,
+            VK_IMAGE_ASPECT_COLOR_BIT);
+    }
 }
 
 std::vector<const char*> getRequiredExtensions()
