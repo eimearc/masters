@@ -37,6 +37,12 @@ void EVulkan::initVulkan()
     swapChainExtent=evkInstance.m_swapChainExtent;
     swapChainImageViews=evkInstance.m_swapChainImageViews;
 
+    evkInstance.createSyncObjects();
+    imageAvailableSemaphores=evkInstance.m_imageAvailableSemaphores;
+    renderFinishedSemaphores=evkInstance.m_renderFinishedSemaphores;
+    inFlightFences=evkInstance.m_fencesInFlight;
+    imagesInFlight=evkInstance.m_imagesInFlight;
+
     evkInstance.createRenderPass();
     renderPass=evkInstance.m_renderPass;
 
@@ -72,8 +78,6 @@ void EVulkan::initVulkan()
     framebuffersInfo.depthImageView = depthImageView;
     evkCreateFramebuffers(device, &framebuffersInfo, &swapChainFramebuffers);
 
-    EVkCommandPoolCreateInfo commandPoolInfo = {}; // TODO: Remove
-
     EVkIndexBufferCreateInfo indexBufferInfo = {};
     indexBufferInfo.commandPool = commandPools[0]; // TODO: Make multithreaded
     indexBufferInfo.physicalDevice = physicalDevice;
@@ -91,16 +95,6 @@ void EVulkan::initVulkan()
     vUpdateInfo.commandPools = commandPools;
     evkCreateVertexBuffer(device, &vUpdateInfo, &vertexBuffer, &vertexBufferMemory, threadPool);
 
-    EVkSyncObjectsCreateInfo syncObjectsInfo = {};
-    syncObjectsInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
-    syncObjectsInfo.swapchainSize = swapChainImages.size();
-    evkCreateSyncObjects(device,
-                         &syncObjectsInfo,
-                         &imageAvailableSemaphores,
-                         &renderFinishedSemaphores,
-                         &inFlightFences,
-                         &imagesInFlight);
-
     EVkCommandBuffersCreateInfo commandBuffersInfo = {};
     commandBuffersInfo.descriptorSets = descriptorSets;
     commandBuffersInfo.graphicsPipeline = graphicsPipeline;
@@ -110,7 +104,6 @@ void EVulkan::initVulkan()
     commandBuffersInfo.renderPass = renderPass;
     commandBuffersInfo.swapchainExtent = swapChainExtent;
     commandBuffersInfo.vertexBuffer = vertexBuffer;
-    commandBuffersInfo.poolCreateInfo = commandPoolInfo;
 
     primaryCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     secondaryCommandBuffers.resize(FLAGS_num_threads);

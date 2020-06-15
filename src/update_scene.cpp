@@ -104,7 +104,7 @@ void evkCreateCommandBuffers(
         &renderPassInfo,
         VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
-    EVkCommandPoolCreateInfo poolCreateInfo = pCreateInfo->poolCreateInfo;
+    EVkCommandPoolCreateInfo poolCreateInfo{};
     poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     std::vector<std::thread> workers;

@@ -464,6 +464,7 @@ class Instance
     void createDepthResources();
     void createUniformBufferObject();
     void createDescriptorSets();
+    void createSyncObjects();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -488,6 +489,11 @@ class Instance
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<VkDescriptorSet> m_descriptorSets;
+
+    std::vector<VkSemaphore> m_imageAvailableSemaphores;
+    std::vector<VkSemaphore> m_renderFinishedSemaphores;
+    std::vector<VkFence> m_fencesInFlight;
+    std::vector<VkFence> m_imagesInFlight;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
