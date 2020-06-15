@@ -187,7 +187,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     }
 }
 
-void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *pUpdateInfo)
+void evk::Instance::updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo)
 {
     static int counter = 0;
     UniformBufferObject ubo = {};
@@ -199,8 +199,8 @@ void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *p
 
     void* data;
     std::vector<VkDeviceMemory> &uniformBufferMemory = *pUpdateInfo->pUniformBufferMemory;
-    vkMapMemory(device, uniformBufferMemory[pUpdateInfo->currentImage], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(m_device, uniformBufferMemory[pUpdateInfo->currentImage], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(device, uniformBufferMemory[pUpdateInfo->currentImage]);
+    vkUnmapMemory(m_device, uniformBufferMemory[pUpdateInfo->currentImage]);
     counter++;
 }

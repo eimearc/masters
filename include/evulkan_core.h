@@ -9,18 +9,7 @@
 #include "flags.h"
 #include "bench.h"
 #include "threadpool.h"
-
 #include "evulkan_util.h"
-
-DECLARE_bool(enable_validation);
-
-struct EVkUniformBufferUpdateInfo
-{
-    uint32_t currentImage;
-    VkExtent2D swapchainExtent;
-    std::vector<VkDeviceMemory> *pUniformBufferMemory;
-};
-void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *pUpdateInfo);
 
 namespace evk
 {
@@ -167,6 +156,13 @@ class Instance
         const EVkImageCreateInfo *pCreateInfo,
         VkImage *pImage,
         VkDeviceMemory *pImageMemory);
+    struct EVkUniformBufferUpdateInfo
+    {
+        uint32_t currentImage;
+        VkExtent2D swapchainExtent;
+        std::vector<VkDeviceMemory> *pUniformBufferMemory;
+    };
+    void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

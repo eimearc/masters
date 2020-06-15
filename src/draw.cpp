@@ -30,7 +30,7 @@ void evk::Instance::draw()
     updateInfo.currentImage = imageIndex;
     updateInfo.swapchainExtent = m_swapChainExtent;
     updateInfo.pUniformBufferMemory = &m_uniformBuffersMemory;
-    evkUpdateUniformBuffer(m_device, &updateInfo);
+    updateUniformBuffer(&updateInfo);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

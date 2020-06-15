@@ -23,11 +23,8 @@ void EVulkan::initVulkan()
     evkInstance.createSyncObjects();
     evkInstance.createRenderPass();
 
-    // ----------------
-    // Below are linked
     evkInstance.createUniformBufferObject();
     evkInstance.createDescriptorSets();
-    // ----------------
 
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
         "shaders/vert.spv",
