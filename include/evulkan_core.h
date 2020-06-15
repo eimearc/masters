@@ -278,7 +278,7 @@ void evkCreateDescriptorSets(
 struct EVkCommandBuffersCreateInfo
 {
     VkFramebuffer framebuffer;
-    VkCommandPool commandPool;
+    // VkCommandPool commandPool;
     EVkCommandPoolCreateInfo poolCreateInfo;
     VkRenderPass renderPass;
     VkPipeline graphicsPipeline;

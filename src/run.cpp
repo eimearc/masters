@@ -18,6 +18,15 @@ void EVulkan::initVulkan()
     presentQueue=evkInstance.m_presentQueue;
     device=evkInstance.m_device;
 
+    commandPools.resize(FLAGS_num_threads);
+    for (auto &cp : commandPools)
+    {
+        EVkCommandPoolCreateInfo info = {};
+        info.physicalDevice = physicalDevice;
+        info.surface = surface;
+        evkCreateCommandPool(device, &info, &cp);
+    }
+
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
@@ -31,9 +40,28 @@ void EVulkan::initVulkan()
     evkInstance.createRenderPass();
     renderPass=evkInstance.m_renderPass;
 
+    // ----------------
+    // Below are linked
+    EVkUniformBufferCreateInfo uniformBufferInfo = {};
+    uniformBufferInfo.physicalDevice = physicalDevice;
+    uniformBufferInfo.swapchainImages = swapChainImages;
+    evkCreateUniformBuffers(device, &uniformBufferInfo, &uniformBuffers, &uniformBuffersMemory);
+
+    EVkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+    descriptorPoolInfo.swapchainImages = swapChainImages;
+    evkCreateDescriptorPool(device, &descriptorPoolInfo, &descriptorPool);
+
     EVkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
     evkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, &descriptorSetLayout);
     evkInstance.m_descriptorSetLayout = descriptorSetLayout;
+
+    EVkDescriptorSetCreateInfo descriptorSetInfo = {};
+    descriptorSetInfo.descriptorPool = descriptorPool;
+    descriptorSetInfo.descriptorSetLayout = descriptorSetLayout;
+    descriptorSetInfo.swapchainImages = swapChainImages;
+    descriptorSetInfo.uniformBuffers = uniformBuffers;
+    evkCreateDescriptorSets(device, &descriptorSetInfo, &descriptorSets);
+    // ----------------
 
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
         "shaders/vert.spv",
@@ -55,15 +83,6 @@ void EVulkan::initVulkan()
     framebuffersInfo.depthImageView = depthImageView;
     evkCreateFramebuffers(device, &framebuffersInfo, &swapChainFramebuffers);
 
-    commandPools.resize(FLAGS_num_threads);
-    for (auto &cp : commandPools)
-    {
-        EVkCommandPoolCreateInfo info = {};
-        info.physicalDevice = physicalDevice;
-        info.surface = surface;
-        evkCreateCommandPool(device, &info, &cp);
-    }
-
     EVkCommandPoolCreateInfo commandPoolInfo = {}; // TODO: Remove
 
     EVkIndexBufferCreateInfo indexBufferInfo = {};
@@ -72,32 +91,6 @@ void EVulkan::initVulkan()
     indexBufferInfo.queue = graphicsQueue;
     indexBufferInfo.indices = indices;
     evkCreateIndexBuffer(device, &indexBufferInfo, &indexBuffer, &indexBufferMemory);
-
-    EVkUniformBufferCreateInfo uniformBufferInfo = {};
-    uniformBufferInfo.physicalDevice = physicalDevice;
-    uniformBufferInfo.swapchainImages = swapChainImages;
-    evkCreateUniformBuffers(device, &uniformBufferInfo, &uniformBuffers, &uniformBuffersMemory);
-
-    EVkDescriptorPoolCreateInfo descriptorPoolInfo = {};
-    descriptorPoolInfo.swapchainImages = swapChainImages;
-    evkCreateDescriptorPool(device, &descriptorPoolInfo, &descriptorPool);
-
-    EVkDescriptorSetCreateInfo descriptorSetInfo = {};
-    descriptorSetInfo.descriptorPool = descriptorPool;
-    descriptorSetInfo.descriptorSetLayout = descriptorSetLayout;
-    descriptorSetInfo.swapchainImages = swapChainImages;
-    descriptorSetInfo.uniformBuffers = uniformBuffers;
-    evkCreateDescriptorSets(device, &descriptorSetInfo, &descriptorSets);
-
-    EVkSyncObjectsCreateInfo syncObjectsInfo = {};
-    syncObjectsInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
-    syncObjectsInfo.swapchainSize = swapChainImages.size();
-    evkCreateSyncObjects(device,
-                         &syncObjectsInfo,
-                         &imageAvailableSemaphores,
-                         &renderFinishedSemaphores,
-                         &inFlightFences,
-                         &imagesInFlight);
 
     threadPool.setThreadCount(FLAGS_num_threads);
 
@@ -109,8 +102,17 @@ void EVulkan::initVulkan()
     vUpdateInfo.commandPools = commandPools;
     evkCreateVertexBuffer(device, &vUpdateInfo, &vertexBuffer, &vertexBufferMemory, threadPool);
 
+    EVkSyncObjectsCreateInfo syncObjectsInfo = {};
+    syncObjectsInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
+    syncObjectsInfo.swapchainSize = swapChainImages.size();
+    evkCreateSyncObjects(device,
+                         &syncObjectsInfo,
+                         &imageAvailableSemaphores,
+                         &renderFinishedSemaphores,
+                         &inFlightFences,
+                         &imagesInFlight);
+
     EVkCommandBuffersCreateInfo commandBuffersInfo = {};
-    commandBuffersInfo.commandPool = commandPools[0]; // TODO: Is this needed?
     commandBuffersInfo.descriptorSets = descriptorSets;
     commandBuffersInfo.graphicsPipeline = graphicsPipeline;
     commandBuffersInfo.indexBuffer = indexBuffer;

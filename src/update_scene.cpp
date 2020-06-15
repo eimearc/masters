@@ -73,7 +73,7 @@ void evkCreateCommandBuffers(
     // Create primary command buffer.
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = pCreateInfo->commandPool;
+    allocInfo.commandPool = (*pCommandPools)[0];
     allocInfo.commandBufferCount = 1;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     vkAllocateCommandBuffers(device, &allocInfo, pPrimaryCommandBuffer);
