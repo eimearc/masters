@@ -22,8 +22,6 @@
 #include <array>
 #include <chrono>
 
-// #include "vertex.h"
-// #include "grid.h"
 #include "flags.h"
 
 class EVulkan {

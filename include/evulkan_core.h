@@ -70,6 +70,8 @@ class Instance
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
+    void registerVertexShader(const std::string &vertShader);
+    void registerFragmentShader(const std::string &fragShader);
     void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
     void createDepthResources();
     void createUniformBufferObject();
@@ -102,6 +104,8 @@ class Instance
 
     VkRenderPass m_renderPass;
 
+    std::vector<VkShaderModule> m_shaderModules;
+    std::vector<VkPipelineShaderStageCreateInfo> m_shaders;
     VkPipelineLayout m_graphicsPipelineLayout;
     VkPipeline m_graphicsPipeline;
 

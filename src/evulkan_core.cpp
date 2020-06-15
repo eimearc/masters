@@ -143,30 +143,36 @@ VkFormat evk::Instance::findSupportedFormat(
     throw std::runtime_error("failed to find supported format.");
 }
 
-void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo)
-{
-    auto vertShaderCode = readFile(pCreateInfo->vertShaderFile);
-    auto fragShaderCode = readFile(pCreateInfo->fragShaderFile);
-
+void evk::Instance::registerVertexShader(const std::string &vertShader)
+{   
+    auto vertShaderCode = readFile(vertShader);
     VkShaderModule vertShaderModule;
     createShaderModule(m_device, vertShaderCode, &vertShaderModule);
-    VkShaderModule fragShaderModule;
-    createShaderModule(m_device, fragShaderCode, &fragShaderModule);
-
+    m_shaderModules.push_back(vertShaderModule);
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
     vertShaderStageInfo.pName = "main";
+    m_shaders.push_back(vertShaderStageInfo);
+}
 
+void evk::Instance::registerFragmentShader(const std::string &fragShader)
+{   
+    auto fragShaderCode = readFile(fragShader);
+    VkShaderModule fragShaderModule;
+    createShaderModule(m_device, fragShaderCode, &fragShaderModule);
+    m_shaderModules.push_back(fragShaderModule);
     VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
+    m_shaders.push_back(fragShaderStageInfo);
+}
 
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-
+void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo)
+{
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
@@ -282,8 +288,8 @@ void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCr
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.stageCount = m_shaders.size();
+    pipelineInfo.pStages = m_shaders.data();
 
     // Fixed function stages.
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -313,8 +319,10 @@ void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCr
         throw std::runtime_error("failed to create graphics pipeline.");
     }        
         
-    vkDestroyShaderModule(m_device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(m_device, vertShaderModule, nullptr);
+    for (auto &m : m_shaderModules)
+    {
+        vkDestroyShaderModule(m_device, m, nullptr);
+    }
 }
 
 void evk::Instance::createDepthResources()

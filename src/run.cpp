@@ -26,6 +26,9 @@ void EVulkan::initVulkan()
     evkInstance.createUniformBufferObject();
     evkInstance.createDescriptorSets();
 
+    evkInstance.registerVertexShader("shaders/vert.spv");
+    evkInstance.registerFragmentShader("shaders/frag.spv");
+
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
         "shaders/vert.spv",
         "shaders/frag.spv"
