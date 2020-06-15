@@ -278,7 +278,6 @@ void evkCreateDescriptorSets(
 struct EVkCommandBuffersCreateInfo
 {
     VkFramebuffer framebuffer;
-    // VkCommandPool commandPool;
     EVkCommandPoolCreateInfo poolCreateInfo;
     VkRenderPass renderPass;
     VkPipeline graphicsPipeline;
@@ -463,6 +462,7 @@ class Instance
     void createRenderPass();
     void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
     void createDepthResources();
+    void createDescriptorSets();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -477,12 +477,16 @@ class Instance
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
     VkRenderPass m_renderPass;
-    VkDescriptorSetLayout m_descriptorSetLayout;
     VkPipelineLayout m_graphicsPipelineLayout;
     VkPipeline m_graphicsPipeline;
     VkImage m_depthImage;
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;
+    std::vector<VkBuffer> m_uniformBuffers;
+    std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+    VkDescriptorPool m_descriptorPool;
+    VkDescriptorSetLayout m_descriptorSetLayout;
+    std::vector<VkDescriptorSet> m_descriptorSets;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

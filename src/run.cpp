@@ -46,21 +46,13 @@ void EVulkan::initVulkan()
     uniformBufferInfo.physicalDevice = physicalDevice;
     uniformBufferInfo.swapchainImages = swapChainImages;
     evkCreateUniformBuffers(device, &uniformBufferInfo, &uniformBuffers, &uniformBuffersMemory);
+    evkInstance.m_uniformBuffers=uniformBuffers;
+    evkInstance.m_uniformBuffersMemory=uniformBuffersMemory;
 
-    EVkDescriptorPoolCreateInfo descriptorPoolInfo = {};
-    descriptorPoolInfo.swapchainImages = swapChainImages;
-    evkCreateDescriptorPool(device, &descriptorPoolInfo, &descriptorPool);
-
-    EVkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
-    evkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, &descriptorSetLayout);
-    evkInstance.m_descriptorSetLayout = descriptorSetLayout;
-
-    EVkDescriptorSetCreateInfo descriptorSetInfo = {};
-    descriptorSetInfo.descriptorPool = descriptorPool;
-    descriptorSetInfo.descriptorSetLayout = descriptorSetLayout;
-    descriptorSetInfo.swapchainImages = swapChainImages;
-    descriptorSetInfo.uniformBuffers = uniformBuffers;
-    evkCreateDescriptorSets(device, &descriptorSetInfo, &descriptorSets);
+    evkInstance.createDescriptorSets();
+    descriptorPool=evkInstance.m_descriptorPool;
+    descriptorSetLayout=evkInstance.m_descriptorSetLayout;
+    descriptorSets=evkInstance.m_descriptorSets;
     // ----------------
 
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
