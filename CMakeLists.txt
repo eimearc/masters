@@ -35,7 +35,7 @@ set (SOURCES
     ${VULKANROOT}/src/evulkan_core.cpp
     ${VULKANROOT}/src/evulkan_util.cpp
     ${VULKANROOT}/src/instance.cpp
-    ${VULKANROOT}/src/render.cpp
+    ${VULKANROOT}/src/sync.cpp
     ${VULKANROOT}/src/run.cpp
     ${VULKANROOT}/src/update_scene.cpp
     ${VULKANROOT}/include/evulkan_core.h
