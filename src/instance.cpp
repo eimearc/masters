@@ -241,11 +241,3 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 }
-
-void evkCreateWindow(const EVkCreateWindow params, GLFWwindow *&window)
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
-}

@@ -14,18 +14,6 @@
 
 DECLARE_bool(enable_validation);
 
-struct EVkCreateWindow
-{
-    bool resizeable;
-    std::string title;
-    int width;
-    int height;
-};
-void evkCreateWindow(
-    const EVkCreateWindow params,
-    GLFWwindow *&window
-);
-
 VkImageView createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
 struct EVkRenderPassCreateInfo

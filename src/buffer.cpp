@@ -68,44 +68,6 @@ void evk::Instance::createIndexBuffer(const std::vector<uint32_t> &indices)
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
-// void evkCreateIndexBuffer(
-//     VkDevice device,
-//     const EVkIndexBufferCreateInfo *pCreateInfo,
-//     VkBuffer *pBuffer,
-//     VkDeviceMemory *pBufferMemory
-// )
-// {
-//     VkDeviceSize bufferSize = sizeof(pCreateInfo->indices[0]) * pCreateInfo->indices.size();
-
-//     VkBuffer stagingBuffer;
-//     VkDeviceMemory stagingBufferMemory;
-//     createBuffer(
-//         device,
-//         pCreateInfo->physicalDevice,
-//         bufferSize,
-//         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-//         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-//         &stagingBuffer, &stagingBufferMemory);
-
-//     void *data;
-//     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-//     memcpy(data, pCreateInfo->indices.data(), (size_t)bufferSize);
-//     vkUnmapMemory(device, stagingBufferMemory);
-
-//     createBuffer(
-//         device,
-//         pCreateInfo->physicalDevice,
-//         bufferSize,
-//         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-//         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-//         pBuffer, pBufferMemory);
-
-//     copyBuffer(device, pCreateInfo->commandPool, pCreateInfo->queue, stagingBuffer, *pBuffer, bufferSize);
-
-//     vkDestroyBuffer(device, stagingBuffer, nullptr);
-//     vkFreeMemory(device, stagingBufferMemory, nullptr);
-// }
-
 void evk::Instance::createUniformBufferObject()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
