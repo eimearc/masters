@@ -33,14 +33,10 @@
 class EVulkan {
 public:
     void run() {
-        if (FLAGS_bench) bench.open(FLAGS_file, FLAGS_overwrite);
         createGrid();
-        auto start = bench.start();
         initVulkan();
-        bench.startupTime(start);
         mainLoop();
         cleanup();
-        if (FLAGS_bench) bench.close();
     }
 
 ~EVulkan()=default;
@@ -56,7 +52,6 @@ private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    Bench bench;
     ThreadPool threadPool;
 
     evk::Instance evkInstance;

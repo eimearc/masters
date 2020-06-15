@@ -130,23 +130,10 @@ void EVulkan::initVulkan()
 
 void EVulkan::mainLoop()
 {
-    int frameNum=0;
-    bool timed=false;
-    if (FLAGS_num_frames > 0) timed=true; 
-
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        bench.numVertices(vertices.size());
-        bench.numThreads(FLAGS_num_threads);
-        bench.numCubes(FLAGS_num_cubes);
-        auto startTime = bench.start();
         evkInstance.draw();
-        bench.frameTime(startTime);
-        bench.record();
-
-        frameNum++;
-        if (timed && frameNum >= FLAGS_num_frames) break;
     }
 
     if (vkDeviceWaitIdle(device)!=VK_SUCCESS)
