@@ -14,22 +14,6 @@
 
 DECLARE_bool(enable_validation);
 
-// struct EVkImageCreateInfo
-// {
-//     VkPhysicalDevice physicalDevice;
-//     uint32_t width;
-//     uint32_t height;
-//     VkFormat format;
-//     VkImageTiling tiling;
-//     VkImageUsageFlags usage;
-//     VkMemoryPropertyFlags properties;
-// };
-// void evkCreateImage(
-//     VkDevice device,
-//     const EVkImageCreateInfo *pCreateInfo,
-//     VkImage *pImage,
-//     VkDeviceMemory *pImageMemory);
-
 struct EVkUniformBufferUpdateInfo
 {
     uint32_t currentImage;
@@ -120,19 +104,25 @@ class Instance
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
     VkDevice m_device;
+
     VkSwapchainKHR m_swapChain;
     std::vector<VkImage> m_swapChainImages;
     std::vector<VkImageView> m_swapChainImageViews;
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
+
     VkRenderPass m_renderPass;
+
     VkPipelineLayout m_graphicsPipelineLayout;
     VkPipeline m_graphicsPipeline;
+
     VkImage m_depthImage;
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;
+
     std::vector<VkBuffer> m_uniformBuffers;
     std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<VkDescriptorSet> m_descriptorSets;
