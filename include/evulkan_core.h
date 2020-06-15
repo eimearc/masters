@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVK_CORE
+#define EVK_CORE
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -171,3 +172,4 @@ class Instance
 };
 
 } // namespace evk
+#endif
