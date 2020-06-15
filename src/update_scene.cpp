@@ -140,9 +140,7 @@ void evkCreateCommandBuffers(
     }
 }
 
-void evk::Instance::createDrawCommands(
-    ThreadPool &threadpool,
-    std::vector<uint32_t> indices)
+void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
 {
     size_t NUM_THREADS=FLAGS_num_threads;
 
@@ -242,11 +240,11 @@ void evk::Instance::createDrawCommands(
         };
 
         int i = 0;
-        for (auto &t: threadpool.threads)
+        for (auto &t: m_threadPool.threads)
         {
             t->addJob(std::bind(f,i++));
         }
-        threadpool.wait();
+        m_threadPool.wait();
 
         vkCmdExecuteCommands(m_primaryCommandBuffers[index], secondaryCommandBuffers.size(), secondaryCommandBuffers.data());
 

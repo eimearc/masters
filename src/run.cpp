@@ -10,7 +10,7 @@ void EVulkan::initVulkan()
         deviceExtensions
     };
 
-    evkInstance=evk::Instance(&instanceCreateInfo);
+    evkInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
     
     instance=evkInstance.m_vkInstance;
     debugMessenger=evkInstance.m_debugMessenger;
@@ -83,18 +83,11 @@ void EVulkan::initVulkan()
 
     threadPool.setThreadCount(FLAGS_num_threads);
 
-    EVkVertexBufferCreateInfo vUpdateInfo = {};
-    vUpdateInfo.pVertices = &vertices;
-    vUpdateInfo.physicalDevice = physicalDevice;
-    vUpdateInfo.graphicsQueue = graphicsQueue;
-    vUpdateInfo.vertexBuffer = vertexBuffer;
-    vUpdateInfo.commandPools = commandPools;
-    evkCreateVertexBuffer(device, &vUpdateInfo, &vertexBuffer, &vertexBufferMemory, threadPool);
+    evkInstance.createVertexBuffer(vertices);
+    vertexBuffer=evkInstance.m_vertexBuffer;
+    vertexBufferMemory=evkInstance.m_vertexBufferMemory;
 
-    evkInstance.m_vertexBuffer=vertexBuffer;
-    evkInstance.m_indexBuffer=indexBuffer;
-
-    evkInstance.createDrawCommands(threadPool,indices);
+    evkInstance.createDrawCommands(indices);
 
     secondaryCommandBuffers=evkInstance.m_secondaryCommandBuffers;
     primaryCommandBuffers=evkInstance.m_primaryCommandBuffers;

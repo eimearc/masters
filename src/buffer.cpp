@@ -254,6 +254,106 @@ void evkCreateVertexBuffer(
     }
 }
 
+void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
+{
+    size_t NUM_THREADS=FLAGS_num_threads;
+    const VkDeviceSize wholeBufferSize = sizeof(vertices[0]) * vertices.size();
+    const VkQueue queue = m_graphicsQueue;
+    const std::vector<Vertex> &verts = vertices;
+    const int num_verts = verts.size();
+    int num_verts_each = num_verts/NUM_THREADS;
+    size_t threadBufferSize = wholeBufferSize/NUM_THREADS;
+
+    std::vector<std::thread> workers;
+    auto &commandPools = m_commandPools;
+    std::vector<VkCommandBuffer> commandBuffers(NUM_THREADS);
+    std::vector<VkBuffer> buffers(NUM_THREADS);
+    std::vector<VkDeviceMemory> bufferMemory(NUM_THREADS);
+
+    // Use a device-local buffer as the actual vertex buffer.
+    createBuffer(
+        m_device,
+        m_physicalDevice,
+        wholeBufferSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        &m_vertexBuffer,
+        &m_vertexBufferMemory);
+
+    auto f = [&](int i)
+    {
+        int vertsOffset = num_verts_each*i;
+        size_t bufferOffset=(num_verts_each*sizeof(verts[0]))*i;
+        if (i==(FLAGS_num_threads-1))
+        {
+            num_verts_each = verts.size()-(i*num_verts_each);
+        }
+        size_t numVerts=num_verts_each;
+        size_t bufferSize = numVerts*sizeof(verts[0]);
+        auto &stagingBuffer = buffers[i];
+        auto &stagingBufferMemory = bufferMemory[i];
+
+        // Use a host visible buffer as a staging buffer.
+        createBuffer(
+            m_device,
+            m_physicalDevice,
+            bufferSize,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            &buffers[i], &bufferMemory[i]);
+
+        // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
+        // accessible memory.
+        void *data;
+        vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
+        memcpy(data, &verts[vertsOffset], bufferSize);
+        vkUnmapMemory(m_device, bufferMemory[i]);
+
+        // Copy the vertex data from the staging buffer to the device-local buffer.
+        VkCommandBufferAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = commandPools[i];
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+        vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
+
+        VkBufferCopy copyRegion = {};
+        copyRegion.size = bufferSize;
+        copyRegion.dstOffset = bufferOffset;
+        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_vertexBuffer, 1, &copyRegion);
+
+        vkEndCommandBuffer(commandBuffers[i]);
+    };
+
+    int i = 0;
+    for (auto &t: m_threadPool.threads)
+    {
+        t->addJob(std::bind(f,i++));
+    }
+    m_threadPool.wait();
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = commandBuffers.size();
+    submitInfo.pCommandBuffers = commandBuffers.data();
+
+    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(queue);
+
+    for (size_t i = 0; i<NUM_THREADS; ++i)
+    {
+        vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
+        vkDestroyBuffer(m_device, buffers[i], nullptr);
+        vkFreeMemory(m_device, bufferMemory[i], nullptr);
+    }
+}
+
 void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *pUpdateInfo)
 {
     static int counter = 0;

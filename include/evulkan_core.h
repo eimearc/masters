@@ -446,8 +446,11 @@ struct GraphicsPipelineCreateInfo
 class Instance
 {
     public:
-    Instance(const InstanceCreateInfo *pCreateInfo)
+    Instance(size_t numThreads, const InstanceCreateInfo *pCreateInfo)
     {
+        m_threadPool.setThreadCount(numThreads);
+        m_numThreads=numThreads;
+
         m_deviceExtensions=pCreateInfo->deviceExtensions;
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
@@ -470,11 +473,13 @@ class Instance
 
     // TODO
     void createIndexBuffer(const std::vector<uint32_t> &indices);
-    void createVertexBuffer();
+    void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createDrawCommands(
-        ThreadPool &threadPool,
-        std::vector<uint32_t> indices);
+        const std::vector<uint32_t> &indices);
     void draw();
+
+    ThreadPool m_threadPool;
+    size_t m_numThreads;
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -512,6 +517,7 @@ class Instance
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
     VkBuffer m_vertexBuffer;
+    VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
 
