@@ -465,6 +465,7 @@ class Instance
     void createUniformBufferObject();
     void createDescriptorSets();
     void createSyncObjects();
+    void createFramebuffers();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -494,6 +495,8 @@ class Instance
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
     std::vector<VkFence> m_fencesInFlight;
     std::vector<VkFence> m_imagesInFlight;
+
+    std::vector<VkFramebuffer> m_framebuffers;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

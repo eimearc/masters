@@ -71,12 +71,8 @@ void EVulkan::initVulkan()
     depthImageView=evkInstance.m_depthImageView;
     depthImageMemory=evkInstance.m_depthImageMemory;
 
-    EVkFramebuffersCreateInfo framebuffersInfo = {};
-    framebuffersInfo.swapchainExtent = swapChainExtent;
-    framebuffersInfo.swapchainImageViews = swapChainImageViews;
-    framebuffersInfo.renderPass = renderPass;
-    framebuffersInfo.depthImageView = depthImageView;
-    evkCreateFramebuffers(device, &framebuffersInfo, &swapChainFramebuffers);
+    evkInstance.createFramebuffers();
+    swapChainFramebuffers=evkInstance.m_framebuffers;
 
     EVkIndexBufferCreateInfo indexBufferInfo = {};
     indexBufferInfo.commandPool = commandPools[0]; // TODO: Make multithreaded
