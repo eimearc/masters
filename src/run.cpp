@@ -117,15 +117,6 @@ void EVulkan::initVulkan()
     }
 
     evkInstance.m_primaryCommandBuffers=primaryCommandBuffers;
-
-    drawInfo.pInFlightFences = &inFlightFences;
-    drawInfo.pImageAvailableSemaphores = &imageAvailableSemaphores;
-    drawInfo.swapchain = swapChain;
-    drawInfo.maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
-    drawInfo.graphicsQueue = graphicsQueue;
-    drawInfo.presentQueue = presentQueue;
-    drawInfo.swapchainExtent = swapChainExtent;
-    drawInfo.pUniformBufferMemory = &uniformBuffersMemory;
 }
 
 void EVulkan::mainLoop()

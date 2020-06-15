@@ -112,8 +112,7 @@ private:
     VkImage depthImage;
     VkDeviceMemory depthImageMemory;
     VkImageView depthImageView;
-
-    EVkDrawFrameInfo drawInfo;
+    
     uint32_t imageIndex;
 
     void createGrid();
