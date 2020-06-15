@@ -477,6 +477,7 @@ class Instance
     void createDrawCommands(
         const std::vector<uint32_t> &indices);
     void draw();
+    void cleanup();
 
     ThreadPool m_threadPool;
     size_t m_numThreads;

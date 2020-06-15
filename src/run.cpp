@@ -81,8 +81,6 @@ void EVulkan::initVulkan()
     indexBuffer=evkInstance.m_indexBuffer;
     indexBufferMemory=evkInstance.m_indexBufferMemory;
 
-    threadPool.setThreadCount(FLAGS_num_threads);
-
     evkInstance.createVertexBuffer(vertices);
     vertexBuffer=evkInstance.m_vertexBuffer;
     vertexBufferMemory=evkInstance.m_vertexBufferMemory;
@@ -107,53 +105,71 @@ void EVulkan::mainLoop()
     }
 }
 
+void evk::Instance::cleanup()
+{
+    vkDestroyImageView(m_device, m_depthImageView, nullptr);
+    vkDestroyImage(m_device, m_depthImage, nullptr);
+    vkFreeMemory(m_device, m_depthImageMemory, nullptr);
+
+    for (auto framebuffer : m_framebuffers)
+    {
+        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+    }
+
+    vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(m_device, m_graphicsPipelineLayout, nullptr);
+    vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+
+    for (auto imageView : m_swapChainImageViews)
+    {
+        vkDestroyImageView(m_device, imageView, nullptr);
+    }
+
+    vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+
+    for (size_t i = 0; i < m_swapChainImages.size(); i++)
+    {
+        vkDestroyBuffer(m_device, m_uniformBuffers[i], nullptr);
+        vkFreeMemory(m_device, m_uniformBuffersMemory[i], nullptr);
+    }
+
+    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+
+    vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
+    vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
+
+    vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
+    vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
+
+    for (size_t i = 0; i < m_maxFramesInFlight; ++i)
+    {
+        vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(m_device, m_fencesInFlight[i], nullptr);
+    }
+
+    for (int i = 0; i < m_commandPools.size(); ++i)
+    {
+        vkFreeCommandBuffers(m_device, m_commandPools[i], 1, &m_secondaryCommandBuffers[i]);
+        vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
+    }
+
+    vkDestroyDevice(m_device, nullptr);
+
+    if (m_validationLayers.size() > 0)
+    {
+        DestroyDebugUtilsMessengerEXT(m_vkInstance, m_debugMessenger, nullptr);
+    }
+
+    vkDestroySurfaceKHR(m_vkInstance, m_surface, nullptr);
+    vkDestroyInstance(m_vkInstance, nullptr);
+
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
+}
+
 void EVulkan::cleanup()
 {
-    EVkSwapchainCleanupInfo cleanupInfo = {};
-    cleanupInfo.depthImage = depthImage;
-    cleanupInfo.depthImageView = depthImageView;
-    cleanupInfo.depthImageMemory = depthImageMemory;
-    cleanupInfo.swapchainFramebuffers = swapChainFramebuffers;
-    cleanupInfo.graphicsPipeline = graphicsPipeline;
-    cleanupInfo.pipelineLayout = pipelineLayout;
-    cleanupInfo.renderPass = renderPass;
-    cleanupInfo.swapchainImageViews = swapChainImageViews;
-    cleanupInfo.swapchain = swapChain;
-    cleanupInfo.uniformBuffers = uniformBuffers;
-    cleanupInfo.uniformBuffersMemory = uniformBuffersMemory;
-    cleanupInfo.descriptorPool = descriptorPool;
-    cleanupInfo.swapchainImages = swapChainImages;
-    evkCleanupSwapchain(device, &cleanupInfo);
-
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
-    vkDestroyBuffer(device, indexBuffer, nullptr);
-    vkFreeMemory(device, indexBufferMemory, nullptr);
-
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(device, inFlightFences[i], nullptr);
-    }
-
-    for (int i = 0; i < commandPools.size(); ++i)
-    {
-        vkFreeCommandBuffers(device, commandPools[i], 1, &secondaryCommandBuffers[i]);
-        vkDestroyCommandPool(device, commandPools[i], nullptr);
-    }
-
-    vkDestroyDevice(device, nullptr);
-
-    if (validationLayers.size() > 0)
-    {
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    }
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    evkInstance.cleanup();
 }

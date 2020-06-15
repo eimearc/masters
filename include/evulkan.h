@@ -52,8 +52,6 @@ private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    ThreadPool threadPool;
-
     evk::Instance evkInstance;
 
     GLFWwindow *window;
@@ -112,7 +110,7 @@ private:
     VkImage depthImage;
     VkDeviceMemory depthImageMemory;
     VkImageView depthImageView;
-    
+
     uint32_t imageIndex;
 
     void createGrid();
