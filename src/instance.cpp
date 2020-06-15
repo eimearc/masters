@@ -53,7 +53,7 @@ void evk::Instance::createInstance(std::vector<const char*> validationLayers)
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
 
-        if (CreateDebugUtilsMessengerEXT(m_vkInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
+        if (createDebugUtilsMessengerEXT(m_vkInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to set up debug messenger.");
         }
@@ -200,7 +200,6 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     m_swapChainImageViews.resize(m_swapChainImages.size());
     for (uint32_t i = 0; i < m_swapChainImages.size(); i++) {
         m_swapChainImageViews[i] = createImageView(
-            m_device,
             m_swapChainImages[i],
             m_swapChainImageFormat,
             VK_IMAGE_ASPECT_COLOR_BIT);
@@ -228,7 +227,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
+VkResult evk::Instance::createDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pDebugMessenger)

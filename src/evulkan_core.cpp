@@ -19,8 +19,7 @@ void evk::Instance::createCommandPools()
     }
 }
 
-VkImageView createImageView(
-    VkDevice device,
+VkImageView evk::Instance::createImageView(
     VkImage image,
     VkFormat format,
     VkImageAspectFlags aspectFlags)
@@ -37,7 +36,7 @@ VkImageView createImageView(
     viewInfo.subresourceRange.layerCount = 1;
 
     VkImageView imageView;
-    if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+    if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture image view!");
     }
 
@@ -113,7 +112,7 @@ void evk::Instance::createRenderPass()
     }
 }
 
-VkFormat findDepthFormat(
+VkFormat evk::Instance::findDepthFormat(
     const EVkRenderPassCreateInfo *pCreateInfo)
 {
     return findSupportedFormat(
@@ -123,7 +122,7 @@ VkFormat findDepthFormat(
     );
 }
 
-VkFormat findSupportedFormat(
+VkFormat evk::Instance::findSupportedFormat(
     const EVkRenderPassCreateInfo *pCreateInfo,
     const std::vector<VkFormat>& candidates,
     VkImageTiling tiling, VkFormatFeatureFlags features)
@@ -334,12 +333,11 @@ void evk::Instance::createDepthResources()
     createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    evkCreateImage(m_device, &createInfo, &m_depthImage, &m_depthImageMemory);
-    m_depthImageView = createImageView(m_device, m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    createImage(&createInfo, &m_depthImage, &m_depthImageMemory);
+    m_depthImageView = createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void evkCreateImage(
-    VkDevice device,
+void evk::Instance::createImage(
     const EVkImageCreateInfo *pCreateInfo,
     VkImage *pImage,
     VkDeviceMemory *pImageMemory)
@@ -360,13 +358,13 @@ void evkCreateImage(
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(device, &imageInfo, nullptr, pImage) != VK_SUCCESS)
+    if (vkCreateImage(m_device, &imageInfo, nullptr, pImage) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image.");
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device, *pImage, &memRequirements);
+    vkGetImageMemoryRequirements(m_device, *pImage, &memRequirements);
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
@@ -375,12 +373,11 @@ void evkCreateImage(
         memRequirements.memoryTypeBits,
         pCreateInfo->properties);
 
-    if (vkAllocateMemory(device, &allocInfo, nullptr, pImageMemory) != VK_SUCCESS)
+    if (vkAllocateMemory(m_device, &allocInfo, nullptr, pImageMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate image memory.");
     }
-
-    vkBindImageMemory(device, *pImage, *pImageMemory, 0);
+    vkBindImageMemory(m_device, *pImage, *pImageMemory, 0);
 }
 
 void evk::Instance::createFramebuffers()

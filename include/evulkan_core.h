@@ -14,36 +14,21 @@
 
 DECLARE_bool(enable_validation);
 
-VkImageView createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-
-struct EVkRenderPassCreateInfo
-{
-    VkFormat swapChainImageFormat;
-    VkPhysicalDevice physicalDevice;
-};
-
-VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
-VkFormat findSupportedFormat(
-    const EVkRenderPassCreateInfo *pCreateInfo,
-    const std::vector<VkFormat>& candidates,
-    VkImageTiling tiling,
-    VkFormatFeatureFlags features);
-
-struct EVkImageCreateInfo
-{
-    VkPhysicalDevice physicalDevice;
-    uint32_t width;
-    uint32_t height;
-    VkFormat format;
-    VkImageTiling tiling;
-    VkImageUsageFlags usage;
-    VkMemoryPropertyFlags properties;
-};
-void evkCreateImage(
-    VkDevice device,
-    const EVkImageCreateInfo *pCreateInfo,
-    VkImage *pImage,
-    VkDeviceMemory *pImageMemory);
+// struct EVkImageCreateInfo
+// {
+//     VkPhysicalDevice physicalDevice;
+//     uint32_t width;
+//     uint32_t height;
+//     VkFormat format;
+//     VkImageTiling tiling;
+//     VkImageUsageFlags usage;
+//     VkMemoryPropertyFlags properties;
+// };
+// void evkCreateImage(
+//     VkDevice device,
+//     const EVkImageCreateInfo *pCreateInfo,
+//     VkImage *pImage,
+//     VkDeviceMemory *pImageMemory);
 
 struct EVkUniformBufferUpdateInfo
 {
@@ -52,11 +37,6 @@ struct EVkUniformBufferUpdateInfo
     std::vector<VkDeviceMemory> *pUniformBufferMemory;
 };
 void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *pUpdateInfo);
-
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
-    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator,
-    VkDebugUtilsMessengerEXT* pDebugMessenger);
 
 namespace evk
 {
@@ -77,6 +57,23 @@ struct GraphicsPipelineCreateInfo
 {
     std::string vertShaderFile;
     std::string fragShaderFile;
+};
+
+struct EVkRenderPassCreateInfo
+{
+    VkFormat swapChainImageFormat;
+    VkPhysicalDevice physicalDevice;
+};
+
+struct EVkImageCreateInfo
+{
+    VkPhysicalDevice physicalDevice;
+    uint32_t width;
+    uint32_t height;
+    VkFormat format;
+    VkImageTiling tiling;
+    VkImageUsageFlags usage;
+    VkMemoryPropertyFlags properties;
 };
 
 class Instance
@@ -161,6 +158,25 @@ class Instance
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
     void createDevice();
+    VkResult createDebugUtilsMessengerEXT(
+        VkInstance instance,
+        const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+        const VkAllocationCallbacks* pAllocator,
+        VkDebugUtilsMessengerEXT* pDebugMessenger);
+    VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
+    VkFormat findSupportedFormat(
+        const EVkRenderPassCreateInfo *pCreateInfo,
+        const std::vector<VkFormat>& candidates,
+        VkImageTiling tiling,
+        VkFormatFeatureFlags features);
+    VkImageView createImageView(
+        VkImage image,
+        VkFormat format,
+        VkImageAspectFlags aspectFlags);
+    void createImage(
+        const EVkImageCreateInfo *pCreateInfo,
+        VkImage *pImage,
+        VkDeviceMemory *pImageMemory);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;
