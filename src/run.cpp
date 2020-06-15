@@ -28,6 +28,7 @@ void EVulkan::initVulkan()
         info.surface = surface;
         evkCreateCommandPool(device, &info, &cp);
     }
+    evkInstance.m_commandPools=commandPools;
 
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
@@ -93,6 +94,9 @@ void EVulkan::initVulkan()
     vUpdateInfo.commandPools = commandPools;
     evkCreateVertexBuffer(device, &vUpdateInfo, &vertexBuffer, &vertexBufferMemory, threadPool);
 
+    evkInstance.m_vertexBuffer=vertexBuffer;
+    evkInstance.m_indexBuffer=indexBuffer;
+
     EVkCommandBuffersCreateInfo commandBuffersInfo = {};
     commandBuffersInfo.descriptorSets = descriptorSets;
     commandBuffersInfo.graphicsPipeline = graphicsPipeline;
@@ -104,19 +108,13 @@ void EVulkan::initVulkan()
     commandBuffersInfo.vertexBuffer = vertexBuffer;
 
     primaryCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    evkInstance.m_primaryCommandBuffers=primaryCommandBuffers;
     secondaryCommandBuffers.resize(FLAGS_num_threads);
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         commandBuffersInfo.framebuffer=swapChainFramebuffers[i];
-        evkCreateCommandBuffers(device,
-            &commandBuffersInfo,
-            &primaryCommandBuffers[i],
-            &secondaryCommandBuffers,
-            &commandPools,
-            threadPool);
+        evkInstance.createDrawCommands(i,secondaryCommandBuffers,threadPool,indices);
     }
-
-    evkInstance.m_primaryCommandBuffers=primaryCommandBuffers;
 }
 
 void EVulkan::mainLoop()

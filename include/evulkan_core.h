@@ -471,7 +471,11 @@ class Instance
     // TODO
     void createIndexBuffer();
     void createVertexBuffer();
-    void createDrawCommands();
+    void createDrawCommands(
+        size_t index,
+        std::vector<VkCommandBuffer> secondaryCommandBuffers,
+        ThreadPool &threadPool,
+        std::vector<uint32_t> indices);
     void draw();
 
     VkInstance m_vkInstance;
@@ -507,6 +511,8 @@ class Instance
 
     std::vector<VkCommandPool> m_commandPools;
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
+    VkBuffer m_vertexBuffer;
+    VkBuffer m_indexBuffer;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
