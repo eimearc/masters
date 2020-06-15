@@ -462,6 +462,7 @@ class Instance
     void createRenderPass();
     void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
     void createDepthResources();
+    void createUniformBufferObject();
     void createDescriptorSets();
 
     VkInstance m_vkInstance;

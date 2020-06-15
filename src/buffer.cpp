@@ -73,6 +73,25 @@ void evkCreateIndexBuffer(
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
+void evk::Instance::createUniformBufferObject()
+{
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    const size_t &size = m_swapChainImages.size();
+    m_uniformBuffers.resize(size);
+    m_uniformBuffersMemory.resize(size);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        createBuffer(
+            m_device,
+            m_physicalDevice,
+            bufferSize,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            &(m_uniformBuffers)[i], &(m_uniformBuffersMemory)[i]);
+    }
+}
+
 void evkCreateUniformBuffers(
     VkDevice device,
     const EVkUniformBufferCreateInfo *pCreateInfo,

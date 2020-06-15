@@ -42,12 +42,9 @@ void EVulkan::initVulkan()
 
     // ----------------
     // Below are linked
-    EVkUniformBufferCreateInfo uniformBufferInfo = {};
-    uniformBufferInfo.physicalDevice = physicalDevice;
-    uniformBufferInfo.swapchainImages = swapChainImages;
-    evkCreateUniformBuffers(device, &uniformBufferInfo, &uniformBuffers, &uniformBuffersMemory);
-    evkInstance.m_uniformBuffers=uniformBuffers;
-    evkInstance.m_uniformBuffersMemory=uniformBuffersMemory;
+    evkInstance.createUniformBufferObject();
+    uniformBuffers=evkInstance.m_uniformBuffers;
+    uniformBuffersMemory=evkInstance.m_uniformBuffersMemory;
 
     evkInstance.createDescriptorSets();
     descriptorPool=evkInstance.m_descriptorPool;
