@@ -3,14 +3,13 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <optional>
 #include "util.h"
-#include "flags.h"
-#include "bench.h"
 #include "threadpool.h"
 #include "evulkan_util.h"
+
+#define GLFW_INCLUDE_VULKAN
 
 namespace evk
 {
@@ -65,7 +64,7 @@ class Instance
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
-        createDevice();
+        createDevice(true);
     }
     Instance()=default;
 
@@ -137,7 +136,7 @@ class Instance
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
-    void createDevice();
+    void createDevice(bool enableValidation);
     VkResult createDebugUtilsMessengerEXT(
         VkInstance instance,
         const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,

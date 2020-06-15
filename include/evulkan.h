@@ -8,7 +8,6 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
@@ -22,13 +21,10 @@
 #include <fstream>
 #include <array>
 #include <chrono>
-#include <fstream>
-#include <iostream>
 
-#include "vertex.h"
-#include "grid.h"
-#include "util.h"
-#include "bench.h"
+// #include "vertex.h"
+// #include "grid.h"
+#include "flags.h"
 
 class EVulkan {
 public:

@@ -94,7 +94,7 @@ void evk::Instance::pickPhysicalDevice(std::vector<const char *> deviceExtension
     }
 }
 
-void evk::Instance::createDevice()
+void evk::Instance::createDevice(bool enableValidation)
 {
     QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
 
@@ -122,7 +122,7 @@ void evk::Instance::createDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
-    if (FLAGS_enable_validation) {
+    if (enableValidation) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
         createInfo.ppEnabledLayerNames = m_validationLayers.data();
     } else {

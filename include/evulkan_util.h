@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVK_UTIL
+#define EVK_UTIL
 
 #include <vulkan/vulkan.h>
 #include <optional>
@@ -102,3 +103,13 @@ void DestroyDebugUtilsMessengerEXT(
 );
 
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+std::vector<const char*> getRequiredExtensions();
+
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData);
+
+#endif

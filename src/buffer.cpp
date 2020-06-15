@@ -89,7 +89,7 @@ void evk::Instance::createUniformBufferObject()
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
 {
-    size_t NUM_THREADS=FLAGS_num_threads;
+    size_t NUM_THREADS=m_numThreads;
     const VkDeviceSize wholeBufferSize = sizeof(vertices[0]) * vertices.size();
     const VkQueue queue = m_graphicsQueue;
     const std::vector<Vertex> &verts = vertices;
@@ -117,7 +117,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     {
         int vertsOffset = num_verts_each*i;
         size_t bufferOffset=(num_verts_each*sizeof(verts[0]))*i;
-        if (i==(FLAGS_num_threads-1))
+        if (i==(m_numThreads-1))
         {
             num_verts_each = verts.size()-(i*num_verts_each);
         }

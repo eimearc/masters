@@ -75,10 +75,8 @@ void evk::Instance::draw()
 
 void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
 {
-    size_t NUM_THREADS=FLAGS_num_threads;
-
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
-    m_secondaryCommandBuffers.resize(NUM_THREADS);
+    m_secondaryCommandBuffers.resize(m_numThreads);
     auto &secondaryCommandBuffers = m_secondaryCommandBuffers;
 
     for (int index = 0; index < m_maxFramesInFlight; ++index)
@@ -123,9 +121,9 @@ void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
 
         auto f =[&](int i)
         {
-            size_t numIndices=indices.size()/NUM_THREADS;
+            size_t numIndices=indices.size()/m_numThreads;
             size_t indexOffset=numIndices*i;
-            if (i==(FLAGS_num_threads-1))
+            if (i==(m_numThreads-1))
             {
                 numIndices = indices.size()-(i*numIndices);
             }
