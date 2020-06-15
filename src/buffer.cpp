@@ -35,6 +35,39 @@ void EVulkan::createGrid()
     setupVertices();
 }
 
+void evk::Instance::createIndexBuffer(const std::vector<uint32_t> &indices)
+{
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(
+        m_device,
+        m_physicalDevice,
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &stagingBuffer, &stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t)bufferSize);
+    vkUnmapMemory(m_device, stagingBufferMemory);
+
+    createBuffer(
+        m_device,
+        m_physicalDevice,
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        &m_indexBuffer, &m_indexBufferMemory);
+
+    copyBuffer(m_device, m_commandPools[0], m_graphicsQueue, stagingBuffer, m_indexBuffer, bufferSize);
+
+    vkDestroyBuffer(m_device, stagingBuffer, nullptr);
+    vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+}
+
 void evkCreateIndexBuffer(
     VkDevice device,
     const EVkIndexBufferCreateInfo *pCreateInfo,

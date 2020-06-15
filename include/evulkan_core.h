@@ -469,11 +469,9 @@ class Instance
     void createFramebuffers();
 
     // TODO
-    void createIndexBuffer();
+    void createIndexBuffer(const std::vector<uint32_t> &indices);
     void createVertexBuffer();
     void createDrawCommands(
-        // size_t index,
-        // std::vector<VkCommandBuffer> secondaryCommandBuffers,
         ThreadPool &threadPool,
         std::vector<uint32_t> indices);
     void draw();
@@ -512,9 +510,10 @@ class Instance
     std::vector<VkCommandPool> m_commandPools;
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
-    
+
     VkBuffer m_vertexBuffer;
     VkBuffer m_indexBuffer;
+    VkDeviceMemory m_indexBufferMemory;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

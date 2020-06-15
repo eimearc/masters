@@ -77,12 +77,9 @@ void EVulkan::initVulkan()
     evkInstance.createFramebuffers();
     swapChainFramebuffers=evkInstance.m_framebuffers;
 
-    EVkIndexBufferCreateInfo indexBufferInfo = {};
-    indexBufferInfo.commandPool = commandPools[0]; // TODO: Make multithreaded
-    indexBufferInfo.physicalDevice = physicalDevice;
-    indexBufferInfo.queue = graphicsQueue;
-    indexBufferInfo.indices = indices;
-    evkCreateIndexBuffer(device, &indexBufferInfo, &indexBuffer, &indexBufferMemory);
+    evkInstance.createIndexBuffer(indices);
+    indexBuffer=evkInstance.m_indexBuffer;
+    indexBufferMemory=evkInstance.m_indexBufferMemory;
 
     threadPool.setThreadCount(FLAGS_num_threads);
 
