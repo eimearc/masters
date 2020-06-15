@@ -97,24 +97,10 @@ void EVulkan::initVulkan()
     evkInstance.m_vertexBuffer=vertexBuffer;
     evkInstance.m_indexBuffer=indexBuffer;
 
-    EVkCommandBuffersCreateInfo commandBuffersInfo = {};
-    commandBuffersInfo.descriptorSets = descriptorSets;
-    commandBuffersInfo.graphicsPipeline = graphicsPipeline;
-    commandBuffersInfo.indexBuffer = indexBuffer;
-    commandBuffersInfo.indices = indices;
-    commandBuffersInfo.pipelineLayout = pipelineLayout;
-    commandBuffersInfo.renderPass = renderPass;
-    commandBuffersInfo.swapchainExtent = swapChainExtent;
-    commandBuffersInfo.vertexBuffer = vertexBuffer;
+    evkInstance.createDrawCommands(threadPool,indices);
 
-    primaryCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    evkInstance.m_primaryCommandBuffers=primaryCommandBuffers;
-    secondaryCommandBuffers.resize(FLAGS_num_threads);
-    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        commandBuffersInfo.framebuffer=swapChainFramebuffers[i];
-        evkInstance.createDrawCommands(i,secondaryCommandBuffers,threadPool,indices);
-    }
+    secondaryCommandBuffers=evkInstance.m_secondaryCommandBuffers;
+    primaryCommandBuffers=evkInstance.m_primaryCommandBuffers;
 }
 
 void EVulkan::mainLoop()
