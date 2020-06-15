@@ -9,7 +9,9 @@ void EVulkan::initVulkan()
         window,
         deviceExtensions
     };
-    evk::Instance evkInstance{&instanceCreateInfo};
+
+    evkInstance=evk::Instance(&instanceCreateInfo);
+    
     instance=evkInstance.m_vkInstance;
     debugMessenger=evkInstance.m_debugMessenger;
     surface=evkInstance.m_surface;
@@ -114,6 +116,8 @@ void EVulkan::initVulkan()
             threadPool);
     }
 
+    evkInstance.m_primaryCommandBuffers=primaryCommandBuffers;
+
     drawInfo.pInFlightFences = &inFlightFences;
     drawInfo.pImageAvailableSemaphores = &imageAvailableSemaphores;
     drawInfo.swapchain = swapChain;
@@ -137,12 +141,7 @@ void EVulkan::mainLoop()
         bench.numThreads(FLAGS_num_threads);
         bench.numCubes(FLAGS_num_cubes);
         auto startTime = bench.start();
-        evkDrawFrame(
-            device,
-            &drawInfo,
-            &currentFrame, &imagesInFlight,
-            &renderFinishedSemaphores,
-            &primaryCommandBuffers[currentFrame]);
+        evkInstance.draw();
         bench.frameTime(startTime);
         bench.record();
 

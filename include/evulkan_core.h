@@ -457,6 +457,7 @@ class Instance
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
         createDevice();
     }
+    Instance()=default;
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
@@ -466,6 +467,12 @@ class Instance
     void createDescriptorSets();
     void createSyncObjects();
     void createFramebuffers();
+
+    // TODO
+    void createIndexBuffer();
+    void createVertexBuffer();
+    void createDrawCommands();
+    void draw();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -497,6 +504,9 @@ class Instance
     std::vector<VkFence> m_imagesInFlight;
 
     std::vector<VkFramebuffer> m_framebuffers;
+
+    std::vector<VkCommandPool> m_commandPools;
+    std::vector<VkCommandBuffer> m_primaryCommandBuffers;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

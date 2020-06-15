@@ -59,6 +59,8 @@ private:
     Bench bench;
     ThreadPool threadPool;
 
+    evk::Instance evkInstance;
+
     GLFWwindow *window;
     VkSurfaceKHR surface;
     VkInstance instance;
