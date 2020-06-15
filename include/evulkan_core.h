@@ -335,45 +335,6 @@ void evkDrawFrame(
     VkCommandBuffer *pPrimaryCommandBuffer
 );
 
-struct EVkSwapchainRecreateInfo
-{
-    GLFWwindow *pWindow;
-    VkSwapchainKHR *pSwapchain;
-    std::vector<VkImage> *pSwapchainImages;
-    std::vector<VkImageView> *pSwapchainImageViews;
-    VkFormat *pSwapchainImageFormats;
-    VkExtent2D *pSwapchainExtent;
-    VkRenderPass *pRenderPass;
-    VkPipelineLayout *pPipelineLayout;
-    VkPipeline *pPipeline;
-    VkImage *pDepthImage;
-    VkImageView *pDepthImageView;
-    VkDeviceMemory *pDepthImageMemory;
-    std::vector<VkFramebuffer> *pSwapchainFramebuffers;
-    std::vector<VkBuffer> *pUniformBuffers;
-    std::vector<VkDeviceMemory> *pUniformBuffersMemory;
-    VkDescriptorPool *pDescriptorPool;
-    std::vector<VkDescriptorSet> *pDescriptorSets;
-    std::vector<VkCommandBuffer> *pCommandBuffers;
-    VkCommandBuffer *pPrimaryCommandBuffer;
-
-    EVkSwapchainCreateInfo swapchainCreateInfo;
-    EVkImageViewsCreateInfo imageViewsCreateInfo;
-    EVkRenderPassCreateInfo renderPassCreateInfo;
-    EVkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
-    EVkDepthResourcesCreateInfo depthResourcesCreateInfo;
-    EVkFramebuffersCreateInfo framebuffersCreateInfo;
-    EVkUniformBufferCreateInfo uniformBuffersCreateInfo;
-    EVkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
-    EVkDescriptorSetCreateInfo EVkDescriptorSetCreateInfo;
-    EVkCommandBuffersCreateInfo commandBuffersCreateInfo;
-};
-void evkRecreateSwapchain(
-    VkDevice device,
-    const EVkSwapchainRecreateInfo *pCreateInfo,
-    ThreadPool &threadpool
-);
-
 struct EVkSwapchainCleanupInfo
 {
     VkImage depthImage;

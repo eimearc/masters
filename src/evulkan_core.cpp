@@ -875,69 +875,6 @@ void evkCreateFramebuffers(
     }
 }
 
-void evkRecreateSwapChain(VkDevice device, const EVkSwapchainRecreateInfo *pCreateInfo, ThreadPool &threadpool)
-{
-    int width = 0, height = 0;
-    glfwGetFramebufferSize(pCreateInfo->pWindow, &width, &height);
-    while (width == 0 || height == 0)
-    {
-        glfwGetFramebufferSize(pCreateInfo->pWindow, &width, &height);
-        glfwWaitEvents();
-    }
-
-    // Wait until nobody is using the device.
-    vkDeviceWaitIdle(device);
-
-    EVkSwapchainCleanupInfo cleanupInfo = {};
-    cleanupInfo.depthImage = *pCreateInfo->pDepthImage;
-    cleanupInfo.depthImageView = *pCreateInfo->pDepthImageView;
-    cleanupInfo.swapchainFramebuffers = *pCreateInfo->pSwapchainFramebuffers;
-    cleanupInfo.pCommandBuffers = pCreateInfo->pCommandBuffers;
-    cleanupInfo.graphicsPipeline = *pCreateInfo->pPipeline;
-    cleanupInfo.pipelineLayout = *pCreateInfo->pPipelineLayout;
-    cleanupInfo.renderPass = *pCreateInfo->pRenderPass;
-    cleanupInfo.swapchainImageViews = *pCreateInfo->pSwapchainImageViews;
-    cleanupInfo.swapchain = *pCreateInfo->pSwapchain;
-    cleanupInfo.swapchainImages = *pCreateInfo->pSwapchainImages;
-    cleanupInfo.uniformBuffers = *pCreateInfo->pUniformBuffers;
-    cleanupInfo.uniformBuffersMemory = *pCreateInfo->pUniformBuffersMemory;
-    cleanupInfo.descriptorPool = *pCreateInfo->pDescriptorPool;
-    evkCleanupSwapchain(device, &cleanupInfo);
-
-    EVkSwapchainCreateInfo swapchainInfo = {};
-    swapchainInfo = pCreateInfo->swapchainCreateInfo;
-    evkCreateSwapchain(device, &swapchainInfo, pCreateInfo->pSwapchain, pCreateInfo->pSwapchainImages, pCreateInfo->pSwapchainImageFormats, pCreateInfo->pSwapchainExtent);
-
-    EVkImageViewsCreateInfo imageViewsInfo = pCreateInfo->imageViewsCreateInfo;
-    evkCreateImageViews(device, &imageViewsInfo, pCreateInfo->pSwapchainImageViews);
-
-    EVkRenderPassCreateInfo renderPassInfo = pCreateInfo->renderPassCreateInfo;
-    evkCreateRenderPass(device, &renderPassInfo, pCreateInfo->pRenderPass);
-
-    EVkGraphicsPipelineCreateInfo pipelineInfo = pCreateInfo->graphicsPipelineCreateInfo;
-    evkCreateGraphicsPipeline(device, &pipelineInfo, pCreateInfo->pPipelineLayout, pCreateInfo->pPipeline);
-
-    EVkDepthResourcesCreateInfo depthResourcesInfo = pCreateInfo->depthResourcesCreateInfo;
-    evkCreateDepthResources(device, &depthResourcesInfo, pCreateInfo->pDepthImage, pCreateInfo->pDepthImageView, pCreateInfo->pDepthImageMemory);
-
-    EVkFramebuffersCreateInfo framebuffersInfo = pCreateInfo->framebuffersCreateInfo;
-    evkCreateFramebuffers(device, &framebuffersInfo, pCreateInfo->pSwapchainFramebuffers);
-
-    EVkUniformBufferCreateInfo uniformBufferInfo = pCreateInfo->uniformBuffersCreateInfo;
-    evkCreateUniformBuffers(device, &uniformBufferInfo, pCreateInfo->pUniformBuffers, pCreateInfo->pUniformBuffersMemory);
-
-    EVkDescriptorPoolCreateInfo descriptorPoolInfo = pCreateInfo->descriptorPoolCreateInfo;
-    evkCreateDescriptorPool(device, &descriptorPoolInfo, pCreateInfo->pDescriptorPool);
-
-    EVkDescriptorSetCreateInfo descriptorSetInfo = pCreateInfo->EVkDescriptorSetCreateInfo;
-    evkCreateDescriptorSets(device, &descriptorSetInfo, pCreateInfo->pDescriptorSets);
-
-    EVkCommandBuffersCreateInfo commandBuffersInfo = pCreateInfo->commandBuffersCreateInfo;
-    std::vector<VkCommandPool> commandPools;
-    std::vector<VkCommandBuffer> commandBuffers;
-    evkCreateCommandBuffers(device, &commandBuffersInfo, pCreateInfo->pPrimaryCommandBuffer, &commandBuffers, &commandPools, threadpool);
-}
-
 void evkCleanupSwapchain(VkDevice device, const EVkSwapchainCleanupInfo *pCleanupInfo)
 {
     vkDestroyImageView(device, pCleanupInfo->depthImageView, nullptr);
