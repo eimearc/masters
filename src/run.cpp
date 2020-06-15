@@ -34,7 +34,7 @@ void EVulkan::initVulkan()
     EVkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
     evkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, &descriptorSetLayout);
     evkInstance.m_descriptorSetLayout = descriptorSetLayout;
-    
+
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
         "shaders/vert.spv",
         "shaders/frag.spv"
@@ -43,11 +43,10 @@ void EVulkan::initVulkan()
     graphicsPipeline=evkInstance.m_graphicsPipeline;
     pipelineLayout=evkInstance.m_graphicsPipelineLayout;
 
-    EVkDepthResourcesCreateInfo depthResourcesInfo = {};
-    depthResourcesInfo.physicalDevice = physicalDevice;
-    depthResourcesInfo.swapchainExtent = swapChainExtent;
-    depthResourcesInfo.swapchainImageFormat = swapChainImageFormat;
-    evkCreateDepthResources(device, &depthResourcesInfo, &depthImage, &depthImageView, &depthImageMemory);
+    evkInstance.createDepthResources();
+    depthImage=evkInstance.m_depthImage;
+    depthImageView=evkInstance.m_depthImageView;
+    depthImageMemory=evkInstance.m_depthImageMemory;
 
     EVkFramebuffersCreateInfo framebuffersInfo = {};
     framebuffersInfo.swapchainExtent = swapChainExtent;

@@ -462,6 +462,7 @@ class Instance
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
     void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
+    void createDepthResources();
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -479,6 +480,9 @@ class Instance
     VkDescriptorSetLayout m_descriptorSetLayout;
     VkPipelineLayout m_graphicsPipelineLayout;
     VkPipeline m_graphicsPipeline;
+    VkImage m_depthImage;
+    VkImageView m_depthImageView;
+    VkDeviceMemory m_depthImageMemory;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

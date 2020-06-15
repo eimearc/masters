@@ -708,6 +708,26 @@ void evkCreateGraphicsPipeline(
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
+void evk::Instance::createDepthResources()
+{
+    EVkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.swapChainImageFormat = m_swapChainImageFormat;
+    renderPassInfo.physicalDevice = m_physicalDevice;
+    VkFormat depthFormat = findDepthFormat(&renderPassInfo);
+
+    EVkImageCreateInfo createInfo = {};
+    createInfo.physicalDevice = m_physicalDevice;
+    createInfo.width = m_swapChainExtent.width;
+    createInfo.height = m_swapChainExtent.height;
+    createInfo.format = depthFormat;
+    createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    evkCreateImage(m_device, &createInfo, &m_depthImage, &m_depthImageMemory);
+    m_depthImageView = createImageView(m_device, m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+}
+
 void evkCreateDepthResources(
     VkDevice device,
     const EVkDepthResourcesCreateInfo *pCreateInfo,
