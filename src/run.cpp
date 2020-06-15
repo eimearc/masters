@@ -9,49 +9,21 @@ void EVulkan::initVulkan()
         window,
         deviceExtensions
     };
-
     evkInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
-    
-    instance=evkInstance.m_vkInstance;
-    debugMessenger=evkInstance.m_debugMessenger;
-    surface=evkInstance.m_surface;
-    physicalDevice=evkInstance.m_physicalDevice;
-    graphicsQueue=evkInstance.m_graphicsQueue;
-    presentQueue=evkInstance.m_presentQueue;
-    device=evkInstance.m_device;
 
     evkInstance.createCommandPools();
-    commandPools=evkInstance.m_commandPools;
-
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
     evkInstance.createSwapChain(&swapChainCreateInfo);
-    swapChain=evkInstance.m_swapChain;
-    swapChainImages=evkInstance.m_swapChainImages;
-    swapChainImageFormat=evkInstance.m_swapChainImageFormat;
-    swapChainExtent=evkInstance.m_swapChainExtent;
-    swapChainImageViews=evkInstance.m_swapChainImageViews;
 
     evkInstance.createSyncObjects();
-    imageAvailableSemaphores=evkInstance.m_imageAvailableSemaphores;
-    renderFinishedSemaphores=evkInstance.m_renderFinishedSemaphores;
-    inFlightFences=evkInstance.m_fencesInFlight;
-    imagesInFlight=evkInstance.m_imagesInFlight;
-
     evkInstance.createRenderPass();
-    renderPass=evkInstance.m_renderPass;
 
     // ----------------
     // Below are linked
     evkInstance.createUniformBufferObject();
-    uniformBuffers=evkInstance.m_uniformBuffers;
-    uniformBuffersMemory=evkInstance.m_uniformBuffersMemory;
-
     evkInstance.createDescriptorSets();
-    descriptorPool=evkInstance.m_descriptorPool;
-    descriptorSetLayout=evkInstance.m_descriptorSetLayout;
-    descriptorSets=evkInstance.m_descriptorSets;
     // ----------------
 
     evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
@@ -59,29 +31,12 @@ void EVulkan::initVulkan()
         "shaders/frag.spv"
     };
     evkInstance.createGraphicsPipeline(&graphicsPipelineCreateInfo);
-    graphicsPipeline=evkInstance.m_graphicsPipeline;
-    pipelineLayout=evkInstance.m_graphicsPipelineLayout;
 
     evkInstance.createDepthResources();
-    depthImage=evkInstance.m_depthImage;
-    depthImageView=evkInstance.m_depthImageView;
-    depthImageMemory=evkInstance.m_depthImageMemory;
-
     evkInstance.createFramebuffers();
-    swapChainFramebuffers=evkInstance.m_framebuffers;
-
     evkInstance.createIndexBuffer(indices);
-    indexBuffer=evkInstance.m_indexBuffer;
-    indexBufferMemory=evkInstance.m_indexBufferMemory;
-
     evkInstance.createVertexBuffer(vertices);
-    vertexBuffer=evkInstance.m_vertexBuffer;
-    vertexBufferMemory=evkInstance.m_vertexBufferMemory;
-
     evkInstance.createDrawCommands(indices);
-
-    secondaryCommandBuffers=evkInstance.m_secondaryCommandBuffers;
-    primaryCommandBuffers=evkInstance.m_primaryCommandBuffers;
 }
 
 void EVulkan::mainLoop()
@@ -91,15 +46,14 @@ void EVulkan::mainLoop()
         glfwPollEvents();
         evkInstance.draw();
     }
-
-    if (vkDeviceWaitIdle(device)!=VK_SUCCESS)
-    {
-        throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
-    }
 }
 
 void evk::Instance::cleanup()
 {
+    if (vkDeviceWaitIdle(m_device)!=VK_SUCCESS)
+    {
+        throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
+    }
     vkDestroyImageView(m_device, m_depthImageView, nullptr);
     vkDestroyImage(m_device, m_depthImage, nullptr);
     vkFreeMemory(m_device, m_depthImageMemory, nullptr);
