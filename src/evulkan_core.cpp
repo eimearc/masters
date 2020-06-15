@@ -52,6 +52,22 @@ void evkCreateDevice(
     vkGetDeviceQueue(*pDevice, indices.presentFamily.value(), 0, pPresentQueue);
 }
 
+void evk::Instance::createCommandPools()
+{
+    m_commandPools.resize(m_numThreads);
+    for (auto &commandPool : m_commandPools)
+    {
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice, m_surface);
+        VkCommandPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+        if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create command pool.");
+        }
+    }
+}
+
 void evkCreateCommandPool(
     VkDevice device,
     const EVkCommandPoolCreateInfo *pCreateInfo,

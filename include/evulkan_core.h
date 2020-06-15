@@ -470,6 +470,7 @@ class Instance
     void createDescriptorSets();
     void createSyncObjects();
     void createFramebuffers();
+    void createCommandPools();
 
     // TODO
     void createIndexBuffer(const std::vector<uint32_t> &indices);

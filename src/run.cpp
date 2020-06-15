@@ -20,15 +20,8 @@ void EVulkan::initVulkan()
     presentQueue=evkInstance.m_presentQueue;
     device=evkInstance.m_device;
 
-    commandPools.resize(FLAGS_num_threads);
-    for (auto &cp : commandPools)
-    {
-        EVkCommandPoolCreateInfo info = {};
-        info.physicalDevice = physicalDevice;
-        info.surface = surface;
-        evkCreateCommandPool(device, &info, &cp);
-    }
-    evkInstance.m_commandPools=commandPools;
+    evkInstance.createCommandPools();
+    commandPools=evkInstance.m_commandPools;
 
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
