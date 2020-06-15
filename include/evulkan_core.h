@@ -438,6 +438,12 @@ struct SwapChainCreateInfo
     uint8_t maxFramesInFlight;
 };
 
+struct GraphicsPipelineCreateInfo
+{
+    std::string vertShaderFile;
+    std::string fragShaderFile;
+};
+
 class Instance
 {
     public:
@@ -455,6 +461,7 @@ class Instance
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
+    void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
 
     VkInstance m_vkInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -469,6 +476,9 @@ class Instance
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
     VkRenderPass m_renderPass;
+    VkDescriptorSetLayout m_descriptorSetLayout;
+    VkPipelineLayout m_graphicsPipelineLayout;
+    VkPipeline m_graphicsPipeline;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

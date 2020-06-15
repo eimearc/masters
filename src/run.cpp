@@ -33,14 +33,15 @@ void EVulkan::initVulkan()
 
     EVkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
     evkCreateDescriptorSetLayout(device, &descriptorSetLayoutInfo, &descriptorSetLayout);
-
-    EVkGraphicsPipelineCreateInfo pipelineInfo = {};
-    pipelineInfo.vertShaderFile = "shaders/vert.spv";
-    pipelineInfo.fragShaderFile = "shaders/frag.spv";
-    pipelineInfo.swapchainExtent = swapChainExtent;
-    pipelineInfo.pDescriptorSetLayout = &descriptorSetLayout;
-    pipelineInfo.renderPass = renderPass;
-    evkCreateGraphicsPipeline(device, &pipelineInfo, &pipelineLayout, &graphicsPipeline);
+    evkInstance.m_descriptorSetLayout = descriptorSetLayout;
+    
+    evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
+        "shaders/vert.spv",
+        "shaders/frag.spv"
+    };
+    evkInstance.createGraphicsPipeline(&graphicsPipelineCreateInfo);
+    graphicsPipeline=evkInstance.m_graphicsPipeline;
+    pipelineLayout=evkInstance.m_graphicsPipelineLayout;
 
     EVkDepthResourcesCreateInfo depthResourcesInfo = {};
     depthResourcesInfo.physicalDevice = physicalDevice;
