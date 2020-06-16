@@ -52,6 +52,10 @@ void App::initVulkan()
     evkInstance.createUniformBufferObject();
     evkInstance.createDescriptorSets();
 
+    std::vector<Vertex> v;
+    std::vector<uint32_t> in;
+    evk::loadOBJ("obj/viking_room.obj", v, in);
+
     evkInstance.registerVertexShader("shaders/vert.spv");
     evkInstance.registerFragmentShader("shaders/frag.spv");
 
@@ -64,10 +68,10 @@ void App::initVulkan()
     evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
-    evkInstance.createIndexBuffer(indices);
-    evkInstance.createVertexBuffer(vertices);
+    evkInstance.createIndexBuffer(in);
+    evkInstance.createVertexBuffer(v);
     
-    evkInstance.createDrawCommands(indices);
+    evkInstance.createDrawCommands(in);
 }
 
 void App::mainLoop()
