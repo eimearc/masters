@@ -154,6 +154,8 @@ class Instance
     VkVertexInputBindingDescription m_bindingDescription;
 
     VkImage m_textureImage;
+    VkImageView m_textureImageView;
+    VkSampler m_textureSampler;
     VkDeviceMemory m_textureImageMemory;
 
     private:

@@ -444,6 +444,8 @@ void evk::Instance::cleanup()
     vkDestroyImage(m_device, m_depthImage, nullptr);
     vkFreeMemory(m_device, m_depthImageMemory, nullptr);
 
+    vkDestroySampler(m_device, m_textureSampler, nullptr);
+    vkDestroyImageView(m_device, m_textureImageView, nullptr);
     vkDestroyImage(m_device, m_textureImage, nullptr); // TODO: Ensure only happens when texture is there.
     vkFreeMemory(m_device, m_textureImageMemory, nullptr);
 
