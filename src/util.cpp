@@ -1,6 +1,6 @@
-#include "util.h"
+#include "evulkan_core.h"
 
-std::vector<char> readFile(const std::string& filename)
+std::vector<char> evk::Instance::readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -18,22 +18,7 @@ std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
-void update(std::vector<Vertex> &vertices, const Grid &grid, size_t startOffset, size_t numVerts)
-{
-    glm::mat3 rotate = glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f), glm::vec3(1.0f,0.0f,0.0f));
-    for (size_t i = startOffset; i < startOffset+numVerts; ++i)
-    {
-        int j = floor(i/8);
-        glm::vec3 center = grid.cubes[floor(i/8)].center;
-        glm::vec3 tmp = vertices[i].pos;
-        tmp -= center;
-        tmp = rotate*tmp;
-        tmp += center;
-        vertices[i].pos = tmp;
-    }
-}
-
-UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height)
+evk::UniformBufferObject evk::Instance::getUBO(const uint32_t &_width, const uint32_t &_height)
 {
     UniformBufferObject ubo = {};
     ubo.model=glm::mat4(1.0f);

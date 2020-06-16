@@ -5,15 +5,23 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <optional>
-#include "util.h"
 #include "threadpool.h"
 #include "evulkan_util.h"
+#include "vertex.h"
 #include <array>
+#include <fstream>
 
 #define GLFW_INCLUDE_VULKAN
 
 namespace evk
 {
+
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 struct InstanceCreateInfo
 {
@@ -179,6 +187,8 @@ class Instance
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
     void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
+    std::vector<char> readFile(const std::string& filename);
+    UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

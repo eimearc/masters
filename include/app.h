@@ -23,6 +23,7 @@
 #include <chrono>
 
 #include "flags.h"
+#include "grid.h"
 
 class App {
 public:
@@ -37,8 +38,6 @@ public:
 
 private:
     const size_t NUM_CUBES = sqrt(FLAGS_num_cubes);
-    const uint32_t WIDTH = 800;
-    const uint32_t HEIGHT = 600;
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     Grid grid;
