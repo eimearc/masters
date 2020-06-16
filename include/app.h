@@ -24,31 +24,28 @@
 
 #include "flags.h"
 
-class EVulkan {
+class App {
 public:
     void run() {
         createGrid();
         initVulkan();
         mainLoop();
-        cleanup();
+        evkInstance.cleanup();
     }
 
-~EVulkan()=default;
+~App()=default;
 
 private:
     const size_t NUM_CUBES = sqrt(FLAGS_num_cubes);
     const uint32_t WIDTH = 800;
     const uint32_t HEIGHT = 600;
-    const int MAX_FRAMES_IN_FLIGHT = 2; // Must be greater than minImageCount.
+    const int MAX_FRAMES_IN_FLIGHT = 2;
 
     Grid grid;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-
     evk::Instance evkInstance;
-
     GLFWwindow *window;
-
     std::vector<const char*> validationLayers =
     {
         "VK_LAYER_LUNARG_standard_validation"
@@ -59,8 +56,6 @@ private:
     };
 
     void createGrid();
-    void setupVertices();
-    void initWindow();
     void initVulkan();
     void mainLoop();
     void cleanup();

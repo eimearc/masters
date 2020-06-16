@@ -28,7 +28,6 @@ link_libraries(Vulkan::Vulkan)
 find_package(gflags REQUIRED)
 
 set (SOURCES
-    ${STB_INCLUDE_PATH}/gflags/gflags.h
     ${VULKANROOT}/src/buffer.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/draw.cpp
@@ -36,19 +35,11 @@ set (SOURCES
     ${VULKANROOT}/src/evulkan_util.cpp
     ${VULKANROOT}/src/instance.cpp
     ${VULKANROOT}/src/sync.cpp
-    ${VULKANROOT}/src/run.cpp
     ${VULKANROOT}/src/swapchain.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/evulkan_util.h
-    ${VULKANROOT}/include/evulkan.h
-    ${UTILROOT}/src/bench.cpp
-    ${UTILROOT}/src/flags.cpp
     ${UTILROOT}/src/util.cpp
-    ${UTILROOT}/include/bench.h
     ${UTILROOT}/include/util.h
-    ${UTILROOT}/include/flags.h
-    ${UTILROOT}/include/cube.h
-    ${UTILROOT}/include/grid.h
     ${UTILROOT}/include/threadpool.h
     ${UTILROOT}/include/vertex.h
 )
@@ -56,18 +47,23 @@ set (SOURCES
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib)
 set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
 add_library(evulkan SHARED ${SOURCES})
-target_link_libraries(evulkan gflags) # Must only link to evulkan, otherwise get error in main.
 
 install(TARGETS evulkan DESTINATION lib)
 install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
-set(
-    MAIN_SOURCES
+set(MAIN_SOURCES
     ${VULKANROOT}/src/main.cpp
-    ${UTILROOT}/src/bench.cpp
+    ${VULKANROOT}/include/app.h
+    ${VULKANROOT}/src/app.cpp
     ${UTILROOT}/src/util.cpp
+    ${STB_INCLUDE_PATH}/gflags/gflags.h
+    ${UTILROOT}/include/flags.h
+    ${UTILROOT}/src/flags.cpp
+    ${UTILROOT}/include/cube.h
+    ${UTILROOT}/include/grid.h
 )
 
 add_executable(main ${MAIN_SOURCES})
+target_link_libraries(main gflags) # Must only link to main, otherwise get error in main.
 target_link_libraries(main evulkan)
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")

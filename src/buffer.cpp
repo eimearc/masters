@@ -1,39 +1,6 @@
-#include "evulkan.h"
+#include "evulkan_core.h"
 
 #include <glm/gtx/string_cast.hpp>
-
-#include "evulkan_util.h"
-
-void EVulkan::setupVertices()
-{
-    int i=0;
-    const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,0,0}};
-    for (auto cube : grid.cubes)
-    {
-        std::vector<glm::vec3> verts = cube.vertices;
-        std::vector<uint32_t> ind = cube.indices;
-        for(size_t j = 0; j<verts.size(); ++j)
-        {
-            vertex.pos=verts[j];
-            vertex.color=cube.color;
-            vertices.push_back(vertex);
-        }
-        for(size_t j = 0; j<ind.size(); ++j)
-        {
-            indices.push_back(ind[j]+i*numVerts);
-        }
-        ++i;
-    }
-}
-
-void EVulkan::createGrid()
-{
-    float gridSize = 2.0f;
-    float cubeSize = (gridSize/NUM_CUBES)*0.5;
-    grid = Grid(gridSize, cubeSize, NUM_CUBES);
-    setupVertices();
-}
 
 void evk::Instance::createIndexBuffer(const std::vector<uint32_t> &indices)
 {
