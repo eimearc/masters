@@ -25,11 +25,9 @@ void evk::loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, st
                 attrib.vertices[3 * index.vertex_index + 2]
             };
             vertex.color = {0.1,0.1,0.1};
-            
+
             vertices.push_back(vertex);
             indices.push_back(indices.size());
         }
     }
-
-    printf("loaded OBJ %s\n", fileName.c_str());
 }

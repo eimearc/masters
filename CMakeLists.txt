@@ -36,6 +36,7 @@ set (SOURCES
     ${VULKANROOT}/src/swapchain.cpp
     ${VULKANROOT}/src/util.cpp
     ${VULKANROOT}/src/obj.cpp
+    ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/evulkan_util.h
     ${VULKANROOT}/include/threadpool.h

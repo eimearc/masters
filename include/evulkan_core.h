@@ -97,6 +97,8 @@ class Instance
     void draw();
     void cleanup();
 
+    void loadTexture(const std::string &fileName);
+
     ThreadPool m_threadPool;
     size_t m_numThreads;
 
@@ -151,6 +153,9 @@ class Instance
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
 
+    VkImage m_textureImage;
+    VkDeviceMemory m_textureImageMemory;
+
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
@@ -184,6 +189,8 @@ class Instance
     void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
     std::vector<char> readFile(const std::string& filename);
     UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
+    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;
