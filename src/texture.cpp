@@ -63,9 +63,6 @@ void evk::Instance::loadTexture(const std::string &fileName)
     if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler!");
 
-    
-
-
     printf("Loaded texture %s\n", fileName.c_str());
 }
 
