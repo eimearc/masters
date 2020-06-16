@@ -3,6 +3,25 @@
 #include <set>
 #include <iostream>
 
+void evk::Instance::addVertexAttribute(const uint32_t &location, const uint32_t &offset)
+{
+    VkVertexInputAttributeDescription desc;
+    desc.binding=0;
+    desc.location=location;
+    desc.format=VK_FORMAT_R32G32B32_SFLOAT;
+    desc.offset=offset;
+    m_attributeDescriptions.push_back(desc);
+}
+
+void evk::Instance::setBindingDescription(uint32_t stride)
+{
+    VkVertexInputBindingDescription bindingDescription = {};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = stride;
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    m_bindingDescription=bindingDescription;
+}
+
 void evk::Instance::createCommandPools()
 {
     m_commandPools.resize(m_numThreads);
@@ -173,16 +192,13 @@ void evk::Instance::registerFragmentShader(const std::string &fragShader)
 
 void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo)
 {
-    auto bindingDescription = Vertex::getBindingDescription();
-    auto attributeDescriptions = Vertex::getAttributeDescriptions();
-
     // Set up input to vertex shader.
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    vertexInputInfo.pVertexBindingDescriptions = &m_bindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = m_attributeDescriptions.data();
 
     // Set up input assembly.
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -306,7 +322,7 @@ void evk::Instance::createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCr
 
     // Render pass and sub-pass.
     pipelineInfo.renderPass = m_renderPass;
-    pipelineInfo.subpass = 0;
+    pipelineInfo.subpass = 0; // TODO: Allow subpasses.
 
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;

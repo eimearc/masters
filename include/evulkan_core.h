@@ -8,6 +8,7 @@
 #include "util.h"
 #include "threadpool.h"
 #include "evulkan_util.h"
+#include <array>
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -49,6 +50,12 @@ struct EVkImageCreateInfo
     VkMemoryPropertyFlags properties;
 };
 
+struct VertexAttributeInfo
+{
+    uint32_t location;
+    uint32_t offset;
+};
+
 class Instance
 {
     public:
@@ -72,6 +79,8 @@ class Instance
     void createRenderPass();
     void registerVertexShader(const std::string &vertShader);
     void registerFragmentShader(const std::string &fragShader);
+    void addVertexAttribute(const uint32_t &location, const uint32_t &offset);
+    void setBindingDescription(uint32_t stride);
     void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
     void createDepthResources();
     void createUniformBufferObject();
@@ -135,6 +144,9 @@ class Instance
     VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
+
+    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
+    VkVertexInputBindingDescription m_bindingDescription;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
