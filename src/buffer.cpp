@@ -1,150 +1,92 @@
-#include "evulkan.h"
+#include "evulkan_core.h"
 
 #include <glm/gtx/string_cast.hpp>
 
-#include "evulkan_util.h"
-
-void EVulkan::setupVertices()
+void evk::Instance::createIndexBuffer(const std::vector<uint32_t> &indices)
 {
-    int i=0;
-    const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,0,0}};
-    for (auto cube : grid.cubes)
-    {
-        std::vector<glm::vec3> verts = cube.vertices;
-        std::vector<uint32_t> ind = cube.indices;
-        for(size_t j = 0; j<verts.size(); ++j)
-        {
-            vertex.pos=verts[j];
-            vertex.color=cube.color;
-            vertices.push_back(vertex);
-        }
-        for(size_t j = 0; j<ind.size(); ++j)
-        {
-            indices.push_back(ind[j]+i*numVerts);
-        }
-        ++i;
-    }
-}
-
-void EVulkan::createGrid()
-{
-    float gridSize = 2.0f;
-    float cubeSize = (gridSize/NUM_CUBES)*0.5;
-    grid = Grid(gridSize, cubeSize, NUM_CUBES);
-    setupVertices();
-}
-
-void evkCreateIndexBuffer(
-    VkDevice device,
-    const EVkIndexBufferCreateInfo *pCreateInfo,
-    VkBuffer *pBuffer,
-    VkDeviceMemory *pBufferMemory
-)
-{
-    VkDeviceSize bufferSize = sizeof(pCreateInfo->indices[0]) * pCreateInfo->indices.size();
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(
-        device,
-        pCreateInfo->physicalDevice,
+        m_device,
+        m_physicalDevice,
         bufferSize,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &stagingBuffer, &stagingBufferMemory);
 
     void *data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, pCreateInfo->indices.data(), (size_t)bufferSize);
-    vkUnmapMemory(device, stagingBufferMemory);
+    vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t)bufferSize);
+    vkUnmapMemory(m_device, stagingBufferMemory);
 
     createBuffer(
-        device,
-        pCreateInfo->physicalDevice,
+        m_device,
+        m_physicalDevice,
         bufferSize,
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        pBuffer, pBufferMemory);
+        &m_indexBuffer, &m_indexBufferMemory);
 
-    copyBuffer(device, pCreateInfo->commandPool, pCreateInfo->queue, stagingBuffer, *pBuffer, bufferSize);
+    copyBuffer(m_device, m_commandPools[0], m_graphicsQueue, stagingBuffer, m_indexBuffer, bufferSize);
 
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(m_device, stagingBuffer, nullptr);
+    vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
-void evkCreateUniformBuffers(
-    VkDevice device,
-    const EVkUniformBufferCreateInfo *pCreateInfo,
-    std::vector<VkBuffer> *pBuffer,
-    std::vector<VkDeviceMemory> *pBufferMemory
-)
+void evk::Instance::createUniformBufferObject()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    const size_t &size = pCreateInfo->swapchainImages.size();
-    pBuffer->resize(size);
-    pBufferMemory->resize(size);
+    const size_t &size = m_swapChainImages.size();
+    m_uniformBuffers.resize(size);
+    m_uniformBuffersMemory.resize(size);
 
     for (size_t i = 0; i < size; i++)
     {
         createBuffer(
-            device,
-            pCreateInfo->physicalDevice,
+            m_device,
+            m_physicalDevice,
             bufferSize,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &(*pBuffer)[i], &(*pBufferMemory)[i]);
+            &(m_uniformBuffers)[i], &(m_uniformBuffersMemory)[i]);
     }
 }
 
-void evkCreateVertexBuffer(
-    VkDevice device,
-    const EVkVertexBufferCreateInfo *pUpdateInfo,
-    VkBuffer *pBuffer,
-    VkDeviceMemory *pBufferMemory,    
-    ThreadPool &threadpool)
+void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
 {
-    size_t NUM_THREADS=FLAGS_num_threads;
-    const VkDeviceSize wholeBufferSize = sizeof((pUpdateInfo->pVertices)[0]) * pUpdateInfo->pVertices->size();
-    const VkQueue queue = pUpdateInfo->graphicsQueue;
-    std::vector<Vertex> &verts = pUpdateInfo->pVertices[0];
-    const int num_verts = verts.size();
-    int num_verts_each = num_verts/NUM_THREADS;
-    size_t threadBufferSize = wholeBufferSize/NUM_THREADS;
+    const VkDeviceSize wholeBufferSize = sizeof(vertices[0]) * vertices.size();
+    const int numVertsEach = vertices.size()/m_numThreads;
 
-    std::vector<std::thread> workers;
-    auto &commandPools = pUpdateInfo->commandPools;
-    std::vector<VkCommandBuffer> commandBuffers(NUM_THREADS);
-    std::vector<VkBuffer> buffers(NUM_THREADS);
-    std::vector<VkDeviceMemory> bufferMemory(NUM_THREADS);
+    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
+    std::vector<VkBuffer> buffers(m_numThreads);
+    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
     // Use a device-local buffer as the actual vertex buffer.
     createBuffer(
-        device,
-        pUpdateInfo->physicalDevice,
+        m_device,
+        m_physicalDevice,
         wholeBufferSize,
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        pBuffer,
-        pBufferMemory);
+        &m_vertexBuffer,
+        &m_vertexBufferMemory);
 
-    auto f = [&](int i)
+    auto copyVerts = [&](int i)
     {
-        int vertsOffset = num_verts_each*i;
-        size_t bufferOffset=(num_verts_each*sizeof(verts[0]))*i;
-        if (i==(FLAGS_num_threads-1))
-        {
-            num_verts_each = verts.size()-(i*num_verts_each);
-        }
-        size_t numVerts=num_verts_each;
-        size_t bufferSize = numVerts*sizeof(verts[0]);
+        int numVerts=numVertsEach;
+        int vertsOffset = numVertsEach*i;
+        size_t bufferOffset=(numVertsEach*sizeof(vertices[0]))*i;
+        if (i==(m_numThreads-1)) numVerts = vertices.size()-(i*numVertsEach);
+        size_t bufferSize = numVerts*sizeof(vertices[0]);
         auto &stagingBuffer = buffers[i];
         auto &stagingBufferMemory = bufferMemory[i];
 
         // Use a host visible buffer as a staging buffer.
         createBuffer(
-            device,
-            pUpdateInfo->physicalDevice,
+            m_device,
+            m_physicalDevice,
             bufferSize,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -153,17 +95,17 @@ void evkCreateVertexBuffer(
         // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
         // accessible memory.
         void *data;
-        vkMapMemory(device, bufferMemory[i], 0, bufferSize, 0, &data);
-        memcpy(data, &verts[vertsOffset], bufferSize);
-        vkUnmapMemory(device, bufferMemory[i]);
+        vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
+        memcpy(data, &vertices[vertsOffset], bufferSize);
+        vkUnmapMemory(m_device, bufferMemory[i]);
 
         // Copy the vertex data from the staging buffer to the device-local buffer.
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPools[i];
+        allocInfo.commandPool = m_commandPools[i];
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffers[i]);
+        vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -174,35 +116,35 @@ void evkCreateVertexBuffer(
         VkBufferCopy copyRegion = {};
         copyRegion.size = bufferSize;
         copyRegion.dstOffset = bufferOffset;
-        vkCmdCopyBuffer(commandBuffers[i], buffers[i], *pBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_vertexBuffer, 1, &copyRegion);
 
         vkEndCommandBuffer(commandBuffers[i]);
     };
 
-    int i = 0;
-    for (auto &t: threadpool.threads)
+    int counter = 0;
+    for (auto &t: m_threadPool.threads)
     {
-        t->addJob(std::bind(f,i++));
+        t->addJob(std::bind(copyVerts,counter++));
     }
-    threadpool.wait();
+    m_threadPool.wait();
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = commandBuffers.size();
     submitInfo.pCommandBuffers = commandBuffers.data();
 
-    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(queue);
+    vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_graphicsQueue);
 
-    for (size_t i = 0; i<NUM_THREADS; ++i)
+    for (size_t i = 0; i<m_numThreads; ++i)
     {
-        vkFreeCommandBuffers(device, commandPools[i], 1, &commandBuffers[i]);
-        vkDestroyBuffer(device, buffers[i], nullptr);
-        vkFreeMemory(device, bufferMemory[i], nullptr);
+        vkFreeCommandBuffers(m_device, m_commandPools[i], 1, &commandBuffers[i]);
+        vkDestroyBuffer(m_device, buffers[i], nullptr);
+        vkFreeMemory(m_device, bufferMemory[i], nullptr);
     }
 }
 
-void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *pUpdateInfo)
+void evk::Instance::updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo)
 {
     static int counter = 0;
     UniformBufferObject ubo = {};
@@ -214,8 +156,8 @@ void evkUpdateUniformBuffer(VkDevice device, const EVkUniformBufferUpdateInfo *p
 
     void* data;
     std::vector<VkDeviceMemory> &uniformBufferMemory = *pUpdateInfo->pUniformBufferMemory;
-    vkMapMemory(device, uniformBufferMemory[pUpdateInfo->currentImage], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(m_device, uniformBufferMemory[pUpdateInfo->currentImage], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(device, uniformBufferMemory[pUpdateInfo->currentImage]);
+    vkUnmapMemory(m_device, uniformBufferMemory[pUpdateInfo->currentImage]);
     counter++;
 }

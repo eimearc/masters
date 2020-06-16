@@ -1,4 +1,4 @@
-#include "evulkan.h"
+#include "app.h"
 
 #include <iostream>
 
@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 
     if (FLAGS_enable_validation) std::cout << "Validation layers turned on. Turn off for better performance.\n";
 
-    EVulkan app;
+    App app;
 
     try
     {
