@@ -95,6 +95,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     const std::vector<Vertex> &verts = vertices;
     const int num_verts = verts.size();
     int num_verts_each = num_verts/NUM_THREADS;
+    printf("Verts num each: %d\n", num_verts_each);
     size_t threadBufferSize = wholeBufferSize/NUM_THREADS;
 
     std::vector<std::thread> workers;
@@ -115,13 +116,14 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
 
     auto f = [&](int i)
     {
-        int vertsOffset = num_verts_each*i;
-        size_t bufferOffset=(num_verts_each*sizeof(verts[0]))*i;
+        int numVerts=num_verts_each;
+        int vertsOffset = numVerts*i;
+        size_t bufferOffset=(numVerts*sizeof(verts[0]))*i;
         if (i==(m_numThreads-1))
         {
-            num_verts_each = verts.size()-(i*num_verts_each);
+            numVerts = verts.size()-(i*numVerts);
         }
-        size_t numVerts=num_verts_each;
+        printf("Thread %d Vertoffset: %d numVerts: %d\n", i, vertsOffset, numVerts);
         size_t bufferSize = numVerts*sizeof(verts[0]);
         auto &stagingBuffer = buffers[i];
         auto &stagingBufferMemory = bufferMemory[i];
@@ -164,10 +166,10 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
         vkEndCommandBuffer(commandBuffers[i]);
     };
 
-    int i = 0;
+    int counter = 0;
     for (auto &t: m_threadPool.threads)
     {
-        t->addJob(std::bind(f,i++));
+        t->addJob(std::bind(f,counter++));
     }
     m_threadPool.wait();
 

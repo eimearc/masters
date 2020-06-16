@@ -32,16 +32,15 @@ void EVulkan::initVulkan()
     evkInstance.addVertexAttribute(0,offsetof(Vertex,pos));
     evkInstance.addVertexAttribute(1,offsetof(Vertex,color));
     evkInstance.setBindingDescription(sizeof(Vertex));
-    evk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo{
-        "shaders/vert.spv",
-        "shaders/frag.spv"
-    };
-    evkInstance.createGraphicsPipeline(&graphicsPipelineCreateInfo);
+
+    evkInstance.createGraphicsPipeline();
 
     evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
+
     evkInstance.createIndexBuffer(indices);
     evkInstance.createVertexBuffer(vertices);
+    
     evkInstance.createDrawCommands(indices);
 }
 

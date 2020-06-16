@@ -81,7 +81,7 @@ class Instance
     void registerFragmentShader(const std::string &fragShader);
     void addVertexAttribute(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
-    void createGraphicsPipeline(const GraphicsPipelineCreateInfo *pCreateInfo);
+    void createGraphicsPipeline();
     void createDepthResources();
     void createUniformBufferObject();
     void createDescriptorSets();
