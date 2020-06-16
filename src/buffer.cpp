@@ -89,20 +89,12 @@ void evk::Instance::createUniformBufferObject()
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
 {
-    size_t NUM_THREADS=m_numThreads;
     const VkDeviceSize wholeBufferSize = sizeof(vertices[0]) * vertices.size();
-    const VkQueue queue = m_graphicsQueue;
-    const std::vector<Vertex> &verts = vertices;
-    const int num_verts = verts.size();
-    int num_verts_each = num_verts/NUM_THREADS;
-    printf("Verts num each: %d\n", num_verts_each);
-    size_t threadBufferSize = wholeBufferSize/NUM_THREADS;
+    const int numVertsEach = vertices.size()/m_numThreads;
 
-    std::vector<std::thread> workers;
-    auto &commandPools = m_commandPools;
-    std::vector<VkCommandBuffer> commandBuffers(NUM_THREADS);
-    std::vector<VkBuffer> buffers(NUM_THREADS);
-    std::vector<VkDeviceMemory> bufferMemory(NUM_THREADS);
+    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
+    std::vector<VkBuffer> buffers(m_numThreads);
+    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
     // Use a device-local buffer as the actual vertex buffer.
     createBuffer(
@@ -114,17 +106,13 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
         &m_vertexBuffer,
         &m_vertexBufferMemory);
 
-    auto f = [&](int i)
+    auto copyVerts = [&](int i)
     {
-        int numVerts=num_verts_each;
-        int vertsOffset = numVerts*i;
-        size_t bufferOffset=(numVerts*sizeof(verts[0]))*i;
-        if (i==(m_numThreads-1))
-        {
-            numVerts = verts.size()-(i*numVerts);
-        }
-        printf("Thread %d Vertoffset: %d numVerts: %d\n", i, vertsOffset, numVerts);
-        size_t bufferSize = numVerts*sizeof(verts[0]);
+        int numVerts=numVertsEach;
+        int vertsOffset = numVertsEach*i;
+        size_t bufferOffset=(numVertsEach*sizeof(vertices[0]))*i;
+        if (i==(m_numThreads-1)) numVerts = vertices.size()-(i*numVertsEach);
+        size_t bufferSize = numVerts*sizeof(vertices[0]);
         auto &stagingBuffer = buffers[i];
         auto &stagingBufferMemory = bufferMemory[i];
 
@@ -141,13 +129,13 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
         // accessible memory.
         void *data;
         vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
-        memcpy(data, &verts[vertsOffset], bufferSize);
+        memcpy(data, &vertices[vertsOffset], bufferSize);
         vkUnmapMemory(m_device, bufferMemory[i]);
 
         // Copy the vertex data from the staging buffer to the device-local buffer.
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPools[i];
+        allocInfo.commandPool = m_commandPools[i];
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
         vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
@@ -169,7 +157,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     int counter = 0;
     for (auto &t: m_threadPool.threads)
     {
-        t->addJob(std::bind(f,counter++));
+        t->addJob(std::bind(copyVerts,counter++));
     }
     m_threadPool.wait();
 
@@ -178,12 +166,12 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     submitInfo.commandBufferCount = commandBuffers.size();
     submitInfo.pCommandBuffers = commandBuffers.data();
 
-    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(queue);
+    vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_graphicsQueue);
 
-    for (size_t i = 0; i<NUM_THREADS; ++i)
+    for (size_t i = 0; i<m_numThreads; ++i)
     {
-        vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
+        vkFreeCommandBuffers(m_device, m_commandPools[i], 1, &commandBuffers[i]);
         vkDestroyBuffer(m_device, buffers[i], nullptr);
         vkFreeMemory(m_device, bufferMemory[i], nullptr);
     }
