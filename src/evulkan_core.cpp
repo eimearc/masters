@@ -3,6 +3,11 @@
 #include <set>
 #include <iostream>
 
+void evk::loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices)
+{
+    printf("loaded OBJ %s", fileName.c_str());
+}
+
 void evk::Instance::addVertexAttribute(const uint32_t &location, const uint32_t &offset)
 {
     VkVertexInputAttributeDescription desc;

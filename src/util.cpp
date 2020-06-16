@@ -18,7 +18,7 @@ std::vector<char> evk::Instance::readFile(const std::string& filename)
     return buffer;
 }
 
-evk::UniformBufferObject evk::Instance::getUBO(const uint32_t &_width, const uint32_t &_height)
+UniformBufferObject evk::Instance::getUBO(const uint32_t &_width, const uint32_t &_height)
 {
     UniformBufferObject ubo = {};
     ubo.model=glm::mat4(1.0f);

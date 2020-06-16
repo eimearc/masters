@@ -16,13 +16,6 @@
 namespace evk
 {
 
-struct UniformBufferObject
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-};
-
 struct InstanceCreateInfo
 {
     std::vector<const char*> validationLayers;
@@ -63,6 +56,8 @@ struct VertexAttributeInfo
     uint32_t location;
     uint32_t offset;
 };
+
+void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
 
 class Instance
 {
