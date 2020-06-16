@@ -82,7 +82,8 @@ class Instance
     void createRenderPass();
     void registerVertexShader(const std::string &vertShader);
     void registerFragmentShader(const std::string &fragShader);
-    void addVertexAttribute(const uint32_t &location, const uint32_t &offset);
+    void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
+    void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
     void createGraphicsPipeline();
     void createDepthResources();

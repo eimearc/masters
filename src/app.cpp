@@ -60,8 +60,9 @@ void App::initVulkan()
     evkInstance.registerVertexShader("shaders/vert.spv");
     evkInstance.registerFragmentShader("shaders/frag.spv");
 
-    evkInstance.addVertexAttribute(0,offsetof(Vertex,pos));
-    evkInstance.addVertexAttribute(1,offsetof(Vertex,color));
+    evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     evkInstance.setBindingDescription(sizeof(Vertex));
 
     evkInstance.createGraphicsPipeline();

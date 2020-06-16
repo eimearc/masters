@@ -3,12 +3,22 @@
 #include <set>
 #include <iostream>
 
-void evk::Instance::addVertexAttribute(const uint32_t &location, const uint32_t &offset)
+void evk::Instance::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
 {
     VkVertexInputAttributeDescription desc;
     desc.binding=0;
     desc.location=location;
     desc.format=VK_FORMAT_R32G32B32_SFLOAT;
+    desc.offset=offset;
+    m_attributeDescriptions.push_back(desc);
+}
+
+void evk::Instance::addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset)
+{
+    VkVertexInputAttributeDescription desc;
+    desc.binding=0;
+    desc.location=location;
+    desc.format=VK_FORMAT_R32G32_SFLOAT;
     desc.offset=offset;
     m_attributeDescriptions.push_back(desc);
 }
