@@ -5,14 +5,12 @@ find_package(PkgConfig REQUIRED)
 set (CMAKE_CXX_STANDARD 17)
 
 set(VULKANROOT .)
-set(UTILROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(STB_INCLUDE_PATH /usr/local/include)
 set(STB_LIB_PATH /usr/local/lib)
 
 # Add headers.
 include_directories (./include)
-include_directories (${UTILROOT}/include)
 include_directories (${VULKAN_SDK}/include)
 include_directories (${STB_INCLUDE_PATH})
 
@@ -36,12 +34,11 @@ set (SOURCES
     ${VULKANROOT}/src/instance.cpp
     ${VULKANROOT}/src/sync.cpp
     ${VULKANROOT}/src/swapchain.cpp
+    ${VULKANROOT}/src/util.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/evulkan_util.h
-    ${UTILROOT}/src/util.cpp
-    ${UTILROOT}/include/util.h
-    ${UTILROOT}/include/threadpool.h
-    ${UTILROOT}/include/vertex.h
+    ${VULKANROOT}/include/threadpool.h
+    ${VULKANROOT}/include/vertex.h
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib)
@@ -55,12 +52,11 @@ set(MAIN_SOURCES
     ${VULKANROOT}/src/main.cpp
     ${VULKANROOT}/include/app.h
     ${VULKANROOT}/src/app.cpp
-    ${UTILROOT}/src/util.cpp
     ${STB_INCLUDE_PATH}/gflags/gflags.h
-    ${UTILROOT}/include/flags.h
-    ${UTILROOT}/src/flags.cpp
-    ${UTILROOT}/include/cube.h
-    ${UTILROOT}/include/grid.h
+    ${VULKANROOT}/include/flags.h
+    ${VULKANROOT}/src/flags.cpp
+    ${VULKANROOT}/include/cube.h
+    ${VULKANROOT}/include/grid.h
 )
 
 add_executable(main ${MAIN_SOURCES})
