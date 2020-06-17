@@ -62,7 +62,7 @@ void App::initVulkan()
 
     evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
+    // evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     evkInstance.setBindingDescription(sizeof(Vertex));
 
     evkInstance.createGraphicsPipeline();
