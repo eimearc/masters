@@ -24,11 +24,10 @@ void evk::Instance::loadTexture(const std::string &fileName)
 
     stbi_image_free(pixels);
 
-    EVkImageCreateInfo imageCreateInfo;
+    ImageCreateInfo imageCreateInfo;
     imageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
     imageCreateInfo.height = texHeight;
     imageCreateInfo.width = texWidth;
-    imageCreateInfo.physicalDevice = m_physicalDevice; // Shouldn't be needed, right?
     imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -40,7 +39,11 @@ void evk::Instance::loadTexture(const std::string &fileName)
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 
-    m_textureImageView = createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.image=m_textureImage;
+    imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_SRGB;
+    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
+    createImageView(&imageViewCreateInfo, &m_textureImageView);
 
     // Create sampler.
     VkSamplerCreateInfo samplerInfo{};
@@ -61,9 +64,7 @@ void evk::Instance::loadTexture(const std::string &fileName)
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
     if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
-        throw std::runtime_error("failed to create texture sampler!");
-
-    printf("Loaded texture %s\n", fileName.c_str());
+        throw std::runtime_error("failed to create texture sampler.");
 }
 
 void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {

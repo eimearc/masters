@@ -40,15 +40,21 @@ struct EVkRenderPassCreateInfo
     VkPhysicalDevice physicalDevice;
 };
 
-struct EVkImageCreateInfo
+struct ImageCreateInfo
 {
-    VkPhysicalDevice physicalDevice;
     uint32_t width;
     uint32_t height;
     VkFormat format;
     VkImageTiling tiling;
     VkImageUsageFlags usage;
     VkMemoryPropertyFlags properties;
+};
+
+struct ImageViewCreateInfo
+{
+    VkImage image;
+    VkFormat format;
+    VkImageAspectFlags aspectFlags;
 };
 
 struct VertexAttributeInfo
@@ -175,12 +181,11 @@ class Instance
         const std::vector<VkFormat>& candidates,
         VkImageTiling tiling,
         VkFormatFeatureFlags features);
-    VkImageView createImageView(
-        VkImage image,
-        VkFormat format,
-        VkImageAspectFlags aspectFlags);
+    void createImageView(
+        const ImageViewCreateInfo *pCreateInfo,
+        VkImageView *pImageView);
     void createImage(
-        const EVkImageCreateInfo *pCreateInfo,
+        const ImageCreateInfo *pCreateInfo,
         VkImage *pImage,
         VkDeviceMemory *pImageMemory);
     struct EVkUniformBufferUpdateInfo

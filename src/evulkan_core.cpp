@@ -49,28 +49,21 @@ void evk::Instance::createCommandPools()
     }
 }
 
-VkImageView evk::Instance::createImageView(
-    VkImage image,
-    VkFormat format,
-    VkImageAspectFlags aspectFlags)
+void evk::Instance::createImageView(const ImageViewCreateInfo *pCreateInfo, VkImageView *pImageView)
 {
     VkImageViewCreateInfo viewInfo = {};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
+    viewInfo.image = pCreateInfo->image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = format;
-    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.format = pCreateInfo->format;
+    viewInfo.subresourceRange.aspectMask = pCreateInfo->aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    VkImageView imageView;
-    if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+    if (vkCreateImageView(m_device, &viewInfo, nullptr, pImageView) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture image view!");
-    }
-
-    return imageView;
 }
 
 void evk::Instance::createRenderPass()
@@ -359,21 +352,23 @@ void evk::Instance::createDepthResources()
     renderPassInfo.physicalDevice = m_physicalDevice;
     VkFormat depthFormat = findDepthFormat(&renderPassInfo);
 
-    EVkImageCreateInfo createInfo = {};
-    createInfo.physicalDevice = m_physicalDevice;
+    ImageCreateInfo createInfo;
     createInfo.width = m_swapChainExtent.width;
     createInfo.height = m_swapChainExtent.height;
     createInfo.format = depthFormat;
     createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
     createImage(&createInfo, &m_depthImage, &m_depthImageMemory);
-    m_depthImageView = createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.image=m_depthImage;
+    imageViewCreateInfo.format=depthFormat;
+    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
+    createImageView(&imageViewCreateInfo, &m_depthImageView);
 }
 
 void evk::Instance::createImage(
-    const EVkImageCreateInfo *pCreateInfo,
+    const ImageCreateInfo *pCreateInfo,
     VkImage *pImage,
     VkDeviceMemory *pImageMemory)
 {
@@ -404,7 +399,7 @@ void evk::Instance::createImage(
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(
-        pCreateInfo->physicalDevice,
+        m_physicalDevice,
         memRequirements.memoryTypeBits,
         pCreateInfo->properties);
 

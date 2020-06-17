@@ -5,7 +5,6 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
 
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physicalDevice, m_surface);
-
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
@@ -58,12 +57,13 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
 
-    // Create swap chain image views.
+    ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
+    imageViewCreateInfo.format=m_swapChainImageFormat;
     m_swapChainImageViews.resize(m_swapChainImages.size());
-    for (uint32_t i = 0; i < m_swapChainImages.size(); i++) {
-        m_swapChainImageViews[i] = createImageView(
-            m_swapChainImages[i],
-            m_swapChainImageFormat,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+    for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
+    {
+        imageViewCreateInfo.image=m_swapChainImages[i];
+        createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
     }
 }
