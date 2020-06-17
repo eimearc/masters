@@ -9,7 +9,7 @@ void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
 
     // TODO: make thread safe.
     size_t index = m_buffers.size();
-    m_bufferMap.insert(std::pair<std::string,size_t>("INDEX",index));
+    m_bufferMap.insert(std::pair<std::string,BufferInfo>("INDEX",{index,1}));
     m_buffers.push_back(VkBuffer{});
     m_bufferMemories.push_back(VkDeviceMemory{});
 
@@ -71,7 +71,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     const int numVertsEach = vertices.size()/m_numThreads;
 
     size_t index = m_buffers.size();
-    m_bufferMap.insert(std::pair<std::string, size_t>("VERTEX", index));
+    m_bufferMap.insert(std::pair<std::string, BufferInfo>("VERTEX", {index,1}));
     m_buffers.push_back(VkBuffer{});
     m_bufferMemories.push_back(VkDeviceMemory{});
 

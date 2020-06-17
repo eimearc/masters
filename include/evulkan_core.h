@@ -157,11 +157,15 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    std::map<std::string, size_t> m_bufferMap;
+    struct BufferInfo
+    {
+        size_t index;
+        size_t size;
+    };
+    std::map<std::string, BufferInfo> m_bufferMap;
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
-    // VkBuffer m_indexBuffer;
-    // VkDeviceMemory m_indexBufferMemory;
+
     std::vector<Index> m_indices;
 
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
