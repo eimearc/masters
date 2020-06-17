@@ -157,8 +157,11 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    VkBuffer m_vertexBuffer;
-    VkDeviceMemory m_vertexBufferMemory;
+    std::map<std::string, size_t> m_bufferMap;
+    std::vector<VkBuffer> m_buffers;
+    std::vector<VkDeviceMemory> m_bufferMemories;
+    // VkBuffer m_vertexBuffer;
+    // VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
     std::vector<Index> m_indices;
@@ -177,8 +180,6 @@ class Instance
     std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
     std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
-
-    std::map<std::string, size_t> m_buffers;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

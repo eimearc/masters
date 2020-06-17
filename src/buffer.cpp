@@ -64,6 +64,11 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
     const VkDeviceSize wholeBufferSize = sizeof(vertices[0]) * vertices.size();
     const int numVertsEach = vertices.size()/m_numThreads;
 
+    size_t index = m_buffers.size();
+    m_bufferMap.insert(std::pair<std::string, size_t>("VERTEX", index));
+    m_buffers.push_back(VkBuffer{});
+    m_bufferMemories.push_back(VkDeviceMemory{});
+
     std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
     std::vector<VkBuffer> buffers(m_numThreads);
     std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
@@ -75,8 +80,8 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
         wholeBufferSize,
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        &m_vertexBuffer,
-        &m_vertexBufferMemory);
+        &m_buffers[index],
+        &m_bufferMemories[index]);
 
     auto copyVerts = [&](int i)
     {
@@ -121,7 +126,7 @@ void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
         VkBufferCopy copyRegion = {};
         copyRegion.size = bufferSize;
         copyRegion.dstOffset = bufferOffset;
-        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_vertexBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_buffers[index], 1, &copyRegion);
 
         vkEndCommandBuffer(commandBuffers[i]);
     };
