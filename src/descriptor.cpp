@@ -93,8 +93,6 @@ void evk::Instance::createDescriptorSets()
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    std::cout << "Num bindings: " << bindings.size() << std::endl;
-
     if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout.");
@@ -113,19 +111,11 @@ void evk::Instance::createDescriptorSets()
     if(vkAllocateDescriptorSets(m_device, &allocInfo, m_descriptorSets.data())!=VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets.");
-    }
-
-    for (const auto &ds : m_descriptorSets)
-        std::cout << "Created descriptor set " << ds << std::endl;
+    } 
 
     for (size_t i = 0; i < size; i++)
     {
-        // std::vector<VkWriteDescriptorSet> descriptorWrites;
-
         for (auto &set : m_writeDescriptorSet[i]) set.dstSet=m_descriptorSets[i];
-        // for (auto &set : m_descriptorSets[i])
-        // descriptorWrites.push_back(m_writeDescriptorSet[i][0]);
-        // descriptorWrites.push_back(m_writeDescriptorSet[i][1]);
 
         vkUpdateDescriptorSets(m_device,
             static_cast<uint32_t>(m_writeDescriptorSet[i].size()),
