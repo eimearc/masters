@@ -154,7 +154,7 @@ void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
             vkCmdBindDescriptorSets(
                 m_secondaryCommandBuffers[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[0]), 0, nullptr);
+                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr);
 
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 

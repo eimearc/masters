@@ -160,10 +160,17 @@ class Instance
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
 
-    VkImage m_textureImage;
-    VkImageView m_textureImageView;
-    VkSampler m_textureSampler;
-    VkDeviceMemory m_textureImageMemory;
+    VkImage m_textureImage=VK_NULL_HANDLE;
+    VkImageView m_textureImageView=VK_NULL_HANDLE;
+    VkSampler m_textureSampler=VK_NULL_HANDLE;
+    VkDeviceMemory m_textureImageMemory=VK_NULL_HANDLE;
+    VkDescriptorImageInfo m_textureDescriptor;
+
+    std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
+    std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
+    std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
+    std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
+    std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
@@ -199,6 +206,13 @@ class Instance
     UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+    void addDescriptorPoolSize(const VkDescriptorType type);
+    void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
+    void addWriteDescriptorSetBuffer(
+        std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
+        uint32_t binding, VkDescriptorType type);
+    void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

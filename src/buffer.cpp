@@ -52,6 +52,10 @@ void evk::Instance::createUniformBufferObject()
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             &(m_uniformBuffers)[i], &(m_uniformBuffersMemory)[i]);
     }
+
+    addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    addWriteDescriptorSetBuffer(m_uniformBuffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 }
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)

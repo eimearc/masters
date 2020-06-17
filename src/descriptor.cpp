@@ -1,13 +1,79 @@
 #include "evulkan_core.h"
 
+void evk::Instance::addDescriptorPoolSize(const VkDescriptorType type)
+{
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type = type;
+    poolSize.descriptorCount = static_cast<uint32_t>(m_swapChainImages.size());
+    m_descriptorPoolSizes.push_back(poolSize);
+}
+
+void evk::Instance::addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage)
+{
+    VkDescriptorSetLayoutBinding layoutBinding = {};
+    layoutBinding.binding = binding;
+    layoutBinding.descriptorType = type;
+    layoutBinding.descriptorCount = 1;
+    layoutBinding.stageFlags = stage;
+    layoutBinding.pImmutableSamplers = nullptr;
+    m_descriptorSetBindings.push_back(layoutBinding);   
+}
+
+void evk::Instance::addWriteDescriptorSetBuffer(
+    std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
+    uint32_t binding, VkDescriptorType type)
+{
+    if (m_writeDescriptorSet.size()==0)
+        m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapChainImages.size(), std::vector<VkWriteDescriptorSet>());
+    m_descriptorBufferInfo.resize(m_swapChainImages.size());
+
+    for (size_t i = 0; i < m_swapChainImages.size(); ++i)
+    {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer = buffers[i];
+        bufferInfo.offset = offset;
+        bufferInfo.range = range;
+        m_descriptorBufferInfo[i] = bufferInfo;
+        VkWriteDescriptorSet descriptor;
+        descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor.dstBinding = binding;
+        descriptor.dstArrayElement = 0;
+        descriptor.descriptorType = type;
+        descriptor.descriptorCount = 1;
+        descriptor.pBufferInfo = &m_descriptorBufferInfo[i];
+        descriptor.pNext=nullptr;
+        m_writeDescriptorSet[i].push_back(descriptor);
+    }
+}
+
+void evk::Instance::addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding)
+{
+    if (m_writeDescriptorSet.size()==0)
+        m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapChainImages.size(), std::vector<VkWriteDescriptorSet>());
+    m_descriptorTextureSamplerInfo.resize(m_swapChainImages.size());
+
+    for (size_t i = 0; i < m_swapChainImages.size(); ++i)
+    {
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = textureView;
+        imageInfo.sampler = textureSampler;
+        m_descriptorTextureSamplerInfo[i] = imageInfo;
+        VkWriteDescriptorSet descriptor;
+        descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor.dstBinding = binding;
+        descriptor.dstArrayElement = 0;
+        descriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptor.descriptorCount = 1;
+        descriptor.pImageInfo = &m_descriptorTextureSamplerInfo[i];
+        descriptor.pNext=nullptr;
+        m_writeDescriptorSet[i].push_back(descriptor);
+    }
+}
+
 void evk::Instance::createDescriptorSets()
 {
-    // Create descriptor pool.
-    std::array<VkDescriptorPoolSize, 2> poolSizes = {};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(m_swapChainImages.size());
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(m_swapChainImages.size());
+    std::vector<VkDescriptorPoolSize> &poolSizes=m_descriptorPoolSizes;
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -20,22 +86,7 @@ void evk::Instance::createDescriptorSets()
         throw std::runtime_error("failed to create descriptor pool.");
     }
 
-    // Create descriptor set layout.
-    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-
-    VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+    std::vector<VkDescriptorSetLayoutBinding> &bindings = m_descriptorSetBindings;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -60,43 +111,14 @@ void evk::Instance::createDescriptorSets()
     if(vkAllocateDescriptorSets(m_device, &allocInfo, m_descriptorSets.data())!=VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets.");
-    }
+    } 
 
     for (size_t i = 0; i < size; i++)
     {
-        // Set up the UBO for the shader.
-        VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = m_uniformBuffers[i];
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
-
-        // TODO: Only bind if texture.
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = m_textureImageView;
-        imageInfo.sampler = m_textureSampler;
-
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = m_descriptorSets[i];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-        // TODO: Only bind if texture.
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = m_descriptorSets[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;
+        for (auto &set : m_writeDescriptorSet[i]) set.dstSet=m_descriptorSets[i];
 
         vkUpdateDescriptorSets(m_device,
-            static_cast<uint32_t>(descriptorWrites.size()),
-            descriptorWrites.data(), 0, nullptr);
+            static_cast<uint32_t>(m_writeDescriptorSet[i].size()),
+            m_writeDescriptorSet[i].data(), 0, nullptr);
     }
 }
