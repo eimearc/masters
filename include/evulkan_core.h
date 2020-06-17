@@ -40,15 +40,21 @@ struct EVkRenderPassCreateInfo
     VkPhysicalDevice physicalDevice;
 };
 
-struct EVkImageCreateInfo
+struct ImageCreateInfo
 {
-    VkPhysicalDevice physicalDevice;
     uint32_t width;
     uint32_t height;
     VkFormat format;
     VkImageTiling tiling;
     VkImageUsageFlags usage;
     VkMemoryPropertyFlags properties;
+};
+
+struct ImageViewCreateInfo
+{
+    VkImage image;
+    VkFormat format;
+    VkImageAspectFlags aspectFlags;
 };
 
 struct VertexAttributeInfo
@@ -82,7 +88,8 @@ class Instance
     void createRenderPass();
     void registerVertexShader(const std::string &vertShader);
     void registerFragmentShader(const std::string &fragShader);
-    void addVertexAttribute(const uint32_t &location, const uint32_t &offset);
+    void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
+    void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
     void createGraphicsPipeline();
     void createDepthResources();
@@ -96,6 +103,8 @@ class Instance
     void createDrawCommands(const std::vector<uint32_t> &indices);
     void draw();
     void cleanup();
+
+    void loadTexture(const std::string &fileName);
 
     ThreadPool m_threadPool;
     size_t m_numThreads;
@@ -151,6 +160,11 @@ class Instance
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
 
+    VkImage m_textureImage;
+    VkImageView m_textureImageView;
+    VkSampler m_textureSampler;
+    VkDeviceMemory m_textureImageMemory;
+
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
@@ -167,12 +181,11 @@ class Instance
         const std::vector<VkFormat>& candidates,
         VkImageTiling tiling,
         VkFormatFeatureFlags features);
-    VkImageView createImageView(
-        VkImage image,
-        VkFormat format,
-        VkImageAspectFlags aspectFlags);
+    void createImageView(
+        const ImageViewCreateInfo *pCreateInfo,
+        VkImageView *pImageView);
     void createImage(
-        const EVkImageCreateInfo *pCreateInfo,
+        const ImageCreateInfo *pCreateInfo,
         VkImage *pImage,
         VkDeviceMemory *pImageMemory);
     struct EVkUniformBufferUpdateInfo
@@ -184,6 +197,8 @@ class Instance
     void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
     std::vector<char> readFile(const std::string& filename);
     UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
+    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

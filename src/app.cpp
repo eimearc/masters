@@ -49,14 +49,20 @@ void App::initVulkan()
     evkInstance.createSyncObjects();
     evkInstance.createRenderPass();
 
+    std::vector<Vertex> v;
+    std::vector<uint32_t> in;
+    evk::loadOBJ("obj/viking_room.obj", v, in);
+    evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
+
     evkInstance.createUniformBufferObject();
     evkInstance.createDescriptorSets();
 
     evkInstance.registerVertexShader("shaders/vert.spv");
     evkInstance.registerFragmentShader("shaders/frag.spv");
 
-    evkInstance.addVertexAttribute(0,offsetof(Vertex,pos));
-    evkInstance.addVertexAttribute(1,offsetof(Vertex,color));
+    evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     evkInstance.setBindingDescription(sizeof(Vertex));
 
     evkInstance.createGraphicsPipeline();
@@ -64,10 +70,10 @@ void App::initVulkan()
     evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
-    evkInstance.createIndexBuffer(indices);
-    evkInstance.createVertexBuffer(vertices);
+    evkInstance.createIndexBuffer(in);
+    evkInstance.createVertexBuffer(v);
     
-    evkInstance.createDrawCommands(indices);
+    evkInstance.createDrawCommands(in);
 }
 
 void App::mainLoop()
