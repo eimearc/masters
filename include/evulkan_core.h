@@ -99,6 +99,8 @@ class Instance
     void createGraphicsPipeline();
     void createDepthResources();
     void createUniformBufferObject();
+    void createBufferObject(std::string name, VkDeviceSize bufferSize);
+    void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
     void createDescriptorSets();
     void createSyncObjects();
     void createFramebuffers();

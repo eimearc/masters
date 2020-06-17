@@ -42,14 +42,46 @@ void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
+void evk::Instance::updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex)
+{
+    size_t bufferIndex = m_bufferMap[name].index;
+    void* dstBuffer;
+    vkMapMemory(m_device, m_bufferMemories[bufferIndex+imageIndex], 0, bufferSize, 0, &dstBuffer);
+    memcpy(dstBuffer, srcBuffer, bufferSize);
+    vkUnmapMemory(m_device, m_bufferMemories[bufferIndex+imageIndex]);
+}
+
+void evk::Instance::createBufferObject(std::string name, VkDeviceSize bufferSize)
+{
+    const size_t &size = m_swapChainImages.size();
+
+    size_t index = m_buffers.size();
+    m_bufferMap.insert(std::pair<std::string,BufferInfo>(name,{index,size}));
+
+    for (size_t i = 0; i < size; i++)
+    {
+        m_buffers.push_back(VkBuffer{});
+        m_bufferMemories.push_back(VkDeviceMemory{});
+        createBuffer(
+            m_device,
+            m_physicalDevice,
+            bufferSize,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            &m_buffers[index+i], &m_bufferMemories[index+i]);
+    }
+
+    addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    addWriteDescriptorSetBuffer(m_buffers, 0, bufferSize, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,index);
+}
+
 void evk::Instance::createUniformBufferObject()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
     const size_t &size = m_swapChainImages.size();
 
     size_t index = m_buffers.size();
-    // m_uniformBuffers.resize(size);
-    // m_uniformBuffersMemory.resize(size);
     m_bufferMap.insert(std::pair<std::string,BufferInfo>("UBO",{index,size}));
 
     for (size_t i = 0; i < size; i++)

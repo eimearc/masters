@@ -470,12 +470,6 @@ void evk::Instance::cleanup()
 
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 
-    // for (size_t i = 0; i < m_swapChainImages.size(); i++)
-    // {
-    //     vkDestroyBuffer(m_device, m_uniformBuffers[i], nullptr);
-    //     vkFreeMemory(m_device, m_uniformBuffersMemory[i], nullptr);
-    // }
-
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
 
