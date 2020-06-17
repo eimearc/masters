@@ -68,7 +68,7 @@ void evk::Instance::loadTexture(const std::string &fileName)
 
     addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
-    // addWriteDescriptorSet();
+    addWriteDescriptorSetTextureSampler(m_textureImageView, m_textureSampler, 1);
 }
 
 void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {

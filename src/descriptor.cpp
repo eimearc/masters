@@ -23,13 +23,12 @@ void evk::Instance::addWriteDescriptorSetBuffer(
     std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
     uint32_t binding, VkDescriptorType type)
 {
-    if (m_writeDescriptorSet.size()==0) m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapChainImages.size(), std::vector<VkWriteDescriptorSet>());
-    std::cout << m_writeDescriptorSet.size() << std::endl;
+    if (m_writeDescriptorSet.size()==0)
+        m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapChainImages.size(), std::vector<VkWriteDescriptorSet>());
     m_descriptorBufferInfo.resize(m_swapChainImages.size());
 
     for (size_t i = 0; i < m_swapChainImages.size(); ++i)
     {
-        // Set up the UBO for the shader.
         VkDescriptorBufferInfo bufferInfo = {};
         bufferInfo.buffer = buffers[i];
         bufferInfo.offset = offset;
@@ -37,7 +36,6 @@ void evk::Instance::addWriteDescriptorSetBuffer(
         m_descriptorBufferInfo[i] = bufferInfo;
         VkWriteDescriptorSet descriptor;
         descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        // descriptor.dstSet = m_descriptorSets[i];
         descriptor.dstBinding = binding;
         descriptor.dstArrayElement = 0;
         descriptor.descriptorType = type;
@@ -56,7 +54,6 @@ void evk::Instance::addWriteDescriptorSetTextureSampler(VkImageView textureView,
 
     for (size_t i = 0; i < m_swapChainImages.size(); ++i)
     {
-        // TODO: Only bind if texture.
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = textureView;
@@ -64,7 +61,6 @@ void evk::Instance::addWriteDescriptorSetTextureSampler(VkImageView textureView,
         m_descriptorTextureSamplerInfo[i] = imageInfo;
         VkWriteDescriptorSet descriptor;
         descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptor.dstSet = m_descriptorSets[i];
         descriptor.dstBinding = binding;
         descriptor.dstArrayElement = 0;
         descriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -117,19 +113,17 @@ void evk::Instance::createDescriptorSets()
         throw std::runtime_error("failed to allocate descriptor sets.");
     }
 
-    addWriteDescriptorSetBuffer(m_uniformBuffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    addWriteDescriptorSetTextureSampler(m_textureImageView, m_textureSampler, 1);
-
     for (size_t i = 0; i < size; i++)
     {
         std::vector<VkWriteDescriptorSet> descriptorWrites;
 
         for (auto &set : m_writeDescriptorSet[i]) set.dstSet=m_descriptorSets[i];
+        // for (auto &set : m_descriptorSets[i])
         descriptorWrites.push_back(m_writeDescriptorSet[i][0]);
         descriptorWrites.push_back(m_writeDescriptorSet[i][1]);
 
         vkUpdateDescriptorSets(m_device,
-            static_cast<uint32_t>(descriptorWrites.size()),
-            descriptorWrites.data(), 0, nullptr);
+            static_cast<uint32_t>(m_writeDescriptorSet[i].size()),
+            m_writeDescriptorSet[i].data(), 0, nullptr);
     }
 }

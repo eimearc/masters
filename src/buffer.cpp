@@ -55,6 +55,7 @@ void evk::Instance::createUniformBufferObject()
 
     addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    addWriteDescriptorSetBuffer(m_uniformBuffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 }
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)

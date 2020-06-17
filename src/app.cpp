@@ -53,7 +53,7 @@ void App::initVulkan()
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     evk::loadOBJ("obj/viking_room.obj", v, in);
-    evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
+    // evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
 
     evkInstance.createDescriptorSets();
 
