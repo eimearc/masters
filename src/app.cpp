@@ -72,7 +72,7 @@ void App::initVulkan()
     evkInstance.createIndexBuffer(in);
     evkInstance.createVertexBuffer(v);
     
-    evkInstance.createDrawCommands(in);
+    evkInstance.createDrawCommands();
 }
 
 void App::mainLoop()

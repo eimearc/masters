@@ -2,8 +2,9 @@
 
 #include <glm/gtx/string_cast.hpp>
 
-void evk::Instance::createIndexBuffer(const std::vector<uint32_t> &indices)
+void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
 {
+    m_indices=indices;
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     VkBuffer stagingBuffer;

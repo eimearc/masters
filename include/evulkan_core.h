@@ -16,6 +16,8 @@
 namespace evk
 {
 
+typedef uint32_t Index;
+
 struct InstanceCreateInfo
 {
     std::vector<const char*> validationLayers;
@@ -98,9 +100,9 @@ class Instance
     void createSyncObjects();
     void createFramebuffers();
     void createCommandPools();
-    void createIndexBuffer(const std::vector<uint32_t> &indices);
+    void createIndexBuffer(const std::vector<Index> &indices);
     void createVertexBuffer(const std::vector<Vertex> &vertices);
-    void createDrawCommands(const std::vector<uint32_t> &indices);
+    void createDrawCommands();
     void draw();
     void cleanup();
 
@@ -156,6 +158,7 @@ class Instance
     VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
+    std::vector<Index> m_indices;
 
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;

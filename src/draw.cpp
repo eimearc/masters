@@ -73,12 +73,12 @@ void evk::Instance::draw()
     currentFrame = ((currentFrame)+1) % m_maxFramesInFlight;
 }
 
-void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
+void evk::Instance::createDrawCommands()
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
 
-    const size_t numIndicesEach=indices.size()/m_numThreads;
+    const size_t numIndicesEach=m_indices.size()/m_numThreads;
 
     for (int frame = 0; frame < m_maxFramesInFlight; ++frame)
     {
@@ -118,7 +118,7 @@ void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
         {
             size_t numIndices=numIndicesEach;
             size_t indexOffset=numIndicesEach*i;
-            if (i==(m_numThreads-1)) numIndices = indices.size()-(i*numIndicesEach);
+            if (i==(m_numThreads-1)) numIndices = m_indices.size()-(i*numIndicesEach);
             VkCommandBufferAllocateInfo allocInfo = {};
             allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             allocInfo.commandPool = m_commandPools[i];
@@ -154,7 +154,7 @@ void evk::Instance::createDrawCommands(const std::vector<uint32_t> &indices)
             vkCmdBindDescriptorSets(
                 m_secondaryCommandBuffers[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr);
+                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
 
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
