@@ -78,24 +78,26 @@ void App::initVulkan()
 
 void App::mainLoop()
 {
-    size_t frameIndex;
-    size_t counter;
-    // evkInstance.createBufferObject(std::string{"name"}, 0.01f);
+    size_t frameIndex=0;
+    size_t counter=0;
+    size_t dir=1;
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        // UniformBufferObject ubo = {};
-        // ubo.model=glm::mat4(1.0f);
-        // ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
-        // ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        // ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
-        // ubo.proj[1][1] *= -1;
 
-        // evkInstance.updateBuffer("UBO",ubo);
+        UniformBufferObject ubo = {};
+        ubo.model=glm::mat4(1.0f);
+        ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+        ubo.proj[1][1] *= -1;
+
+        evkInstance.updateBufferObject("UBO",sizeof(ubo), &ubo, frameIndex);
 
         evkInstance.draw();
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
-        counter++;
+        counter=counter+dir;
+        if (counter%100==0) dir*=-1;
     }
 }
