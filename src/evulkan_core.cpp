@@ -479,9 +479,6 @@ void evk::Instance::cleanup()
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
 
-    vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
-    vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
-
     for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);
     for (auto &memory : m_bufferMemories) vkFreeMemory(m_device, memory, nullptr);
 

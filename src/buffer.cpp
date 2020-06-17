@@ -7,6 +7,12 @@ void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
     m_indices=indices;
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
+    // TODO: make thread safe.
+    size_t index = m_buffers.size();
+    m_bufferMap.insert(std::pair<std::string,size_t>("INDEX",index));
+    m_buffers.push_back(VkBuffer{});
+    m_bufferMemories.push_back(VkDeviceMemory{});
+
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(
@@ -28,9 +34,9 @@ void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
         bufferSize,
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        &m_indexBuffer, &m_indexBufferMemory);
+        &m_buffers[index], &m_bufferMemories[index]);
 
-    copyBuffer(m_device, m_commandPools[0], m_graphicsQueue, stagingBuffer, m_indexBuffer, bufferSize);
+    copyBuffer(m_device, m_commandPools[0], m_graphicsQueue, stagingBuffer, m_buffers[index], bufferSize);
 
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);

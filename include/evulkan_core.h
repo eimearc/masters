@@ -160,10 +160,8 @@ class Instance
     std::map<std::string, size_t> m_bufferMap;
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
-    // VkBuffer m_vertexBuffer;
-    // VkDeviceMemory m_vertexBufferMemory;
-    VkBuffer m_indexBuffer;
-    VkDeviceMemory m_indexBufferMemory;
+    // VkBuffer m_indexBuffer;
+    // VkDeviceMemory m_indexBufferMemory;
     std::vector<Index> m_indices;
 
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;

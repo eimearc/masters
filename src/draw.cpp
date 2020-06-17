@@ -150,10 +150,11 @@ void evk::Instance::createDrawCommands()
             vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
             size_t vertexBufferIndex = m_bufferMap["VERTEX"];
+            size_t indexBufferIndex = m_bufferMap["INDEX"];
             VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindDescriptorSets(
                 m_secondaryCommandBuffers[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
