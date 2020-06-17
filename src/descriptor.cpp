@@ -21,7 +21,7 @@ void evk::Instance::addDescriptorSetBinding(const VkDescriptorType type, uint32_
 
 void evk::Instance::addWriteDescriptorSetBuffer(
     std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-    uint32_t binding, VkDescriptorType type)
+    uint32_t binding, VkDescriptorType type, size_t startIndex)
 {
     if (m_writeDescriptorSet.size()==0)
         m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapChainImages.size(), std::vector<VkWriteDescriptorSet>());
@@ -30,7 +30,7 @@ void evk::Instance::addWriteDescriptorSetBuffer(
     for (size_t i = 0; i < m_swapChainImages.size(); ++i)
     {
         VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = buffers[i];
+        bufferInfo.buffer = buffers[startIndex+i];
         bufferInfo.offset = offset;
         bufferInfo.range = range;
         m_descriptorBufferInfo[i] = bufferInfo;

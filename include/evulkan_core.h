@@ -139,8 +139,8 @@ class Instance
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;
 
-    std::vector<VkBuffer> m_uniformBuffers;
-    std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+    // std::vector<VkBuffer> m_uniformBuffers;
+    // std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
@@ -222,7 +222,7 @@ class Instance
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetBuffer(
         std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-        uint32_t binding, VkDescriptorType type);
+        uint32_t binding, VkDescriptorType type, size_t startIndex);
     void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
 
     std::vector<const char *> m_deviceExtensions;

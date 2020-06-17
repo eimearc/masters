@@ -46,23 +46,28 @@ void evk::Instance::createUniformBufferObject()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
     const size_t &size = m_swapChainImages.size();
-    m_uniformBuffers.resize(size);
-    m_uniformBuffersMemory.resize(size);
+
+    size_t index = m_buffers.size();
+    // m_uniformBuffers.resize(size);
+    // m_uniformBuffersMemory.resize(size);
+    m_bufferMap.insert(std::pair<std::string,BufferInfo>("UBO",{index,size}));
 
     for (size_t i = 0; i < size; i++)
     {
+        m_buffers.push_back(VkBuffer{});
+        m_bufferMemories.push_back(VkDeviceMemory{});
         createBuffer(
             m_device,
             m_physicalDevice,
             bufferSize,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &(m_uniformBuffers)[i], &(m_uniformBuffersMemory)[i]);
+            &m_buffers[index+i], &m_bufferMemories[index+i]);
     }
 
     addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
-    addWriteDescriptorSetBuffer(m_uniformBuffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    addWriteDescriptorSetBuffer(m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,index);
 }
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)

@@ -27,12 +27,31 @@ void evk::Instance::draw()
     // Mark the image as being in use.
     m_imagesInFlight[imageIndex] = m_fencesInFlight[currentFrame];
 
+
+
     // Update the uniform buffers.
-    EVkUniformBufferUpdateInfo updateInfo = {};
-    updateInfo.currentImage = imageIndex;
-    updateInfo.swapchainExtent = m_swapChainExtent;
-    updateInfo.pUniformBufferMemory = &m_uniformBuffersMemory;
-    updateUniformBuffer(&updateInfo);
+    // EVkUniformBufferUpdateInfo updateInfo = {};
+    // updateInfo.currentImage = imageIndex;
+    // updateInfo.swapchainExtent = m_swapChainExtent;
+    // updateInfo.pUniformBufferMemory = &m_uniformBuffersMemory;
+    // updateUniformBuffer(&updateInfo);
+
+    static int counter = 0;
+    UniformBufferObject ubo = {};
+    ubo.model=glm::mat4(1.0f);
+    ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float) m_swapChainExtent.height, 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+
+    size_t uboIndex = m_bufferMap["UBO"].index;
+    void* data;
+    // std::vector<VkDeviceMemory> &uniformBufferMemory = *pUpdateInfo->pUniformBufferMemory;
+    vkMapMemory(m_device, m_bufferMemories[uboIndex+imageIndex], 0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(m_device, m_bufferMemories[uboIndex+imageIndex]);
+    counter++;
+
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
