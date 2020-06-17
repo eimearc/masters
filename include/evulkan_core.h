@@ -10,6 +10,7 @@
 #include "vertex.h"
 #include <array>
 #include <fstream>
+#include <map>
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -85,6 +86,8 @@ class Instance
         createDevice(true);
     }
     Instance()=default;
+
+    void updateBuffer(const std::string &name);
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
@@ -174,6 +177,8 @@ class Instance
     std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
     std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
+
+    std::map<std::string, size_t> m_buffers;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

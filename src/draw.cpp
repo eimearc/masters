@@ -11,6 +11,8 @@ void evk::Instance::draw()
         m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
+    if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
+
     if (result != VK_SUCCESS)
     {
         throw std::runtime_error("failed to acquire swap chain image.");
