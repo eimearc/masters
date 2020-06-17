@@ -98,7 +98,6 @@ class Instance
     void setBindingDescription(uint32_t stride);
     void createGraphicsPipeline();
     void createDepthResources();
-    void createUniformBufferObject();
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
     void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
     void createDescriptorSets();
@@ -214,9 +213,7 @@ class Instance
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
-    void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
     std::vector<char> readFile(const std::string& filename);
-    UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 

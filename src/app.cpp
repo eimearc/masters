@@ -49,8 +49,8 @@ void App::initVulkan()
     evkInstance.createSyncObjects();
     evkInstance.createRenderPass();
 
-    // evkInstance.createUniformBufferObject();
     evkInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
+    
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     evk::loadOBJ("obj/viking_room.obj", v, in);
