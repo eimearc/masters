@@ -124,7 +124,6 @@ void App::mainLoop(evk::Instance &instance)
 {
     size_t frameIndex=0;
     size_t counter=0;
-    size_t dir=1;
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -141,7 +140,6 @@ void App::mainLoop(evk::Instance &instance)
         instance.draw();
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
-        counter=counter+dir;
-        if (counter%100==0) dir*=-1;
+        counter++;
     }
 }
