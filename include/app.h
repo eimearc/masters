@@ -34,11 +34,26 @@ public:
         glm::mat4 proj;
     };
 
-    void run() {
+    void run()
+    {
+        if (!FLAGS_multipass) basic();
+        if (FLAGS_multipass) multipass();
+    }
+
+    void basic()
+    {
         createGrid();
         initVulkan();
-        mainLoop();
+        mainLoop(evkInstance);
         evkInstance.cleanup();
+    }
+
+    void multipass()
+    {
+        createGrid();
+        initMultipassVulkan();
+        mainLoop(multipassInstance);
+        multipassInstance.cleanup();
     }
 
 ~App()=default;
@@ -51,6 +66,7 @@ private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     evk::Instance evkInstance;
+    evk::Instance multipassInstance;
     GLFWwindow *window;
     std::vector<const char*> validationLayers =
     {
@@ -63,6 +79,7 @@ private:
 
     void createGrid();
     void initVulkan();
-    void mainLoop();
+    void initMultipassVulkan();
+    void mainLoop(evk::Instance &instance);
     void cleanup();
 };

@@ -70,13 +70,57 @@ void App::initVulkan()
     evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
-    evkInstance.createIndexBuffer(in);
-    evkInstance.createVertexBuffer(v);
+    evkInstance.createIndexBuffer(indices);
+    evkInstance.createVertexBuffer(vertices);
     
     evkInstance.createDrawCommands();
 }
 
-void App::mainLoop()
+void App::initMultipassVulkan()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+
+    evk::InstanceCreateInfo instanceCreateInfo{
+        validationLayers,
+        window,
+        deviceExtensions
+    };
+    multipassInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
+
+    multipassInstance.createCommandPools();
+    evk::SwapChainCreateInfo swapChainCreateInfo{
+        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    };
+    multipassInstance.createSwapChain(&swapChainCreateInfo);
+
+    multipassInstance.createSyncObjects();
+    multipassInstance.createRenderPass();
+
+    multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
+
+    multipassInstance.registerVertexShader("shaders/multipass_vert.spv");
+    multipassInstance.registerFragmentShader("shaders/multipass_frag.spv");
+
+    multipassInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    multipassInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    multipassInstance.setBindingDescription(sizeof(Vertex));
+
+    multipassInstance.createDescriptorSets();
+    multipassInstance.createGraphicsPipeline();
+
+    multipassInstance.createDepthResources();
+    multipassInstance.createFramebuffers();
+
+    multipassInstance.createIndexBuffer(indices);
+    multipassInstance.createVertexBuffer(vertices);
+    
+    multipassInstance.createDrawCommands();
+}
+
+void App::mainLoop(evk::Instance &instance)
 {
     size_t frameIndex=0;
     size_t counter=0;
@@ -92,9 +136,9 @@ void App::mainLoop()
         ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
-        evkInstance.updateBufferObject("UBO",sizeof(ubo), &ubo, frameIndex);
+        instance.updateBufferObject("UBO",sizeof(ubo), &ubo, frameIndex);
 
-        evkInstance.draw();
+        instance.draw();
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter=counter+dir;
