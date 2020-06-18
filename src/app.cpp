@@ -70,8 +70,8 @@ void App::initVulkan()
     evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
-    evkInstance.createIndexBuffer(indices);
-    evkInstance.createVertexBuffer(vertices);
+    evkInstance.createIndexBuffer(in);
+    evkInstance.createVertexBuffer(v);
     
     evkInstance.createDrawCommands();
 }
