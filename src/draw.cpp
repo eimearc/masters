@@ -27,13 +27,6 @@ void evk::Instance::draw()
     // Mark the image as being in use.
     m_imagesInFlight[imageIndex] = m_fencesInFlight[currentFrame];
 
-    // Update the uniform buffers.
-    EVkUniformBufferUpdateInfo updateInfo = {};
-    updateInfo.currentImage = imageIndex;
-    updateInfo.swapchainExtent = m_swapChainExtent;
-    updateInfo.pUniformBufferMemory = &m_uniformBuffersMemory;
-    updateUniformBuffer(&updateInfo);
-
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[currentFrame]};
@@ -149,10 +142,12 @@ void evk::Instance::createDrawCommands()
             
             vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
-            VkBuffer vertexBuffers[] = {m_vertexBuffer};
+            size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
+            size_t indexBufferIndex = (m_bufferMap["INDEX"]).index;
+            VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindDescriptorSets(
                 m_secondaryCommandBuffers[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,

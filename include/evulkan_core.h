@@ -98,7 +98,8 @@ class Instance
     void setBindingDescription(uint32_t stride);
     void createGraphicsPipeline();
     void createDepthResources();
-    void createUniformBufferObject();
+    void createBufferObject(std::string name, VkDeviceSize bufferSize);
+    void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
     void createDescriptorSets();
     void createSyncObjects();
     void createFramebuffers();
@@ -139,8 +140,8 @@ class Instance
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;
 
-    std::vector<VkBuffer> m_uniformBuffers;
-    std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+    // std::vector<VkBuffer> m_uniformBuffers;
+    // std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
@@ -157,10 +158,15 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    VkBuffer m_vertexBuffer;
-    VkDeviceMemory m_vertexBufferMemory;
-    VkBuffer m_indexBuffer;
-    VkDeviceMemory m_indexBufferMemory;
+    struct BufferInfo
+    {
+        size_t index;
+        size_t size;
+    };
+    std::map<std::string, BufferInfo> m_bufferMap;
+    std::vector<VkBuffer> m_buffers;
+    std::vector<VkDeviceMemory> m_bufferMemories;
+
     std::vector<Index> m_indices;
 
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
@@ -177,8 +183,6 @@ class Instance
     std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
     std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
-
-    std::map<std::string, size_t> m_buffers;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
@@ -209,9 +213,7 @@ class Instance
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
-    void updateUniformBuffer(const EVkUniformBufferUpdateInfo *pUpdateInfo);
     std::vector<char> readFile(const std::string& filename);
-    UniformBufferObject getUBO(const uint32_t &_width, const uint32_t &_height);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
@@ -219,7 +221,7 @@ class Instance
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetBuffer(
         std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-        uint32_t binding, VkDescriptorType type);
+        uint32_t binding, VkDescriptorType type, size_t startIndex);
     void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
 
     std::vector<const char *> m_deviceExtensions;

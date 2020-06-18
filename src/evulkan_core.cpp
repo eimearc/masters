@@ -239,7 +239,7 @@ void evk::Instance::createGraphicsPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    // rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f;
@@ -470,20 +470,11 @@ void evk::Instance::cleanup()
 
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 
-    for (size_t i = 0; i < m_swapChainImages.size(); i++)
-    {
-        vkDestroyBuffer(m_device, m_uniformBuffers[i], nullptr);
-        vkFreeMemory(m_device, m_uniformBuffersMemory[i], nullptr);
-    }
-
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
 
-    vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
-    vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
-
-    vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
-    vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
+    for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);
+    for (auto &memory : m_bufferMemories) vkFreeMemory(m_device, memory, nullptr);
 
     for (size_t i = 0; i < m_maxFramesInFlight; ++i)
     {
