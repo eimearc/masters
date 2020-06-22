@@ -68,7 +68,6 @@ void evk::Instance::createImageView(const ImageViewCreateInfo *pCreateInfo, VkIm
 
 void evk::Instance::createRenderPass()
 {
-    std::cout << "HERE2\n";
     VkFormat format;
 
     // VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -198,14 +197,10 @@ void evk::Instance::createRenderPass()
     renderPassInfoCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfoCI.pDependencies = dependencies.data();
 
-    std::cout << "HERE1\n";
-
     if (vkCreateRenderPass(m_device, &renderPassInfoCI, nullptr, &m_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass.");
     }
-
-    std::cout << "HERE3\n";
 }
 
 VkFormat evk::Instance::findDepthFormat(
@@ -436,7 +431,7 @@ void evk::Instance::createDepthResources()
     createInfo.height = m_swapChainExtent.height;
     createInfo.format = depthFormat;
     createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     createImage(&createInfo, &m_depthImage, &m_depthImageMemory);
     ImageViewCreateInfo imageViewCreateInfo;
@@ -445,35 +440,35 @@ void evk::Instance::createDepthResources()
     imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
     createImageView(&imageViewCreateInfo, &m_depthImageView);
 
-    VkFormat format;
-    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    for (VkFormat f : {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT})
-    {
-        VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(m_physicalDevice, f, &props);
-        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-        {
-            format = f;
-            break;
-        }
-        else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-        {
-            format = f;
-            break;
-        }
-    }
+    // VkFormat format;
+    // VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    // VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    // for (VkFormat f : {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT})
+    // {
+    //     VkFormatProperties props;
+    //     vkGetPhysicalDeviceFormatProperties(m_physicalDevice, f, &props);
+    //     if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+    //     {
+    //         format = f;
+    //         break;
+    //     }
+    //     else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+    //     {
+    //         format = f;
+    //         break;
+    //     }
+    // }
     // Create gBuffer TODO: move
     createInfo={};
     createInfo.width = m_swapChainExtent.width;
     createInfo.height = m_swapChainExtent.height;
-    createInfo.format = format;
+    createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     createImage(&createInfo, &m_backBufferImage, &m_backBufferMemory);
     imageViewCreateInfo={};
     imageViewCreateInfo.image=m_backBufferImage;
-    imageViewCreateInfo.format=format;
+    imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_UNORM;
     imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
     createImageView(&imageViewCreateInfo, &m_backBufferView);
 }
