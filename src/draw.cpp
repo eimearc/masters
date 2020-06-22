@@ -169,14 +169,6 @@ void evk::Instance::createDrawCommands()
 
         vkCmdNextSubpass(m_primaryCommandBuffers[frame], VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
         vkCmdExecuteCommands(m_primaryCommandBuffers[frame], m_secondaryCommandBuffers.size(), m_secondaryCommandBuffers.data());
-        if (vkEndCommandBuffer(m_primaryCommandBuffers[frame]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Could not end primaryCommandBuffer.");   
-        }
-
-        vkBeginCommandBuffer(
-            m_primaryCommandBuffers[frame],
-            &beginInfo);
 
         auto createDrawCommands1 =[&](int i)
         {
@@ -198,6 +190,7 @@ void evk::Instance::createDrawCommands()
             inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
             inheritanceInfo.renderPass = m_renderPass;
             inheritanceInfo.framebuffer = m_framebuffers[frame];
+            inheritanceInfo.subpass=1;
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
