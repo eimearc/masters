@@ -139,7 +139,7 @@ void evk::Instance::createDrawCommands()
             {
                 throw std::runtime_error("failed to begin recording command buffer.");
             }
-            
+
             vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[0]);
 
             size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
@@ -152,23 +152,7 @@ void evk::Instance::createDrawCommands()
                 m_secondaryCommandBuffers[i],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
-
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
-
-            vkCmdNextSubpass(m_secondaryCommandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
-            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[1]);
-            vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
-            vkCmdBindDescriptorSets(
-                m_secondaryCommandBuffers[i],
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
-            vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
-
-            if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to record command buffer.");
-            }
         };
 
         int counter = 0;
@@ -178,8 +162,58 @@ void evk::Instance::createDrawCommands()
         }
         m_threadPool.wait();
 
-        vkCmdExecuteCommands(m_primaryCommandBuffers[frame], m_secondaryCommandBuffers.size(), m_secondaryCommandBuffers.data());
+        vkCmdNextSubpass(m_primaryCommandBuffers[frame], VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
+        auto createDrawCommands1 =[&](int i)
+        {
+            size_t numIndices=numIndicesEach;
+            size_t indexOffset=numIndicesEach*i;
+            if (i==(m_numThreads-1)) numIndices = m_indices.size()-(i*numIndicesEach);
+            VkCommandBufferAllocateInfo allocInfo = {};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.commandPool = m_commandPools[i];
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+            allocInfo.commandBufferCount = 1;
+
+            VkCommandBufferInheritanceInfo inheritanceInfo = {};
+            inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+            inheritanceInfo.renderPass = m_renderPass;
+            inheritanceInfo.framebuffer = m_framebuffers[frame];
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+            beginInfo.pInheritanceInfo = &inheritanceInfo;
+
+            size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
+            size_t indexBufferIndex = (m_bufferMap["INDEX"]).index;
+            VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
+            VkDeviceSize offsets[] = {0};
+
+            std::cout << "Before bind - second subpass\n";
+            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[0]);
+            vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindDescriptorSets(
+                m_secondaryCommandBuffers[i],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr);
+            vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
+            std::cout << "After bind - second subpass\n";
+
+            if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to record command buffer.");
+            }
+        };
+        counter = 0;
+        for (auto &t: m_threadPool.threads)
+        {
+            t->addJob(std::bind(createDrawCommands1,counter++));
+        }
+        m_threadPool.wait();
+
+        vkCmdExecuteCommands(m_primaryCommandBuffers[frame], m_secondaryCommandBuffers.size(), m_secondaryCommandBuffers.data());
         vkCmdEndRenderPass(m_primaryCommandBuffers[frame]);
 
         if (vkEndCommandBuffer(m_primaryCommandBuffers[frame]) != VK_SUCCESS)

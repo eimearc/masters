@@ -386,9 +386,11 @@ void evk::Instance::createGraphicsPipeline()
     if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipelines[0]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
-    }   
-    pipelineInfo.subpass=1;
-    if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipelines[1]) != VK_SUCCESS)
+    }
+
+    VkGraphicsPipelineCreateInfo pipelineInfo2 = pipelineInfo; 
+    pipelineInfo2.subpass=1;
+    if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo2, nullptr, &m_pipelines[1]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     } 
