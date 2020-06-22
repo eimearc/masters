@@ -134,7 +134,7 @@ class Instance
     std::vector<VkShaderModule> m_shaderModules;
     std::vector<VkPipelineShaderStageCreateInfo> m_shaders;
     VkPipelineLayout m_graphicsPipelineLayout;
-    VkPipeline m_graphicsPipeline;
+    std::vector<VkPipeline> m_pipelines;
 
     VkImage m_depthImage;
     VkImageView m_depthImageView;

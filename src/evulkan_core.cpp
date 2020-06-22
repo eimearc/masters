@@ -407,12 +407,16 @@ void evk::Instance::createGraphicsPipeline()
     // Add the depth stencil.
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    std::cout << "HERE4\n";
-    if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+    m_pipelines.resize(2);
+    if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipelines[0]) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
-    }     
-    std::cout << "HERE5\n";   
+    }   
+    pipelineInfo.subpass=1;
+    if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipelines[1]) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create graphics pipeline.");
+    } 
         
     for (auto &m : m_shaderModules)
     {
@@ -464,7 +468,7 @@ void evk::Instance::createDepthResources()
     createInfo.width = m_swapChainExtent.width;
     createInfo.height = m_swapChainExtent.height;
     createInfo.format = format;
-    createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     createImage(&createInfo, &m_backBufferImage, &m_backBufferMemory);
     imageViewCreateInfo={};
@@ -557,6 +561,10 @@ void evk::Instance::cleanup()
     vkDestroyImage(m_device, m_depthImage, nullptr);
     vkFreeMemory(m_device, m_depthImageMemory, nullptr);
 
+    vkDestroyImageView(m_device, m_backBufferView, nullptr);
+    vkDestroyImage(m_device, m_backBufferImage, nullptr);
+    vkFreeMemory(m_device, m_backBufferMemory, nullptr);
+
     vkDestroySampler(m_device, m_textureSampler, nullptr);
     vkDestroyImageView(m_device, m_textureImageView, nullptr);
     vkDestroyImage(m_device, m_textureImage, nullptr); // TODO: Ensure only happens when texture is there.
@@ -567,7 +575,8 @@ void evk::Instance::cleanup()
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 
-    vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
+    vkDestroyPipeline(m_device, m_pipelines[0], nullptr);
+    vkDestroyPipeline(m_device, m_pipelines[1], nullptr);
     vkDestroyPipelineLayout(m_device, m_graphicsPipelineLayout, nullptr);
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 

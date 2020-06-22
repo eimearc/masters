@@ -140,7 +140,7 @@ void evk::Instance::createDrawCommands()
                 throw std::runtime_error("failed to begin recording command buffer.");
             }
             
-            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[0]);
 
             size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
             size_t indexBufferIndex = (m_bufferMap["INDEX"]).index;
@@ -156,7 +156,7 @@ void evk::Instance::createDrawCommands()
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
             vkCmdNextSubpass(m_secondaryCommandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
-            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[1]);
             vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindDescriptorSets(
