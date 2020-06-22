@@ -96,6 +96,11 @@ class Instance
     void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
     void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
+
+    void addAttachment(VkFormat format, VkImageLayout finalLayout);
+    void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
+    void addSubpass(const std::vector<VkAttachmentReference> &colorAttachments, const std::vector<VkAttachmentReference> &inputAttachments);
+
     void createGraphicsPipeline();
     void createDepthResources();
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
@@ -170,6 +175,10 @@ class Instance
     std::map<std::string, BufferInfo> m_bufferMap;
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
+
+    std::vector<VkSubpassDescription> m_subpasses;
+    std::vector<VkSubpassDependency> m_dependencies;
+    std::vector<VkAttachmentDescription> m_attachments;
 
     std::vector<Index> m_indices;
 

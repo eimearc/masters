@@ -66,9 +66,54 @@ void evk::Instance::createImageView(const ImageViewCreateInfo *pCreateInfo, VkIm
         throw std::runtime_error("failed to create texture image view!");
 }
 
+void evk::Instance::addSubpass(
+    const std::vector<VkAttachmentReference> &colorAttachments,
+    const std::vector<VkAttachmentReference> &inputAttachments)
+{
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount=colorAttachments.size();
+    subpass.pColorAttachments=colorAttachments.data();
+    subpass.inputAttachmentCount=inputAttachments.size();
+    subpass.pInputAttachments=inputAttachments.data();
+    m_subpasses.push_back(subpass);
+}
+
+void evk::Instance::addAttachment(VkFormat format, VkImageLayout finalLayout)
+{
+    VkAttachmentDescription attachment = {};
+    attachment.format = format;
+    attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment.finalLayout = finalLayout;
+    m_attachments.push_back(attachment);
+}
+
+void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
+{
+    VkSubpassDependency dependency;
+    dependency.srcSubpass = srcSubpass;
+    dependency.dstSubpass = dstSubpass;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    m_dependencies.push_back(dependency);
+}
+
 void evk::Instance::createRenderPass()
 {
     std::vector<VkAttachmentDescription> attachments;
+    std::vector<VkSubpassDependency> dependencies;
+    std::vector<VkSubpassDescription> subpasses;
+
+    addAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    addAttachment(VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
     // Swap chain image color attachment
     VkAttachmentDescription backBufferAttachment = {};
@@ -82,37 +127,22 @@ void evk::Instance::createRenderPass()
     backBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     attachments.push_back(backBufferAttachment);
 
-    // Colour attachment.
-    VkAttachmentDescription gBufferAttachment = {};
-    gBufferAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
-    gBufferAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    gBufferAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    gBufferAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    gBufferAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    gBufferAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    gBufferAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    gBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    attachments.push_back(gBufferAttachment);
+    for (auto &a : m_attachments) attachments.push_back(a);
 
-    // Depth attachment.
-    VkAttachmentDescription depthAttachment = {};
-    depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    attachments.push_back(depthAttachment);
 
-    std::vector<VkSubpassDescription> subpasses;
+
+    // Subpasses
 
     // References.
-    VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-    VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+    std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
+    std::vector<VkAttachmentReference> inputAttachments;
+    inputAttachments.push_back({ 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+    inputAttachments.push_back({ 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+    addSubpass(colorAttachments,inputAttachments);
 
     // First subpass - fill colour and depth.
+    VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+    VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount=1;
@@ -120,44 +150,39 @@ void evk::Instance::createRenderPass()
     subpass.pDepthStencilAttachment =&depthReference;
     subpasses.push_back(subpass);
 
-    // Second subpass.
-    VkAttachmentReference colorReferenceSwapchain = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-    subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount=1;
-    subpass.pColorAttachments=&colorReferenceSwapchain;
-    VkAttachmentReference inputReferences[2];
-    inputReferences[0] = { 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-    inputReferences[1] = { 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-    subpass.inputAttachmentCount=2;
-    subpass.pInputAttachments=inputReferences;
-    subpasses.push_back(subpass);
+    // Add other subpasses.
+    for (auto &sp : m_subpasses) subpasses.push_back(sp);
 
-    std::array<VkSubpassDependency, 3> dependencies;
 
-    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependencies[0].dstSubpass = 0;
-    dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    // Dependencies
 
-    dependencies[1].srcSubpass = 0;
-    dependencies[1].dstSubpass = 1;
-    dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-    dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    addDependency(0,1); // Add dependency between stage 0 and stage 1.
 
-    dependencies[2].srcSubpass = 0;
-    dependencies[2].dstSubpass = VK_SUBPASS_EXTERNAL;
-    dependencies[2].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependencies[2].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependencies[2].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependencies[2].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependencies[2].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    VkSubpassDependency dependency;
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    dependencies.push_back(dependency);
+
+    for (auto &dep : m_dependencies) dependencies.push_back(dep);
+
+    dependency={};
+    dependency.srcSubpass = 0;
+    dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    dependencies.push_back(dependency);
+
+
+
+    // Create Render Pass
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -168,16 +193,7 @@ void evk::Instance::createRenderPass()
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
 
-    VkRenderPassCreateInfo renderPassInfoCI{};
-    renderPassInfoCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfoCI.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfoCI.pAttachments = attachments.data();
-    renderPassInfoCI.subpassCount = static_cast<uint32_t>(subpasses.size());
-    renderPassInfoCI.pSubpasses = subpasses.data();
-    renderPassInfoCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
-    renderPassInfoCI.pDependencies = dependencies.data();
-
-    if (vkCreateRenderPass(m_device, &renderPassInfoCI, nullptr, &m_renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass.");
     }

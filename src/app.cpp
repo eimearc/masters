@@ -97,6 +97,8 @@ void App::initMultipassVulkan()
     multipassInstance.createSwapChain(&swapChainCreateInfo);
 
     multipassInstance.createSyncObjects();
+
+    // multipassInstance.addSubpass();
     multipassInstance.createRenderPass();
 
     multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));

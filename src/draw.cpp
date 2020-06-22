@@ -207,7 +207,6 @@ void evk::Instance::createDrawCommands()
             VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
             VkDeviceSize offsets[] = {0};
 
-            std::cout << "Before bind - second subpass\n";
             vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[1]);
             vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
@@ -216,7 +215,6 @@ void evk::Instance::createDrawCommands()
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr);
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
-            std::cout << "After bind - second subpass\n";
 
             if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)
             {
