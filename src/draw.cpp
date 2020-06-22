@@ -153,6 +153,11 @@ void evk::Instance::createDrawCommands()
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
+
+            if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to record command buffer.");
+            }
         };
 
         int counter = 0;
@@ -163,6 +168,15 @@ void evk::Instance::createDrawCommands()
         m_threadPool.wait();
 
         vkCmdNextSubpass(m_primaryCommandBuffers[frame], VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+        vkCmdExecuteCommands(m_primaryCommandBuffers[frame], m_secondaryCommandBuffers.size(), m_secondaryCommandBuffers.data());
+        if (vkEndCommandBuffer(m_primaryCommandBuffers[frame]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Could not end primaryCommandBuffer.");   
+        }
+
+        vkBeginCommandBuffer(
+            m_primaryCommandBuffers[frame],
+            &beginInfo);
 
         auto createDrawCommands1 =[&](int i)
         {
@@ -175,6 +189,11 @@ void evk::Instance::createDrawCommands()
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
             allocInfo.commandBufferCount = 1;
 
+            if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_secondaryCommandBuffers[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to allocate command buffers.");
+            }
+
             VkCommandBufferInheritanceInfo inheritanceInfo = {};
             inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
             inheritanceInfo.renderPass = m_renderPass;
@@ -185,13 +204,18 @@ void evk::Instance::createDrawCommands()
             beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
             beginInfo.pInheritanceInfo = &inheritanceInfo;
 
+            if (vkBeginCommandBuffer(m_secondaryCommandBuffers[i], &beginInfo) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to begin recording command buffer.");
+            }
+
             size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
             size_t indexBufferIndex = (m_bufferMap["INDEX"]).index;
             VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
             VkDeviceSize offsets[] = {0};
 
             std::cout << "Before bind - second subpass\n";
-            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[0]);
+            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[1]);
             vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindDescriptorSets(
