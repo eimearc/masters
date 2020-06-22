@@ -79,18 +79,83 @@ void evk::Instance::addSubpass(
     m_subpasses.push_back(subpass);
 }
 
-void evk::Instance::addAttachment(VkFormat format, VkImageLayout finalLayout)
+void evk::Instance::addColorAttachment()
 {
     VkAttachmentDescription attachment = {};
-    attachment.format = format;
+    attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
     attachment.samples = VK_SAMPLE_COUNT_1_BIT;
     attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachment.finalLayout = finalLayout;
+    attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     m_attachments.push_back(attachment);
+
+    // Create images.
+    VkImage image;
+    VkImageView imageView;
+    VkDeviceMemory memory;
+
+    ImageCreateInfo createInfo={};
+    createInfo.width = m_swapChainExtent.width;
+    createInfo.height = m_swapChainExtent.height;
+    createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    createImage(&createInfo, &image, &memory);
+
+    ImageViewCreateInfo imageViewCreateInfo={};
+    imageViewCreateInfo.image=image;
+    imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_UNORM;
+    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
+    createImageView(&imageViewCreateInfo, &imageView);
+
+    m_images.push_back(image);
+    m_imageViews.push_back(imageView);
+    m_imageMemories.push_back(memory);
+}
+
+void evk::Instance::addDepthAttachment()
+{
+    VkAttachmentDescription attachment = {};
+    attachment.format = VK_FORMAT_D32_SFLOAT;
+    attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    m_attachments.push_back(attachment);
+
+    VkImage image;
+    VkImageView imageView;
+    VkDeviceMemory memory;
+
+    EVkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.swapChainImageFormat = m_swapChainImageFormat;
+    renderPassInfo.physicalDevice = m_physicalDevice;
+    VkFormat depthFormat = findDepthFormat(&renderPassInfo);
+
+    ImageCreateInfo createInfo;
+    createInfo.width = m_swapChainExtent.width;
+    createInfo.height = m_swapChainExtent.height;
+    createInfo.format = depthFormat;
+    createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    createImage(&createInfo, &image, &memory);
+
+    ImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.image=image;
+    imageViewCreateInfo.format=depthFormat;
+    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
+    createImageView(&imageViewCreateInfo, &imageView);
+
+    m_images.push_back(image);
+    m_imageViews.push_back(imageView);
+    m_imageMemories.push_back(memory);
 }
 
 void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
@@ -394,42 +459,6 @@ void evk::Instance::createGraphicsPipeline()
     }
 }
 
-void evk::Instance::createDepthResources()
-{
-    EVkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.swapChainImageFormat = m_swapChainImageFormat;
-    renderPassInfo.physicalDevice = m_physicalDevice;
-    VkFormat depthFormat = findDepthFormat(&renderPassInfo);
-
-    ImageCreateInfo createInfo;
-    createInfo.width = m_swapChainExtent.width;
-    createInfo.height = m_swapChainExtent.height;
-    createInfo.format = depthFormat;
-    createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-    createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    createImage(&createInfo, &m_depthImage, &m_depthImageMemory);
-    ImageViewCreateInfo imageViewCreateInfo;
-    imageViewCreateInfo.image=m_depthImage;
-    imageViewCreateInfo.format=depthFormat;
-    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
-    createImageView(&imageViewCreateInfo, &m_depthImageView);
-
-    // Create gBuffer TODO: move
-    createInfo={};
-    createInfo.width = m_swapChainExtent.width;
-    createInfo.height = m_swapChainExtent.height;
-    createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-    createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    createImage(&createInfo, &m_backBufferImage, &m_backBufferMemory);
-    imageViewCreateInfo={};
-    imageViewCreateInfo.image=m_backBufferImage;
-    imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_UNORM;
-    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
-    createImageView(&imageViewCreateInfo, &m_backBufferView);
-}
-
 void evk::Instance::createImage(
     const ImageCreateInfo *pCreateInfo,
     VkImage *pImage,
@@ -480,17 +509,14 @@ void evk::Instance::createFramebuffers()
 
     for (size_t i = 0; i < numImages; i++)
     {
-        std::array<VkImageView,3> attachments =
-        {
-            m_swapChainImageViews[i],
-            m_backBufferView,
-            m_depthImageView       
-        };
+        std::vector<VkImageView> attachments;
+        attachments.push_back(m_swapChainImageViews[i]);
+        for (const auto &view : m_imageViews) attachments.push_back(view);
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = m_renderPass;
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.attachmentCount = attachments.size();
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = m_swapChainExtent.width;
         framebufferInfo.height = m_swapChainExtent.height;
@@ -509,13 +535,10 @@ void evk::Instance::cleanup()
     {
         throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
     }
-    vkDestroyImageView(m_device, m_depthImageView, nullptr);
-    vkDestroyImage(m_device, m_depthImage, nullptr);
-    vkFreeMemory(m_device, m_depthImageMemory, nullptr);
 
-    vkDestroyImageView(m_device, m_backBufferView, nullptr);
-    vkDestroyImage(m_device, m_backBufferImage, nullptr);
-    vkFreeMemory(m_device, m_backBufferMemory, nullptr);
+    for (auto &view : m_imageViews) vkDestroyImageView(m_device, view, nullptr);
+    for (auto &image : m_images) vkDestroyImage(m_device, image, nullptr);
+    for (auto &memory: m_imageMemories) vkFreeMemory(m_device, memory, nullptr);
 
     vkDestroySampler(m_device, m_textureSampler, nullptr);
     vkDestroyImageView(m_device, m_textureImageView, nullptr);

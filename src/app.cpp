@@ -67,7 +67,7 @@ void App::initVulkan()
     evkInstance.createDescriptorSets();
     evkInstance.createGraphicsPipeline();
 
-    evkInstance.createDepthResources();
+    // evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
     evkInstance.createIndexBuffer(in);
@@ -97,10 +97,9 @@ void App::initMultipassVulkan()
     multipassInstance.createSwapChain(&swapChainCreateInfo);
 
     multipassInstance.createSyncObjects();
-
-    // multipassInstance.addSubpass();
-    multipassInstance.addAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-    multipassInstance.addAttachment(VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    
+    multipassInstance.addColorAttachment();
+    multipassInstance.addDepthAttachment();
     std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
     std::vector<VkAttachmentReference> inputAttachments;
     inputAttachments.push_back({ 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
@@ -121,7 +120,6 @@ void App::initMultipassVulkan()
     multipassInstance.createDescriptorSets();
     multipassInstance.createGraphicsPipeline();
 
-    multipassInstance.createDepthResources();
     multipassInstance.createFramebuffers();
 
     multipassInstance.createIndexBuffer(indices);
