@@ -202,6 +202,7 @@ void evk::Instance::createRenderPass()
     subpasses.push_back(subpass);
     // Add other subpasses.
     for (auto &sp : m_subpasses) subpasses.push_back(sp);
+    m_subpasses = subpasses;
 
     // Dependencies
     VkSubpassDependency dependency;

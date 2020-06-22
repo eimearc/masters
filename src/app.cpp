@@ -67,7 +67,6 @@ void App::initVulkan()
     evkInstance.createDescriptorSets();
     evkInstance.createGraphicsPipeline();
 
-    // evkInstance.createDepthResources();
     evkInstance.createFramebuffers();
 
     evkInstance.createIndexBuffer(in);
@@ -97,7 +96,7 @@ void App::initMultipassVulkan()
     multipassInstance.createSwapChain(&swapChainCreateInfo);
 
     multipassInstance.createSyncObjects();
-    
+
     multipassInstance.addColorAttachment();
     multipassInstance.addDepthAttachment();
     std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
