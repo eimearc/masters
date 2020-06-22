@@ -99,6 +99,14 @@ void App::initMultipassVulkan()
     multipassInstance.createSyncObjects();
 
     // multipassInstance.addSubpass();
+    multipassInstance.addAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    multipassInstance.addAttachment(VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
+    std::vector<VkAttachmentReference> inputAttachments;
+    inputAttachments.push_back({ 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+    inputAttachments.push_back({ 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+    multipassInstance.addDependency(0,1); // Add dependency between stage 0 and stage 1.
+    multipassInstance.addSubpass(colorAttachments,inputAttachments);
     multipassInstance.createRenderPass();
 
     multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));

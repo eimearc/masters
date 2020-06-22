@@ -141,6 +141,10 @@ class Instance
     VkPipelineLayout m_graphicsPipelineLayout;
     std::vector<VkPipeline> m_pipelines;
 
+    std::vector<VkImage> m_images;
+    std::vector<VkImageView> m_imageViews;
+    std::vector<VkDeviceMemory> m_imageMemories;
+
     VkImage m_depthImage;
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;

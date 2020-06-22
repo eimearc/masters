@@ -112,9 +112,6 @@ void evk::Instance::createRenderPass()
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subpasses;
 
-    addAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-    addAttachment(VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
     // Swap chain image color attachment
     VkAttachmentDescription backBufferAttachment = {};
     backBufferAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
@@ -126,20 +123,9 @@ void evk::Instance::createRenderPass()
     backBufferAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     backBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     attachments.push_back(backBufferAttachment);
-
     for (auto &a : m_attachments) attachments.push_back(a);
 
-
-
     // Subpasses
-
-    // References.
-    std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
-    std::vector<VkAttachmentReference> inputAttachments;
-    inputAttachments.push_back({ 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
-    inputAttachments.push_back({ 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
-    addSubpass(colorAttachments,inputAttachments);
-
     // First subpass - fill colour and depth.
     VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
     VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
@@ -149,15 +135,10 @@ void evk::Instance::createRenderPass()
     subpass.pColorAttachments=&colorReference;
     subpass.pDepthStencilAttachment =&depthReference;
     subpasses.push_back(subpass);
-
     // Add other subpasses.
     for (auto &sp : m_subpasses) subpasses.push_back(sp);
 
-
     // Dependencies
-
-    addDependency(0,1); // Add dependency between stage 0 and stage 1.
-
     VkSubpassDependency dependency;
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
@@ -180,10 +161,7 @@ void evk::Instance::createRenderPass()
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
 
-
-
     // Create Render Pass
-
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = attachments.size();
@@ -192,7 +170,6 @@ void evk::Instance::createRenderPass()
     renderPassInfo.pSubpasses = subpasses.data();
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
-
     if (vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass.");
