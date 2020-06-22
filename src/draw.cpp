@@ -85,7 +85,7 @@ void evk::Instance::createDrawCommands()
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         vkAllocateCommandBuffers(m_device, &allocInfo, &m_primaryCommandBuffers[frame]);
 
-        std::array<VkClearValue, 2> clearValues = {};
+        std::array<VkClearValue, 3> clearValues = {};
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
 
@@ -153,6 +153,16 @@ void evk::Instance::createDrawCommands()
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
 
+            vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
+
+            vkCmdNextSubpass(m_secondaryCommandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
+            vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindDescriptorSets(
+                m_secondaryCommandBuffers[i],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
             vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
             if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)

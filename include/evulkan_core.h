@@ -140,6 +140,10 @@ class Instance
     VkImageView m_depthImageView;
     VkDeviceMemory m_depthImageMemory;
 
+    VkImage m_backBufferImage;
+    VkImageView m_backBufferView;
+    VkDeviceMemory m_backBufferMemory;
+
     // std::vector<VkBuffer> m_uniformBuffers;
     // std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
