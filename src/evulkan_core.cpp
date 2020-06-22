@@ -68,26 +68,6 @@ void evk::Instance::createImageView(const ImageViewCreateInfo *pCreateInfo, VkIm
 
 void evk::Instance::createRenderPass()
 {
-    VkFormat format;
-
-    // VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    // VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    // for (VkFormat f : {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT})
-    // {
-    //     VkFormatProperties props;
-    //     vkGetPhysicalDeviceFormatProperties(m_physicalDevice, f, &props);
-    //     if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-    //     {
-    //         format = f;
-    //         break;
-    //     }
-    //     else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-    //     {
-    //         format = f;
-    //         break;
-    //     }
-    // }
-
     std::vector<VkAttachmentDescription> attachments;
 
     // Swap chain image color attachment
@@ -440,24 +420,6 @@ void evk::Instance::createDepthResources()
     imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
     createImageView(&imageViewCreateInfo, &m_depthImageView);
 
-    // VkFormat format;
-    // VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    // VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    // for (VkFormat f : {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT})
-    // {
-    //     VkFormatProperties props;
-    //     vkGetPhysicalDeviceFormatProperties(m_physicalDevice, f, &props);
-    //     if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-    //     {
-    //         format = f;
-    //         break;
-    //     }
-    //     else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-    //     {
-    //         format = f;
-    //         break;
-    //     }
-    // }
     // Create gBuffer TODO: move
     createInfo={};
     createInfo.width = m_swapChainExtent.width;
