@@ -17,6 +17,21 @@
 namespace evk
 {
 
+struct BufferInfo
+{
+    size_t index;
+    size_t size;
+};
+
+struct Pipeline
+{
+    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
+    std::vector<VkVertexInputBindingDescription> m_bindingDescriptions;
+    VkDescriptorSetLayout m_descriptorSetLayout;
+    std::vector<std::string> m_shaders;
+    uint32_t m_subpass;
+};
+
 typedef uint32_t Index;
 
 struct InstanceCreateInfo
@@ -91,8 +106,8 @@ class Instance
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
     void createRenderPass();
-    void registerVertexShader(const std::string &vertShader);
-    void registerFragmentShader(const std::string &fragShader);
+    void registerVertexShader(const std::string &name, const std::string &vertShader);
+    void registerFragmentShader(const std::string &name, const std::string &fragShader);
     void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
     void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
@@ -102,6 +117,12 @@ class Instance
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
     void addSubpass(const std::vector<VkAttachmentReference> &colorAttachments, const std::vector<VkAttachmentReference> &inputAttachments);
 
+    void addPipeline(
+        // std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
+        // std::vector<VkVertexInputBindingDescription> bindingDescriptions,
+        // VkDescriptorSetLayout descriptorSetLayout,
+        std::vector<std::string> shaders,
+        uint32_t subpass);
     void createGraphicsPipeline();
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
     void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
@@ -137,24 +158,15 @@ class Instance
     VkRenderPass m_renderPass;
 
     std::vector<VkShaderModule> m_shaderModules;
-    std::vector<VkPipelineShaderStageCreateInfo> m_shaders;
+    std::map<std::string, VkPipelineShaderStageCreateInfo> m_shaders;
     VkPipelineLayout m_graphicsPipelineLayout;
     std::vector<VkPipeline> m_pipelines;
+
+    std::vector<Pipeline> m_evkpipelines;
 
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;
     std::vector<VkDeviceMemory> m_imageMemories;
-
-    VkImage m_depthImage;
-    VkImageView m_depthImageView;
-    VkDeviceMemory m_depthImageMemory;
-
-    VkImage m_backBufferImage;
-    VkImageView m_backBufferView;
-    VkDeviceMemory m_backBufferMemory;
-
-    // std::vector<VkBuffer> m_uniformBuffers;
-    // std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
@@ -171,11 +183,6 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    struct BufferInfo
-    {
-        size_t index;
-        size_t size;
-    };
     std::map<std::string, BufferInfo> m_bufferMap;
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;

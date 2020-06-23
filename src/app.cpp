@@ -56,8 +56,8 @@ void App::initVulkan()
     evk::loadOBJ("obj/viking_room.obj", v, in);
     evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
 
-    evkInstance.registerVertexShader("shaders/vert.spv");
-    evkInstance.registerFragmentShader("shaders/frag.spv");
+    evkInstance.registerVertexShader("vert", "shaders/vert.spv");
+    evkInstance.registerFragmentShader("frag", "shaders/frag.spv");
 
     evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
@@ -97,6 +97,7 @@ void App::initMultipassVulkan()
 
     multipassInstance.createSyncObjects();
 
+    /** Pipeline 0 / Subpass 0 **/
     multipassInstance.addColorAttachment();
     multipassInstance.addDepthAttachment();
     std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
@@ -108,19 +109,20 @@ void App::initMultipassVulkan()
     multipassInstance.createRenderPass();
 
     multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
-
-    multipassInstance.registerVertexShader("shaders/multipass_vert.spv");
-    multipassInstance.registerFragmentShader("shaders/multipass_frag.spv");
-
+    multipassInstance.registerVertexShader("vert", "shaders/multipass_vert.spv");
+    multipassInstance.registerFragmentShader("frag", "shaders/multipass_frag.spv");
     multipassInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     multipassInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
     multipassInstance.setBindingDescription(sizeof(Vertex));
-
     multipassInstance.createDescriptorSets();
+
+    multipassInstance.addPipeline({"vert", "frag"},0);
+    multipassInstance.addPipeline({"vert", "frag"},1);
+
     multipassInstance.createGraphicsPipeline();
+    /** End of Pipeline **/
 
     multipassInstance.createFramebuffers();
-
     multipassInstance.createIndexBuffer(indices);
     multipassInstance.createVertexBuffer(vertices);
     
