@@ -323,9 +323,6 @@ void evk::Instance::addPipeline(
     uint32_t subpass)
 {
     Pipeline pipeline;
-    // pipeline.m_attributeDescriptions = attributeDescriptions;
-    // pipeline.m_bindingDescriptions = bindingDescriptions;
-    // pipeline.m_descriptorSetLayout = descriptorSetLayout;
     pipeline.m_shaders = shaders;
     pipeline.m_subpass = subpass;
     m_evkpipelines.push_back(pipeline);
@@ -334,6 +331,7 @@ void evk::Instance::addPipeline(
 void evk::Instance::createGraphicsPipeline()
 {
     VkPipeline pipeline;
+    VkPipelineLayout layout;
     for (const auto &p : m_evkpipelines)
     {
         // Set up input to vertex shader.
@@ -428,10 +426,11 @@ void evk::Instance::createGraphicsPipeline()
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_graphicsPipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &layout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout.");
         }
+        m_pipelineLayouts.push_back(layout);
 
         // Set up depth testing.
         VkPipelineDepthStencilStateCreateInfo depthStencil = {};
@@ -468,7 +467,7 @@ void evk::Instance::createGraphicsPipeline()
         pipelineInfo.pDynamicState = nullptr;
         
         // Pipeline layout.
-        pipelineInfo.layout = m_graphicsPipelineLayout;
+        pipelineInfo.layout = layout;
 
         // Render pass and sub-pass.
         pipelineInfo.renderPass = m_renderPass;
@@ -584,9 +583,9 @@ void evk::Instance::cleanup()
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 
-    vkDestroyPipeline(m_device, m_pipelines[0], nullptr);
-    vkDestroyPipeline(m_device, m_pipelines[1], nullptr);
-    vkDestroyPipelineLayout(m_device, m_graphicsPipelineLayout, nullptr);
+    for (auto &pipeline : m_pipelines) vkDestroyPipeline(m_device, pipeline, nullptr);
+    for (auto &layout : m_pipelineLayouts) vkDestroyPipelineLayout(m_device, layout, nullptr);
+
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 
     for (auto imageView : m_swapChainImageViews)

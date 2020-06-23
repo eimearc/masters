@@ -159,7 +159,7 @@ void evk::Instance::createDrawCommands()
                 vkCmdBindDescriptorSets(
                     m_secondaryCommandBuffers[i],
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
+                    m_pipelineLayouts[pass], 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
                 vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
                 if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)

@@ -178,7 +178,7 @@ class Instance
 
     std::vector<VkShaderModule> m_shaderModules;
     std::map<std::string, VkPipelineShaderStageCreateInfo> m_shaders;
-    VkPipelineLayout m_graphicsPipelineLayout;
+    std::vector<VkPipelineLayout> m_pipelineLayouts;
     std::vector<VkPipeline> m_pipelines;
 
     std::vector<Pipeline> m_evkpipelines;
@@ -206,7 +206,6 @@ class Instance
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
 
-    // std::vector<VkSubpassDescription> m_subpasses;
     std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
 
