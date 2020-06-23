@@ -36,6 +36,10 @@ public:
 
     void run()
     {
+        glfwInit();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
         if (!FLAGS_multipass) basic();
         if (FLAGS_multipass) multipass();
     }

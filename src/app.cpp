@@ -30,11 +30,6 @@ void App::initVulkan()
 {
     auto &instance = evkInstance;
 
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
-
     evk::InstanceCreateInfo instanceCreateInfo{
         validationLayers,
         window,
@@ -92,11 +87,6 @@ void App::initVulkan()
 void App::initMultipassVulkan()
 {
     auto &instance = multipassInstance;
-
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     evk::InstanceCreateInfo instanceCreateInfo{
         validationLayers,

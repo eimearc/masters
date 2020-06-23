@@ -86,11 +86,6 @@ void evk::Instance::addSubpass(
     subpass.colorAttachments = colorAttachments;
     subpass.depthAttachments = depthAttachments;
     subpass.inputAttachments = inputAttachments;
-    // subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    // subpass.colorAttachmentCount=colorAttachments.size();
-    // subpass.pColorAttachments=colorAttachments.data();
-    // subpass.inputAttachmentCount=inputAttachments.size();
-    // subpass.pInputAttachments=inputAttachments.data();
     m_subpasses.push_back(subpass);
 }
 
