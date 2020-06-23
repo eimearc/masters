@@ -466,12 +466,9 @@ void evk::Instance::createGraphicsPipeline()
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = nullptr;
         
-        // Pipeline layout.
         pipelineInfo.layout = layout;
-
-        // Render pass and sub-pass.
         pipelineInfo.renderPass = m_renderPass;
-        pipelineInfo.subpass = p.m_subpass; // TODO: Allow subpasses.
+        pipelineInfo.subpass = p.m_subpass;
 
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineInfo.basePipelineIndex = -1;

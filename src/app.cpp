@@ -28,6 +28,8 @@ void App::createGrid()
 
 void App::initVulkan()
 {
+    auto &instance = evkInstance;
+
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -38,45 +40,59 @@ void App::initVulkan()
         window,
         deviceExtensions
     };
-    evkInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
+    instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
 
-    evkInstance.createCommandPools();
+    instance.createCommandPools();
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
-    evkInstance.createSwapChain(&swapChainCreateInfo);
+    instance.createSwapChain(&swapChainCreateInfo);
 
-    evkInstance.createSyncObjects();
-    evkInstance.createRenderPass();
-
-    evkInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
+    instance.createSyncObjects();
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     evk::loadOBJ("obj/viking_room.obj", v, in);
-    evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
+    instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
 
-    evkInstance.registerVertexShader("vert", "shaders/vert.spv");
-    evkInstance.registerFragmentShader("frag", "shaders/frag.spv");
+    const std::string DEPTH_ATTACHMENT = "depth";
+    instance.addDepthAttachment(DEPTH_ATTACHMENT);
+    std::vector<std::string> colorAttachments = {evk::FRAMEBUFFER_ATTACHMENT};
+    std::vector<std::string> depthAttachments = {DEPTH_ATTACHMENT};
+    std::vector<std::string> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
+    instance.addSubpass(
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments);
+    instance.createRenderPass();
 
-    evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
-    evkInstance.setBindingDescription(sizeof(Vertex));
+    const std::string VERTEX_SHADER="vert";
+    const std::string FRAGMENT_SHADER="frag";
+    instance.createBufferObject("UBO", sizeof(UniformBufferObject));
+    instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
+    instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    instance.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    instance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
+    instance.setBindingDescription(sizeof(Vertex));
 
-    evkInstance.createDescriptorSets();
-    evkInstance.createGraphicsPipeline();
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
 
-    evkInstance.createFramebuffers();
-
-    evkInstance.createIndexBuffer(in);
-    evkInstance.createVertexBuffer(v);
+    instance.createIndexBuffer(in);
+    instance.createVertexBuffer(v);
     
-    evkInstance.createDrawCommands();
+    instance.createDescriptorSets();
+    instance.createFramebuffers();
+    instance.createGraphicsPipeline();
+    instance.createDrawCommands();
 }
 
 void App::initMultipassVulkan()
 {
+    auto &instance = multipassInstance;
+
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -87,27 +103,27 @@ void App::initMultipassVulkan()
         window,
         deviceExtensions
     };
-    multipassInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
+    instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
 
-    multipassInstance.createCommandPools();
+    instance.createCommandPools();
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
-    multipassInstance.createSwapChain(&swapChainCreateInfo);
+    instance.createSwapChain(&swapChainCreateInfo);
 
-    multipassInstance.createSyncObjects();
+    instance.createSyncObjects();
 
     const std::string COLOR_ATTACHMENT = "color";
     const std::string DEPTH_ATTACHMENT = "depth";
 
-    multipassInstance.addColorAttachment(COLOR_ATTACHMENT);
-    multipassInstance.addDepthAttachment(DEPTH_ATTACHMENT);
+    instance.addColorAttachment(COLOR_ATTACHMENT);
+    instance.addDepthAttachment(DEPTH_ATTACHMENT);
 
     std::vector<std::string> colorAttachments = {COLOR_ATTACHMENT};
     std::vector<std::string> depthAttachments = {DEPTH_ATTACHMENT};
     std::vector<std::string> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
-    multipassInstance.addSubpass(
+    instance.addSubpass(
         dependencies,
         colorAttachments,
         depthAttachments,
@@ -117,35 +133,33 @@ void App::initMultipassVulkan()
     depthAttachments.resize(0);
     inputAttachments = {COLOR_ATTACHMENT, DEPTH_ATTACHMENT};
     dependencies = {{0,1}};
-    multipassInstance.addSubpass(
+    instance.addSubpass(
         dependencies,
         colorAttachments,
         depthAttachments,
         inputAttachments);
-    multipassInstance.createRenderPass();
+    instance.createRenderPass();
 
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
-    multipassInstance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    multipassInstance.registerVertexShader(VERTEX_SHADER, "shaders/multipass_vert.spv");
-    multipassInstance.registerFragmentShader(FRAGMENT_SHADER, "shaders/multipass_frag.spv");
-    multipassInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    multipassInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    multipassInstance.setBindingDescription(sizeof(Vertex));
-    multipassInstance.createDescriptorSets();
+    instance.createBufferObject(UBO, sizeof(UniformBufferObject));
+    instance.registerVertexShader(VERTEX_SHADER, "shaders/multipass_vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/multipass_frag.spv");
+    instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    instance.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    instance.setBindingDescription(sizeof(Vertex));
 
-    multipassInstance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
-    multipassInstance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},1);
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},1);
 
-    multipassInstance.createGraphicsPipeline();
-    /** End of Pipeline **/
-
-    multipassInstance.createFramebuffers();
-    multipassInstance.createIndexBuffer(indices);
-    multipassInstance.createVertexBuffer(vertices);
+    instance.createIndexBuffer(indices);
+    instance.createVertexBuffer(vertices);
     
-    multipassInstance.createDrawCommands();
+    instance.createDescriptorSets();
+    instance.createFramebuffers();
+    instance.createGraphicsPipeline();
+    instance.createDrawCommands();
 }
 
 void App::mainLoop(evk::Instance &instance)
