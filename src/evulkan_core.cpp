@@ -67,19 +67,34 @@ void evk::Instance::createImageView(const ImageViewCreateInfo *pCreateInfo, VkIm
 }
 
 void evk::Instance::addSubpass(
-    const std::vector<VkAttachmentReference> &colorAttachments,
-    const std::vector<VkAttachmentReference> &inputAttachments)
+    const std::vector<SubpassDependency> &dependencies,
+    const std::vector<std::string> &c,
+    const std::vector<std::string> &d,
+    const std::vector<std::string> &i)
 {
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount=colorAttachments.size();
-    subpass.pColorAttachments=colorAttachments.data();
-    subpass.inputAttachmentCount=inputAttachments.size();
-    subpass.pInputAttachments=inputAttachments.data();
+    for (const auto &d : dependencies) addDependency(d.srcSubpass, d.dstSubpass);
+
+    std::vector<VkAttachmentReference> colorAttachments;
+    std::vector<VkAttachmentReference> depthAttachments;
+    std::vector<VkAttachmentReference> inputAttachments;
+
+    for (const auto &a : c) colorAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    for (const auto &a : d) depthAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+    for (const auto &a : i) inputAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+
+    SubpassDescription subpass = {};
+    subpass.colorAttachments = colorAttachments;
+    subpass.depthAttachments = depthAttachments;
+    subpass.inputAttachments = inputAttachments;
+    // subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    // subpass.colorAttachmentCount=colorAttachments.size();
+    // subpass.pColorAttachments=colorAttachments.data();
+    // subpass.inputAttachmentCount=inputAttachments.size();
+    // subpass.pInputAttachments=inputAttachments.data();
     m_subpasses.push_back(subpass);
 }
 
-void evk::Instance::addColorAttachment()
+void evk::Instance::addColorAttachment(const std::string &name)
 {
     VkAttachmentDescription attachment = {};
     attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -91,6 +106,7 @@ void evk::Instance::addColorAttachment()
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     m_attachments.push_back(attachment);
+    m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
 
     // Create images.
     VkImage image;
@@ -116,8 +132,9 @@ void evk::Instance::addColorAttachment()
     m_imageMemories.push_back(memory);
 }
 
-void evk::Instance::addDepthAttachment()
+void evk::Instance::addDepthAttachment(const std::string &name)
 {
+    // Need to lock this.
     VkAttachmentDescription attachment = {};
     attachment.format = VK_FORMAT_D32_SFLOAT;
     attachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -128,6 +145,7 @@ void evk::Instance::addDepthAttachment()
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     m_attachments.push_back(attachment);
+    m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
 
     VkImage image;
     VkImageView imageView;
@@ -191,18 +209,17 @@ void evk::Instance::createRenderPass()
     for (auto &a : m_attachments) attachments.push_back(a);
 
     // Subpasses
-    // First subpass - fill colour and depth.
-    VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-    VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount=1;
-    subpass.pColorAttachments=&colorReference;
-    subpass.pDepthStencilAttachment =&depthReference;
-    subpasses.push_back(subpass);
-    // Add other subpasses.
-    for (auto &sp : m_subpasses) subpasses.push_back(sp);
-    m_subpasses = subpasses;
+    for (auto &sp : m_subpasses)
+    {
+        VkSubpassDescription subpass = {};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount=sp.colorAttachments.size();
+        subpass.pColorAttachments=sp.colorAttachments.data();
+        subpass.pDepthStencilAttachment=sp.depthAttachments.data();
+        subpass.inputAttachmentCount=sp.inputAttachments.size();
+        subpass.pInputAttachments=sp.inputAttachments.data();
+        subpasses.push_back(subpass);
+    }
 
     // Dependencies
     VkSubpassDependency dependency;
@@ -302,10 +319,7 @@ void evk::Instance::registerFragmentShader(const std::string &name, const std::s
 }
 
 void evk::Instance::addPipeline(
-    // std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-    // std::vector<VkVertexInputBindingDescription> bindingDescriptions,
-    // VkDescriptorSetLayout descriptorSetLayout,
-    std::vector<std::string> shaders,
+    const std::vector<std::string> &shaders,
     uint32_t subpass)
 {
     Pipeline pipeline;

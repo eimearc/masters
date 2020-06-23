@@ -97,27 +97,46 @@ void App::initMultipassVulkan()
 
     multipassInstance.createSyncObjects();
 
-    /** Pipeline 0 / Subpass 0 **/
-    multipassInstance.addColorAttachment();
-    multipassInstance.addDepthAttachment();
-    std::vector<VkAttachmentReference> colorAttachments = {{ 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL }};
-    std::vector<VkAttachmentReference> inputAttachments;
-    inputAttachments.push_back({ 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
-    inputAttachments.push_back({ 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
-    multipassInstance.addDependency(0,1); // Add dependency between stage 0 and stage 1.
-    multipassInstance.addSubpass(colorAttachments,inputAttachments);
+    const std::string COLOR_ATTACHMENT = "color";
+    const std::string DEPTH_ATTACHMENT = "depth";
+
+    multipassInstance.addColorAttachment(COLOR_ATTACHMENT);
+    multipassInstance.addDepthAttachment(DEPTH_ATTACHMENT);
+
+    std::vector<std::string> colorAttachments = {COLOR_ATTACHMENT};
+    std::vector<std::string> depthAttachments = {DEPTH_ATTACHMENT};
+    std::vector<std::string> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
+    multipassInstance.addSubpass(
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments);
+
+    colorAttachments = {evk::FRAMEBUFFER_ATTACHMENT};
+    depthAttachments.resize(0);
+    inputAttachments = {COLOR_ATTACHMENT, DEPTH_ATTACHMENT};
+    dependencies = {{0,1}};
+    multipassInstance.addSubpass(
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments);
     multipassInstance.createRenderPass();
 
-    multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
-    multipassInstance.registerVertexShader("vert", "shaders/multipass_vert.spv");
-    multipassInstance.registerFragmentShader("frag", "shaders/multipass_frag.spv");
+    const std::string VERTEX_SHADER="vert";
+    const std::string FRAGMENT_SHADER="frag";
+    const std::string UBO="ubo";
+    multipassInstance.createBufferObject(UBO, sizeof(UniformBufferObject));
+    multipassInstance.registerVertexShader(VERTEX_SHADER, "shaders/multipass_vert.spv");
+    multipassInstance.registerFragmentShader(FRAGMENT_SHADER, "shaders/multipass_frag.spv");
     multipassInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     multipassInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
     multipassInstance.setBindingDescription(sizeof(Vertex));
     multipassInstance.createDescriptorSets();
 
-    multipassInstance.addPipeline({"vert", "frag"},0);
-    multipassInstance.addPipeline({"vert", "frag"},1);
+    multipassInstance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
+    multipassInstance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},1);
 
     multipassInstance.createGraphicsPipeline();
     /** End of Pipeline **/

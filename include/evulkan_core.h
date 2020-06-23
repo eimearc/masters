@@ -17,6 +17,8 @@
 namespace evk
 {
 
+const std::string FRAMEBUFFER_ATTACHMENT = "framebuffer";
+
 struct BufferInfo
 {
     size_t index;
@@ -81,6 +83,19 @@ struct VertexAttributeInfo
     uint32_t offset;
 };
 
+struct SubpassDependency
+{
+    uint32_t srcSubpass;
+    uint32_t dstSubpass;
+};
+
+struct SubpassDescription
+{
+    std::vector<VkAttachmentReference> colorAttachments;
+    std::vector<VkAttachmentReference> depthAttachments;
+    std::vector<VkAttachmentReference> inputAttachments;
+};
+
 void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
 
 class Instance
@@ -94,6 +109,8 @@ class Instance
         m_deviceExtensions=pCreateInfo->deviceExtensions;
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
+
+        m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(FRAMEBUFFER_ATTACHMENT,0));
 
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
@@ -112,18 +129,20 @@ class Instance
     void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
     void setBindingDescription(uint32_t stride);
 
-    void addDepthAttachment();
-    void addColorAttachment();
-    void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
-    void addSubpass(const std::vector<VkAttachmentReference> &colorAttachments, const std::vector<VkAttachmentReference> &inputAttachments);
+    void addColorAttachment(const std::string &name);
+    void addDepthAttachment(const std::string &name);
+
+    void addSubpass(
+        const std::vector<SubpassDependency> &dependencies,
+        const std::vector<std::string> &colorAttachments,
+        const std::vector<std::string> &depthAttachments,
+        const std::vector<std::string> &inputAttachments);
 
     void addPipeline(
-        // std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-        // std::vector<VkVertexInputBindingDescription> bindingDescriptions,
-        // VkDescriptorSetLayout descriptorSetLayout,
-        std::vector<std::string> shaders,
+        const std::vector<std::string> &shaders,
         uint32_t subpass);
     void createGraphicsPipeline();
+
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
     void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
     void createDescriptorSets();
@@ -187,8 +206,11 @@ class Instance
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
 
-    std::vector<VkSubpassDescription> m_subpasses;
+    // std::vector<VkSubpassDescription> m_subpasses;
+    std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
+
+    std::map<std::string, uint32_t> m_attachmentRegistry;
     std::vector<VkAttachmentDescription> m_attachments;
 
     std::vector<Index> m_indices;
@@ -240,6 +262,8 @@ class Instance
     std::vector<char> readFile(const std::string& filename);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+    void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
 
     void addDescriptorPoolSize(const VkDescriptorType type);
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
