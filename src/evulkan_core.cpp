@@ -78,11 +78,8 @@ void evk::Instance::addSubpass(
     std::vector<VkAttachmentReference> depthAttachments;
     std::vector<VkAttachmentReference> inputAttachments;
 
-    std::cout << "c" << m_evkattachments.size() << std::endl;
     for (const auto &a : c) colorAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-    std::cout << "d" << m_evkattachments.size() << std::endl;
     for (const auto &a : d) depthAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-    std::cout << "i" << m_evkattachments.size() << std::endl;
     for (const auto &a : i) inputAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
 
     SubpassDescription subpass = {};
@@ -147,8 +144,6 @@ void evk::Instance::addColorAttachment(const std::string &name)
         a.imageMemory.push_back(memory);
     }
     addAttachment(a);
-
-    std::cout <<"SIZE in DEPTH:"<< m_evkattachments.size() <<std::endl;
 }
 
 void evk::Instance::addDepthAttachment(const std::string &name)
@@ -206,7 +201,6 @@ void evk::Instance::addDepthAttachment(const std::string &name)
     }
     // m_evkattachments.push_back(a);
     addAttachment(a);
-    std::cout <<"SIZE in DEPTH:"<< m_evkattachments.size() <<std::endl;
 }
 
 void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
@@ -240,16 +234,10 @@ void evk::Instance::createRenderPass()
     // backBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     // attachments.push_back(backBufferAttachment);
     // for (auto &a : m_attachments) attachments.push_back(a);
-    std::cout << "SIZE in create render pass:" << m_evkattachments.size() << std::endl;
     attachments.resize(m_evkattachments.size());
     for (auto &a : m_evkattachments)
     {
         attachments[a.second.index] = a.second.description;
-        std::cout << "inserting " << a.second.name << " " << a.second.index << std::endl;
-    }
-    for (auto &a : m_evkattachments)
-    {
-        std::cout << a.first << " " << a.second.description.flags << std::endl;
     }
 
     // Subpasses
@@ -287,13 +275,6 @@ void evk::Instance::createRenderPass()
     dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
-
-    for (const auto &a : attachments)
-    {
-        std::cout << a.samples << std::endl;
-    }
-
-    std::cout << attachments.size() << m_evkattachments.size() << std::endl;
 
     // Create Render Pass
     VkRenderPassCreateInfo renderPassInfo = {};
@@ -620,14 +601,8 @@ void evk::Instance::cleanup()
         throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
     }
 
-    // for (auto &view : m_imageViews) vkDestroyImageView(m_device, view, nullptr);
-    // for (auto &image : m_images) vkDestroyImage(m_device, image, nullptr);
-    // for (auto &memory: m_imageMemories) vkFreeMemory(m_device, memory, nullptr);
-
     auto &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
     for (auto &view : attachment.imageView) vkDestroyImageView(m_device, view, nullptr);
-    // for (auto &image : attachment.image) vkDestroyImage(m_device, image, nullptr);
-    // for (auto &memory: attachment.imageMemory) vkFreeMemory(m_device, memory, nullptr);
 
     for (auto &a : m_evkattachments)
     {
@@ -655,16 +630,7 @@ void evk::Instance::cleanup()
 
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 
-    // for (auto imageView : m_swapChainImageViews)
-    // {
-    //     vkDestroyImageView(m_device, imageView, nullptr);
-    // }
-
-    std::cout << "HERE\n";
-
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
-
-    std::cout << "HERE\n";
 
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
@@ -678,8 +644,6 @@ void evk::Instance::cleanup()
         vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(m_device, m_fencesInFlight[i], nullptr);
     }
-
-        std::cout << "HERE\n";
 
     for (int i = 0; i < m_commandPools.size(); ++i)
     {
@@ -695,7 +659,6 @@ void evk::Instance::cleanup()
     }
 
     vkDestroySurfaceKHR(m_vkInstance, m_surface, nullptr);
-        std::cout << "HERE\n";
     vkDestroyInstance(m_vkInstance, nullptr);
 
     glfwDestroyWindow(m_window);
