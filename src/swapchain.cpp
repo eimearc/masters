@@ -66,4 +66,8 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
         imageViewCreateInfo.image=m_swapChainImages[i];
         createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
     }
+
+    Attachment &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
+    attachment.image=m_swapChainImages;
+    attachment.imageView=m_swapChainImageViews;   
 }

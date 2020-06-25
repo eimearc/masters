@@ -19,6 +19,19 @@ namespace evk
 
 const std::string FRAMEBUFFER_ATTACHMENT = "framebuffer";
 
+enum AttachmentType{COLOR,DEPTH,INPUT};
+
+struct Attachment
+{
+    AttachmentType type;
+    std::string name;
+    uint32_t index;
+    VkAttachmentDescription description;
+    std::vector<VkImage> image;
+    std::vector<VkImageView> imageView;
+    std::vector<VkDeviceMemory> imageMemory;
+};
+
 struct BufferInfo
 {
     size_t index;
@@ -110,7 +123,20 @@ class Instance
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
 
-        m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(FRAMEBUFFER_ATTACHMENT,0));
+        VkAttachmentDescription description;
+        description.format = VK_FORMAT_B8G8R8A8_SRGB;
+        description.flags = 0;
+        description.samples = VK_SAMPLE_COUNT_1_BIT;
+        description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        Attachment attachment;
+        attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
+        attachment.description=description;
+        addAttachment(attachment);
 
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
@@ -134,9 +160,9 @@ class Instance
 
     void addSubpass(
         const std::vector<SubpassDependency> &dependencies,
-        const std::vector<std::string> &colorAttachments,
-        const std::vector<std::string> &depthAttachments,
-        const std::vector<std::string> &inputAttachments);
+        const std::vector<std::string> &c,
+        const std::vector<std::string> &d,
+        const std::vector<std::string> &i);
 
     void addPipeline(
         const std::vector<std::string> &shaders,
@@ -209,8 +235,9 @@ class Instance
     std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
 
-    std::map<std::string, uint32_t> m_attachmentRegistry;
-    std::vector<VkAttachmentDescription> m_attachments;
+    // std::map<std::string, uint32_t> m_attachmentRegistry;
+    // std::vector<VkAttachmentDescription> m_attachments;
+    std::map<std::string,Attachment> m_evkattachments;
 
     std::vector<Index> m_indices;
 
@@ -258,6 +285,7 @@ class Instance
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
+    void addAttachment(Attachment attachment);
     std::vector<char> readFile(const std::string& filename);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);

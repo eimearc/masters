@@ -123,11 +123,13 @@ void App::initMultipassVulkan()
     depthAttachments.resize(0);
     inputAttachments = {COLOR_ATTACHMENT, DEPTH_ATTACHMENT};
     dependencies = {{0,1}};
+    std::cout << instance.m_evkattachments.size() << std::endl;
     instance.addSubpass(
         dependencies,
         colorAttachments,
         depthAttachments,
         inputAttachments);
+    std::cout << instance.m_evkattachments.size() << std::endl;
     instance.createRenderPass();
 
     const std::string VERTEX_SHADER="vert";

@@ -78,15 +78,25 @@ void evk::Instance::addSubpass(
     std::vector<VkAttachmentReference> depthAttachments;
     std::vector<VkAttachmentReference> inputAttachments;
 
-    for (const auto &a : c) colorAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-    for (const auto &a : d) depthAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-    for (const auto &a : i) inputAttachments.push_back({m_attachmentRegistry[a], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+    std::cout << "c" << m_evkattachments.size() << std::endl;
+    for (const auto &a : c) colorAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    std::cout << "d" << m_evkattachments.size() << std::endl;
+    for (const auto &a : d) depthAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+    std::cout << "i" << m_evkattachments.size() << std::endl;
+    for (const auto &a : i) inputAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
 
     SubpassDescription subpass = {};
     subpass.colorAttachments = colorAttachments;
     subpass.depthAttachments = depthAttachments;
     subpass.inputAttachments = inputAttachments;
     m_subpasses.push_back(subpass);
+}
+
+void evk::Instance::addAttachment(Attachment attachment)
+{
+    static size_t index = 0;
+    attachment.index=index++;
+    m_evkattachments.insert({attachment.name,attachment});
 }
 
 void evk::Instance::addColorAttachment(const std::string &name)
@@ -100,8 +110,8 @@ void evk::Instance::addColorAttachment(const std::string &name)
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    m_attachments.push_back(attachment);
-    m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
+    // m_attachments.push_back(attachment);
+    // m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
 
     // Create images.
     VkImage image;
@@ -122,9 +132,23 @@ void evk::Instance::addColorAttachment(const std::string &name)
     imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
     createImageView(&imageViewCreateInfo, &imageView);
 
-    m_images.push_back(image);
-    m_imageViews.push_back(imageView);
-    m_imageMemories.push_back(memory);
+    // m_images.push_back(image);
+    // m_imageViews.push_back(imageView);
+    // m_imageMemories.push_back(memory);
+
+    Attachment a;
+    a.name=name;
+    a.type=AttachmentType::COLOR;
+    a.description=attachment;
+    for (int i = 0; i < m_swapChainImages.size(); ++i)
+    {
+        a.image.push_back(image);
+        a.imageView.push_back(imageView);
+        a.imageMemory.push_back(memory);
+    }
+    addAttachment(a);
+
+    std::cout <<"SIZE in DEPTH:"<< m_evkattachments.size() <<std::endl;
 }
 
 void evk::Instance::addDepthAttachment(const std::string &name)
@@ -139,8 +163,8 @@ void evk::Instance::addDepthAttachment(const std::string &name)
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    m_attachments.push_back(attachment);
-    m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
+    // m_attachments.push_back(attachment);
+    // m_attachmentRegistry.insert(std::pair<std::string,uint32_t>(name,m_attachmentRegistry.size()));
 
     VkImage image;
     VkImageView imageView;
@@ -166,9 +190,23 @@ void evk::Instance::addDepthAttachment(const std::string &name)
     imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_DEPTH_BIT;
     createImageView(&imageViewCreateInfo, &imageView);
 
-    m_images.push_back(image);
-    m_imageViews.push_back(imageView);
-    m_imageMemories.push_back(memory);
+    // m_images.push_back(image);
+    // m_imageViews.push_back(imageView);
+    // m_imageMemories.push_back(memory);
+
+    Attachment a;
+    a.name=name;
+    a.type=AttachmentType::DEPTH;
+    a.description=attachment;
+    for (int i = 0; i < m_swapChainImages.size(); ++i)
+    {
+        a.image.push_back(image);
+        a.imageView.push_back(imageView);
+        a.imageMemory.push_back(memory);
+    }
+    // m_evkattachments.push_back(a);
+    addAttachment(a);
+    std::cout <<"SIZE in DEPTH:"<< m_evkattachments.size() <<std::endl;
 }
 
 void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
@@ -191,17 +229,28 @@ void evk::Instance::createRenderPass()
     std::vector<VkSubpassDescription> subpasses;
 
     // Swap chain image color attachment
-    VkAttachmentDescription backBufferAttachment = {};
-    backBufferAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
-    backBufferAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    backBufferAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    backBufferAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    backBufferAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    backBufferAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    backBufferAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    backBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    attachments.push_back(backBufferAttachment);
-    for (auto &a : m_attachments) attachments.push_back(a);
+    // VkAttachmentDescription backBufferAttachment = {};
+    // backBufferAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
+    // backBufferAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    // backBufferAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    // backBufferAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    // backBufferAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    // backBufferAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    // backBufferAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    // backBufferAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    // attachments.push_back(backBufferAttachment);
+    // for (auto &a : m_attachments) attachments.push_back(a);
+    std::cout << "SIZE in create render pass:" << m_evkattachments.size() << std::endl;
+    attachments.resize(m_evkattachments.size());
+    for (auto &a : m_evkattachments)
+    {
+        attachments[a.second.index] = a.second.description;
+        std::cout << "inserting " << a.second.name << " " << a.second.index << std::endl;
+    }
+    for (auto &a : m_evkattachments)
+    {
+        std::cout << a.first << " " << a.second.description.flags << std::endl;
+    }
 
     // Subpasses
     for (auto &sp : m_subpasses)
@@ -238,6 +287,13 @@ void evk::Instance::createRenderPass()
     dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
+
+    for (const auto &a : attachments)
+    {
+        std::cout << a.samples << std::endl;
+    }
+
+    std::cout << attachments.size() << m_evkattachments.size() << std::endl;
 
     // Create Render Pass
     VkRenderPassCreateInfo renderPassInfo = {};
@@ -534,15 +590,18 @@ void evk::Instance::createFramebuffers()
 
     for (size_t i = 0; i < numImages; i++)
     {
-        std::vector<VkImageView> attachments;
-        attachments.push_back(m_swapChainImageViews[i]);
-        for (const auto &view : m_imageViews) attachments.push_back(view);
+        std::vector<VkImageView> imageViews(m_evkattachments.size());
+        for (const auto &a : m_evkattachments)
+        {
+            const uint32_t &index = a.second.index;
+            imageViews[index]=a.second.imageView[i];
+        }
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = m_renderPass;
-        framebufferInfo.attachmentCount = attachments.size();
-        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.attachmentCount = imageViews.size();
+        framebufferInfo.pAttachments = imageViews.data();
         framebufferInfo.width = m_swapChainExtent.width;
         framebufferInfo.height = m_swapChainExtent.height;
         framebufferInfo.layers = 1;
@@ -561,9 +620,25 @@ void evk::Instance::cleanup()
         throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
     }
 
-    for (auto &view : m_imageViews) vkDestroyImageView(m_device, view, nullptr);
-    for (auto &image : m_images) vkDestroyImage(m_device, image, nullptr);
-    for (auto &memory: m_imageMemories) vkFreeMemory(m_device, memory, nullptr);
+    // for (auto &view : m_imageViews) vkDestroyImageView(m_device, view, nullptr);
+    // for (auto &image : m_images) vkDestroyImage(m_device, image, nullptr);
+    // for (auto &memory: m_imageMemories) vkFreeMemory(m_device, memory, nullptr);
+
+    auto &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
+    for (auto &view : attachment.imageView) vkDestroyImageView(m_device, view, nullptr);
+    // for (auto &image : attachment.image) vkDestroyImage(m_device, image, nullptr);
+    // for (auto &memory: attachment.imageMemory) vkFreeMemory(m_device, memory, nullptr);
+
+    for (auto &a : m_evkattachments)
+    {
+        attachment = a.second;
+        if (a.first != evk::FRAMEBUFFER_ATTACHMENT)
+        {
+            vkDestroyImageView(m_device, attachment.imageView[0], nullptr);
+            vkDestroyImage(m_device, attachment.image[0], nullptr);
+            vkFreeMemory(m_device, attachment.imageMemory[0], nullptr); 
+        }
+    }
 
     vkDestroySampler(m_device, m_textureSampler, nullptr);
     vkDestroyImageView(m_device, m_textureImageView, nullptr);
@@ -580,12 +655,16 @@ void evk::Instance::cleanup()
 
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 
-    for (auto imageView : m_swapChainImageViews)
-    {
-        vkDestroyImageView(m_device, imageView, nullptr);
-    }
+    // for (auto imageView : m_swapChainImageViews)
+    // {
+    //     vkDestroyImageView(m_device, imageView, nullptr);
+    // }
+
+    std::cout << "HERE\n";
 
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+
+    std::cout << "HERE\n";
 
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
@@ -599,6 +678,8 @@ void evk::Instance::cleanup()
         vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(m_device, m_fencesInFlight[i], nullptr);
     }
+
+        std::cout << "HERE\n";
 
     for (int i = 0; i < m_commandPools.size(); ++i)
     {
@@ -614,6 +695,7 @@ void evk::Instance::cleanup()
     }
 
     vkDestroySurfaceKHR(m_vkInstance, m_surface, nullptr);
+        std::cout << "HERE\n";
     vkDestroyInstance(m_vkInstance, nullptr);
 
     glfwDestroyWindow(m_window);
