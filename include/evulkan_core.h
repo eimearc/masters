@@ -19,17 +19,14 @@ namespace evk
 
 const std::string FRAMEBUFFER_ATTACHMENT = "framebuffer";
 
-enum AttachmentType{COLOR,DEPTH,INPUT};
-
 struct Attachment
 {
-    AttachmentType type;
     std::string name;
     uint32_t index;
     VkAttachmentDescription description;
-    std::vector<VkImage> image;
-    std::vector<VkImageView> imageView;
-    std::vector<VkDeviceMemory> imageMemory;
+    std::vector<VkImage> images;
+    std::vector<VkImageView> imageViews;
+    std::vector<VkDeviceMemory> imageMemories;
 };
 
 struct BufferInfo
