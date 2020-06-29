@@ -291,13 +291,6 @@ class Instance
 
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
 
-    void addDescriptorPoolSize(const VkDescriptorType type);
-    void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
-    void addWriteDescriptorSetBuffer(
-        std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-        uint32_t binding, VkDescriptorType type, size_t startIndex);
-    void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
-
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;
     uint8_t m_maxFramesInFlight;

@@ -54,7 +54,6 @@ void App::initVulkan()
     descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
 
-
     const std::string DEPTH_ATTACHMENT = "depth";
     instance.addDepthAttachment(DEPTH_ATTACHMENT);
     std::vector<std::string> colorAttachments = {evk::FRAMEBUFFER_ATTACHMENT};
