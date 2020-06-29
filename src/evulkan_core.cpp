@@ -3,35 +3,6 @@
 #include <set>
 #include <iostream>
 
-// void evk::Instance::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
-// {
-//     VkVertexInputAttributeDescription desc;
-//     desc.binding=0;
-//     desc.location=location;
-//     desc.format=VK_FORMAT_R32G32B32_SFLOAT;
-//     desc.offset=offset;
-//     m_attributeDescriptions.push_back(desc);
-// }
-
-// void evk::Instance::addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset)
-// {
-//     VkVertexInputAttributeDescription desc;
-//     desc.binding=0;
-//     desc.location=location;
-//     desc.format=VK_FORMAT_R32G32_SFLOAT;
-//     desc.offset=offset;
-//     m_attributeDescriptions.push_back(desc);
-// }
-
-// void evk::Instance::setBindingDescription(uint32_t stride)
-// {
-//     VkVertexInputBindingDescription bindingDescription = {};
-//     bindingDescription.binding = 0;
-//     bindingDescription.stride = stride;
-//     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-//     m_bindingDescription=bindingDescription;
-// }
-
 void evk::Instance::createCommandPools()
 {
     m_commandPools.resize(m_numThreads);
@@ -78,9 +49,22 @@ void evk::Instance::addSubpass(
     std::vector<VkAttachmentReference> depthAttachments;
     std::vector<VkAttachmentReference> inputAttachments;
 
-    for (const auto &a : c) colorAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-    for (const auto &a : d) depthAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-    for (const auto &a : i) inputAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+    for (const auto &a : c)
+    {
+        colorAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+        std::cout << "COLOR index: " << m_evkattachments[a].index << std::endl;
+    }
+    for (const auto &a : d)
+    {
+        depthAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+        std::cout << "DEPTH index: " << m_evkattachments[a].index << std::endl;
+    }
+    for (const auto &a : i)
+    {
+        inputAttachments.push_back({m_evkattachments[a].index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        std::cout << "INPUT index: " << m_evkattachments[a].index << std::endl;
+    }
+    std::cout << "\n";
 
     SubpassDescription subpass = {};
     subpass.colorAttachments = colorAttachments;
@@ -93,6 +77,7 @@ void evk::Instance::addAttachment(Attachment attachment)
 {
     static size_t index = 0;
     attachment.index=index++;
+    std::cout << attachment.name << " index:" << attachment.index << std::endl;
     m_evkattachments.insert({attachment.name,attachment});
 }
 
@@ -209,6 +194,7 @@ void evk::Instance::createRenderPass()
     attachments.resize(m_evkattachments.size());
     for (auto &a : m_evkattachments)
     {
+        std::cout << a.second.name << " " << a.second.index << std::endl;
         attachments[a.second.index] = a.second.description;
     }
 
@@ -347,13 +333,17 @@ void evk::Instance::createGraphicsPipeline()
         descriptor = p.m_descriptor;
         vertexInput = p.m_vertexInput;
 
-        // Set up input to vertex shader.
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &vertexInput.m_bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInput.m_attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = vertexInput.m_attributeDescriptions.data();
+        if (vertexInput.m_bindingDescription.stride>0)
+        {
+            // Set up input to vertex shader.
+            vertexInputInfo.vertexBindingDescriptionCount = 1;
+            vertexInputInfo.pVertexBindingDescriptions = &vertexInput.m_bindingDescription;
+            vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInput.m_attributeDescriptions.size());
+            vertexInputInfo.pVertexAttributeDescriptions = vertexInput.m_attributeDescriptions.data();
+        }
+        else std::cout << "Empty\n";
 
         // Set up input assembly.
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -435,7 +425,6 @@ void evk::Instance::createGraphicsPipeline()
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        // pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
         pipelineLayoutInfo.pSetLayouts = &descriptor.m_descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;

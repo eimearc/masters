@@ -151,9 +151,6 @@ class Instance
     void createRenderPass();
     void registerVertexShader(const std::string &name, const std::string &vertShader);
     void registerFragmentShader(const std::string &name, const std::string &fragShader);
-    // void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
-    // void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
-    // void setBindingDescription(uint32_t stride);
 
     void addColorAttachment(const std::string &name);
     void addDepthAttachment(const std::string &name);
@@ -236,9 +233,6 @@ class Instance
     std::map<std::string,Attachment> m_evkattachments;
 
     std::vector<Index> m_indices;
-
-    // std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
-    // VkVertexInputBindingDescription m_bindingDescription;
 
     VkImage m_textureImage=VK_NULL_HANDLE;
     VkImageView m_textureImageView=VK_NULL_HANDLE;

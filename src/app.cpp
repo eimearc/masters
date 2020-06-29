@@ -146,15 +146,15 @@ void App::initMultipassVulkan()
     const std::string UBO="ubo";
 
     Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT);
-    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT);
+    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
 
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
+
     descriptor0.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
     descriptor0.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
 
     auto colorImageViews = instance.m_evkattachments[COLOR_ATTACHMENT].imageViews;
     auto depthImageViews = instance.m_evkattachments[DEPTH_ATTACHMENT].imageViews;
-
     descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 0, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addWriteDescriptorSetInputAttachment(colorImageViews, 0);
@@ -180,6 +180,7 @@ void App::initMultipassVulkan()
     instance.createVertexBuffer(vertices);
     
     instance.createDescriptorSets();
+
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();
