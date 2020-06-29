@@ -47,8 +47,13 @@ void App::initVulkan()
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
+    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT);
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
+    descriptor.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
+
 
     const std::string DEPTH_ATTACHMENT = "depth";
     instance.addDepthAttachment(DEPTH_ATTACHMENT);
@@ -65,7 +70,11 @@ void App::initVulkan()
 
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
-    instance.createBufferObject("UBO", sizeof(UniformBufferObject));
+    const std::string UBO="ubo";
+    instance.createBufferObject(UBO, sizeof(UniformBufferObject));
+    descriptor.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    descriptor.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
 
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
@@ -74,7 +83,7 @@ void App::initVulkan()
     instance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     instance.setBindingDescription(sizeof(Vertex));
 
-    // instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor,0);
 
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
@@ -155,7 +164,6 @@ void App::initMultipassVulkan()
     instance.createVertexBuffer(vertices);
     
     instance.createDescriptorSets();
-    std::cout << "HERE2\n";
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();
