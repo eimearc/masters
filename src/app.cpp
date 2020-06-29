@@ -15,7 +15,7 @@ void App::createGrid()
         for(size_t j = 0; j<verts.size(); ++j)
         {
             vertex.pos=verts[j];
-            vertex.color=cube.color;
+            vertex.color={0,0,1};
             vertices.push_back(vertex);
         }
         for(size_t j = 0; j<ind.size(); ++j)
@@ -139,6 +139,9 @@ void App::initMultipassVulkan()
         inputAttachments);
     instance.createRenderPass();
 
+    auto colorImageViews = instance.m_evkattachments[COLOR_ATTACHMENT].imageViews;
+    auto depthImageViews = instance.m_evkattachments[DEPTH_ATTACHMENT].imageViews;
+
     const std::string VERTEX_SHADER_0="vert0";
     const std::string FRAGMENT_SHADER_0="frag0";
     const std::string VERTEX_SHADER_1="vert1";
@@ -153,8 +156,6 @@ void App::initMultipassVulkan()
     descriptor0.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
     descriptor0.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
 
-    auto colorImageViews = instance.m_evkattachments[COLOR_ATTACHMENT].imageViews;
-    auto depthImageViews = instance.m_evkattachments[DEPTH_ATTACHMENT].imageViews;
     descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 0, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addWriteDescriptorSetInputAttachment(colorImageViews, 0);
@@ -171,10 +172,11 @@ void App::initMultipassVulkan()
     vertexInput0.setBindingDescription(sizeof(Vertex));
 
     VertexInput vertexInput1;
-    vertexInput1.setBindingDescription(0);
+    vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER_0, FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
-    instance.addPipeline({VERTEX_SHADER_1, FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
+    instance.addPipeline({VERTEX_SHADER_0,FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
+    instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
 
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
