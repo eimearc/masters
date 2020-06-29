@@ -43,6 +43,7 @@ struct Pipeline
     VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<std::string> m_shaders;
     Descriptor m_descriptor;
+    VertexInput m_vertexInput;
     uint32_t m_subpass;
 };
 
@@ -150,9 +151,9 @@ class Instance
     void createRenderPass();
     void registerVertexShader(const std::string &name, const std::string &vertShader);
     void registerFragmentShader(const std::string &name, const std::string &fragShader);
-    void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
-    void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
-    void setBindingDescription(uint32_t stride);
+    // void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
+    // void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
+    // void setBindingDescription(uint32_t stride);
 
     void addColorAttachment(const std::string &name);
     void addDepthAttachment(const std::string &name);
@@ -166,6 +167,7 @@ class Instance
     void addPipeline(
         const std::vector<std::string> &shaders,
         Descriptor &descriptor,
+        VertexInput &vertexInput,
         uint32_t subpass);
     void createGraphicsPipeline();
 
@@ -213,15 +215,6 @@ class Instance
     std::vector<VkImageView> m_imageViews;
     std::vector<VkDeviceMemory> m_imageMemories;
 
-    VkDescriptorPool m_descriptorPool;
-    VkDescriptorSetLayout m_descriptorSetLayout;
-    std::vector<VkDescriptorSet> m_descriptorSets;
-    std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
-    std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
-    std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
-    std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
-    std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
-
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
     std::vector<VkFence> m_fencesInFlight;
@@ -240,14 +233,12 @@ class Instance
     std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
 
-    // std::map<std::string, uint32_t> m_attachmentRegistry;
-    // std::vector<VkAttachmentDescription> m_attachments;
     std::map<std::string,Attachment> m_evkattachments;
 
     std::vector<Index> m_indices;
 
-    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
-    VkVertexInputBindingDescription m_bindingDescription;
+    // std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
+    // VkVertexInputBindingDescription m_bindingDescription;
 
     VkImage m_textureImage=VK_NULL_HANDLE;
     VkImageView m_textureImageView=VK_NULL_HANDLE;

@@ -3,34 +3,34 @@
 #include <set>
 #include <iostream>
 
-void evk::Instance::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
-{
-    VkVertexInputAttributeDescription desc;
-    desc.binding=0;
-    desc.location=location;
-    desc.format=VK_FORMAT_R32G32B32_SFLOAT;
-    desc.offset=offset;
-    m_attributeDescriptions.push_back(desc);
-}
+// void evk::Instance::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
+// {
+//     VkVertexInputAttributeDescription desc;
+//     desc.binding=0;
+//     desc.location=location;
+//     desc.format=VK_FORMAT_R32G32B32_SFLOAT;
+//     desc.offset=offset;
+//     m_attributeDescriptions.push_back(desc);
+// }
 
-void evk::Instance::addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset)
-{
-    VkVertexInputAttributeDescription desc;
-    desc.binding=0;
-    desc.location=location;
-    desc.format=VK_FORMAT_R32G32_SFLOAT;
-    desc.offset=offset;
-    m_attributeDescriptions.push_back(desc);
-}
+// void evk::Instance::addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset)
+// {
+//     VkVertexInputAttributeDescription desc;
+//     desc.binding=0;
+//     desc.location=location;
+//     desc.format=VK_FORMAT_R32G32_SFLOAT;
+//     desc.offset=offset;
+//     m_attributeDescriptions.push_back(desc);
+// }
 
-void evk::Instance::setBindingDescription(uint32_t stride)
-{
-    VkVertexInputBindingDescription bindingDescription = {};
-    bindingDescription.binding = 0;
-    bindingDescription.stride = stride;
-    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-    m_bindingDescription=bindingDescription;
-}
+// void evk::Instance::setBindingDescription(uint32_t stride)
+// {
+//     VkVertexInputBindingDescription bindingDescription = {};
+//     bindingDescription.binding = 0;
+//     bindingDescription.stride = stride;
+//     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+//     m_bindingDescription=bindingDescription;
+// }
 
 void evk::Instance::createCommandPools()
 {
@@ -325,11 +325,13 @@ void evk::Instance::registerFragmentShader(const std::string &name, const std::s
 void evk::Instance::addPipeline(
     const std::vector<std::string> &shaders,
     Descriptor &descriptor,
+    VertexInput &vertexInput,
     uint32_t subpass)
 {
     Pipeline pipeline;
     pipeline.m_shaders = shaders;
     pipeline.m_descriptor = descriptor;
+    pipeline.m_vertexInput = vertexInput;
     pipeline.m_subpass = subpass;
     m_evkpipelines.push_back(pipeline);
 }
@@ -339,16 +341,19 @@ void evk::Instance::createGraphicsPipeline()
     VkPipeline pipeline;
     VkPipelineLayout layout;
     Descriptor descriptor;
+    VertexInput vertexInput;
     for (const auto &p : m_evkpipelines)
     {
         descriptor = p.m_descriptor;
+        vertexInput = p.m_vertexInput;
+
         // Set up input to vertex shader.
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &m_bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = m_attributeDescriptions.data();
+        vertexInputInfo.pVertexBindingDescriptions = &vertexInput.m_bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInput.m_attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = vertexInput.m_attributeDescriptions.data();
 
         // Set up input assembly.
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};

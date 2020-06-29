@@ -4,7 +4,7 @@ void evk::Instance::createDescriptorSets()
 {
     for (auto &p : m_evkpipelines)
     {
-        auto &desc = p.m_descriptor;
+        Descriptor &desc = p.m_descriptor;
         std::vector<VkDescriptorPoolSize> &poolSizes=desc.m_descriptorPoolSizes;
 
         VkDescriptorPoolCreateInfo poolInfo = {};

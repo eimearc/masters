@@ -50,7 +50,6 @@ void App::initVulkan()
     Descriptor descriptor(MAX_FRAMES_IN_FLIGHT);
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
-    descriptor.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
 
@@ -71,18 +70,19 @@ void App::initVulkan()
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    descriptor.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
     descriptor.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
 
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
-    instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    instance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    instance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
-    instance.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor,0);
+    VertexInput vertexInput;
+    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
+    vertexInput.setBindingDescription(sizeof(Vertex));
+
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor,vertexInput,0);
 
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
@@ -139,25 +139,42 @@ void App::initMultipassVulkan()
         inputAttachments);
     instance.createRenderPass();
 
-    const std::string VERTEX_SHADER="vert";
-    const std::string FRAGMENT_SHADER="frag";
+    const std::string VERTEX_SHADER_0="vert0";
+    const std::string FRAGMENT_SHADER_0="frag0";
+    const std::string VERTEX_SHADER_1="vert1";
+    const std::string FRAGMENT_SHADER_1="frag1";
     const std::string UBO="ubo";
 
     Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT);
+    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT);
 
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    descriptor0.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     descriptor0.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
     descriptor0.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
 
-    instance.registerVertexShader(VERTEX_SHADER, "shaders/multipass_vert.spv");
-    instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/multipass_frag.spv");
-    instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    instance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    instance.setBindingDescription(sizeof(Vertex));
+    auto colorImageViews = instance.m_evkattachments[COLOR_ATTACHMENT].imageViews;
+    auto depthImageViews = instance.m_evkattachments[DEPTH_ATTACHMENT].imageViews;
 
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor0,0);
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor0,1);
+    descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 0, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addWriteDescriptorSetInputAttachment(colorImageViews, 0);
+    descriptor1.addWriteDescriptorSetInputAttachment(depthImageViews, 1);
+
+    instance.registerVertexShader(VERTEX_SHADER_0, "shaders/multipass_0_vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER_0, "shaders/multipass_0_frag.spv");
+    instance.registerVertexShader(VERTEX_SHADER_1, "shaders/multipass_1_vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER_1, "shaders/multipass_1_frag.spv");
+
+    VertexInput vertexInput0;
+    vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput0.setBindingDescription(sizeof(Vertex));
+
+    VertexInput vertexInput1;
+    vertexInput1.setBindingDescription(0);
+
+    instance.addPipeline({VERTEX_SHADER_0, FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
+    instance.addPipeline({VERTEX_SHADER_1, FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
 
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
