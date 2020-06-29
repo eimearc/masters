@@ -324,10 +324,12 @@ void evk::Instance::registerFragmentShader(const std::string &name, const std::s
 
 void evk::Instance::addPipeline(
     const std::vector<std::string> &shaders,
+    Descriptor &descriptor,
     uint32_t subpass)
 {
     Pipeline pipeline;
     pipeline.m_shaders = shaders;
+    pipeline.m_descriptor = descriptor;
     pipeline.m_subpass = subpass;
     m_evkpipelines.push_back(pipeline);
 }
@@ -336,8 +338,10 @@ void evk::Instance::createGraphicsPipeline()
 {
     VkPipeline pipeline;
     VkPipelineLayout layout;
+    Descriptor descriptor;
     for (const auto &p : m_evkpipelines)
     {
+        descriptor = p.m_descriptor;
         // Set up input to vertex shader.
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -426,7 +430,8 @@ void evk::Instance::createGraphicsPipeline()
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
+        // pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &descriptor.m_descriptorSetLayout;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -604,8 +609,11 @@ void evk::Instance::cleanup()
 
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 
-    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
-    vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+    for (auto &pipeline : m_evkpipelines)
+    {
+        vkDestroyDescriptorPool(m_device, pipeline.m_descriptor.m_descriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(m_device, pipeline.m_descriptor.m_descriptorSetLayout, nullptr);
+    }
 
     for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);
     for (auto &memory : m_bufferMemories) vkFreeMemory(m_device, memory, nullptr);

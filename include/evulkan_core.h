@@ -11,6 +11,7 @@
 #include <array>
 #include <fstream>
 #include <map>
+#include "descriptor.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -41,6 +42,7 @@ struct Pipeline
     std::vector<VkVertexInputBindingDescription> m_bindingDescriptions;
     VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<std::string> m_shaders;
+    Descriptor m_descriptor;
     uint32_t m_subpass;
 };
 
@@ -163,6 +165,7 @@ class Instance
 
     void addPipeline(
         const std::vector<std::string> &shaders,
+        Descriptor &descriptor,
         uint32_t subpass);
     void createGraphicsPipeline();
 
@@ -213,6 +216,11 @@ class Instance
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<VkDescriptorSet> m_descriptorSets;
+    std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
+    std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
+    std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
+    std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
+    std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -246,12 +254,6 @@ class Instance
     VkSampler m_textureSampler=VK_NULL_HANDLE;
     VkDeviceMemory m_textureImageMemory=VK_NULL_HANDLE;
     VkDescriptorImageInfo m_textureDescriptor;
-
-    std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
-    std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
-    std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
-    std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
-    std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

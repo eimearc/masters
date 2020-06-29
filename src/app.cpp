@@ -66,6 +66,7 @@ void App::initVulkan()
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
     instance.createBufferObject("UBO", sizeof(UniformBufferObject));
+
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
     instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -73,7 +74,7 @@ void App::initVulkan()
     instance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     instance.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
+    // instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
 
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
@@ -133,20 +134,28 @@ void App::initMultipassVulkan()
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
+
+    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT);
+
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
+    descriptor0.addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    descriptor0.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    descriptor0.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+
     instance.registerVertexShader(VERTEX_SHADER, "shaders/multipass_vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/multipass_frag.spv");
     instance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     instance.addVertexAttributeVec3(1,offsetof(Vertex,color));
     instance.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},0);
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},1);
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor0,0);
+    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor0,1);
 
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
     
     instance.createDescriptorSets();
+    std::cout << "HERE2\n";
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();

@@ -71,9 +71,9 @@ void evk::Instance::createBufferObject(std::string name, VkDeviceSize bufferSize
             &m_buffers[index+i], &m_bufferMemories[index+i]);
     }
 
-    addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
-    addWriteDescriptorSetBuffer(m_buffers, 0, bufferSize, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,index);
+    // addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    // addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
+    // addWriteDescriptorSetBuffer(m_buffers, 0, bufferSize, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,index);
 }
 
 void evk::Instance::createVertexBuffer(const std::vector<Vertex> &vertices)
