@@ -47,7 +47,7 @@ void App::initVulkan()
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT);
+    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,2);
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
     descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -87,7 +87,6 @@ void App::initVulkan()
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
     
-    // instance.createDescriptorSets();
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();
@@ -168,17 +167,11 @@ void App::initMultipassVulkan()
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    // vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput0.setBindingDescription(sizeof(Vertex));
     
-
     VertexInput vertexInput1;
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    // vertexInput1.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput1.setBindingDescription(sizeof(Vertex));
-
-    std::vector<Descriptor *> descriptors={&descriptor0,&descriptor1};
-    instance.createDescriptorSets(descriptors);
 
     instance.addPipeline({VERTEX_SHADER_0,FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
     instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
@@ -188,7 +181,6 @@ void App::initMultipassVulkan()
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
-    instance.finish();
     instance.createDrawCommands();
 }
 

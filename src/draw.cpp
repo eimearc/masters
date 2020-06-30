@@ -157,8 +157,6 @@ void evk::Instance::createDrawCommands()
                 VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
                 VkDeviceSize offsets[] = {0};
 
-                std::cout << "FRAME " << frame << "\n";
-
                 vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
                 vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
                 vkCmdBindDescriptorSets(

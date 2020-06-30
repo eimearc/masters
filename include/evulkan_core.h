@@ -40,7 +40,6 @@ struct Pipeline
 {
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     std::vector<VkVertexInputBindingDescription> m_bindingDescriptions;
-    VkDescriptorSetLayout m_descriptorSetLayout;
     std::vector<std::string> m_shaders;
     Descriptor m_descriptor;
     VertexInput m_vertexInput;
@@ -123,21 +122,6 @@ class Instance
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
 
-        VkAttachmentDescription description;
-        description.format = VK_FORMAT_B8G8R8A8_SRGB;
-        description.flags = 0;
-        description.samples = VK_SAMPLE_COUNT_1_BIT;
-        description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        Attachment attachment;
-        attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
-        attachment.description=description;
-        addAttachment(attachment);
-
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
@@ -170,8 +154,7 @@ class Instance
 
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
     void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
-    void createDescriptorSets(std::vector<Descriptor*> descriptors);
-    void finish();
+
     void createSyncObjects();
     void createFramebuffers();
     void createCommandPools();

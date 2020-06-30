@@ -67,7 +67,21 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
         createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
     }
 
-    Attachment &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
+    VkAttachmentDescription description;
+    description.format = m_swapChainImageFormat;
+    description.flags = 0;
+    description.samples = VK_SAMPLE_COUNT_1_BIT;
+    description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    Attachment attachment;
+    attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
+    attachment.description=description;
     attachment.images=m_swapChainImages;
     attachment.imageViews=m_swapChainImageViews;
+    addAttachment(attachment);
 }

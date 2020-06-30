@@ -43,7 +43,11 @@ void evk::Instance::addSubpass(
     const std::vector<std::string> &d,
     const std::vector<std::string> &i)
 {
-    for (const auto &d : dependencies) addDependency(d.srcSubpass, d.dstSubpass);
+    for (const auto &d : dependencies) 
+    {
+        std::cout << "Adding dependency between " << d.srcSubpass << " and  " << d.dstSubpass << std::endl;
+        addDependency(d.srcSubpass, d.dstSubpass);
+    }
 
     std::vector<VkAttachmentReference> colorAttachments;
     std::vector<VkAttachmentReference> depthAttachments;
@@ -82,10 +86,12 @@ void evk::Instance::addAttachment(Attachment attachment)
 
 void evk::Instance::addColorAttachment(const std::string &name)
 {
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+
     VkAttachmentDescription attachment = {};
-    attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+    attachment.format = format;
     attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -104,14 +110,16 @@ void evk::Instance::addColorAttachment(const std::string &name)
         ImageCreateInfo createInfo={};
         createInfo.width = m_swapChainExtent.width;
         createInfo.height = m_swapChainExtent.height;
-        createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-        createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.format = format;
+        createInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
+            VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
+            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         createImage(&createInfo, &image, &memory);
 
         ImageViewCreateInfo imageViewCreateInfo={};
         imageViewCreateInfo.image=image;
-        imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_UNORM;
+        imageViewCreateInfo.format=format;
         imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
         createImageView(&imageViewCreateInfo, &imageView);
 
@@ -124,11 +132,16 @@ void evk::Instance::addColorAttachment(const std::string &name)
 
 void evk::Instance::addDepthAttachment(const std::string &name)
 {
+    EVkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.swapChainImageFormat = m_swapChainImageFormat;
+    renderPassInfo.physicalDevice = m_physicalDevice;
+    VkFormat depthFormat = findDepthFormat(&renderPassInfo);
+
     // Need to lock this.
     VkAttachmentDescription attachment = {};
-    attachment.format = VK_FORMAT_D32_SFLOAT;
+    attachment.format = depthFormat;
     attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -138,11 +151,6 @@ void evk::Instance::addDepthAttachment(const std::string &name)
     VkImage image;
     VkImageView imageView;
     VkDeviceMemory memory;
-
-    EVkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.swapChainImageFormat = m_swapChainImageFormat;
-    renderPassInfo.physicalDevice = m_physicalDevice;
-    VkFormat depthFormat = findDepthFormat(&renderPassInfo);
 
     Attachment a;
     a.name=name;
@@ -154,7 +162,7 @@ void evk::Instance::addDepthAttachment(const std::string &name)
         createInfo.height = m_swapChainExtent.height;
         createInfo.format = depthFormat;
         createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+        createInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
         createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         createImage(&createInfo, &image, &memory);
 
@@ -176,10 +184,18 @@ void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
     VkSubpassDependency dependency;
     dependency.srcSubpass = srcSubpass;
     dependency.dstSubpass = dstSubpass;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                            VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                            VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+                            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                            VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     m_dependencies.push_back(dependency);
 }
@@ -213,24 +229,22 @@ void evk::Instance::createRenderPass()
     VkSubpassDependency dependency;
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                            VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+                            VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
 
     for (auto &dep : m_dependencies) dependencies.push_back(dep);
-
-    dependency={};
-    dependency.srcSubpass = 0;
-    dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-    dependencies.push_back(dependency);
 
     // Create Render Pass
     VkRenderPassCreateInfo renderPassInfo = {};
@@ -324,11 +338,33 @@ void evk::Instance::createGraphicsPipeline()
 {
     VkPipeline pipeline;
     VkPipelineLayout layout;
-    Descriptor descriptor;
     VertexInput vertexInput;
     for (auto &p : m_evkpipelines)
     {
         Descriptor &descriptor = p.m_descriptor;
+
+        // Create descriptor set layout.
+        VkDescriptorPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolInfo.poolSizeCount = static_cast<uint32_t>(descriptor.m_descriptorPoolSizes.size());
+        poolInfo.pPoolSizes = descriptor.m_descriptorPoolSizes.data();
+        poolInfo.maxSets = static_cast<uint32_t>(descriptor.m_numAttachments*descriptor.m_size); // Wrong I think.
+
+        if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &descriptor.m_descriptorPool) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor pool.");
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(descriptor.m_numAttachments);
+        layoutInfo.pBindings = descriptor.m_descriptorSetBindings.data();
+
+        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &descriptor.m_descriptorSetLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
+
         vertexInput = p.m_vertexInput;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -482,6 +518,33 @@ void evk::Instance::createGraphicsPipeline()
             throw std::runtime_error("failed to create graphics pipeline.");
         }
         m_pipelines.push_back(pipeline);
+
+        descriptor.m_descriptorSets.resize(m_maxFramesInFlight);
+
+        // Create descriptor sets.
+        for (size_t i = 0; i < m_maxFramesInFlight; i++)
+        {
+            std::vector<VkDescriptorSetLayout> layouts(m_maxFramesInFlight, descriptor.m_descriptorSetLayout);
+            VkDescriptorSetAllocateInfo allocInfo = {};
+            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocInfo.descriptorPool = descriptor.m_descriptorPool;
+            allocInfo.descriptorSetCount = 1;
+            allocInfo.pSetLayouts = layouts.data();
+
+            if(vkAllocateDescriptorSets(m_device, &allocInfo, &descriptor.m_descriptorSets[i])!=VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to allocate descriptor sets.");
+            }
+
+            for (auto &set : descriptor.m_writeDescriptorSet[i])
+            {
+                set.dstSet=descriptor.m_descriptorSets[i];
+            }
+
+            vkUpdateDescriptorSets(m_device, // Crashing here.
+                static_cast<uint32_t>(descriptor.m_writeDescriptorSet[i].size()),
+                descriptor.m_writeDescriptorSet[i].data(), 0, nullptr);
+        }
     }
         
     for (auto &m : m_shaderModules)
