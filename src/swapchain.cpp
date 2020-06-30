@@ -70,6 +70,4 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     Attachment &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
     attachment.images=m_swapChainImages;
     attachment.imageViews=m_swapChainImageViews;
-
-    for (const auto &v : m_swapChainImageViews) std::cout << "SWAPCHAIN\t\t" << v << std::endl;   
 }

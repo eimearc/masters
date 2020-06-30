@@ -7,7 +7,7 @@ void App::createGrid()
     grid = Grid(gridSize, cubeSize, NUM_CUBES);
     int i=0;
     const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,0,0}};
+    Vertex vertex = {{}, {0,0,0}};
     for (auto cube : grid.cubes)
     {
         std::vector<glm::vec3> verts = cube.vertices;
@@ -87,7 +87,7 @@ void App::initVulkan()
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
     
-    instance.createDescriptorSets();
+    // instance.createDescriptorSets();
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();
@@ -168,23 +168,27 @@ void App::initMultipassVulkan()
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    // vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput0.setBindingDescription(sizeof(Vertex));
+    
 
     VertexInput vertexInput1;
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    // vertexInput1.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput1.setBindingDescription(sizeof(Vertex));
+
+    std::vector<Descriptor *> descriptors={&descriptor0,&descriptor1};
+    instance.createDescriptorSets(descriptors);
 
     instance.addPipeline({VERTEX_SHADER_0,FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
     instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
 
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
-    
-    instance.createDescriptorSets();
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
+    instance.finish();
     instance.createDrawCommands();
 }
 

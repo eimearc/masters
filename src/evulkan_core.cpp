@@ -77,7 +77,6 @@ void evk::Instance::addAttachment(Attachment attachment)
 {
     static size_t index = 0;
     attachment.index=index++;
-    std::cout << attachment.name << " index:" << attachment.index << std::endl;
     m_evkattachments.insert({attachment.name,attachment});
 }
 
@@ -180,7 +179,7 @@ void evk::Instance::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     m_dependencies.push_back(dependency);
 }
@@ -194,7 +193,6 @@ void evk::Instance::createRenderPass()
     attachments.resize(m_evkattachments.size());
     for (auto &a : m_evkattachments)
     {
-        std::cout << a.second.name << " " << a.second.index << std::endl;
         attachments[a.second.index] = a.second.description;
     }
 
@@ -328,9 +326,9 @@ void evk::Instance::createGraphicsPipeline()
     VkPipelineLayout layout;
     Descriptor descriptor;
     VertexInput vertexInput;
-    for (const auto &p : m_evkpipelines)
+    for (auto &p : m_evkpipelines)
     {
-        descriptor = p.m_descriptor;
+        Descriptor &descriptor = p.m_descriptor;
         vertexInput = p.m_vertexInput;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -425,7 +423,7 @@ void evk::Instance::createGraphicsPipeline()
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptor.m_descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &descriptor.m_descriptorSetLayout; // Something wrong here.
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 

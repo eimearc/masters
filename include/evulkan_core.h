@@ -170,7 +170,8 @@ class Instance
 
     void createBufferObject(std::string name, VkDeviceSize bufferSize);
     void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
-    void createDescriptorSets();
+    void createDescriptorSets(std::vector<Descriptor*> descriptors);
+    void finish();
     void createSyncObjects();
     void createFramebuffers();
     void createCommandPools();
