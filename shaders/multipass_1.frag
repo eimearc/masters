@@ -8,4 +8,5 @@ layout(location = 0) out vec4 outColor;
 void main() {
     vec4 color = vec4(subpassLoad(inputColor).rgb,1);
     outColor=color;
+    outColor=vec4(1,1,1,1);
 }

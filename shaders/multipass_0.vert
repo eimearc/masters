@@ -12,5 +12,4 @@ layout(location = 1) in vec3 inColor;
 
 void main() {
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    // gl_Position = vec4(inPosition, 1.0);
 }

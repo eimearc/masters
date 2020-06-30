@@ -87,7 +87,6 @@ void App::initVulkan()
     instance.createIndexBuffer(in);
     instance.createVertexBuffer(v);
     
-    instance.createDescriptorSets();
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
     instance.createDrawCommands();
@@ -181,7 +180,7 @@ void App::initMultipassVulkan()
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
     
-    instance.createDescriptorSets();
+    // instance.createDescriptorSets();
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline();

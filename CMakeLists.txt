@@ -28,7 +28,6 @@ find_package(gflags REQUIRED)
 set (SOURCES
     ${VULKANROOT}/src/buffer.cpp
     ${VULKANROOT}/src/descriptor.cpp
-    ${VULKANROOT}/src/descriptor1.cpp
     ${VULKANROOT}/src/draw.cpp
     ${VULKANROOT}/src/evulkan_core.cpp
     ${VULKANROOT}/src/evulkan_util.cpp

@@ -1,57 +1,128 @@
-#include "evulkan_core.h"
+#include "descriptor.h"
 
-void evk::Instance::createDescriptorSets()
+Descriptor::Descriptor(size_t size, size_t numAttachments)
 {
-    for (auto &p : m_evkpipelines)
+    m_size = size;
+    m_numAttachments = numAttachments;
+    m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_size, std::vector<VkWriteDescriptorSet>());
+    m_descriptorBufferInfo.resize(m_size);
+    m_descriptorTextureSamplerInfo.resize(m_size);
+    m_descriptorInputAttachmentInfo.resize(size*numAttachments);
+}
+
+void Descriptor::addDescriptorPoolSize(const VkDescriptorType type)
+{
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type = type;
+    poolSize.descriptorCount = static_cast<uint32_t>(m_size);
+    m_descriptorPoolSizes.push_back(poolSize);
+}
+
+void Descriptor::addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage)
+{
+    addDescriptorPoolSize(type);
+
+    VkDescriptorSetLayoutBinding layoutBinding = {};
+    layoutBinding.binding = binding;
+    layoutBinding.descriptorType = type;
+    layoutBinding.descriptorCount = 1;
+    layoutBinding.stageFlags = stage;
+    layoutBinding.pImmutableSamplers = nullptr;
+    m_descriptorSetBindings.push_back(layoutBinding);   
+}
+
+void Descriptor::addWriteDescriptorSetBuffer(
+    std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
+    uint32_t binding, VkDescriptorType type, size_t startIndex)
+{
+    for (size_t i = 0; i < m_size; ++i)
     {
-        Descriptor &desc = p.m_descriptor;
-        std::vector<VkDescriptorPoolSize> &poolSizes=desc.m_descriptorPoolSizes;
-
-        VkDescriptorPoolCreateInfo poolInfo = {};
-        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = static_cast<uint32_t>(desc.m_size);
-
-        if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &desc.m_descriptorPool) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create descriptor pool.");
-        }
-
-        std::vector<VkDescriptorSetLayoutBinding> &bindings = desc.m_descriptorSetBindings;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-        layoutInfo.pBindings = bindings.data();
-
-        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &desc.m_descriptorSetLayout) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create descriptor set layout.");
-        }
-
-        // Create descriptor sets.
-        const size_t &size = desc.m_size;
-        std::vector<VkDescriptorSetLayout> layouts(size, desc.m_descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = desc.m_descriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
-        allocInfo.pSetLayouts = layouts.data();
-
-        desc.m_descriptorSets.resize(size);
-        if(vkAllocateDescriptorSets(m_device, &allocInfo, desc.m_descriptorSets.data())!=VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to allocate descriptor sets.");
-        } 
-
-        for (size_t i = 0; i < size; i++)
-        {
-            for (auto &set : desc.m_writeDescriptorSet[i]) set.dstSet=desc.m_descriptorSets[i];
-
-            vkUpdateDescriptorSets(m_device,
-                static_cast<uint32_t>(desc.m_writeDescriptorSet[i].size()),
-                desc.m_writeDescriptorSet[i].data(), 0, nullptr);
-        }
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer = buffers[startIndex+i];
+        bufferInfo.offset = offset;
+        bufferInfo.range = range;
+        m_descriptorBufferInfo[i] = bufferInfo; // Overwriting?
+        VkWriteDescriptorSet descriptor;
+        descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor.dstBinding = binding;
+        descriptor.dstArrayElement = 0;
+        descriptor.descriptorType = type;
+        descriptor.descriptorCount = 1;
+        descriptor.pBufferInfo = &m_descriptorBufferInfo[i];
+        descriptor.pNext=nullptr;
+        m_writeDescriptorSet[i].push_back(descriptor);
     }
+}
+
+void Descriptor::addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding)
+{
+    for (size_t i = 0; i < m_size; ++i)
+    {
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = textureView;
+        imageInfo.sampler = textureSampler;
+        m_descriptorTextureSamplerInfo[i] = imageInfo;
+        VkWriteDescriptorSet descriptor;
+        descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor.dstBinding = binding;
+        descriptor.dstArrayElement = 0;
+        descriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptor.descriptorCount = 1;
+        descriptor.pImageInfo = &m_descriptorTextureSamplerInfo[i];
+        descriptor.pNext=nullptr;
+        m_writeDescriptorSet[i].push_back(descriptor);
+    }
+}
+
+void Descriptor::addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding)
+{
+    static size_t index=0;
+    for (size_t i = 0; i < m_size; ++i)
+    {
+        VkDescriptorImageInfo &imageInfo = m_descriptorInputAttachmentInfo[index];
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = imageViews[i];
+        imageInfo.sampler = VK_NULL_HANDLE;
+        VkWriteDescriptorSet descriptor;
+        descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor.dstBinding = binding;
+        descriptor.dstArrayElement = 0;
+        descriptor.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        descriptor.descriptorCount = 1;
+        descriptor.pImageInfo = &m_descriptorInputAttachmentInfo[index]; //change
+        descriptor.pNext=nullptr;
+        m_writeDescriptorSet[i].push_back(descriptor);
+
+        index++;
+    }
+}
+
+void VertexInput::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
+{
+    VkVertexInputAttributeDescription desc;
+    desc.binding=0;
+    desc.location=location;
+    desc.format=VK_FORMAT_R32G32B32_SFLOAT;
+    desc.offset=offset;
+    m_attributeDescriptions.push_back(desc);
+}
+
+void VertexInput::addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset)
+{
+    VkVertexInputAttributeDescription desc;
+    desc.binding=0;
+    desc.location=location;
+    desc.format=VK_FORMAT_R32G32_SFLOAT;
+    desc.offset=offset;
+    m_attributeDescriptions.push_back(desc);
+}
+
+void VertexInput::setBindingDescription(uint32_t stride)
+{
+    VkVertexInputBindingDescription bindingDescription = {};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = stride;
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    m_bindingDescription=bindingDescription;
 }

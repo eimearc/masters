@@ -328,9 +328,58 @@ void evk::Instance::createGraphicsPipeline()
     VkPipelineLayout layout;
     Descriptor descriptor;
     VertexInput vertexInput;
-    for (const auto &p : m_evkpipelines)
+    for (auto &p : m_evkpipelines)
     {
-        descriptor = p.m_descriptor;
+        Descriptor &descriptor = p.m_descriptor;
+        std::vector<VkDescriptorPoolSize> &poolSizes=descriptor.m_descriptorPoolSizes;
+
+        VkDescriptorPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+        poolInfo.pPoolSizes = poolSizes.data();
+        poolInfo.maxSets = static_cast<uint32_t>(descriptor.m_size);
+
+        if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &descriptor.m_descriptorPool) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor pool.");
+        }
+
+        std::vector<VkDescriptorSetLayoutBinding> &bindings = descriptor.m_descriptorSetBindings;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+        layoutInfo.pBindings = bindings.data();
+
+        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &descriptor.m_descriptorSetLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
+
+        // Create descriptor sets.
+        const size_t &size = descriptor.m_size;
+        std::vector<VkDescriptorSetLayout> layouts(size, descriptor.m_descriptorSetLayout);
+        VkDescriptorSetAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = descriptor.m_descriptorPool;
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
+        allocInfo.pSetLayouts = layouts.data();
+
+        descriptor.m_descriptorSets.resize(size);
+        if(vkAllocateDescriptorSets(m_device, &allocInfo, descriptor.m_descriptorSets.data())!=VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to allocate descriptor sets.");
+        } 
+
+        for (size_t i = 0; i < size; i++)
+        {
+            for (auto &set : descriptor.m_writeDescriptorSet[i]) set.dstSet=descriptor.m_descriptorSets[i];
+
+            vkUpdateDescriptorSets(m_device,
+                static_cast<uint32_t>(descriptor.m_writeDescriptorSet[i].size()),
+                descriptor.m_writeDescriptorSet[i].data(), 0, nullptr);
+        }
+
         vertexInput = p.m_vertexInput;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
