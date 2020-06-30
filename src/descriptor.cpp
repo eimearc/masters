@@ -37,8 +37,9 @@ void evk::Instance::finish()
         desc->m_descriptorSets.resize(desc->m_size);
 
         // Create descriptor sets.
-        for (size_t i = 0; i < desc->m_numAttachments; i++)
+        for (size_t i = 0; i < m_maxFramesInFlight; i++)
         {
+            std::cout << "Allocating " << i << std::endl;
             std::vector<VkDescriptorSetLayout> layouts(desc->m_size, desc->m_descriptorSetLayout);
             VkDescriptorSetAllocateInfo allocInfo = {};
             allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
