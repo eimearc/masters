@@ -18,6 +18,25 @@ void Descriptor::addDescriptorPoolSize(const VkDescriptorType type)
     m_descriptorPoolSizes.push_back(poolSize);
 }
 
+void Descriptor::addUniformBuffer(
+    const uint32_t binding,
+    const std::vector<VkBuffer> &uniformBuffers,
+    const VkShaderStageFlagBits shaderStage,
+    const VkDeviceSize bufferSize)
+{
+    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
+    addWriteDescriptorSetBuffer(uniformBuffers, 0, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+}
+
+void Descriptor::addInputAttachment(
+    const uint32_t binding,
+    const std::vector<VkImageView> &imageViews,
+    const VkShaderStageFlagBits shaderStage)
+{
+    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, shaderStage);
+    addWriteDescriptorSetInputAttachment(imageViews, binding);
+}
+
 void Descriptor::addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage)
 {
     addDescriptorPoolSize(type);

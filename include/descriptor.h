@@ -11,12 +11,18 @@ class Descriptor
     Descriptor()=default;
     Descriptor(size_t size, size_t numAttachments=1);
 
-    void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
-    void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
-    void addWriteDescriptorSetBuffer(
-        std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-        uint32_t binding, VkDescriptorType type, size_t startIndex);
-    void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding);
+    void addUniformBuffer(
+        const uint32_t binding,
+        const std::vector<VkBuffer> &uniformBuffers,
+        const VkShaderStageFlagBits shaderStage,
+        const VkDeviceSize bufferSize
+    );
+
+    void addInputAttachment(
+        const uint32_t binding,
+        const std::vector<VkImageView> &imageViews,
+        const VkShaderStageFlagBits shaderStage
+    );
 
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
@@ -35,6 +41,12 @@ class Descriptor
 
     private:
     void addDescriptorPoolSize(const VkDescriptorType type);
+    void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
+    void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
+    void addWriteDescriptorSetBuffer(
+    std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
+    uint32_t binding, VkDescriptorType type, size_t startIndex);
+    void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding);
 };
 
 class VertexInput

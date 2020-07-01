@@ -69,9 +69,9 @@ void App::initVulkan()
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
+    
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
-    descriptor.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+    descriptor.addUniformBuffer(0, instance.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
@@ -151,14 +151,10 @@ void App::initMultipassVulkan()
     Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
 
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, instance.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
-    descriptor0.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_VERTEX_BIT);
-    descriptor0.addWriteDescriptorSetBuffer(instance.m_buffers, 0, sizeof(UniformBufferObject), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
-
-    descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 0, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptor1.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptor1.addWriteDescriptorSetInputAttachment(colorImageViews, 0);
-    descriptor1.addWriteDescriptorSetInputAttachment(depthImageViews, 1);
+    descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     instance.registerVertexShader(VERTEX_SHADER_0, "shaders/multipass_0_vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER_0, "shaders/multipass_0_frag.spv");
@@ -179,8 +175,6 @@ void App::initMultipassVulkan()
 
     instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
-    
-    // instance.createDescriptorSets();
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
