@@ -50,8 +50,9 @@ void App::initVulkan()
     Descriptor descriptor(MAX_FRAMES_IN_FLIGHT);
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
-    descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
+    // descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
+    // descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
+    descriptor.addTextureSampler(1, instance.m_textureImageView, instance.m_textureSampler, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     const std::string DEPTH_ATTACHMENT = "depth";
     instance.addDepthAttachment(DEPTH_ATTACHMENT);
@@ -69,7 +70,7 @@ void App::initVulkan()
     const std::string VERTEX_SHADER="vert";
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
-    
+
     instance.createBufferObject(UBO, sizeof(UniformBufferObject));
     descriptor.addUniformBuffer(0, instance.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 

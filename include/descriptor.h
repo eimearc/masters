@@ -24,6 +24,13 @@ class Descriptor
         const VkShaderStageFlagBits shaderStage
     );
 
+    void addTextureSampler(
+        const uint32_t binding,
+        const VkImageView &textureImageView,
+        const VkSampler &textureSampler,
+        const VkShaderStageFlagBits shaderStage
+    );
+
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
 

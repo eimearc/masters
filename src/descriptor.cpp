@@ -37,7 +37,20 @@ void Descriptor::addInputAttachment(
     addWriteDescriptorSetInputAttachment(imageViews, binding);
 }
 
-void Descriptor::addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage)
+void Descriptor::addTextureSampler(
+    const uint32_t binding,
+    const VkImageView &textureImageView,
+    const VkSampler &textureSampler,
+    const VkShaderStageFlagBits shaderStage)
+{
+    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, shaderStage);
+    addWriteDescriptorSetTextureSampler(textureImageView, textureSampler, binding);
+}
+
+void Descriptor::addDescriptorSetBinding(
+    const VkDescriptorType type,
+    uint32_t binding,
+    VkShaderStageFlagBits stage)
 {
     addDescriptorPoolSize(type);
 
