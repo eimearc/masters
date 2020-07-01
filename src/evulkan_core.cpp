@@ -337,7 +337,7 @@ void evk::Instance::createGraphicsPipeline()
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = static_cast<uint32_t>(descriptor.m_size);
+        poolInfo.maxSets = static_cast<uint32_t>(descriptor.m_swapchainSize);
 
         if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &descriptor.m_descriptorPool) != VK_SUCCESS)
         {
@@ -357,7 +357,7 @@ void evk::Instance::createGraphicsPipeline()
         }
 
         // Create descriptor sets.
-        const size_t &size = descriptor.m_size;
+        const size_t &size = descriptor.m_swapchainSize;
         std::vector<VkDescriptorSetLayout> layouts(size, descriptor.m_descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

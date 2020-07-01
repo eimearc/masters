@@ -27,6 +27,7 @@ find_package(gflags REQUIRED)
 
 set (SOURCES
     ${VULKANROOT}/src/buffer.cpp
+    ${VULKANROOT}/src/buffer1.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/draw.cpp
     ${VULKANROOT}/src/evulkan_core.cpp
@@ -39,6 +40,7 @@ set (SOURCES
     ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/descriptor.h
+    ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/evulkan_util.h
     ${VULKANROOT}/include/threadpool.h
     ${VULKANROOT}/include/vertex.h

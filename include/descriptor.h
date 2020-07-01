@@ -9,7 +9,7 @@ class Descriptor
 {
     public:
     Descriptor()=default;
-    Descriptor(size_t size, size_t numAttachments=1);
+    Descriptor(const size_t swapchainSize, const size_t numAttachments);
 
     void addUniformBuffer(
         const uint32_t binding,
@@ -43,7 +43,7 @@ class Descriptor
     std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorInputAttachmentInfo;
 
-    size_t m_size;
+    size_t m_swapchainSize;
     size_t m_numAttachments;
 
     private:
@@ -51,8 +51,8 @@ class Descriptor
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
     void addWriteDescriptorSetBuffer(
-    std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-    uint32_t binding, VkDescriptorType type, size_t startIndex);
+        std::vector<VkBuffer> buffers, VkDeviceSize range,
+        uint32_t binding, VkDescriptorType type);
     void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding);
 };
 

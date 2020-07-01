@@ -12,6 +12,7 @@
 #include <fstream>
 #include <map>
 #include "descriptor.h"
+#include "buffer.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -167,9 +168,6 @@ class Instance
         VertexInput &vertexInput,
         uint32_t subpass);
     void createGraphicsPipeline();
-
-    void createBufferObject(std::string name, VkDeviceSize bufferSize);
-    void updateBufferObject(std::string name, VkDeviceSize bufferSize, void *srcBuffer, size_t imageIndex);
 
     void createSyncObjects();
     void createFramebuffers();

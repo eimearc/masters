@@ -1,20 +1,20 @@
 #include "descriptor.h"
 
-Descriptor::Descriptor(size_t size, size_t numAttachments)
+Descriptor::Descriptor(const size_t swapchainSize, const size_t numAttachments)
 {
-    m_size = size;
+    m_swapchainSize = swapchainSize;
     m_numAttachments = numAttachments;
-    m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_size, std::vector<VkWriteDescriptorSet>());
-    m_descriptorBufferInfo.resize(m_size);
-    m_descriptorTextureSamplerInfo.resize(m_size);
-    m_descriptorInputAttachmentInfo.resize(size*numAttachments);
+    m_writeDescriptorSet = std::vector<std::vector<VkWriteDescriptorSet>>(m_swapchainSize, std::vector<VkWriteDescriptorSet>());
+    m_descriptorBufferInfo.resize(m_swapchainSize);
+    m_descriptorTextureSamplerInfo.resize(m_swapchainSize);
+    m_descriptorInputAttachmentInfo.resize(m_swapchainSize*m_numAttachments);
 }
 
 void Descriptor::addDescriptorPoolSize(const VkDescriptorType type)
 {
     VkDescriptorPoolSize poolSize = {};
     poolSize.type = type;
-    poolSize.descriptorCount = static_cast<uint32_t>(m_size);
+    poolSize.descriptorCount = static_cast<uint32_t>(m_swapchainSize);
     m_descriptorPoolSizes.push_back(poolSize);
 }
 
@@ -25,7 +25,7 @@ void Descriptor::addUniformBuffer(
     const VkDeviceSize bufferSize)
 {
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
-    addWriteDescriptorSetBuffer(uniformBuffers, 0, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+    addWriteDescriptorSetBuffer(uniformBuffers, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 }
 
 void Descriptor::addInputAttachment(
@@ -64,14 +64,14 @@ void Descriptor::addDescriptorSetBinding(
 }
 
 void Descriptor::addWriteDescriptorSetBuffer(
-    std::vector<VkBuffer> buffers, VkDeviceSize offset, VkDeviceSize range,
-    uint32_t binding, VkDescriptorType type, size_t startIndex)
+    std::vector<VkBuffer> buffers, VkDeviceSize range,
+    uint32_t binding, VkDescriptorType type)
 {
-    for (size_t i = 0; i < m_size; ++i)
+    for (size_t i = 0; i < m_swapchainSize; ++i)
     {
         VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = buffers[startIndex+i];
-        bufferInfo.offset = offset;
+        bufferInfo.buffer = buffers[i];
+        bufferInfo.offset = 0;
         bufferInfo.range = range;
         m_descriptorBufferInfo[i] = bufferInfo; // Overwriting?
         VkWriteDescriptorSet descriptor;
@@ -88,7 +88,7 @@ void Descriptor::addWriteDescriptorSetBuffer(
 
 void Descriptor::addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding)
 {
-    for (size_t i = 0; i < m_size; ++i)
+    for (size_t i = 0; i < m_swapchainSize; ++i)
     {
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -110,7 +110,7 @@ void Descriptor::addWriteDescriptorSetTextureSampler(VkImageView textureView, Vk
 void Descriptor::addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding)
 {
     static size_t index=0;
-    for (size_t i = 0; i < m_size; ++i)
+    for (size_t i = 0; i < m_swapchainSize; ++i)
     {
         VkDescriptorImageInfo &imageInfo = m_descriptorInputAttachmentInfo[index];
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

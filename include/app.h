@@ -49,6 +49,7 @@ public:
         createGrid();
         initVulkan();
         mainLoop(evkInstance);
+        buffer.destroy();
         evkInstance.cleanup();
     }
 
@@ -57,6 +58,7 @@ public:
         createGrid();
         initMultipassVulkan();
         mainLoop(multipassInstance);
+        buffer.destroy();
         multipassInstance.cleanup();
     }
 
@@ -67,6 +69,7 @@ private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     Grid grid;
+    Buffer buffer;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     evk::Instance evkInstance;

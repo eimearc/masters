@@ -47,11 +47,9 @@ void App::initVulkan()
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT);
+    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,1);
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
-    // descriptor.addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
-    // descriptor.addWriteDescriptorSetTextureSampler(instance.m_textureImageView, instance.m_textureSampler, 1);
     descriptor.addTextureSampler(1, instance.m_textureImageView, instance.m_textureSampler, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     const std::string DEPTH_ATTACHMENT = "depth";
@@ -71,8 +69,16 @@ void App::initVulkan()
     const std::string FRAGMENT_SHADER="frag";
     const std::string UBO="ubo";
 
-    instance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    descriptor.addUniformBuffer(0, instance.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    UniformBufferObject ubo = {};
+    ubo.model=glm::mat4(1.0f);
+    ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f), glm::vec3(0.0f,0.0f,1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+
+    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    buffer.setBuffer(sizeof(UniformBufferObject));
+    descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
     instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
@@ -148,11 +154,12 @@ void App::initMultipassVulkan()
     const std::string FRAGMENT_SHADER_1="frag1";
     const std::string UBO="ubo";
 
-    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT);
+    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
     Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
 
-    instance.createBufferObject(UBO, sizeof(UniformBufferObject));
-    descriptor0.addUniformBuffer(0, instance.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    buffer.setBuffer(sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -197,7 +204,7 @@ void App::mainLoop(evk::Instance &instance)
         ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
-        instance.updateBufferObject("UBO",sizeof(ubo), &ubo, frameIndex);
+        buffer.updateBuffer(&ubo);
 
         instance.draw();
 
