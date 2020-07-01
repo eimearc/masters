@@ -50,6 +50,7 @@ public:
         initVulkan();
         mainLoop(evkInstance);
         buffer.destroy();
+        indexBuffer.destroy();
         evkInstance.cleanup();
     }
 
@@ -59,6 +60,7 @@ public:
         initMultipassVulkan();
         mainLoop(multipassInstance);
         buffer.destroy();
+        indexBuffer.destroy();
         multipassInstance.cleanup();
     }
 
@@ -70,6 +72,7 @@ private:
 
     Grid grid;
     Buffer buffer;
+    Buffer indexBuffer;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     evk::Instance evkInstance;

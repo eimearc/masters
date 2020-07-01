@@ -25,7 +25,7 @@ void evk::Instance::createIndexBuffer(const std::vector<Index> &indices)
 
     void *data;
     vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t)bufferSize);
+    memcpy(data, indices.data(), bufferSize);
     vkUnmapMemory(m_device, stagingBufferMemory);
 
     createBuffer(

@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include "evulkan_util.h"
 
 class Buffer
 {
@@ -12,6 +13,10 @@ class Buffer
 
     void setBuffer(const VkDeviceSize &bufferSize);
     void updateBuffer(const void *srcBuffer);
+
+    void setIndexBuffer(const VkDeviceSize &bufferSize, const void *indexBuffer, const size_t numElements, VkCommandPool commandPool, VkQueue queue);
+    // void setVertexBuffer();
+
     void destroy();
 
     std::vector<VkBuffer> m_buffers;
@@ -23,12 +28,11 @@ class Buffer
     VkPhysicalDevice m_physicalDevice;
     VkDeviceSize m_bufferSize;
 
-    void createBuffer(
-        VkDeviceSize size,
-        VkBufferUsageFlags usage,
-        VkMemoryPropertyFlags properties,
-        VkBuffer *pBuffer,
-        VkDeviceMemory *pBufferMemory);
+    void copyBuffer(
+        VkCommandPool commandPool,
+        VkQueue queue,
+        VkBuffer srcBuffer,
+        VkBuffer dstBuffer);
 
     uint32_t findMemoryType(
         uint32_t typeFilter,

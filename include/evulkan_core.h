@@ -174,7 +174,7 @@ class Instance
     void createCommandPools();
     void createIndexBuffer(const std::vector<Index> &indices);
     void createVertexBuffer(const std::vector<Vertex> &vertices);
-    void createDrawCommands();
+    void createDrawCommands(const Buffer &indexBuffer, const size_t numIndicesOuter);
     void draw();
     void cleanup();
 

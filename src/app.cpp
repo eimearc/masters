@@ -91,12 +91,14 @@ void App::initVulkan()
 
     instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor,vertexInput,0);
 
-    instance.createIndexBuffer(in);
+    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
+
     instance.createVertexBuffer(v);
     
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
-    instance.createDrawCommands();
+    instance.createDrawCommands(indexBuffer, in.size());
 }
 
 void App::initMultipassVulkan()
@@ -181,12 +183,15 @@ void App::initMultipassVulkan()
     instance.addPipeline({VERTEX_SHADER_0,FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
     instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
 
-    instance.createIndexBuffer(indices);
+    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    indexBuffer.setIndexBuffer(sizeof(uint32_t), &indices, indices.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
+
+    // instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline();
-    instance.createDrawCommands();
+    instance.createDrawCommands(indexBuffer, indices.size());
 }
 
 void App::mainLoop(evk::Instance &instance)
