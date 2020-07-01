@@ -13,6 +13,7 @@
 #include <map>
 #include "descriptor.h"
 #include "buffer.h"
+#include "device.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -238,6 +239,8 @@ class Instance
     VkDeviceMemory m_textureImageMemory=VK_NULL_HANDLE;
     VkDescriptorImageInfo m_textureDescriptor;
 
+    void addAttachment(Attachment attachment);
+
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
@@ -267,7 +270,6 @@ class Instance
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
-    void addAttachment(Attachment attachment);
     std::vector<char> readFile(const std::string& filename);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);

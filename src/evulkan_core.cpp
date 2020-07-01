@@ -674,16 +674,16 @@ void evk::Instance::cleanup()
         vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
     }
 
-    vkDestroyDevice(m_device, nullptr);
+    // vkDestroyDevice(m_device, nullptr);
 
-    if (m_validationLayers.size() > 0)
-    {
-        DestroyDebugUtilsMessengerEXT(m_vkInstance, m_debugMessenger, nullptr);
-    }
+    // if (m_validationLayers.size() > 0)
+    // {
+    //     DestroyDebugUtilsMessengerEXT(m_vkInstance, m_debugMessenger, nullptr);
+    // }
 
-    vkDestroySurfaceKHR(m_vkInstance, m_surface, nullptr);
-    vkDestroyInstance(m_vkInstance, nullptr);
+    // vkDestroySurfaceKHR(m_vkInstance, m_surface, nullptr);
+    // vkDestroyInstance(m_vkInstance, nullptr);
 
-    glfwDestroyWindow(m_window);
-    glfwTerminate();
+    // glfwDestroyWindow(m_window);
+    // glfwTerminate();
 }
