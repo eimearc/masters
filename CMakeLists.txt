@@ -30,6 +30,7 @@ set (SOURCES
     ${VULKANROOT}/src/buffer1.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/device.cpp
+    ${VULKANROOT}/src/pipeline.cpp
     ${VULKANROOT}/src/draw.cpp
     ${VULKANROOT}/src/evulkan_core.cpp
     ${VULKANROOT}/src/evulkan_util.cpp
@@ -41,6 +42,7 @@ set (SOURCES
     ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/descriptor.h
+    ${VULKANROOT}/include/pipeline.h
     ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/device.h
     ${VULKANROOT}/include/evulkan_util.h

@@ -110,28 +110,26 @@ void App::initVulkan()
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     vertexInput.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER, FRAGMENT_SHADER},descriptor,vertexInput,0);
+    std::vector<Pipeline> pipelines;
+    Pipeline pipeline({VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0);
+    pipelines.push_back(pipeline);
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
     indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
 
     instance.createVertexBuffer(v);
     
+    std::vector<Descriptor*> descriptors;
+    descriptors.push_back(&descriptor);
+
     instance.createFramebuffers();
-    instance.createGraphicsPipeline();
-    instance.createDrawCommands(indexBuffer, in.size());
+    instance.createGraphicsPipeline(pipelines);
+    instance.createDrawCommands(indexBuffer, in.size(), descriptors);
 }
 
 void App::initMultipassVulkan()
 {
     auto &instance = multipassInstance;
-
-    // evk::InstanceCreateInfo instanceCreateInfo{
-    //     validationLayers,
-    //     window,
-    //     deviceExtensions
-    // };
-    // instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
 
     Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
 
@@ -227,18 +225,20 @@ void App::initMultipassVulkan()
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    instance.addPipeline({VERTEX_SHADER_0,FRAGMENT_SHADER_0},descriptor0,vertexInput0,0);
-    instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
+    std::vector<Pipeline> pipelines;
+    pipelines.push_back({{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0});
+    pipelines.push_back({{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1});
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
     indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
 
-    // instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
 
+    std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
+
     instance.createFramebuffers();
-    instance.createGraphicsPipeline();
-    instance.createDrawCommands(indexBuffer, indices.size());
+    instance.createGraphicsPipeline(pipelines);
+    instance.createDrawCommands(indexBuffer, indices.size(), descriptors);
 }
 
 void App::mainLoop(evk::Instance &instance)

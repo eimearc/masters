@@ -68,7 +68,10 @@ void evk::Instance::draw()
     currentFrame = ((currentFrame)+1) % m_maxFramesInFlight;
 }
 
-void evk::Instance::createDrawCommands(const Buffer &indexBuffer, const size_t numIndicesOuter)
+void evk::Instance::createDrawCommands(
+    const Buffer &indexBuffer,
+    const size_t numIndicesOuter,
+    const std::vector<Descriptor*> descriptors)
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
@@ -106,7 +109,9 @@ void evk::Instance::createDrawCommands(const Buffer &indexBuffer, const size_t n
 
         for (size_t pass = 0; pass < m_subpasses.size(); ++pass)
         {
-            Descriptor descriptor = m_evkpipelines[pass].m_descriptor;
+            const Descriptor &descriptor = *descriptors[pass];
+
+            std::cout << descriptor.m_descriptorSets.size() << std::endl;
 
             if (pass == 0 )
                 vkCmdBeginRenderPass(

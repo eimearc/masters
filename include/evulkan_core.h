@@ -11,9 +11,11 @@
 #include <array>
 #include <fstream>
 #include <map>
+
 #include "descriptor.h"
 #include "buffer.h"
 #include "device.h"
+#include "pipeline.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -36,17 +38,6 @@ struct BufferInfo
 {
     size_t index;
     size_t size;
-};
-
-struct Pipeline
-{
-    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
-    std::vector<VkVertexInputBindingDescription> m_bindingDescriptions;
-    VkDescriptorSetLayout m_descriptorSetLayout;
-    std::vector<std::string> m_shaders;
-    Descriptor m_descriptor;
-    VertexInput m_vertexInput;
-    uint32_t m_subpass;
 };
 
 typedef uint32_t Index;
@@ -163,19 +154,14 @@ class Instance
         const std::vector<std::string> &d,
         const std::vector<std::string> &i);
 
-    void addPipeline(
-        const std::vector<std::string> &shaders,
-        Descriptor &descriptor,
-        VertexInput &vertexInput,
-        uint32_t subpass);
-    void createGraphicsPipeline();
+    void createGraphicsPipeline(std::vector<Pipeline> &pipelines);
 
     void createSyncObjects();
     void createFramebuffers();
     void createCommandPools();
     void createIndexBuffer(const std::vector<Index> &indices);
     void createVertexBuffer(const std::vector<Vertex> &vertices);
-    void createDrawCommands(const Buffer &indexBuffer, const size_t numIndicesOuter);
+    void createDrawCommands(const Buffer &indexBuffer, const size_t numIndicesOuter, const std::vector<Descriptor*> descriptor);
     void draw();
     void cleanup();
 

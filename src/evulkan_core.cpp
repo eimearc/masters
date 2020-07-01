@@ -308,29 +308,14 @@ void evk::Instance::registerFragmentShader(const std::string &name, const std::s
     m_shaders.insert({name, fragShaderStageInfo});
 }
 
-void evk::Instance::addPipeline(
-    const std::vector<std::string> &shaders,
-    Descriptor &descriptor,
-    VertexInput &vertexInput,
-    uint32_t subpass)
-{
-    Pipeline pipeline;
-    pipeline.m_shaders = shaders;
-    pipeline.m_descriptor = descriptor;
-    pipeline.m_vertexInput = vertexInput;
-    pipeline.m_subpass = subpass;
-    m_evkpipelines.push_back(pipeline);
-}
-
-void evk::Instance::createGraphicsPipeline()
+void evk::Instance::createGraphicsPipeline(std::vector<Pipeline> &pipelines)
 {
     VkPipeline pipeline;
     VkPipelineLayout layout;
-    Descriptor descriptor;
     VertexInput vertexInput;
-    for (auto &p : m_evkpipelines)
+    for (auto &p : pipelines)
     {
-        Descriptor &descriptor = p.m_descriptor;
+        Descriptor &descriptor = *p.m_descriptor;
         std::vector<VkDescriptorPoolSize> &poolSizes=descriptor.m_descriptorPoolSizes;
 
         VkDescriptorPoolCreateInfo poolInfo = {};
@@ -379,6 +364,8 @@ void evk::Instance::createGraphicsPipeline()
                 static_cast<uint32_t>(descriptor.m_writeDescriptorSet[i].size()),
                 descriptor.m_writeDescriptorSet[i].data(), 0, nullptr);
         }
+
+        std::cout << "END size: " << descriptor.m_descriptorSets.size()<< std::endl;
 
         vertexInput = p.m_vertexInput;
 
@@ -654,8 +641,8 @@ void evk::Instance::cleanup()
 
     for (auto &pipeline : m_evkpipelines)
     {
-        vkDestroyDescriptorPool(m_device, pipeline.m_descriptor.m_descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(m_device, pipeline.m_descriptor.m_descriptorSetLayout, nullptr);
+        vkDestroyDescriptorPool(m_device, pipeline.m_descriptor->m_descriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(m_device, pipeline.m_descriptor->m_descriptorSetLayout, nullptr);
     }
 
     for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);

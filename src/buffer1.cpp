@@ -81,40 +81,6 @@ void Buffer::setIndexBuffer(const VkDeviceSize &bufferSize0, const void *indexBu
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
-// void Buffer::createBuffer(
-//     VkDeviceSize size,
-//     VkBufferUsageFlags usage,
-//     VkMemoryPropertyFlags properties,
-//     VkBuffer *pBuffer,
-//     VkDeviceMemory *pBufferMemory)
-// {
-//     VkBufferCreateInfo bufferInfo = {};
-//     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-//     bufferInfo.size = size;
-//     bufferInfo.usage = usage;
-//     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-//     if (vkCreateBuffer(m_device, &bufferInfo, nullptr, pBuffer) != VK_SUCCESS)
-//     {
-//         throw std::runtime_error("failed to create vertex buffer.");
-//     }
-
-//     VkMemoryRequirements memRequirements;
-//     vkGetBufferMemoryRequirements(m_device, *pBuffer, &memRequirements);
-
-//     VkMemoryAllocateInfo allocInfo = {};
-//     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-//     allocInfo.allocationSize = memRequirements.size;
-//     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-//     if (vkAllocateMemory(m_device, &allocInfo, nullptr, pBufferMemory) != VK_SUCCESS)
-//     {
-//         throw std::runtime_error("failed to allocate vertex buffer memory");
-//     }
-
-//     vkBindBufferMemory(m_device, *pBuffer, *pBufferMemory, 0);
-// }
-
 void Buffer::copyBuffer(
     VkCommandPool commandPool,
     VkQueue queue,
