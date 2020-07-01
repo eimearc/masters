@@ -58,7 +58,6 @@ void App::initVulkan()
 
     instance.createCommandPools();
 
-    std::cout << instance.m_commandPools.size() << std::endl;
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
@@ -97,8 +96,9 @@ void App::initVulkan()
     ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
-    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
+
     descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
@@ -110,17 +110,14 @@ void App::initVulkan()
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     vertexInput.setBindingDescription(sizeof(Vertex));
 
-    std::vector<Pipeline> pipelines;
-    Pipeline pipeline({VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0);
-    pipelines.push_back(pipeline);
+    std::vector<Pipeline> pipelines = {{{VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0}};
 
-    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
-    indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
+    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0]);
 
-    instance.createVertexBuffer(v);
+    instance.createVertexBuffer(v); // Start here tomorrow.
     
-    std::vector<Descriptor*> descriptors;
-    descriptors.push_back(&descriptor);
+    std::vector<Descriptor*> descriptors = {&descriptor};
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline(pipelines);
@@ -201,13 +198,12 @@ void App::initMultipassVulkan()
     const std::string FRAGMENT_SHADER_1="frag1";
     const std::string UBO="ubo";
 
-    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
-    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
-
-    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
+    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
-    descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
+    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
+    descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
     descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
 
@@ -225,12 +221,13 @@ void App::initMultipassVulkan()
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    std::vector<Pipeline> pipelines;
-    pipelines.push_back({{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0});
-    pipelines.push_back({{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1});
+    std::vector<Pipeline> pipelines = {
+        {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
+        {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
+    };
 
-    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
-    indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
+    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0]);
 
     instance.createVertexBuffer(vertices);
 

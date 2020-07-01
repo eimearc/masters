@@ -191,8 +191,6 @@ class Instance
     std::vector<VkPipelineLayout> m_pipelineLayouts;
     std::vector<VkPipeline> m_pipelines;
 
-    std::vector<Pipeline> m_evkpipelines;
-
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;
     std::vector<VkDeviceMemory> m_imageMemories;

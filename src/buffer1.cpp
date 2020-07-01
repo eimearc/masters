@@ -1,12 +1,13 @@
 #include "buffer.h"
 
-Buffer::Buffer(size_t swapchainSize, VkDevice device, VkPhysicalDevice physicalDevice)
+Buffer::Buffer(size_t swapchainSize, const Device &device)
 {
     m_swapchainSize = swapchainSize;
-    m_device = device;
-    m_physicalDevice = physicalDevice;
+    m_device = device.m_device;
+    m_physicalDevice = device.m_physicalDevice;
     m_buffers.resize(m_swapchainSize);
     m_bufferMemories.resize(m_swapchainSize);
+    m_queue = device.m_graphicsQueue;
 }
 
 void Buffer::destroy()
@@ -44,7 +45,7 @@ void Buffer::updateBuffer(const void *srcBuffer)
     }
 }
 
-void Buffer::setIndexBuffer(const VkDeviceSize &bufferSize0, const void *indexBuffer, const size_t numElements, VkCommandPool commandPool, VkQueue queue)
+void Buffer::setIndexBuffer(const VkDeviceSize &bufferSize0, const void *indexBuffer, const size_t numElements, VkCommandPool commandPool)
 {
     // m_indices=indices; Change this.
     m_bufferSize = bufferSize0*numElements;
@@ -75,7 +76,7 @@ void Buffer::setIndexBuffer(const VkDeviceSize &bufferSize0, const void *indexBu
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         &m_buffers[0], &m_bufferMemories[0]);
 
-    copyBuffer(commandPool, queue, stagingBuffer, m_buffers[0]);
+    copyBuffer(commandPool, m_queue, stagingBuffer, m_buffers[0]);
 
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);

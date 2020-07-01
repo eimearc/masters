@@ -639,12 +639,6 @@ void evk::Instance::cleanup()
 
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 
-    for (auto &pipeline : m_evkpipelines)
-    {
-        vkDestroyDescriptorPool(m_device, pipeline.m_descriptor->m_descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(m_device, pipeline.m_descriptor->m_descriptorSetLayout, nullptr);
-    }
-
     for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);
     for (auto &memory : m_bufferMemories) vkFreeMemory(m_device, memory, nullptr);
 
