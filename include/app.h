@@ -52,6 +52,7 @@ public:
         buffer.destroy();
         indexBuffer.destroy();
         evkInstance.cleanup();
+        device.destroy();
     }
 
     void multipass()
@@ -62,6 +63,7 @@ public:
         buffer.destroy();
         indexBuffer.destroy();
         multipassInstance.cleanup();
+        device.destroy();
     }
 
 ~App()=default;
@@ -71,6 +73,7 @@ private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     Grid grid;
+    Device device;
     Buffer buffer;
     Buffer indexBuffer;
     std::vector<Vertex> vertices;

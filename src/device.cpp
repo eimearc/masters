@@ -12,12 +12,26 @@ Device::Device(size_t numThreads,
     m_validationLayers=validationLayers;
     m_window=window;
 
-    // addAttachment(attachment); TODO: Add this somewhere.
-
     createInstance(validationLayers);
     createSurface(window);
     pickPhysicalDevice(deviceExtensions);
     createDevice(true);
+}
+
+void Device::destroy()
+{
+    vkDestroyDevice(m_device, nullptr);
+
+    if (m_validationLayers.size() > 0)
+    {
+        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+    }
+
+    // vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
+
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
 }
 
 void Device::createInstance(std::vector<const char*> validationLayers)

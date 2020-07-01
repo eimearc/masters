@@ -14,6 +14,7 @@ class Device
         std::vector<const char*> validationLayers,
         GLFWwindow *window,
         std::vector<const char *> deviceExtensions);
+    void destroy();
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

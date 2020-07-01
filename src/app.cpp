@@ -30,13 +30,6 @@ void App::initVulkan()
 {
     auto &instance = evkInstance;
 
-    // evk::InstanceCreateInfo instanceCreateInfo{
-    //     validationLayers,
-    //     window,
-    //     deviceExtensions
-    // };
-    // instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
-
     Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
 
     instance.m_threadPool.setThreadCount(FLAGS_num_threads);
@@ -133,12 +126,38 @@ void App::initMultipassVulkan()
 {
     auto &instance = multipassInstance;
 
-    evk::InstanceCreateInfo instanceCreateInfo{
-        validationLayers,
-        window,
-        deviceExtensions
-    };
-    instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
+    // evk::InstanceCreateInfo instanceCreateInfo{
+    //     validationLayers,
+    //     window,
+    //     deviceExtensions
+    // };
+    // instance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
+
+    Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
+
+    instance.m_threadPool.setThreadCount(FLAGS_num_threads);
+    instance.m_physicalDevice=device.m_physicalDevice;
+    instance.m_debugMessenger=device.m_debugMessenger;
+    instance.m_surface=device.m_surface;
+    instance.m_graphicsQueue=device.m_graphicsQueue;
+    instance.m_presentQueue=device.m_presentQueue;
+    instance.m_device=device.m_device;
+    instance.m_numThreads=device.m_numThreads;
+
+    VkAttachmentDescription description;
+    description.format = VK_FORMAT_B8G8R8A8_SRGB;
+    description.flags = 0;
+    description.samples = VK_SAMPLE_COUNT_1_BIT;
+    description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    evk::Attachment attachment;
+    attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
+    attachment.description=description;
+    instance.addAttachment(attachment);
 
     instance.createCommandPools();
     evk::SwapChainCreateInfo swapChainCreateInfo{
@@ -212,7 +231,7 @@ void App::initMultipassVulkan()
     instance.addPipeline({VERTEX_SHADER_1,FRAGMENT_SHADER_1},descriptor1,vertexInput1,1);
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, instance.m_device, instance.m_physicalDevice);
-    indexBuffer.setIndexBuffer(sizeof(uint32_t), &indices, indices.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
+    indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0], instance.m_graphicsQueue);
 
     // instance.createIndexBuffer(indices);
     instance.createVertexBuffer(vertices);
