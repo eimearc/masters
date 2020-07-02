@@ -16,15 +16,14 @@ class Buffer
     void updateBuffer(const void *srcBuffer);
 
     void setIndexBuffer(
-        const VkDeviceSize &bufferSize,
-        const void *indexBuffer,
+        const void *indices,
+        const VkDeviceSize &elementSize,
         const size_t numElements,
         VkCommandPool commandPool
     );
     void setVertexBuffer(
-        const VkDeviceSize wholeBufferSize,
-        const VkDeviceSize elementSize,
-        const void *vertexBuffer,
+        const void *vertices,
+        const VkDeviceSize &elementSize,
         const size_t numElements,
         Device &device,
         std::vector<VkCommandPool> commandPools

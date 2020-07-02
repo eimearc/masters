@@ -113,10 +113,10 @@ void App::initVulkan()
     std::vector<Pipeline> pipelines = {{{VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0}};
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), instance.m_commandPools[0]);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(sizeof(v[0])*v.size(), sizeof(v[0]), v.data(), v.size(), device, instance.m_commandPools);
+    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, instance.m_commandPools);
     
     std::vector<Descriptor*> descriptors = {&descriptor};
 
@@ -228,10 +228,10 @@ void App::initMultipassVulkan()
     };
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), instance.m_commandPools[0]);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(sizeof(vertices[0])*vertices.size(), sizeof(vertices[0]), vertices.data(), vertices.size(), device, instance.m_commandPools);
+    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, instance.m_commandPools);
 
     std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
 
