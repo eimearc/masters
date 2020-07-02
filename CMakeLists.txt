@@ -28,7 +28,6 @@ find_package(gflags REQUIRED)
 set (SOURCES
     ${VULKANROOT}/src/attachment.cpp
     ${VULKANROOT}/src/buffer.cpp
-    ${VULKANROOT}/src/buffer1.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/device.cpp
     ${VULKANROOT}/src/pipeline.cpp
