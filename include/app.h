@@ -76,6 +76,7 @@ private:
     Device device;
     Buffer buffer;
     Buffer indexBuffer;
+    Buffer vertexBuffer;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     evk::Instance evkInstance;

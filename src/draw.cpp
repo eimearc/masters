@@ -70,13 +70,13 @@ void evk::Instance::draw()
 
 void evk::Instance::createDrawCommands(
     const Buffer &indexBuffer,
-    const size_t numIndicesOuter,
+    const Buffer &vertexBuffer,
     const std::vector<Descriptor*> descriptors)
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
 
-    const size_t numIndicesEach=numIndicesOuter/m_numThreads;
+    const size_t numIndicesEach=indexBuffer.m_numElements/m_numThreads;
 
     for (int frame = 0; frame < m_maxFramesInFlight; ++frame)
     {
@@ -127,7 +127,7 @@ void evk::Instance::createDrawCommands(
             {
                 size_t numIndices=numIndicesEach;
                 size_t indexOffset=numIndicesEach*i;
-                if (i==(m_numThreads-1)) numIndices = numIndicesOuter-(i*numIndicesEach);
+                if (i==(m_numThreads-1)) numIndices = indexBuffer.m_numElements-(i*numIndicesEach);
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.commandPool = m_commandPools[i];
@@ -157,11 +157,11 @@ void evk::Instance::createDrawCommands(
 
                 vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[pass]);
 
-                size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
-                VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
+                // size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
+                // VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
                 VkDeviceSize offsets[] = {0};
 
-                vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+                vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffer.m_buffers.data(), offsets);
                 vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], indexBuffer.m_buffers[0], 0, VK_INDEX_TYPE_UINT32);
                 vkCmdBindDescriptorSets(
                     m_secondaryCommandBuffers[i],

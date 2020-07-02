@@ -159,9 +159,12 @@ class Instance
     void createSyncObjects();
     void createFramebuffers();
     void createCommandPools();
-    void createIndexBuffer(const std::vector<Index> &indices);
-    void createVertexBuffer(const std::vector<Vertex> &vertices);
-    void createDrawCommands(const Buffer &indexBuffer, const size_t numIndicesOuter, const std::vector<Descriptor*> descriptor);
+
+    void createDrawCommands(
+        const Buffer &indexBuffer,
+        const Buffer &vertexBuffer,
+        const std::vector<Descriptor*> descriptor
+    );
     void draw();
     void cleanup();
 

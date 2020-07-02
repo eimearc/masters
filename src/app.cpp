@@ -115,13 +115,14 @@ void App::initVulkan()
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     indexBuffer.setIndexBuffer(sizeof(in[0]), in.data(), in.size(), instance.m_commandPools[0]);
 
-    instance.createVertexBuffer(v); // Start here tomorrow.
+    vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    vertexBuffer.setVertexBuffer(sizeof(v[0])*v.size(), sizeof(v[0]), v.data(), v.size(), device, instance.m_commandPools);
     
     std::vector<Descriptor*> descriptors = {&descriptor};
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline(pipelines);
-    instance.createDrawCommands(indexBuffer, in.size(), descriptors);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
 }
 
 void App::initMultipassVulkan()
@@ -229,13 +230,14 @@ void App::initMultipassVulkan()
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     indexBuffer.setIndexBuffer(sizeof(uint32_t), indices.data(), indices.size(), instance.m_commandPools[0]);
 
-    instance.createVertexBuffer(vertices);
+    vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    vertexBuffer.setVertexBuffer(sizeof(vertices[0])*vertices.size(), sizeof(vertices[0]), vertices.data(), vertices.size(), device, instance.m_commandPools);
 
     std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
 
     instance.createFramebuffers();
     instance.createGraphicsPipeline(pipelines);
-    instance.createDrawCommands(indexBuffer, indices.size(), descriptors);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
 }
 
 void App::mainLoop(evk::Instance &instance)

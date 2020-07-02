@@ -21,12 +21,20 @@ class Buffer
         const size_t numElements,
         VkCommandPool commandPool
     );
-    // void setVertexBuffer();
+    void setVertexBuffer(
+        const VkDeviceSize wholeBufferSize,
+        const VkDeviceSize elementSize,
+        const void *vertexBuffer,
+        const size_t numElements,
+        Device &device,
+        std::vector<VkCommandPool> commandPools
+    );
 
     void destroy();
 
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
+    size_t m_numElements;
 
     private:
     size_t m_swapchainSize;
