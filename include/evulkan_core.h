@@ -108,8 +108,6 @@ class Instance
         const std::vector<Attachment> &d,
         const std::vector<Attachment> &i);
 
-    void createGraphicsPipeline(std::vector<Pipeline> &pipelines);
-
     void createSyncObjects();
     void createFramebuffers(const std::vector<Attachment> &attachments);
     void createCommandPools();
@@ -146,8 +144,6 @@ class Instance
 
     std::vector<VkShaderModule> m_shaderModules;
     std::map<std::string, VkPipelineShaderStageCreateInfo> m_shaders;
-    // std::vector<VkPipelineLayout> m_pipelineLayouts;
-    // std::vector<VkPipeline> m_pipelines;
 
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;

@@ -115,11 +115,6 @@ void App::initVulkan()
 
     instance.createFramebuffers(attachments); // Move to be part of attachment creation.
 
-    // std::vector<Pipeline> pipelines = {
-    //     {{VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0}
-    // };
-    // instance.createGraphicsPipeline(pipelines);
-
     std::vector<VkPipelineShaderStageCreateInfo> shaders;
     for (const auto & m : instance.m_shaders) shaders.push_back(m.second);
     Pipeline pipeline(
@@ -237,30 +232,29 @@ void App::initMultipassVulkan()
 
     instance.createFramebuffers(attachments);
 
-    // std::vector<Pipeline> pipelines = {
-    //     {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
-    //     {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
-    // };
-    // instance.createGraphicsPipeline(pipelines); // Pipeline is next.
-
-    std::vector<VkPipelineShaderStageCreateInfo> shaders;
-    for (const auto & m : instance.m_shaders) shaders.push_back(m.second);
+    std::vector<VkPipelineShaderStageCreateInfo> shaders0;
+    shaders0.push_back(instance.m_shaders[VERTEX_SHADER_0]);
+    shaders0.push_back(instance.m_shaders[FRAGMENT_SHADER_0]);
     Pipeline pipeline0(
         &descriptor0,
         vertexInput0,
         0,
         instance.m_swapChainExtent,
         instance.m_renderPass,
-        shaders,
+        shaders0,
         device
     );
+
+    std::vector<VkPipelineShaderStageCreateInfo> shaders1;
+    shaders1.push_back(instance.m_shaders[VERTEX_SHADER_1]);
+    shaders1.push_back(instance.m_shaders[FRAGMENT_SHADER_1]);
     Pipeline pipeline1(
         &descriptor1,
         vertexInput1,
         1,
         instance.m_swapChainExtent,
         instance.m_renderPass,
-        shaders,
+        shaders1,
         device
     );
 

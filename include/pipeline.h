@@ -30,4 +30,11 @@ class Pipeline
     private:
 };
 
+class Shader
+{
+    public:
+    Shader()=default;
+    
+};
+
 #endif
