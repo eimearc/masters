@@ -1,6 +1,6 @@
 #include "evulkan_core.h"
 
-void evk::Instance::draw()
+void evk::Instance::draw(const std::vector<Pipeline> &pipelines)
 {
     static size_t currentFrame=0;
     vkWaitForFences(m_device, 1, &m_fencesInFlight[currentFrame], VK_TRUE, UINT64_MAX);
@@ -71,7 +71,8 @@ void evk::Instance::draw()
 void evk::Instance::createDrawCommands(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    const std::vector<Descriptor*> descriptors)
+    const std::vector<Descriptor*> descriptors,
+    const std::vector<Pipeline> &pipelines)
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
@@ -153,7 +154,7 @@ void evk::Instance::createDrawCommands(
                     throw std::runtime_error("failed to begin recording command buffer.");
                 }
 
-                vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines[pass]);
+                vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[pass].m_pipeline);
 
                 VkDeviceSize offsets[] = {0};
 
@@ -162,7 +163,7 @@ void evk::Instance::createDrawCommands(
                 vkCmdBindDescriptorSets(
                     m_secondaryCommandBuffers[i],
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    m_pipelineLayouts[pass], 0, 1, &(descriptor.m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
+                    pipelines[pass].m_layout, 0, 1, &(descriptor.m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
                 vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
                 if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)

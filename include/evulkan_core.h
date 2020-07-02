@@ -117,9 +117,10 @@ class Instance
     void createDrawCommands(
         const Buffer &indexBuffer,
         const Buffer &vertexBuffer,
-        const std::vector<Descriptor*> descriptor
+        const std::vector<Descriptor*> descriptor,
+        const std::vector<Pipeline> &pipelines
     );
-    void draw();
+    void draw(const std::vector<Pipeline> &pipelines);
     void cleanup();
 
     void loadTexture(const std::string &fileName);
@@ -145,8 +146,8 @@ class Instance
 
     std::vector<VkShaderModule> m_shaderModules;
     std::map<std::string, VkPipelineShaderStageCreateInfo> m_shaders;
-    std::vector<VkPipelineLayout> m_pipelineLayouts;
-    std::vector<VkPipeline> m_pipelines;
+    // std::vector<VkPipelineLayout> m_pipelineLayouts;
+    // std::vector<VkPipeline> m_pipelines;
 
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;

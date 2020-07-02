@@ -113,14 +113,27 @@ void App::initVulkan()
     
     std::vector<Descriptor*> descriptors = {&descriptor};
 
-    instance.createFramebuffers(attachments);
+    instance.createFramebuffers(attachments); // Move to be part of attachment creation.
 
-    std::vector<Pipeline> pipelines = {
-        {{VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0}
-    };
-    instance.createGraphicsPipeline(pipelines);
+    // std::vector<Pipeline> pipelines = {
+    //     {{VERTEX_SHADER, FRAGMENT_SHADER},&descriptor,vertexInput,0}
+    // };
+    // instance.createGraphicsPipeline(pipelines);
 
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
+    std::vector<VkPipelineShaderStageCreateInfo> shaders;
+    for (const auto & m : instance.m_shaders) shaders.push_back(m.second);
+    Pipeline pipeline(
+        &descriptor,
+        vertexInput,
+        0,
+        instance.m_swapChainExtent,
+        instance.m_renderPass,
+        shaders,
+        device
+    );
+
+    pipelines = {pipeline};
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines);
 }
 
 void App::initMultipassVulkan()
@@ -224,13 +237,35 @@ void App::initMultipassVulkan()
 
     instance.createFramebuffers(attachments);
 
-    std::vector<Pipeline> pipelines = {
-        {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
-        {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
-    };
-    instance.createGraphicsPipeline(pipelines); // Pipeline is next.
+    // std::vector<Pipeline> pipelines = {
+    //     {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
+    //     {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
+    // };
+    // instance.createGraphicsPipeline(pipelines); // Pipeline is next.
 
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
+    std::vector<VkPipelineShaderStageCreateInfo> shaders;
+    for (const auto & m : instance.m_shaders) shaders.push_back(m.second);
+    Pipeline pipeline0(
+        &descriptor0,
+        vertexInput0,
+        0,
+        instance.m_swapChainExtent,
+        instance.m_renderPass,
+        shaders,
+        device
+    );
+    Pipeline pipeline1(
+        &descriptor1,
+        vertexInput1,
+        1,
+        instance.m_swapChainExtent,
+        instance.m_renderPass,
+        shaders,
+        device
+    );
+
+    pipelines = {pipeline0, pipeline1};
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines);
 }
 
 void App::mainLoop(evk::Instance &instance)
@@ -250,7 +285,7 @@ void App::mainLoop(evk::Instance &instance)
 
         buffer.updateBuffer(&ubo);
 
-        instance.draw();
+        instance.draw(pipelines);
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;

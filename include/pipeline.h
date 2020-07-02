@@ -4,17 +4,24 @@
 #include <vulkan/vulkan.h>
 #include "evulkan_util.h"
 #include "descriptor.h"
+#include "device.h"
 
 class Pipeline
 {
     public:
     Pipeline()=default;
     Pipeline(
-        const std::vector<std::string> &shaders, //Instead, make shader module.
         Descriptor *pDescriptor,
         const VertexInput &vertexInput,
-        const size_t subpass);
+        const size_t subpass,
+        const VkExtent2D extent,
+        const VkRenderPass &renderPass,
+        const std::vector<VkPipelineShaderStageCreateInfo> &shaders,
+        const Device &device
+    );
 
+    VkPipeline m_pipeline;
+    VkPipelineLayout m_layout;
     std::vector<std::string> m_shaders;
     Descriptor* m_descriptor;
     VertexInput m_vertexInput;
