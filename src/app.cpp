@@ -41,21 +41,6 @@ void App::initVulkan()
     instance.m_device=device.m_device;
     instance.m_numThreads=device.m_numThreads;
 
-    // VkAttachmentDescription description;
-    // description.format = VK_FORMAT_B8G8R8A8_SRGB;
-    // description.flags = 0;
-    // description.samples = VK_SAMPLE_COUNT_1_BIT;
-    // description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    // description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    // description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    // description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    // description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    // description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    // evk::Attachment attachment;
-    // attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
-    // attachment.description=description;
-    // instance.addAttachment(attachment);
-
     instance.createCommandPools();
 
     evk::SwapChainCreateInfo swapChainCreateInfo{
@@ -78,9 +63,6 @@ void App::initVulkan()
 
     // Attachment colorAttachment(static_cast<size_t>(MAX_FRAMES_IN_FLIGHT));
     // colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);
-
-    // const std::string DEPTH_ATTACHMENT = "depth";
-    // instance.addDepthAttachment(DEPTH_ATTACHMENT);
 
     Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
     evk::EVkRenderPassCreateInfo renderPassInfo = {};
@@ -146,18 +128,18 @@ void App::initVulkan()
 
 void App::initMultipassVulkan()
 {
-    // auto &instance = multipassInstance;
+    auto &instance = multipassInstance;
 
-    // Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
+    Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
 
-    // instance.m_threadPool.setThreadCount(FLAGS_num_threads);
-    // instance.m_physicalDevice=device.m_physicalDevice;
-    // instance.m_debugMessenger=device.m_debugMessenger;
-    // instance.m_surface=device.m_surface;
-    // instance.m_graphicsQueue=device.m_graphicsQueue;
-    // instance.m_presentQueue=device.m_presentQueue;
-    // instance.m_device=device.m_device;
-    // instance.m_numThreads=device.m_numThreads;
+    instance.m_threadPool.setThreadCount(FLAGS_num_threads);
+    instance.m_physicalDevice=device.m_physicalDevice;
+    instance.m_debugMessenger=device.m_debugMessenger;
+    instance.m_surface=device.m_surface;
+    instance.m_graphicsQueue=device.m_graphicsQueue;
+    instance.m_presentQueue=device.m_presentQueue;
+    instance.m_device=device.m_device;
+    instance.m_numThreads=device.m_numThreads;
 
     // VkAttachmentDescription description;
     // description.format = VK_FORMAT_B8G8R8A8_SRGB;
@@ -169,18 +151,23 @@ void App::initMultipassVulkan()
     // description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     // description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     // description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
     // evk::Attachment attachment;
     // attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
     // attachment.description=description;
     // instance.addAttachment(attachment);
 
-    // instance.createCommandPools();
-    // evk::SwapChainCreateInfo swapChainCreateInfo{
-    //     static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
-    // };
-    // instance.createSwapChain(&swapChainCreateInfo);
+    instance.createCommandPools();
+    evk::SwapChainCreateInfo swapChainCreateInfo{
+        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    };
 
-    // instance.createSyncObjects();
+    Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
+    framebuffer.setFramebufferAttachment();
+
+    instance.createSwapChain(&swapChainCreateInfo, framebuffer);
+
+    instance.createSyncObjects();
 
     // const std::string COLOR_ATTACHMENT = "color";
     // const std::string DEPTH_ATTACHMENT = "depth";
@@ -188,76 +175,87 @@ void App::initMultipassVulkan()
     // instance.addColorAttachment(COLOR_ATTACHMENT);
     // instance.addDepthAttachment(DEPTH_ATTACHMENT);
 
-    // std::vector<std::string> colorAttachments = {COLOR_ATTACHMENT};
-    // std::vector<std::string> depthAttachments = {DEPTH_ATTACHMENT};
-    // std::vector<std::string> inputAttachments;
-    // std::vector<evk::SubpassDependency> dependencies;
-    // instance.addSubpass(
-    //     dependencies,
-    //     colorAttachments,
-    //     depthAttachments,
-    //     inputAttachments);
+    Attachment colorAttachment(1,MAX_FRAMES_IN_FLIGHT);
+    colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);
 
-    // colorAttachments = {evk::FRAMEBUFFER_ATTACHMENT};
-    // depthAttachments.resize(0);
-    // inputAttachments = {COLOR_ATTACHMENT, DEPTH_ATTACHMENT};
-    // dependencies = {{0,1}};
-    // instance.addSubpass(
-    //     dependencies,
-    //     colorAttachments,
-    //     depthAttachments,
-    //     inputAttachments);
-    // instance.createRenderPass();
+    Attachment depthAttachment(2,MAX_FRAMES_IN_FLIGHT);
+    evk::EVkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.swapChainImageFormat = instance.m_swapChainImageFormat;
+    renderPassInfo.physicalDevice = instance.m_physicalDevice;
+    VkFormat depthFormat = instance.findDepthFormat(&renderPassInfo);
+    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, depthFormat, device);
 
-    // auto colorImageViews = instance.m_evkattachments[COLOR_ATTACHMENT].imageViews;
-    // auto depthImageViews = instance.m_evkattachments[DEPTH_ATTACHMENT].imageViews;
+    std::vector<Attachment> colorAttachments = {colorAttachment};
+    std::vector<Attachment> depthAttachments = {depthAttachment};
+    std::vector<Attachment> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
+    instance.addSubpass(
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments);
 
-    // const std::string VERTEX_SHADER_0="vert0";
-    // const std::string FRAGMENT_SHADER_0="frag0";
-    // const std::string VERTEX_SHADER_1="vert1";
-    // const std::string FRAGMENT_SHADER_1="frag1";
-    // const std::string UBO="ubo";
+    colorAttachments = {framebuffer};
+    depthAttachments.resize(0);
+    inputAttachments = {colorAttachment, depthAttachment};
+    dependencies = {{0,1}};
+    instance.addSubpass(
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments);
+    std::vector<Attachment> attachments = {framebuffer, colorAttachment, depthAttachment};
+    instance.createRenderPass(attachments);
 
-    // buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    // buffer.setBuffer(sizeof(UniformBufferObject));
+    auto colorImageViews = colorAttachment.m_imageViews;
+    auto depthImageViews = depthAttachment.m_imageViews;
 
-    // Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
-    // descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
-    // Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
-    // descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
-    // descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
+    const std::string VERTEX_SHADER_0="vert0";
+    const std::string FRAGMENT_SHADER_0="frag0";
+    const std::string VERTEX_SHADER_1="vert1";
+    const std::string FRAGMENT_SHADER_1="frag1";
+    const std::string UBO="ubo";
 
-    // instance.registerVertexShader(VERTEX_SHADER_0, "shaders/multipass_0_vert.spv");
-    // instance.registerFragmentShader(FRAGMENT_SHADER_0, "shaders/multipass_0_frag.spv");
-    // instance.registerVertexShader(VERTEX_SHADER_1, "shaders/multipass_1_vert.spv");
-    // instance.registerFragmentShader(FRAGMENT_SHADER_1, "shaders/multipass_1_frag.spv");
+    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    buffer.setBuffer(sizeof(UniformBufferObject));
 
-    // VertexInput vertexInput0;
-    // vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    // vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    // vertexInput0.setBindingDescription(sizeof(Vertex));
+    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
+    descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
+    descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    // VertexInput vertexInput1;
-    // vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    // vertexInput1.setBindingDescription(sizeof(Vertex));
+    instance.registerVertexShader(VERTEX_SHADER_0, "shaders/multipass_0_vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER_0, "shaders/multipass_0_frag.spv");
+    instance.registerVertexShader(VERTEX_SHADER_1, "shaders/multipass_1_vert.spv");
+    instance.registerFragmentShader(FRAGMENT_SHADER_1, "shaders/multipass_1_frag.spv");
 
-    // indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    // indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), instance.m_commandPools[0]);
+    VertexInput vertexInput0;
+    vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput0.setBindingDescription(sizeof(Vertex));
 
-    // vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    // vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, instance.m_commandPools);
+    VertexInput vertexInput1;
+    vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    // std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
+    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), instance.m_commandPools[0]);
 
-    // instance.createFramebuffers();
+    vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, instance.m_commandPools);
 
-    // std::vector<Pipeline> pipelines = {
-    //     {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
-    //     {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
-    // };
-    // instance.createGraphicsPipeline(pipelines); // Pipeline is next.
+    std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
 
-    // instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
+    instance.createFramebuffers(attachments);
+
+    std::vector<Pipeline> pipelines = {
+        {{VERTEX_SHADER_0,FRAGMENT_SHADER_0},&descriptor0,vertexInput0,0},
+        {{VERTEX_SHADER_1,FRAGMENT_SHADER_1},&descriptor1,vertexInput1,1}
+    };
+    instance.createGraphicsPipeline(pipelines); // Pipeline is next.
+
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors);
 }
 
 void App::mainLoop(evk::Instance &instance)

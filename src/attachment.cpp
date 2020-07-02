@@ -29,6 +29,7 @@ void Attachment::setFramebufferAttachment()
 
 void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
 {
+    m_description.flags = 0;
     m_description.format = VK_FORMAT_R8G8B8A8_UNORM;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
     m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
