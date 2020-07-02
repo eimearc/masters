@@ -26,6 +26,7 @@ link_libraries(Vulkan::Vulkan)
 find_package(gflags REQUIRED)
 
 set (SOURCES
+    ${VULKANROOT}/src/attachment.cpp
     ${VULKANROOT}/src/buffer.cpp
     ${VULKANROOT}/src/buffer1.cpp
     ${VULKANROOT}/src/descriptor.cpp
@@ -42,6 +43,7 @@ set (SOURCES
     ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/descriptor.h
+    ${VULKANROOT}/include/attachment.h
     ${VULKANROOT}/include/pipeline.h
     ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/device.h

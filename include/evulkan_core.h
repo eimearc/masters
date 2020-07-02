@@ -16,6 +16,7 @@
 #include "buffer.h"
 #include "device.h"
 #include "pipeline.h"
+#include "attachment.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -24,15 +25,15 @@ namespace evk
 
 const std::string FRAMEBUFFER_ATTACHMENT = "framebuffer";
 
-struct Attachment
-{
-    std::string name;
-    uint32_t index;
-    VkAttachmentDescription description;
-    std::vector<VkImage> images;
-    std::vector<VkImageView> imageViews;
-    std::vector<VkDeviceMemory> imageMemories;
-};
+// struct Attachment
+// {
+//     std::string name;
+//     uint32_t index;
+//     VkAttachmentDescription description;
+//     std::vector<VkImage> images;
+//     std::vector<VkImageView> imageViews;
+//     std::vector<VkDeviceMemory> imageMemories;
+// };
 
 struct BufferInfo
 {
@@ -64,23 +65,6 @@ struct EVkRenderPassCreateInfo
 {
     VkFormat swapChainImageFormat;
     VkPhysicalDevice physicalDevice;
-};
-
-struct ImageCreateInfo
-{
-    uint32_t width;
-    uint32_t height;
-    VkFormat format;
-    VkImageTiling tiling;
-    VkImageUsageFlags usage;
-    VkMemoryPropertyFlags properties;
-};
-
-struct ImageViewCreateInfo
-{
-    VkImage image;
-    VkFormat format;
-    VkImageAspectFlags aspectFlags;
 };
 
 struct VertexAttributeInfo
@@ -116,20 +100,20 @@ class Instance
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
 
-        VkAttachmentDescription description;
-        description.format = VK_FORMAT_B8G8R8A8_SRGB;
-        description.flags = 0;
-        description.samples = VK_SAMPLE_COUNT_1_BIT;
-        description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        Attachment attachment;
-        attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
-        attachment.description=description;
-        addAttachment(attachment);
+        // VkAttachmentDescription description;
+        // description.format = VK_FORMAT_B8G8R8A8_SRGB;
+        // description.flags = 0;
+        // description.samples = VK_SAMPLE_COUNT_1_BIT;
+        // description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        // description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        // description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        // description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        // description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        // Attachment attachment;
+        // attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
+        // attachment.description=description;
+        // addAttachment(attachment);
 
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
@@ -140,8 +124,8 @@ class Instance
 
     void updateBuffer(const std::string &name);
 
-    void createSwapChain(const SwapChainCreateInfo *pCreateInfo);
-    void createRenderPass();
+    void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
+    void createRenderPass(const std::vector<Attachment> &attachments);
     void registerVertexShader(const std::string &name, const std::string &vertShader);
     void registerFragmentShader(const std::string &name, const std::string &fragShader);
 
@@ -150,14 +134,14 @@ class Instance
 
     void addSubpass(
         const std::vector<SubpassDependency> &dependencies,
-        const std::vector<std::string> &c,
-        const std::vector<std::string> &d,
-        const std::vector<std::string> &i);
+        const std::vector<Attachment> &c,
+        const std::vector<Attachment> &d,
+        const std::vector<Attachment> &i);
 
     void createGraphicsPipeline(std::vector<Pipeline> &pipelines);
 
     void createSyncObjects();
-    void createFramebuffers();
+    void createFramebuffers(const std::vector<Attachment> &attachments);
     void createCommandPools();
 
     void createDrawCommands(
@@ -216,7 +200,7 @@ class Instance
     std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
 
-    std::map<std::string,Attachment> m_evkattachments;
+    // std::map<std::string,Attachment> m_evkattachments;
 
     std::vector<Index> m_indices;
 
@@ -227,6 +211,7 @@ class Instance
     VkDescriptorImageInfo m_textureDescriptor;
 
     void addAttachment(Attachment attachment);
+    VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
@@ -238,7 +223,6 @@ class Instance
         const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
         const VkAllocationCallbacks* pAllocator,
         VkDebugUtilsMessengerEXT* pDebugMessenger);
-    VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
     VkFormat findSupportedFormat(
         const EVkRenderPassCreateInfo *pCreateInfo,
         const std::vector<VkFormat>& candidates,

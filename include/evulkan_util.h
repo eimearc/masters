@@ -15,6 +15,26 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+namespace evk
+{
+    struct ImageCreateInfo
+    {
+        uint32_t width;
+        uint32_t height;
+        VkFormat format;
+        VkImageTiling tiling;
+        VkImageUsageFlags usage;
+        VkMemoryPropertyFlags properties;
+    };
+
+    struct ImageViewCreateInfo
+    {
+        VkImage image;
+        VkFormat format;
+        VkImageAspectFlags aspectFlags;
+    };
+}
+
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;

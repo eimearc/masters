@@ -1,6 +1,6 @@
 #include "evulkan_core.h"
 
-void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
+void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer)
 {
     m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
 
@@ -67,9 +67,9 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
         createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
     }
 
-    Attachment &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
-    attachment.images=m_swapChainImages;
-    attachment.imageViews=m_swapChainImageViews;
+    // Attachment &attachment = m_evkattachments[evk::FRAMEBUFFER_ATTACHMENT];
+    framebuffer.m_images=m_swapChainImages;
+    framebuffer.m_imageViews=m_swapChainImageViews;
 
     for (const auto &v : m_swapChainImageViews) std::cout << "SWAPCHAIN\t\t" << v << std::endl;   
 }
