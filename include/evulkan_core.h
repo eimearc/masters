@@ -23,18 +23,6 @@
 namespace evk
 {
 
-const std::string FRAMEBUFFER_ATTACHMENT = "framebuffer";
-
-// struct Attachment
-// {
-//     std::string name;
-//     uint32_t index;
-//     VkAttachmentDescription description;
-//     std::vector<VkImage> images;
-//     std::vector<VkImageView> imageViews;
-//     std::vector<VkDeviceMemory> imageMemories;
-// };
-
 struct BufferInfo
 {
     size_t index;
@@ -100,21 +88,6 @@ class Instance
         m_validationLayers=pCreateInfo->validationLayers;
         m_window=pCreateInfo->window;
 
-        // VkAttachmentDescription description;
-        // description.format = VK_FORMAT_B8G8R8A8_SRGB;
-        // description.flags = 0;
-        // description.samples = VK_SAMPLE_COUNT_1_BIT;
-        // description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        // description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        // description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        // description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        // description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        // description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        // Attachment attachment;
-        // attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
-        // attachment.description=description;
-        // addAttachment(attachment);
-
         createInstance(pCreateInfo->validationLayers);
         createSurface(pCreateInfo->window);
         pickPhysicalDevice(pCreateInfo->deviceExtensions);
@@ -128,9 +101,6 @@ class Instance
     void createRenderPass(const std::vector<Attachment> &attachments);
     void registerVertexShader(const std::string &name, const std::string &vertShader);
     void registerFragmentShader(const std::string &name, const std::string &fragShader);
-
-    void addColorAttachment(const std::string &name);
-    void addDepthAttachment(const std::string &name);
 
     void addSubpass(
         const std::vector<SubpassDependency> &dependencies,
@@ -199,8 +169,6 @@ class Instance
 
     std::vector<SubpassDescription> m_subpasses;
     std::vector<VkSubpassDependency> m_dependencies;
-
-    // std::map<std::string,Attachment> m_evkattachments;
 
     std::vector<Index> m_indices;
 

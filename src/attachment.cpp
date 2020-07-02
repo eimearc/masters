@@ -16,8 +16,8 @@ Attachment::Attachment(uint32_t index, uint32_t swapchainSize)
 
 void Attachment::setFramebufferAttachment()
 {
-    m_description.format = VK_FORMAT_B8G8R8A8_SRGB;
     m_description.flags = 0;
+    m_description.format = VK_FORMAT_B8G8R8A8_SRGB;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
     m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     m_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -39,29 +39,21 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     for (int i = 0; i < m_swapchainSize; ++i)
     {
-        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
-        VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-        VkImageUsageFlags usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-        // evk::ImageCreateInfo createInfo={};
-        // createInfo.width = extent.width;
-        // createInfo.height = extent.height;
-        // createInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-        // createInfo.usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        // createInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         createImage(
             device.m_device, device.m_physicalDevice,
             extent, format, tiling, usage, properties,
             &m_images[i], &m_imageMemories[i]);
 
-        // evk::ImageViewCreateInfo imageViewCreateInfo={};
-        // imageViewCreateInfo.image=m_images[i];
-        // imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_UNORM;
-        // imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
-        VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createImageView(device.m_device, m_images[i], format, aspectMask, &m_imageViews[i]);
+        createImageView(
+            device.m_device, m_images[i], format,
+            aspectMask, &m_imageViews[i]);
     }
 }
 
@@ -70,9 +62,8 @@ void Attachment::setDepthAttachment(
     const VkFormat &depthFormat,
     const Device &device)
 {
-    VkAttachmentDescription attachment = {};
     m_description.flags = 0;
-    m_description.format = VK_FORMAT_D32_SFLOAT;
+    m_description.format = depthFormat;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
     m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     m_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -81,19 +72,21 @@ void Attachment::setDepthAttachment(
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+    VkFormat format = depthFormat;
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     for (int i = 0; i < m_swapchainSize; ++i)
     {
-        VkFormat format = depthFormat;
-        VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-        VkImageUsageFlags usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-        VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         createImage(
             device.m_device, device.m_physicalDevice,
             extent, format, tiling, usage, properties,
             &m_images[i], &m_imageMemories[i]);
 
-        VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        createImageView(device.m_device, m_images[i], format, aspectMask, &m_imageViews[i]);
+        createImageView(
+            device.m_device, m_images[i], format,
+            aspectMask, &m_imageViews[i]);
     }
 }
 

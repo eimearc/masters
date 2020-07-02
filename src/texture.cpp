@@ -69,9 +69,7 @@ void evk::Instance::loadTexture(const std::string &fileName)
 
 void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
     VkCommandBuffer commandBuffer;
-    std::cout << "HERE\n";
     beginSingleTimeCommands(m_device, m_commandPools[0], &commandBuffer);
-    std::cout << "THERE\n";
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

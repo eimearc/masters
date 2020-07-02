@@ -48,7 +48,7 @@ void App::initVulkan()
     };
 
     Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
-    framebuffer.setFramebufferAttachment();
+    framebuffer.setFramebufferAttachment(); // Must be before createSwapChain.
 
     instance.createSwapChain(&swapChainCreateInfo,framebuffer);
 
@@ -60,9 +60,6 @@ void App::initVulkan()
     evk::loadOBJ("obj/viking_room.obj", v, in);
     instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
     descriptor.addTextureSampler(1, instance.m_textureImageView, instance.m_textureSampler, VK_SHADER_STAGE_FRAGMENT_BIT);
-
-    // Attachment colorAttachment(static_cast<size_t>(MAX_FRAMES_IN_FLIGHT));
-    // colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);
 
     Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
     evk::EVkRenderPassCreateInfo renderPassInfo = {};
@@ -141,22 +138,6 @@ void App::initMultipassVulkan()
     instance.m_device=device.m_device;
     instance.m_numThreads=device.m_numThreads;
 
-    // VkAttachmentDescription description;
-    // description.format = VK_FORMAT_B8G8R8A8_SRGB;
-    // description.flags = 0;
-    // description.samples = VK_SAMPLE_COUNT_1_BIT;
-    // description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    // description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    // description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    // description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    // description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    // description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    // evk::Attachment attachment;
-    // attachment.name=evk::FRAMEBUFFER_ATTACHMENT;
-    // attachment.description=description;
-    // instance.addAttachment(attachment);
-
     instance.createCommandPools();
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
@@ -168,12 +149,6 @@ void App::initMultipassVulkan()
     instance.createSwapChain(&swapChainCreateInfo, framebuffer);
 
     instance.createSyncObjects();
-
-    // const std::string COLOR_ATTACHMENT = "color";
-    // const std::string DEPTH_ATTACHMENT = "depth";
-
-    // instance.addColorAttachment(COLOR_ATTACHMENT);
-    // instance.addDepthAttachment(DEPTH_ATTACHMENT);
 
     Attachment colorAttachment(1,MAX_FRAMES_IN_FLIGHT);
     colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);

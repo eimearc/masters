@@ -111,8 +111,6 @@ void evk::Instance::createDrawCommands(
         {
             const Descriptor &descriptor = *descriptors[pass];
 
-            std::cout << descriptor.m_descriptorSets.size() << std::endl;
-
             if (pass == 0 )
                 vkCmdBeginRenderPass(
                     m_primaryCommandBuffers[frame],
