@@ -176,34 +176,6 @@ VkFormat evk::Instance::findSupportedFormat(
     throw std::runtime_error("failed to find supported format.");
 }
 
-void evk::Instance::registerVertexShader(const std::string &name, const std::string &vertShader)
-{   
-    auto vertShaderCode = readFile(vertShader);
-    VkShaderModule vertShaderModule;
-    createShaderModule(m_device, vertShaderCode, &vertShaderModule);
-    m_shaderModules.push_back(vertShaderModule);
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "main";
-    m_shaders.insert({name, vertShaderStageInfo});
-}
-
-void evk::Instance::registerFragmentShader(const std::string &name, const std::string &fragShader)
-{   
-    auto fragShaderCode = readFile(fragShader);
-    VkShaderModule fragShaderModule;
-    createShaderModule(m_device, fragShaderCode, &fragShaderModule);
-    m_shaderModules.push_back(fragShaderModule);
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = fragShaderModule;
-    fragShaderStageInfo.pName = "main";
-    m_shaders.insert({name, fragShaderStageInfo});
-}
-
 void evk::Instance::createImage(
     const ImageCreateInfo *pCreateInfo,
     VkImage *pImage,

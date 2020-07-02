@@ -2,16 +2,16 @@
 
 Pipeline::Pipeline(
     Descriptor *pDescriptor,
-    const VertexInput &vertexInput,
+    const VertexInput &i_vertexInput,
     const size_t subpass,
     const VkExtent2D extent,
     const VkRenderPass &renderPass,
-    const std::vector<VkPipelineShaderStageCreateInfo> &shaders,
+    const std::vector<Shader> &shaders,
     const Device &device
 )
 {
     m_descriptor = pDescriptor;
-    m_vertexInput = vertexInput;
+    m_vertexInput = i_vertexInput;
     m_subpass = subpass;
 
     std::vector<VkDescriptorPoolSize> &poolSizes=m_descriptor->m_descriptorPoolSizes;
@@ -67,13 +67,13 @@ Pipeline::Pipeline(
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (vertexInput.m_bindingDescription.stride>0)
+    if (m_vertexInput.m_bindingDescription.stride>0)
     {
         // Set up input to vertex shader.
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &vertexInput.m_bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInput.m_attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = vertexInput.m_attributeDescriptions.data();
+        vertexInputInfo.pVertexBindingDescriptions = &m_vertexInput.m_bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertexInput.m_attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = m_vertexInput.m_attributeDescriptions.data();
     }
 
     // Set up input assembly.
@@ -164,7 +164,6 @@ Pipeline::Pipeline(
     {
         throw std::runtime_error("failed to create pipeline layout.");
     }
-    // m_pipelineLayouts.push_back(layout);
 
     // Set up depth testing.
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
@@ -179,16 +178,13 @@ Pipeline::Pipeline(
     depthStencil.front = {};
     depthStencil.back = {};
 
-    // std::vector<VkPipelineShaderStageCreateInfo> shaders;
-    // for (const auto &s : m_shaders)
-    // {
-    //     shaders.push_back(m_shaders[s]);
-    // }
+    std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
+    for (const auto &s : shaders) shadersCreateInfo.push_back(s.m_createInfo);
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = shaders.size();
-    pipelineInfo.pStages = shaders.data();
+    pipelineInfo.stageCount = shadersCreateInfo.size();
+    pipelineInfo.pStages = shadersCreateInfo.data();
 
     // Fixed function stages.
     pipelineInfo.pVertexInputState = &vertexInputInfo;

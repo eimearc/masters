@@ -96,9 +96,6 @@ void App::initVulkan()
 
     descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
-    instance.registerVertexShader(VERTEX_SHADER, "shaders/vert.spv");
-    instance.registerFragmentShader(FRAGMENT_SHADER, "shaders/frag.spv");
-
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
@@ -115,8 +112,9 @@ void App::initVulkan()
 
     instance.createFramebuffers(attachments); // Move to be part of attachment creation.
 
-    std::vector<VkPipelineShaderStageCreateInfo> shaders;
-    for (const auto & m : instance.m_shaders) shaders.push_back(m.second);
+    Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
+    Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
+    std::vector<Shader> shaders = {vertexShader,fragmentShader};
     Pipeline pipeline(
         &descriptor,
         vertexInput,
@@ -193,10 +191,6 @@ void App::initMultipassVulkan()
     auto colorImageViews = colorAttachment.m_imageViews;
     auto depthImageViews = depthAttachment.m_imageViews;
 
-    const std::string VERTEX_SHADER_0="vert0";
-    const std::string FRAGMENT_SHADER_0="frag0";
-    const std::string VERTEX_SHADER_1="vert1";
-    const std::string FRAGMENT_SHADER_1="frag1";
     const std::string UBO="ubo";
 
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
@@ -207,11 +201,6 @@ void App::initMultipassVulkan()
     Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
     descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
-
-    instance.registerVertexShader(VERTEX_SHADER_0, "shaders/multipass_0_vert.spv");
-    instance.registerFragmentShader(FRAGMENT_SHADER_0, "shaders/multipass_0_frag.spv");
-    instance.registerVertexShader(VERTEX_SHADER_1, "shaders/multipass_1_vert.spv");
-    instance.registerFragmentShader(FRAGMENT_SHADER_1, "shaders/multipass_1_frag.spv");
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -232,9 +221,17 @@ void App::initMultipassVulkan()
 
     instance.createFramebuffers(attachments);
 
-    std::vector<VkPipelineShaderStageCreateInfo> shaders0;
-    shaders0.push_back(instance.m_shaders[VERTEX_SHADER_0]);
-    shaders0.push_back(instance.m_shaders[FRAGMENT_SHADER_0]);
+    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,1);
+    descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    VertexInput vertexInput;
+    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.setBindingDescription(sizeof(Vertex));
+
+    std::vector<Shader> shaders0 = {
+        {"shaders/multipass_0_vert.spv", Shader::Stage::Vertex, device},
+        {"shaders/multipass_0_frag.spv", Shader::Stage::Fragment, device}
+    };
     Pipeline pipeline0(
         &descriptor0,
         vertexInput0,
@@ -245,9 +242,10 @@ void App::initMultipassVulkan()
         device
     );
 
-    std::vector<VkPipelineShaderStageCreateInfo> shaders1;
-    shaders1.push_back(instance.m_shaders[VERTEX_SHADER_1]);
-    shaders1.push_back(instance.m_shaders[FRAGMENT_SHADER_1]);
+    std::vector<Shader> shaders1 = {
+        {"shaders/multipass_1_vert.spv", Shader::Stage::Vertex, device},
+        {"shaders/multipass_1_frag.spv", Shader::Stage::Fragment, device},
+    };
     Pipeline pipeline1(
         &descriptor1,
         vertexInput1,

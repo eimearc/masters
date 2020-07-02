@@ -35,6 +35,8 @@ namespace evk
     };
 }
 
+std::vector<char> readFile(const std::string& filename);
+
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;

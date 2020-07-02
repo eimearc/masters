@@ -5,6 +5,7 @@
 #include "evulkan_util.h"
 #include "descriptor.h"
 #include "device.h"
+#include "shader.h"
 
 class Pipeline
 {
@@ -16,7 +17,7 @@ class Pipeline
         const size_t subpass,
         const VkExtent2D extent,
         const VkRenderPass &renderPass,
-        const std::vector<VkPipelineShaderStageCreateInfo> &shaders,
+        const std::vector<Shader> &shaders,
         const Device &device
     );
 
@@ -28,13 +29,6 @@ class Pipeline
     uint32_t m_subpass;
 
     private:
-};
-
-class Shader
-{
-    public:
-    Shader()=default;
-    
 };
 
 #endif

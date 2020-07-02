@@ -17,6 +17,7 @@
 #include "device.h"
 #include "pipeline.h"
 #include "attachment.h"
+#include "shader.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -99,8 +100,6 @@ class Instance
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
     void createRenderPass(const std::vector<Attachment> &attachments);
-    void registerVertexShader(const std::string &name, const std::string &vertShader);
-    void registerFragmentShader(const std::string &name, const std::string &fragShader);
 
     void addSubpass(
         const std::vector<SubpassDependency> &dependencies,
@@ -141,9 +140,6 @@ class Instance
     VkExtent2D m_swapChainExtent;
 
     VkRenderPass m_renderPass;
-
-    std::vector<VkShaderModule> m_shaderModules;
-    std::map<std::string, VkPipelineShaderStageCreateInfo> m_shaders;
 
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;
@@ -206,7 +202,6 @@ class Instance
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
-    std::vector<char> readFile(const std::string& filename);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
