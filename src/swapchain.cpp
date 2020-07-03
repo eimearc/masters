@@ -57,14 +57,25 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Atta
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
 
-    ImageViewCreateInfo imageViewCreateInfo;
-    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
-    imageViewCreateInfo.format=m_swapChainImageFormat;
+    // ImageViewCreateInfo imageViewCreateInfo;
+    // imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
+    // imageViewCreateInfo.format=m_swapChainImageFormat;
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkFormat format = m_swapChainImageFormat;
+    VkImage image;
     m_swapChainImageViews.resize(m_swapChainImages.size());
     for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
     {
-        imageViewCreateInfo.image=m_swapChainImages[i];
-        createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
+        // imageViewCreateInfo.image=m_swapChainImages[i];
+        image = m_swapChainImages[i];
+        // createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
+        createImageView(
+            m_device,
+            image,
+            format,
+            aspectMask,
+            &m_swapChainImageViews[i]
+        );
     }
 
     framebuffer.m_images=m_swapChainImages;

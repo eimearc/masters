@@ -19,6 +19,7 @@
 #include "attachment.h"
 #include "shader.h"
 #include "pass.h"
+#include "texture.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -109,7 +110,7 @@ class Instance
     void draw(const std::vector<Pipeline> &pipelines);
     void cleanup();
 
-    void loadTexture(const std::string &fileName);
+    // void loadTexture(const std::string &fileName);
 
     ThreadPool m_threadPool;
     size_t m_numThreads;
@@ -163,21 +164,20 @@ class Instance
         const std::vector<VkFormat>& candidates,
         VkImageTiling tiling,
         VkFormatFeatureFlags features);
-    void createImageView(
-        const ImageViewCreateInfo *pCreateInfo,
-        VkImageView *pImageView);
-    void createImage(
-        const ImageCreateInfo *pCreateInfo,
-        VkImage *pImage,
-        VkDeviceMemory *pImageMemory);
+    // void createImageView(
+    //     const ImageViewCreateInfo *pCreateInfo,
+    //     VkImageView *pImageView);
+    // void createImage(
+    //     const ImageCreateInfo *pCreateInfo,
+    //     VkImage *pImage,
+    //     VkDeviceMemory *pImageMemory);
     struct EVkUniformBufferUpdateInfo
     {
         uint32_t currentImage;
         VkExtent2D swapchainExtent;
         std::vector<VkDeviceMemory> *pUniformBufferMemory;
     };
-    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+    // void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

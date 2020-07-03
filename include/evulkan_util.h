@@ -17,29 +17,31 @@
 
 namespace evk
 {
-    struct ImageCreateInfo
-    {
-        uint32_t width;
-        uint32_t height;
-        VkFormat format;
-        VkImageTiling tiling;
-        VkImageUsageFlags usage;
-        VkMemoryPropertyFlags properties;
-    };
-
-    struct ImageViewCreateInfo
-    {
-        VkImage image;
-        VkFormat format;
-        VkImageAspectFlags aspectFlags;
-    };
-
     struct SubpassDependency
     {
         uint32_t srcSubpass;
         uint32_t dstSubpass;
     };
 }
+
+void createImage(
+    const VkDevice &device,
+    const VkPhysicalDevice &physicalDevice,
+    const VkExtent2D &extent,
+    const VkFormat &format,
+    const VkImageTiling &tiling,
+    const VkImageUsageFlags &usage,
+    const VkMemoryPropertyFlags &properties,
+    VkImage *pImage,
+    VkDeviceMemory *pImageMemory
+);
+void createImageView(
+    const VkDevice &device,
+    const VkImage &image,
+    const VkFormat &format,
+    const VkImageAspectFlags &aspectMask,
+    VkImageView *pImageView
+);
 
 std::vector<char> readFile(const std::string& filename);
 

@@ -48,6 +48,7 @@ set (SOURCES
     ${VULKANROOT}/include/pipeline.h
     ${VULKANROOT}/include/pass.h
     ${VULKANROOT}/include/shader.h
+    ${VULKANROOT}/include/texture.h
     ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/device.h
     ${VULKANROOT}/include/evulkan_util.h

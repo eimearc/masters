@@ -17,7 +17,6 @@ class Pipeline
         const VertexInput &vertexInput,
         const size_t subpass,
         const VkExtent2D extent,
-        // const VkRenderPass &renderPass,
         const Renderpass &renderpass,
         const std::vector<Shader> &shaders,
         const Device &device
