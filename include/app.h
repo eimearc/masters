@@ -53,6 +53,7 @@ public:
         indexBuffer.destroy();
         evkInstance.cleanup();
         texture.destroy();
+        swapchain.destroy();
         device.destroy();
     }
 
@@ -64,6 +65,7 @@ public:
         buffer.destroy();
         indexBuffer.destroy();
         multipassInstance.cleanup();
+        swapchain.destroy();
         device.destroy();
     }
 

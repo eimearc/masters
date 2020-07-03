@@ -96,11 +96,8 @@ void evk::Instance::createFramebuffers(
     const Renderpass &renderpass,
     const Swapchain &swapchain) // This should be part of attachment creation.
 {
-    // const size_t numImages = m_swapChainImages.size();
     const size_t numImages = swapchain.m_swapChainImages.size();
     m_framebuffers.resize(numImages);
-
-    std::cout << m_framebuffers.size() << std::endl;
 
     for (size_t i = 0; i < numImages; i++)
     {

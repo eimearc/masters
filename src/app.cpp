@@ -43,25 +43,13 @@ void App::initVulkan()
 
     instance.createCommandPools();
 
-    // evk::SwapChainCreateInfo swapChainCreateInfo{
-    //     static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
-    // };
-
-    // Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
-    // framebuffer.setFramebufferAttachment(); // Must be before createSwapChain. Make part of swapchain creation?
-    // instance.createSwapChain(&swapChainCreateInfo, framebuffer);
-
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
-
     Attachment framebuffer;
     swapchain = {
         swapchainSize,
         framebuffer,
         device
     };
-
-    std::cout << swapchain.m_swapChainImages.size() << " " << MAX_FRAMES_IN_FLIGHT << std::endl;
-
     instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
     instance.createSyncObjects(swapchain);
@@ -165,10 +153,6 @@ void App::initMultipassVulkan()
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
-
-    // Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
-    // framebuffer.setFramebufferAttachment();
-    // instance.createSwapChain(&swapChainCreateInfo, framebuffer);
 
     Attachment framebuffer;
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;

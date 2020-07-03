@@ -66,8 +66,6 @@ class Instance
     }
     Instance()=default;
 
-    // void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
-
     void createSyncObjects(const Swapchain &swapchain);
     void createFramebuffers(
         const std::vector<Attachment> &attachments,
@@ -97,12 +95,6 @@ class Instance
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
     VkDevice m_device;
-
-    // VkSwapchainKHR m_swapChain;
-    // std::vector<VkImage> m_swapChainImages;
-    // std::vector<VkImageView> m_swapChainImageViews;
-    // VkFormat m_swapChainImageFormat;
-    // VkExtent2D m_swapChainExtent;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;

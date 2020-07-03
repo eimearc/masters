@@ -2,7 +2,6 @@
 
 Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, const Device &device)
 {
-    // m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
     m_device = device.m_device;
 
     framebuffer = {0,swapchainSize};
@@ -14,7 +13,6 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
     VkExtent2D extent = chooseSwapExtent(device.m_window, swapChainSupport.capabilities);
 
     uint32_t imageCount = swapchainSize;
-    std::cout << imageCount << std::endl;
     if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
     {
         throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
