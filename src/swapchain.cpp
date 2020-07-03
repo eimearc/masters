@@ -1,15 +1,20 @@
-#include "evulkan_core.h"
+#include "swapchain.h"
 
-void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer)
+Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, const Device &device)
 {
-    m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
+    // m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
+    m_device = device.m_device;
 
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physicalDevice, m_surface);
+    framebuffer = {0,swapchainSize};
+    framebuffer.setFramebufferAttachment();
+
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.m_physicalDevice, device.m_surface);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
+    VkExtent2D extent = chooseSwapExtent(device.m_window, swapChainSupport.capabilities);
 
-    uint32_t imageCount = m_maxFramesInFlight;
+    uint32_t imageCount = swapchainSize;
+    std::cout << imageCount << std::endl;
     if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
     {
         throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
@@ -17,7 +22,7 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Atta
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = m_surface;
+    createInfo.surface = device.m_surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -25,7 +30,7 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Atta
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice, m_surface);
+    QueueFamilyIndices indices = findQueueFamilies(device.m_physicalDevice, device.m_surface);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily)
     {
@@ -45,14 +50,14 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Atta
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if(vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+    if(vkCreateSwapchainKHR(device.m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain.");
     }
 
-    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
-    m_swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+    vkGetSwapchainImagesKHR(device.m_device, m_swapChain, &imageCount, nullptr);
+    framebuffer.m_images.resize(imageCount);
+    vkGetSwapchainImagesKHR(device.m_device, m_swapChain, &imageCount, framebuffer.m_images.data());
 
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
@@ -60,19 +65,24 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo, Atta
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     VkFormat format = m_swapChainImageFormat;
     VkImage image;
-    m_swapChainImageViews.resize(m_swapChainImages.size());
-    for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
+    framebuffer.m_imageViews.resize(imageCount);
+    for (uint32_t i = 0; i < imageCount; i++)
     {
-        image = m_swapChainImages[i];
+        image = framebuffer.m_images[i];
         createImageView(
-            m_device,
+            device.m_device,
             image,
             format,
             aspectMask,
-            &m_swapChainImageViews[i]
+            &framebuffer.m_imageViews[i]
         );
     }
 
-    framebuffer.m_images=m_swapChainImages;
-    framebuffer.m_imageViews=m_swapChainImageViews;  
+    m_swapChainImages = framebuffer.m_images;
+    m_swapChainImageViews = framebuffer.m_imageViews;
+}
+
+void Swapchain::destroy()
+{
+    vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }

@@ -43,16 +43,28 @@ void App::initVulkan()
 
     instance.createCommandPools();
 
-    evk::SwapChainCreateInfo swapChainCreateInfo{
-        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    // evk::SwapChainCreateInfo swapChainCreateInfo{
+    //     static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    // };
+
+    // Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
+    // framebuffer.setFramebufferAttachment(); // Must be before createSwapChain. Make part of swapchain creation?
+    // instance.createSwapChain(&swapChainCreateInfo, framebuffer);
+
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+
+    Attachment framebuffer;
+    swapchain = {
+        swapchainSize,
+        framebuffer,
+        device
     };
 
-    Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
-    framebuffer.setFramebufferAttachment(); // Must be before createSwapChain.
+    std::cout << swapchain.m_swapChainImages.size() << " " << MAX_FRAMES_IN_FLIGHT << std::endl;
 
-    instance.createSwapChain(&swapChainCreateInfo,framebuffer);
+    instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
-    instance.createSyncObjects();
+    instance.createSyncObjects(swapchain);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
@@ -67,7 +79,7 @@ void App::initVulkan()
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
-    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, device);
+    depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {framebuffer};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -89,10 +101,6 @@ void App::initVulkan()
         device
     };
 
-    const std::string VERTEX_SHADER="vert";
-    const std::string FRAGMENT_SHADER="frag";
-    const std::string UBO="ubo";
-
     UniformBufferObject ubo = {};
     ubo.model=glm::mat4(1.0f);
     ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f), glm::vec3(0.0f,0.0f,1.0f));
@@ -100,10 +108,10 @@ void App::initVulkan()
     ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
+    // Set up UBO.
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
-
-    descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    descriptor.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -119,7 +127,7 @@ void App::initVulkan()
     
     std::vector<Descriptor*> descriptors = {&descriptor};
 
-    instance.createFramebuffers(attachments, renderpass); // Move to be part of attachment creation?
+    instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
 
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
@@ -128,14 +136,14 @@ void App::initVulkan()
         &descriptor,
         vertexInput,
         0,
-        instance.m_swapChainExtent,
+        swapchain.m_swapChainExtent,
         renderpass,
         shaders,
         device
     );
 
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain);
 }
 
 void App::initMultipassVulkan()
@@ -158,18 +166,22 @@ void App::initMultipassVulkan()
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
 
-    Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
-    framebuffer.setFramebufferAttachment();
+    // Attachment framebuffer(0,MAX_FRAMES_IN_FLIGHT);
+    // framebuffer.setFramebufferAttachment();
+    // instance.createSwapChain(&swapChainCreateInfo, framebuffer);
 
-    instance.createSwapChain(&swapChainCreateInfo, framebuffer);
+    Attachment framebuffer;
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+    swapchain = {swapchainSize, framebuffer, device};
+    instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
-    instance.createSyncObjects();
+    instance.createSyncObjects(swapchain);
 
     Attachment colorAttachment(1,MAX_FRAMES_IN_FLIGHT);
-    colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);
+    colorAttachment.setColorAttachment(swapchain.m_swapChainExtent, device);
 
     Attachment depthAttachment(2,MAX_FRAMES_IN_FLIGHT);
-    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, device);
+    depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -207,13 +219,12 @@ void App::initMultipassVulkan()
     auto colorImageViews = colorAttachment.m_imageViews;
     auto depthImageViews = depthAttachment.m_imageViews;
 
-    const std::string UBO="ubo";
-
+    // Set up UBO.
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
-
     Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
-    descriptor0.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+
     Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
     descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -235,10 +246,8 @@ void App::initMultipassVulkan()
 
     std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
 
-    instance.createFramebuffers(attachments, renderpass);
+    instance.createFramebuffers(attachments, renderpass, swapchain);
 
-    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,1);
-    descriptor.addUniformBuffer(0, buffer.m_buffers, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
@@ -252,7 +261,7 @@ void App::initMultipassVulkan()
         &descriptor0,
         vertexInput0,
         0,
-        instance.m_swapChainExtent,
+        swapchain.m_swapChainExtent,
         renderpass,
         shaders0,
         device
@@ -266,14 +275,14 @@ void App::initMultipassVulkan()
         &descriptor1,
         vertexInput1,
         1,
-        instance.m_swapChainExtent,
+        swapchain.m_swapChainExtent,
         renderpass,
         shaders1,
         device
     );
 
     pipelines = {pipeline0, pipeline1};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain);
 }
 
 void App::mainLoop(evk::Instance &instance)
@@ -293,7 +302,7 @@ void App::mainLoop(evk::Instance &instance)
 
         buffer.updateBuffer(&ubo);
 
-        instance.draw(pipelines);
+        instance.draw(pipelines, swapchain);
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;

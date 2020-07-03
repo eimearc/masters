@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-void evk::Instance::createSyncObjects()
+void evk::Instance::createSyncObjects(const Swapchain &swapchain)
 {
     m_imageAvailableSemaphores.resize(m_maxFramesInFlight);
     m_renderFinishedSemaphores.resize(m_maxFramesInFlight);
     m_fencesInFlight.resize(m_maxFramesInFlight);
-    m_imagesInFlight.resize(m_swapChainImages.size(), VK_NULL_HANDLE);
+    m_imagesInFlight.resize(swapchain.m_swapChainImages.size(), VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;

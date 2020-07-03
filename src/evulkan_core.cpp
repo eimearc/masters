@@ -91,10 +91,16 @@ void createImageView(
         throw std::runtime_error("failed to create texture image view!");
 }
 
-void evk::Instance::createFramebuffers(const std::vector<Attachment> &attachments, const Renderpass &renderpass) // This should be part of attachment creation.
+void evk::Instance::createFramebuffers(
+    const std::vector<Attachment> &attachments,
+    const Renderpass &renderpass,
+    const Swapchain &swapchain) // This should be part of attachment creation.
 {
-    const size_t numImages = m_swapChainImages.size();
+    // const size_t numImages = m_swapChainImages.size();
+    const size_t numImages = swapchain.m_swapChainImages.size();
     m_framebuffers.resize(numImages);
+
+    std::cout << m_framebuffers.size() << std::endl;
 
     for (size_t i = 0; i < numImages; i++)
     {
@@ -110,8 +116,8 @@ void evk::Instance::createFramebuffers(const std::vector<Attachment> &attachment
         framebufferInfo.renderPass = renderpass.m_renderPass;
         framebufferInfo.attachmentCount = imageViews.size();
         framebufferInfo.pAttachments = imageViews.data();
-        framebufferInfo.width = m_swapChainExtent.width;
-        framebufferInfo.height = m_swapChainExtent.height;
+        framebufferInfo.width = swapchain.m_swapChainExtent.width;
+        framebufferInfo.height = swapchain.m_swapChainExtent.height;
         framebufferInfo.layers = 1;
 
         if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
@@ -152,7 +158,7 @@ void evk::Instance::cleanup()
 
     // vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 
-    vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+    // vkDestroySwapchainKHR(m_device, swapchain.m_swapChain, nullptr);
 
     // for (auto &buffer : m_buffers) vkDestroyBuffer(m_device, buffer, nullptr);
     // for (auto &memory : m_bufferMemories) vkFreeMemory(m_device, memory, nullptr);

@@ -20,6 +20,7 @@
 #include "shader.h"
 #include "pass.h"
 #include "texture.h"
+#include "swapchain.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -65,10 +66,14 @@ class Instance
     }
     Instance()=default;
 
-    void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
+    // void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
 
-    void createSyncObjects();
-    void createFramebuffers(const std::vector<Attachment> &attachments, const Renderpass &renderpass);
+    void createSyncObjects(const Swapchain &swapchain);
+    void createFramebuffers(
+        const std::vector<Attachment> &attachments,
+        const Renderpass &renderpass,
+        const Swapchain &swapchain
+    );
     void createCommandPools();
 
     void createDrawCommands(
@@ -76,9 +81,10 @@ class Instance
         const Buffer &vertexBuffer,
         const std::vector<Descriptor*> descriptor,
         const std::vector<Pipeline> &pipelines,
-        const Renderpass &renderpass
+        const Renderpass &renderpass,
+        const Swapchain &swapchain
     );
-    void draw(const std::vector<Pipeline> &pipelines);
+    void draw(const std::vector<Pipeline> &pipelines, const Swapchain &swapchain);
     void cleanup();
 
     ThreadPool m_threadPool;
@@ -92,11 +98,11 @@ class Instance
     VkQueue m_presentQueue;
     VkDevice m_device;
 
-    VkSwapchainKHR m_swapChain;
-    std::vector<VkImage> m_swapChainImages;
-    std::vector<VkImageView> m_swapChainImageViews;
-    VkFormat m_swapChainImageFormat;
-    VkExtent2D m_swapChainExtent;
+    // VkSwapchainKHR m_swapChain;
+    // std::vector<VkImage> m_swapChainImages;
+    // std::vector<VkImageView> m_swapChainImageViews;
+    // VkFormat m_swapChainImageFormat;
+    // VkExtent2D m_swapChainExtent;
 
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -108,6 +114,8 @@ class Instance
     std::vector<VkCommandPool> m_commandPools;
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
+
+    uint32_t m_maxFramesInFlight;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
@@ -127,7 +135,6 @@ class Instance
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;
-    uint8_t m_maxFramesInFlight;
     GLFWwindow *m_window;
 };
 

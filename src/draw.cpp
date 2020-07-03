@@ -1,13 +1,13 @@
 #include "evulkan_core.h"
 
-void evk::Instance::draw(const std::vector<Pipeline> &pipelines)
+void evk::Instance::draw(const std::vector<Pipeline> &pipelines, const Swapchain &swapchain)
 {
     static size_t currentFrame=0;
     vkWaitForFences(m_device, 1, &m_fencesInFlight[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        m_device, m_swapChain, UINT64_MAX,
+        m_device, swapchain.m_swapChain, UINT64_MAX,
         m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
@@ -52,7 +52,7 @@ void evk::Instance::draw(const std::vector<Pipeline> &pipelines)
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapChains[] = {m_swapChain};
+    VkSwapchainKHR swapChains[] = {swapchain.m_swapChain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
@@ -73,15 +73,20 @@ void evk::Instance::createDrawCommands(
     const Buffer &vertexBuffer,
     const std::vector<Descriptor*> descriptors,
     const std::vector<Pipeline> &pipelines,
-    const Renderpass &renderpass)
+    const Renderpass &renderpass,
+    const Swapchain &swapchain
+    )
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/m_numThreads;
 
+    std::cout << "Max frames: " << m_maxFramesInFlight << std::endl;
+
     for (int frame = 0; frame < m_maxFramesInFlight; ++frame)
     {
+        std::cout << "Frame " << frame << std::endl;
         // Create primary command buffer.
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -94,14 +99,20 @@ void evk::Instance::createDrawCommands(
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
 
+        std::cout << swapchain.m_swapChainExtent.width << std::endl;
+
+        std::cout << "HERE\n";
+
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = renderpass.m_renderPass;
         renderPassInfo.framebuffer = m_framebuffers[frame];
         renderPassInfo.renderArea.offset = {0,0};
-        renderPassInfo.renderArea.extent = m_swapChainExtent;
+        renderPassInfo.renderArea.extent = swapchain.m_swapChainExtent;
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
+
+        std::cout << "HERE\n";
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -113,6 +124,8 @@ void evk::Instance::createDrawCommands(
         {
             const Descriptor &descriptor = *descriptors[pass];
 
+            std::cout << "HERE\n";
+
             if (pass == 0 )
                 vkCmdBeginRenderPass(
                     m_primaryCommandBuffers[frame],
@@ -122,6 +135,8 @@ void evk::Instance::createDrawCommands(
                 vkCmdNextSubpass(
                     m_primaryCommandBuffers[frame],
                     VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+            std::cout << "HERE\n";
 
             auto createDrawCommands =[&](int i)
             {
@@ -138,6 +153,8 @@ void evk::Instance::createDrawCommands(
                 {
                     throw std::runtime_error("failed to allocate command buffers.");
                 }
+
+                std::cout << "HERE\n";
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;

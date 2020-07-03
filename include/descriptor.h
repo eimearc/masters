@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "texture.h"
+#include "buffer.h"
 
 class Descriptor
 {
@@ -15,7 +16,7 @@ class Descriptor
 
     void addUniformBuffer(
         const uint32_t binding,
-        const std::vector<VkBuffer> &uniformBuffers,
+        const Buffer &buffer,
         const VkShaderStageFlagBits shaderStage,
         const VkDeviceSize bufferSize
     );

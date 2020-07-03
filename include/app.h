@@ -80,6 +80,7 @@ private:
     Buffer vertexBuffer;
     Renderpass renderpass;
     Texture texture;
+    Swapchain swapchain;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
