@@ -13,7 +13,8 @@ class Device
         size_t numThreads,
         std::vector<const char*> validationLayers,
         GLFWwindow *window,
-        std::vector<const char *> deviceExtensions);
+        std::vector<const char *> deviceExtensions
+    );
     void destroy();
 
     std::vector<const char *> m_deviceExtensions;
@@ -29,6 +30,7 @@ class Device
     VkDevice m_device;
     ThreadPool m_threadPool;
     size_t m_numThreads;
+    VkFormat m_depthFormat;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);
@@ -39,6 +41,11 @@ class Device
         const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
         const VkAllocationCallbacks* pAllocator,
         VkDebugUtilsMessengerEXT* pDebugMessenger);
+    void setDepthFormat();
+    VkFormat getSupportedFormat(
+        const std::vector<VkFormat>& candidates,
+        VkImageTiling tiling,
+        VkFormatFeatureFlags features);
 };
 
 #endif

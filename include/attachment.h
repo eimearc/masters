@@ -15,7 +15,6 @@ class Attachment
     void setColorAttachment(const VkExtent2D &extent, const Device &device);
     void setDepthAttachment(
         const VkExtent2D &extent,
-        const VkFormat &depthFormat,
         const Device &device);
     void destroy();
 

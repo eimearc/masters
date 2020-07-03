@@ -109,8 +109,6 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
-
     private:
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);

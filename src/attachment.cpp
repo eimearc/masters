@@ -59,11 +59,10 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
 
 void Attachment::setDepthAttachment(
     const VkExtent2D &extent,
-    const VkFormat &depthFormat,
     const Device &device)
 {
     m_description.flags = 0;
-    m_description.format = depthFormat;
+    m_description.format = device.m_depthFormat;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
     m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     m_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -72,7 +71,7 @@ void Attachment::setDepthAttachment(
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    VkFormat format = depthFormat;
+    VkFormat format = device.m_depthFormat;
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;

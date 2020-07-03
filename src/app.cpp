@@ -67,11 +67,7 @@ void App::initVulkan()
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
-    evk::EVkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.swapChainImageFormat = instance.m_swapChainImageFormat;
-    renderPassInfo.physicalDevice = instance.m_physicalDevice;
-    VkFormat depthFormat = instance.findDepthFormat(&renderPassInfo);
-    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, depthFormat, device);
+    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {framebuffer};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -173,11 +169,7 @@ void App::initMultipassVulkan()
     colorAttachment.setColorAttachment(instance.m_swapChainExtent, device);
 
     Attachment depthAttachment(2,MAX_FRAMES_IN_FLIGHT);
-    evk::EVkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.swapChainImageFormat = instance.m_swapChainImageFormat;
-    renderPassInfo.physicalDevice = instance.m_physicalDevice;
-    VkFormat depthFormat = instance.findDepthFormat(&renderPassInfo);
-    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, depthFormat, device);
+    depthAttachment.setDepthAttachment(instance.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};

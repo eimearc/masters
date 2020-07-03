@@ -15,6 +15,7 @@ Device::Device(size_t numThreads,
     createInstance(validationLayers);
     createSurface(window);
     pickPhysicalDevice(deviceExtensions);
+    setDepthFormat();
     createDevice(true);
 }
 
@@ -180,4 +181,34 @@ VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
     } else {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
+}
+
+void Device::setDepthFormat()
+{
+    std::vector<VkFormat> candidates = {
+        VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    m_depthFormat = getSupportedFormat(candidates, tiling, features);
+}
+
+VkFormat Device::getSupportedFormat(
+    const std::vector<VkFormat>& candidates,
+    VkImageTiling tiling,
+    VkFormatFeatureFlags features)
+{
+    for (VkFormat format : candidates)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
+        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+    throw std::runtime_error("failed to find supported format.");
 }
