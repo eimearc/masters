@@ -68,6 +68,7 @@ void App::initVulkan()
         commands.m_commandPools[0]
     };
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptors = {descriptor};
 
     Attachment depthAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
@@ -116,7 +117,7 @@ void App::initVulkan()
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
     
-    std::vector<Descriptor*> descriptors = {&descriptor};
+    std::vector<Descriptor*> pDescriptors = {&descriptor};
 
     instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
 
@@ -134,7 +135,7 @@ void App::initVulkan()
     );
 
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, pDescriptors, pipelines, renderpass, swapchain, commands);
 }
 
 void App::initMultipassVulkan()

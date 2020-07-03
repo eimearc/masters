@@ -80,7 +80,6 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
 
 void Swapchain::destroy()
 {
-    std::cout << "HERE\n";
     // for (auto &iv : m_swapChainImageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }

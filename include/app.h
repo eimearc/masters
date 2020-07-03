@@ -49,14 +49,9 @@ public:
         createGrid();
         initVulkan();
         mainLoop(evkInstance);
-        buffer.destroy();
-        indexBuffer.destroy();
-        for (auto &a : attachments) a.destroy();
         evkInstance.cleanup();
         texture.destroy();
-        swapchain.destroy();
-        commands.destroy();
-        device.destroy();
+        destroy();
     }
 
     void multipass()
@@ -64,11 +59,19 @@ public:
         createGrid();
         initMultipassVulkan();
         mainLoop(multipassInstance);
+        multipassInstance.cleanup();
+        destroy();
+    }
+
+    void destroy()
+    {
         buffer.destroy();
         indexBuffer.destroy();
-        multipassInstance.cleanup();
+        vertexBuffer.destroy();
+        for (auto &a : attachments) a.destroy();
         swapchain.destroy();
-        device.destroy();
+        commands.destroy();
+        device.destroy(); 
     }
 
 ~App()=default;
@@ -84,6 +87,7 @@ private:
     Buffer vertexBuffer;
     Renderpass renderpass;
     std::vector<Attachment> attachments;
+    std::vector<Descriptor> descriptors;
     Texture texture;
     Swapchain swapchain;
     Commands commands;

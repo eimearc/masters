@@ -92,7 +92,6 @@ void Attachment::setDepthAttachment(
 
 void Attachment::destroy()
 {
-    std::cout << "here\n";
     for (auto &iv : m_imageViews)
     {
         if (iv != VK_NULL_HANDLE) vkDestroyImageView(m_device, iv, nullptr);
