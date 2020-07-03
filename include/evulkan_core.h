@@ -63,12 +63,6 @@ struct VertexAttributeInfo
     uint32_t offset;
 };
 
-// struct SubpassDependency
-// {
-//     uint32_t srcSubpass;
-//     uint32_t dstSubpass;
-// };
-
 struct SubpassDescription
 {
     std::vector<VkAttachmentReference> colorAttachments;
@@ -100,13 +94,6 @@ class Instance
     void updateBuffer(const std::string &name);
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
-    void createRenderPass(const std::vector<Attachment> &attachments);
-
-    void addSubpass(
-        const std::vector<SubpassDependency> &dependencies,
-        const std::vector<Attachment> &c,
-        const std::vector<Attachment> &d,
-        const std::vector<Attachment> &i);
 
     void createSyncObjects();
     void createFramebuffers(const std::vector<Attachment> &attachments, const Renderpass &renderpass);
@@ -141,12 +128,6 @@ class Instance
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
-    // VkRenderPass m_renderPass;
-
-    std::vector<VkImage> m_images;
-    std::vector<VkImageView> m_imageViews;
-    std::vector<VkDeviceMemory> m_imageMemories;
-
     std::vector<VkSemaphore> m_imageAvailableSemaphores;
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
     std::vector<VkFence> m_fencesInFlight;
@@ -157,15 +138,6 @@ class Instance
     std::vector<VkCommandPool> m_commandPools;
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
-
-    std::map<std::string, BufferInfo> m_bufferMap;
-    std::vector<VkBuffer> m_buffers;
-    std::vector<VkDeviceMemory> m_bufferMemories;
-
-    // std::vector<SubpassDescription> m_subpasses;
-    // std::vector<VkSubpassDependency> m_dependencies;
-
-    std::vector<Index> m_indices;
 
     VkImage m_textureImage=VK_NULL_HANDLE;
     VkImageView m_textureImageView=VK_NULL_HANDLE;
@@ -206,8 +178,6 @@ class Instance
     };
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-
-    void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

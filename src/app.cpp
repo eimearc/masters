@@ -178,11 +178,6 @@ void App::initMultipassVulkan()
     std::vector<Attachment> depthAttachments = {depthAttachment};
     std::vector<Attachment> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
-    // instance.addSubpass(
-    //     dependencies,
-    //     colorAttachments,
-    //     depthAttachments,
-    //     inputAttachments);
 
     Subpass subpass0(
         dependencies,
@@ -195,11 +190,7 @@ void App::initMultipassVulkan()
     depthAttachments.resize(0);
     inputAttachments = {colorAttachment, depthAttachment};
     dependencies = {{0,1}};
-    // instance.addSubpass(
-    //     dependencies,
-    //     colorAttachments,
-    //     depthAttachments,
-    //     inputAttachments);
+
     Subpass subpass1(
         dependencies,
         colorAttachments,
@@ -209,7 +200,6 @@ void App::initMultipassVulkan()
 
     std::vector<Attachment> attachments = {framebuffer, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
-    // instance.createRenderPass(attachments, subpasses);
 
     Renderpass renderpass(
         attachments,
@@ -266,7 +256,6 @@ void App::initMultipassVulkan()
         vertexInput0,
         0,
         instance.m_swapChainExtent,
-        // instance.m_renderPass,
         renderpass,
         shaders0,
         device
@@ -281,7 +270,6 @@ void App::initMultipassVulkan()
         vertexInput1,
         1,
         instance.m_swapChainExtent,
-        // instance.m_renderPass,
         renderpass,
         shaders1,
         device

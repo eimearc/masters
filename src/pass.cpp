@@ -26,7 +26,6 @@ Subpass::Subpass(
 
 void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
 {
-    std::cout << "Adding dependency between " << srcSubpass << " and " << dstSubpass << std::endl;
     VkSubpassDependency dependency;
     dependency.srcSubpass = srcSubpass;
     dependency.dstSubpass = dstSubpass;
@@ -82,8 +81,6 @@ Renderpass::Renderpass(
     dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
-
-    std::cout << dependencies.size() << std::endl;
 
     // Create Render Pass
     VkRenderPassCreateInfo renderPassInfo = {};
