@@ -5,7 +5,8 @@ Pipeline::Pipeline(
     const VertexInput &i_vertexInput,
     const size_t subpass,
     const VkExtent2D extent,
-    const VkRenderPass &renderPass,
+    // const VkRenderPass &renderPass,
+    const Renderpass &renderpass,
     const std::vector<Shader> &shaders,
     const Device &device
 )
@@ -197,7 +198,7 @@ Pipeline::Pipeline(
     pipelineInfo.pDynamicState = nullptr;
     
     pipelineInfo.layout = m_layout;
-    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.renderPass = renderpass.m_renderPass;
     pipelineInfo.subpass = m_subpass;
 
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;

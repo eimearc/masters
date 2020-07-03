@@ -18,6 +18,7 @@
 #include "pipeline.h"
 #include "attachment.h"
 #include "shader.h"
+#include "pass.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -62,11 +63,11 @@ struct VertexAttributeInfo
     uint32_t offset;
 };
 
-struct SubpassDependency
-{
-    uint32_t srcSubpass;
-    uint32_t dstSubpass;
-};
+// struct SubpassDependency
+// {
+//     uint32_t srcSubpass;
+//     uint32_t dstSubpass;
+// };
 
 struct SubpassDescription
 {
@@ -108,14 +109,15 @@ class Instance
         const std::vector<Attachment> &i);
 
     void createSyncObjects();
-    void createFramebuffers(const std::vector<Attachment> &attachments);
+    void createFramebuffers(const std::vector<Attachment> &attachments, const Renderpass &renderpass);
     void createCommandPools();
 
     void createDrawCommands(
         const Buffer &indexBuffer,
         const Buffer &vertexBuffer,
         const std::vector<Descriptor*> descriptor,
-        const std::vector<Pipeline> &pipelines
+        const std::vector<Pipeline> &pipelines,
+        const Renderpass &renderpass
     );
     void draw(const std::vector<Pipeline> &pipelines);
     void cleanup();
@@ -139,7 +141,7 @@ class Instance
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
-    VkRenderPass m_renderPass;
+    // VkRenderPass m_renderPass;
 
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;
@@ -160,8 +162,8 @@ class Instance
     std::vector<VkBuffer> m_buffers;
     std::vector<VkDeviceMemory> m_bufferMemories;
 
-    std::vector<SubpassDescription> m_subpasses;
-    std::vector<VkSubpassDependency> m_dependencies;
+    // std::vector<SubpassDescription> m_subpasses;
+    // std::vector<VkSubpassDependency> m_dependencies;
 
     std::vector<Index> m_indices;
 

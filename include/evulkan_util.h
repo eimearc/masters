@@ -33,6 +33,12 @@ namespace evk
         VkFormat format;
         VkImageAspectFlags aspectFlags;
     };
+
+    struct SubpassDependency
+    {
+        uint32_t srcSubpass;
+        uint32_t dstSubpass;
+    };
 }
 
 std::vector<char> readFile(const std::string& filename);

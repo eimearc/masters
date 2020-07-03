@@ -30,6 +30,7 @@ set (SOURCES
     ${VULKANROOT}/src/buffer.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/device.cpp
+    ${VULKANROOT}/src/pass.cpp
     ${VULKANROOT}/src/pipeline.cpp
     ${VULKANROOT}/src/shader.cpp
     ${VULKANROOT}/src/draw.cpp
@@ -45,6 +46,7 @@ set (SOURCES
     ${VULKANROOT}/include/descriptor.h
     ${VULKANROOT}/include/attachment.h
     ${VULKANROOT}/include/pipeline.h
+    ${VULKANROOT}/include/pass.h
     ${VULKANROOT}/include/shader.h
     ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/device.h

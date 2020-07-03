@@ -72,7 +72,8 @@ void evk::Instance::createDrawCommands(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
     const std::vector<Descriptor*> descriptors,
-    const std::vector<Pipeline> &pipelines)
+    const std::vector<Pipeline> &pipelines,
+    const Renderpass &renderpass)
 {
     m_primaryCommandBuffers.resize(m_maxFramesInFlight);
     m_secondaryCommandBuffers.resize(m_numThreads);
@@ -95,7 +96,7 @@ void evk::Instance::createDrawCommands(
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = m_renderPass;
+        renderPassInfo.renderPass = renderpass.m_renderPass;
         renderPassInfo.framebuffer = m_framebuffers[frame];
         renderPassInfo.renderArea.offset = {0,0};
         renderPassInfo.renderArea.extent = m_swapChainExtent;
@@ -108,7 +109,7 @@ void evk::Instance::createDrawCommands(
             m_primaryCommandBuffers[frame],
             &beginInfo);
 
-        for (size_t pass = 0; pass < m_subpasses.size(); ++pass)
+        for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
         {
             const Descriptor &descriptor = *descriptors[pass];
 
@@ -140,7 +141,7 @@ void evk::Instance::createDrawCommands(
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-                inheritanceInfo.renderPass = m_renderPass;
+                inheritanceInfo.renderPass = renderpass.m_renderPass;
                 inheritanceInfo.framebuffer = m_framebuffers[frame];
                 inheritanceInfo.subpass=pass;
 

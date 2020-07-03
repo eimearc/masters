@@ -77,6 +77,7 @@ private:
     Buffer buffer;
     Buffer indexBuffer;
     Buffer vertexBuffer;
+    Renderpass renderpass;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
