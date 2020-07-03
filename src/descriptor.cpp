@@ -39,12 +39,11 @@ void Descriptor::addInputAttachment(
 
 void Descriptor::addTextureSampler(
     const uint32_t binding,
-    const VkImageView &textureImageView,
-    const VkSampler &textureSampler,
+    const Texture &texture,
     const VkShaderStageFlagBits shaderStage)
 {
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, shaderStage);
-    addWriteDescriptorSetTextureSampler(textureImageView, textureSampler, binding);
+    addWriteDescriptorSetTextureSampler(texture, binding);
 }
 
 void Descriptor::addDescriptorSetBinding(
@@ -86,14 +85,14 @@ void Descriptor::addWriteDescriptorSetBuffer(
     }
 }
 
-void Descriptor::addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding)
+void Descriptor::addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding)
 {
     for (size_t i = 0; i < m_swapchainSize; ++i)
     {
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureView;
-        imageInfo.sampler = textureSampler;
+        imageInfo.imageView = texture.m_imageView;
+        imageInfo.sampler = texture.m_imageSampler;
         m_descriptorTextureSamplerInfo[i] = imageInfo;
         VkWriteDescriptorSet descriptor;
         descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

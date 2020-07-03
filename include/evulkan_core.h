@@ -110,8 +110,6 @@ class Instance
     void draw(const std::vector<Pipeline> &pipelines);
     void cleanup();
 
-    // void loadTexture(const std::string &fileName);
-
     ThreadPool m_threadPool;
     size_t m_numThreads;
 
@@ -140,13 +138,6 @@ class Instance
     std::vector<VkCommandBuffer> m_primaryCommandBuffers;
     std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
-    VkImage m_textureImage=VK_NULL_HANDLE;
-    VkImageView m_textureImageView=VK_NULL_HANDLE;
-    VkSampler m_textureSampler=VK_NULL_HANDLE;
-    VkDeviceMemory m_textureImageMemory=VK_NULL_HANDLE;
-    VkDescriptorImageInfo m_textureDescriptor;
-
-    void addAttachment(Attachment attachment);
     VkFormat findDepthFormat(const EVkRenderPassCreateInfo *pCreateInfo);
 
     private:
@@ -164,20 +155,6 @@ class Instance
         const std::vector<VkFormat>& candidates,
         VkImageTiling tiling,
         VkFormatFeatureFlags features);
-    // void createImageView(
-    //     const ImageViewCreateInfo *pCreateInfo,
-    //     VkImageView *pImageView);
-    // void createImage(
-    //     const ImageCreateInfo *pCreateInfo,
-    //     VkImage *pImage,
-    //     VkDeviceMemory *pImageMemory);
-    struct EVkUniformBufferUpdateInfo
-    {
-        uint32_t currentImage;
-        VkExtent2D swapchainExtent;
-        std::vector<VkDeviceMemory> *pUniformBufferMemory;
-    };
-    // void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
     std::vector<const char *> m_deviceExtensions;
     std::vector<const char *> m_validationLayers;

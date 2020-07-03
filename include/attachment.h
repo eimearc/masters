@@ -32,24 +32,6 @@ class Attachment
 
     private:
     void createFramebuffer();
-    // void createImage(
-    //     const VkDevice &device,
-    //     const VkPhysicalDevice &physicalDevice,
-    //     const VkExtent2D &extent,
-    //     const VkFormat &format,
-    //     const VkImageTiling &tiling,
-    //     const VkImageUsageFlags &usage,
-    //     const VkMemoryPropertyFlags &properties,
-    //     VkImage *pImage,
-    //     VkDeviceMemory *pImageMemory
-    // );
-    // void createImageView(
-    //     const VkDevice &device,
-    //     const VkImage &image,
-    //     const VkFormat &format,
-    //     const VkImageAspectFlags &aspectMask,
-    //     VkImageView *pImageView
-    // );
 
     size_t m_swapchainSize;
 };

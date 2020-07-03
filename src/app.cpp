@@ -58,17 +58,13 @@ void App::initVulkan()
     std::vector<uint32_t> in;
     Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,1);
     evk::loadOBJ("obj/viking_room.obj", v, in);
-    // instance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
-    Texture texture(
+
+    texture = { // Must be before createDescriptorSets.
         "tex/viking_room.png",
         device,
         instance.m_commandPools[0]
-    );
-
-    instance.m_textureImageView = texture.m_imageView;
-    instance.m_textureSampler = texture.m_imageSampler;
-
-    descriptor.addTextureSampler(1, instance.m_textureImageView, instance.m_textureSampler, VK_SHADER_STAGE_FRAGMENT_BIT);
+    };
+    descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
     evk::EVkRenderPassCreateInfo renderPassInfo = {};

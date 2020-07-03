@@ -15,6 +15,9 @@ class Texture
         const VkCommandPool &commandPool
     );
 
+    void destroy();
+
+    VkDevice m_device;
     VkImage m_image;
     VkImageView m_imageView;
     VkDeviceMemory m_memory;

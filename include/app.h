@@ -52,6 +52,7 @@ public:
         buffer.destroy();
         indexBuffer.destroy();
         evkInstance.cleanup();
+        texture.destroy();
         device.destroy();
     }
 
@@ -78,6 +79,7 @@ private:
     Buffer indexBuffer;
     Buffer vertexBuffer;
     Renderpass renderpass;
+    Texture texture;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;

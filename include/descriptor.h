@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 
+#include "texture.h"
+
 class Descriptor
 {
     public:
@@ -26,8 +28,7 @@ class Descriptor
 
     void addTextureSampler(
         const uint32_t binding,
-        const VkImageView &textureImageView,
-        const VkSampler &textureSampler,
+        const Texture &texture,
         const VkShaderStageFlagBits shaderStage
     );
 
@@ -49,7 +50,7 @@ class Descriptor
     private:
     void addDescriptorPoolSize(const VkDescriptorType type);
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
-    void addWriteDescriptorSetTextureSampler(VkImageView textureView, VkSampler textureSampler, uint32_t binding);
+    void addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding);
     void addWriteDescriptorSetBuffer(
         std::vector<VkBuffer> buffers, VkDeviceSize range,
         uint32_t binding, VkDescriptorType type);

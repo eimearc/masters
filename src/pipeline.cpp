@@ -211,7 +211,6 @@ Pipeline::Pipeline(
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     }
-    // m_pipelines.push_back(pipeline);
         
     // for (auto &m : m_shaderModules)
     // {
