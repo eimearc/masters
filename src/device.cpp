@@ -1,9 +1,10 @@
 #include "device.h"
 
-Device::Device(size_t numThreads,
-            std::vector<const char*> validationLayers,
-            GLFWwindow *window,
-            std::vector<const char *> deviceExtensions)
+Device::Device(
+    uint32_t numThreads,
+    std::vector<const char*> validationLayers,
+    GLFWwindow *window,
+    std::vector<const char *> deviceExtensions)
 {
     m_threadPool.setThreadCount(numThreads);
     m_numThreads=numThreads;
@@ -21,6 +22,10 @@ Device::Device(size_t numThreads,
 
 void Device::destroy()
 {
+    if (vkDeviceWaitIdle(m_device)!=VK_SUCCESS)
+    {
+        throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
+    }
     vkDestroyDevice(m_device, nullptr);
 
     if (m_validationLayers.size() > 0)
@@ -28,7 +33,7 @@ void Device::destroy()
         DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
     }
 
-    // vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 
     glfwDestroyWindow(m_window);

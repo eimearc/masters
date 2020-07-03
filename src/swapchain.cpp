@@ -4,7 +4,7 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
 {
     m_device = device.m_device;
 
-    framebuffer = {0,swapchainSize};
+    framebuffer = {device,0,swapchainSize};
     framebuffer.setFramebufferAttachment();
 
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.m_physicalDevice, device.m_surface);
@@ -62,14 +62,12 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
 
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     VkFormat format = m_swapChainImageFormat;
-    VkImage image;
     framebuffer.m_imageViews.resize(imageCount);
     for (uint32_t i = 0; i < imageCount; i++)
     {
-        image = framebuffer.m_images[i];
         createImageView(
             device.m_device,
-            image,
+            framebuffer.m_images[i],
             format,
             aspectMask,
             &framebuffer.m_imageViews[i]
@@ -82,5 +80,7 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
 
 void Swapchain::destroy()
 {
+    std::cout << "HERE\n";
+    // for (auto &iv : m_swapChainImageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }

@@ -51,9 +51,11 @@ public:
         mainLoop(evkInstance);
         buffer.destroy();
         indexBuffer.destroy();
+        for (auto &a : attachments) a.destroy();
         evkInstance.cleanup();
         texture.destroy();
         swapchain.destroy();
+        commands.destroy();
         device.destroy();
     }
 
@@ -81,8 +83,10 @@ private:
     Buffer indexBuffer;
     Buffer vertexBuffer;
     Renderpass renderpass;
+    std::vector<Attachment> attachments;
     Texture texture;
     Swapchain swapchain;
+    Commands commands;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;

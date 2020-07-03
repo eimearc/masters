@@ -12,15 +12,16 @@
 #include <fstream>
 #include <map>
 
-#include "descriptor.h"
-#include "buffer.h"
-#include "device.h"
-#include "pipeline.h"
 #include "attachment.h"
-#include "shader.h"
+#include "buffer.h"
+#include "command.h"
+#include "descriptor.h"
+#include "device.h"
 #include "pass.h"
-#include "texture.h"
+#include "pipeline.h"
+#include "shader.h"
 #include "swapchain.h"
+#include "texture.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -80,9 +81,13 @@ class Instance
         const std::vector<Descriptor*> descriptor,
         const std::vector<Pipeline> &pipelines,
         const Renderpass &renderpass,
-        const Swapchain &swapchain
+        const Swapchain &swapchain,
+        Commands &commands
     );
-    void draw(const std::vector<Pipeline> &pipelines, const Swapchain &swapchain);
+    void draw(
+        const std::vector<Pipeline> &pipelines,
+        const Swapchain &swapchain,
+        const Commands &commands);
     void cleanup();
 
     ThreadPool m_threadPool;
@@ -103,9 +108,9 @@ class Instance
 
     std::vector<VkFramebuffer> m_framebuffers;
 
-    std::vector<VkCommandPool> m_commandPools;
-    std::vector<VkCommandBuffer> m_primaryCommandBuffers;
-    std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
+    // std::vector<VkCommandPool> m_commandPools;
+    // std::vector<VkCommandBuffer> m_primaryCommandBuffers;
+    // std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
     uint32_t m_maxFramesInFlight;
 

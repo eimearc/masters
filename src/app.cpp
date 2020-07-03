@@ -30,9 +30,11 @@ void App::initVulkan()
 {
     auto &instance = evkInstance;
 
-    Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
+    const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
 
-    instance.m_threadPool.setThreadCount(FLAGS_num_threads);
+    device = {numThreads, validationLayers, window, deviceExtensions};
+
+    instance.m_threadPool.setThreadCount(numThreads);
     instance.m_physicalDevice=device.m_physicalDevice;
     instance.m_debugMessenger=device.m_debugMessenger;
     instance.m_surface=device.m_surface;
@@ -41,9 +43,10 @@ void App::initVulkan()
     instance.m_device=device.m_device;
     instance.m_numThreads=device.m_numThreads;
 
-    instance.createCommandPools();
-
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+
+    commands = {device, swapchainSize, FLAGS_num_threads};
+
     Attachment framebuffer;
     swapchain = {
         swapchainSize,
@@ -62,11 +65,11 @@ void App::initVulkan()
     texture = { // Must be before createDescriptorSets.
         "tex/viking_room.png",
         device,
-        instance.m_commandPools[0]
+        commands.m_commandPools[0]
     };
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    Attachment depthAttachment(1,MAX_FRAMES_IN_FLIGHT);
+    Attachment depthAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {framebuffer};
@@ -81,7 +84,7 @@ void App::initVulkan()
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebuffer, depthAttachment};
+    attachments = {framebuffer, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
     renderpass = {
         attachments,
@@ -108,10 +111,10 @@ void App::initVulkan()
     vertexInput.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), instance.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands.m_commandPools[0]);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, instance.m_commandPools);
+    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
     
     std::vector<Descriptor*> descriptors = {&descriptor};
 
@@ -131,14 +134,15 @@ void App::initVulkan()
     );
 
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
 }
 
 void App::initMultipassVulkan()
 {
     auto &instance = multipassInstance;
 
-    Device device(FLAGS_num_threads, validationLayers, window, deviceExtensions);
+    const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
+    device = {numThreads, validationLayers, window, deviceExtensions};
 
     instance.m_threadPool.setThreadCount(FLAGS_num_threads);
     instance.m_physicalDevice=device.m_physicalDevice;
@@ -149,22 +153,24 @@ void App::initMultipassVulkan()
     instance.m_device=device.m_device;
     instance.m_numThreads=device.m_numThreads;
 
-    instance.createCommandPools();
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+
+    commands = {device, swapchainSize, FLAGS_num_threads};
+
     evk::SwapChainCreateInfo swapChainCreateInfo{
         static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
     };
 
     Attachment framebuffer;
-    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
     swapchain = {swapchainSize, framebuffer, device};
     instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
     instance.createSyncObjects(swapchain);
 
-    Attachment colorAttachment(1,MAX_FRAMES_IN_FLIGHT);
+    Attachment colorAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     colorAttachment.setColorAttachment(swapchain.m_swapChainExtent, device);
 
-    Attachment depthAttachment(2,MAX_FRAMES_IN_FLIGHT);
+    Attachment depthAttachment(device, 2,MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
@@ -191,7 +197,7 @@ void App::initMultipassVulkan()
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebuffer, colorAttachment, depthAttachment};
+    attachments = {framebuffer, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
 
     Renderpass renderpass(
@@ -223,10 +229,10 @@ void App::initMultipassVulkan()
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), instance.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands.m_commandPools[0]);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, instance.m_commandPools);
+    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands.m_commandPools);
 
     std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
 
@@ -266,7 +272,7 @@ void App::initMultipassVulkan()
     );
 
     pipelines = {pipeline0, pipeline1};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
 }
 
 void App::mainLoop(evk::Instance &instance)
@@ -286,7 +292,7 @@ void App::mainLoop(evk::Instance &instance)
 
         buffer.updateBuffer(&ubo);
 
-        instance.draw(pipelines, swapchain);
+        instance.draw(pipelines, swapchain, commands);
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;

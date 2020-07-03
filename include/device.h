@@ -10,7 +10,7 @@ class Device
     public:
     Device()=default;
     Device(
-        size_t numThreads,
+        uint32_t numThreads,
         std::vector<const char*> validationLayers,
         GLFWwindow *window,
         std::vector<const char *> deviceExtensions

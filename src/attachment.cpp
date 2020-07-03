@@ -1,7 +1,8 @@
 #include "attachment.h"
 
-Attachment::Attachment(uint32_t index, uint32_t swapchainSize)
+Attachment::Attachment(const Device &device, uint32_t index, uint32_t swapchainSize)
 {
+    m_device = device.m_device;
     m_index = index;
     m_swapchainSize = swapchainSize;
 
@@ -9,9 +10,9 @@ Attachment::Attachment(uint32_t index, uint32_t swapchainSize)
     m_colorReference = {index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
     m_depthReference = {index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 
-    m_images.resize(m_swapchainSize);
-    m_imageViews.resize(m_swapchainSize);
-    m_imageMemories.resize(m_swapchainSize);
+    m_images.resize(m_swapchainSize, VK_NULL_HANDLE);
+    m_imageViews.resize(m_swapchainSize, VK_NULL_HANDLE);
+    m_imageMemories.resize(m_swapchainSize, VK_NULL_HANDLE);
 }
 
 void Attachment::setFramebufferAttachment()
@@ -87,4 +88,21 @@ void Attachment::setDepthAttachment(
             device.m_device, m_images[i], format,
             aspectMask, &m_imageViews[i]);
     }
+}
+
+void Attachment::destroy()
+{
+    std::cout << "here\n";
+    for (auto &iv : m_imageViews)
+    {
+        if (iv != VK_NULL_HANDLE) vkDestroyImageView(m_device, iv, nullptr);
+    }
+    // for (auto &i : m_images)
+    // {
+    //     if (i != VK_NULL_HANDLE) vkDestroyImage(m_device, i, nullptr);
+    // }
+    // for (auto &m : m_imageMemories)
+    // {
+    //     if (m != VK_NULL_HANDLE) vkFreeMemory(m_device, m, nullptr);
+    // }
 }

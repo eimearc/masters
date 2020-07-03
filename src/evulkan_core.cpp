@@ -3,22 +3,22 @@
 #include <set>
 #include <iostream>
 
-void evk::Instance::createCommandPools()
-{
-    m_commandPools.resize(m_numThreads);
-    for (auto &commandPool : m_commandPools)
-    {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice, m_surface);
-        VkCommandPoolCreateInfo poolInfo = {};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-        poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create command pool.");
-        }
-    }
-}
+// void evk::Instance::createCommandPools()
+// {
+//     m_commandPools.resize(m_numThreads);
+//     for (auto &commandPool : m_commandPools)
+//     {
+//         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(m_physicalDevice, m_surface);
+//         VkCommandPoolCreateInfo poolInfo = {};
+//         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+//         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+//         poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+//         if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+//         {
+//             throw std::runtime_error("failed to create command pool.");
+//         }
+//     }
+// }
 
 void createImage(
     const VkDevice &device,
@@ -167,11 +167,11 @@ void evk::Instance::cleanup()
         vkDestroyFence(m_device, m_fencesInFlight[i], nullptr);
     }
 
-    for (int i = 0; i < m_commandPools.size(); ++i)
-    {
-        vkFreeCommandBuffers(m_device, m_commandPools[i], 1, &m_secondaryCommandBuffers[i]);
-        vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
-    }
+    // for (int i = 0; i < m_commandPools.size(); ++i)
+    // {
+    //     // vkFreeCommandBuffers(m_device, m_commandPools[i], 1, &m_secondaryCommandBuffers[i]);
+    //     // vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
+    // }
 
     // vkDestroyDevice(m_device, nullptr);
 

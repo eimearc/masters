@@ -28,6 +28,7 @@ find_package(gflags REQUIRED)
 set (SOURCES
     ${VULKANROOT}/src/attachment.cpp
     ${VULKANROOT}/src/buffer.cpp
+    ${VULKANROOT}/src/command.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/device.cpp
     ${VULKANROOT}/src/pass.cpp
@@ -43,6 +44,7 @@ set (SOURCES
     ${VULKANROOT}/src/obj.cpp
     ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
+    ${VULKANROOT}/include/command.h
     ${VULKANROOT}/include/descriptor.h
     ${VULKANROOT}/include/attachment.h
     ${VULKANROOT}/include/pipeline.h

@@ -158,7 +158,8 @@ void Buffer::setVertexBuffer(
     vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(device.m_graphicsQueue);
 
-    for (size_t i = 0; i<device.m_numThreads; ++i)
+    // for (size_t i = 0; i<commandPools.size(); ++i)
+    for (size_t i = 0; i<1; ++i) // Change this back in when multithreading works.
     {
         vkFreeCommandBuffers(device.m_device, commandPools[i], 1, &commandBuffers[i]);
         vkDestroyBuffer(device.m_device, buffers[i], nullptr);

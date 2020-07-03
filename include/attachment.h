@@ -10,7 +10,7 @@ class Attachment
 {
     public:
     Attachment()=default;
-    Attachment(uint32_t index, uint32_t swapchainSize);
+    Attachment(const Device &device, uint32_t index, uint32_t swapchainSize);
     void setFramebufferAttachment();
     void setColorAttachment(const VkExtent2D &extent, const Device &device);
     void setDepthAttachment(
@@ -31,6 +31,7 @@ class Attachment
 
     private:
     void createFramebuffer();
+    VkDevice m_device;
 
     size_t m_swapchainSize;
 };
