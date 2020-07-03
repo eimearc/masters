@@ -26,14 +26,6 @@
 namespace evk
 {
 
-struct BufferInfo
-{
-    size_t index;
-    size_t size;
-};
-
-typedef uint32_t Index;
-
 struct InstanceCreateInfo
 {
     std::vector<const char*> validationLayers;
@@ -46,29 +38,10 @@ struct SwapChainCreateInfo
     uint8_t maxFramesInFlight;
 };
 
-struct GraphicsPipelineCreateInfo
-{
-    std::string vertShaderFile;
-    std::string fragShaderFile;
-};
-
 struct EVkRenderPassCreateInfo
 {
     VkFormat swapChainImageFormat;
     VkPhysicalDevice physicalDevice;
-};
-
-struct VertexAttributeInfo
-{
-    uint32_t location;
-    uint32_t offset;
-};
-
-struct SubpassDescription
-{
-    std::vector<VkAttachmentReference> colorAttachments;
-    std::vector<VkAttachmentReference> depthAttachments;
-    std::vector<VkAttachmentReference> inputAttachments;
 };
 
 void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
@@ -91,8 +64,6 @@ class Instance
         createDevice(true);
     }
     Instance()=default;
-
-    void updateBuffer(const std::string &name);
 
     void createSwapChain(const SwapChainCreateInfo *pCreateInfo, Attachment &framebuffer);
 
