@@ -31,26 +31,28 @@ set (SOURCES
     ${VULKANROOT}/src/command.cpp
     ${VULKANROOT}/src/descriptor.cpp
     ${VULKANROOT}/src/device.cpp
+    ${VULKANROOT}/src/draw.cpp
     ${VULKANROOT}/src/pass.cpp
     ${VULKANROOT}/src/pipeline.cpp
     ${VULKANROOT}/src/shader.cpp
-    ${VULKANROOT}/src/draw.cpp
-    ${VULKANROOT}/src/evulkan_core.cpp
     ${VULKANROOT}/src/evulkan_util.cpp
     ${VULKANROOT}/src/instance.cpp
     ${VULKANROOT}/src/sync.cpp
     ${VULKANROOT}/src/swapchain.cpp
+    ${VULKANROOT}/src/sync.cpp
     ${VULKANROOT}/src/util.cpp
     ${VULKANROOT}/src/obj.cpp
     ${VULKANROOT}/src/texture.cpp
     ${VULKANROOT}/include/evulkan_core.h
     ${VULKANROOT}/include/command.h
     ${VULKANROOT}/include/descriptor.h
+    ${VULKANROOT}/include/draw.h
     ${VULKANROOT}/include/attachment.h
     ${VULKANROOT}/include/pipeline.h
     ${VULKANROOT}/include/pass.h
     ${VULKANROOT}/include/shader.h
     ${VULKANROOT}/include/swapchain.h
+    ${VULKANROOT}/include/sync.h
     ${VULKANROOT}/include/texture.h
     ${VULKANROOT}/include/buffer.h
     ${VULKANROOT}/include/device.h

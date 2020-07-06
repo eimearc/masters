@@ -28,20 +28,20 @@ void App::createGrid()
 
 void App::initVulkan()
 {
-    auto &instance = evkInstance;
+    // auto &instance = evkInstance;
 
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
 
     device = {numThreads, validationLayers, window, deviceExtensions};
 
-    instance.m_threadPool.setThreadCount(numThreads);
-    instance.m_physicalDevice=device.m_physicalDevice;
-    instance.m_debugMessenger=device.m_debugMessenger;
-    instance.m_surface=device.m_surface;
-    instance.m_graphicsQueue=device.m_graphicsQueue;
-    instance.m_presentQueue=device.m_presentQueue;
-    instance.m_device=device.m_device;
-    instance.m_numThreads=device.m_numThreads;
+    // instance.m_threadPool.setThreadCount(numThreads);
+    // instance.m_physicalDevice=device.m_physicalDevice;
+    // instance.m_debugMessenger=device.m_debugMessenger;
+    // instance.m_surface=device.m_surface;
+    // instance.m_graphicsQueue=device.m_graphicsQueue;
+    // instance.m_presentQueue=device.m_presentQueue;
+    // instance.m_device=device.m_device;
+    // instance.m_numThreads=device.m_numThreads;
 
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
@@ -53,9 +53,9 @@ void App::initVulkan()
         framebuffer,
         device
     };
-    instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
+    // instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
-    instance.createSyncObjects(swapchain);
+    sync = {device, swapchain};
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
@@ -116,8 +116,7 @@ void App::initVulkan()
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
 
-    // instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
-    framebuffers = {device, attachments, renderpass, swapchain};
+    framebuffers = {device, attachments, renderpass, swapchain}; // Move to be part of attachment creation?
 
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
@@ -134,24 +133,14 @@ void App::initVulkan()
 
     descriptors = {descriptor};
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
+
+    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
 }
 
 void App::initMultipassVulkan()
 {
-    auto &instance = multipassInstance;
-
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
     device = {numThreads, validationLayers, window, deviceExtensions};
-
-    instance.m_threadPool.setThreadCount(FLAGS_num_threads);
-    instance.m_physicalDevice=device.m_physicalDevice;
-    instance.m_debugMessenger=device.m_debugMessenger;
-    instance.m_surface=device.m_surface;
-    instance.m_graphicsQueue=device.m_graphicsQueue;
-    instance.m_presentQueue=device.m_presentQueue;
-    instance.m_device=device.m_device;
-    instance.m_numThreads=device.m_numThreads;
 
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
@@ -163,9 +152,8 @@ void App::initMultipassVulkan()
 
     Attachment framebuffer;
     swapchain = {swapchainSize, framebuffer, device};
-    instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
-    instance.createSyncObjects(swapchain);
+    sync = {device, swapchain};
 
     Attachment colorAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     colorAttachment.setColorAttachment(swapchain.m_swapChainExtent, device);
@@ -233,7 +221,6 @@ void App::initMultipassVulkan()
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands.m_commandPools);
-    // instance.createFramebuffers(attachments, renderpass, swapchain);
     framebuffers = {device, attachments, renderpass, swapchain};
 
     VertexInput vertexInput;
@@ -273,10 +260,11 @@ void App::initMultipassVulkan()
     descriptors = {descriptor0, descriptor1};
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
+    
+    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
 }
 
-void App::mainLoop(evk::Instance &instance)
+void App::mainLoop()
 {
     size_t frameIndex=0;
     size_t counter=0;
@@ -293,7 +281,7 @@ void App::mainLoop(evk::Instance &instance)
 
         buffer.updateBuffer(&ubo);
 
-        instance.draw(pipelines, swapchain, commands);
+        executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;

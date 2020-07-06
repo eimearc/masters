@@ -48,8 +48,7 @@ public:
     {
         createGrid();
         initVulkan();
-        mainLoop(evkInstance);
-        evkInstance.cleanup();
+        mainLoop();
         texture.destroy();
         destroy();
     }
@@ -58,8 +57,7 @@ public:
     {
         createGrid();
         initMultipassVulkan();
-        mainLoop(multipassInstance);
-        multipassInstance.cleanup();
+        mainLoop();
         destroy();
     }
 
@@ -76,6 +74,7 @@ public:
         for (auto &p : pipelines) p.destroy();
         for (auto &s : shaders) s.destroy();
         renderpass.destroy();
+        sync.destroy();
         device.destroy(); 
     }
 
@@ -97,6 +96,7 @@ private:
     Swapchain swapchain;
     Commands commands;
     Framebuffer framebuffers;
+    Sync sync;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -116,6 +116,6 @@ private:
     void createGrid();
     void initVulkan();
     void initMultipassVulkan();
-    void mainLoop(evk::Instance &instance);
+    void mainLoop();
     void cleanup();
 };

@@ -17,11 +17,13 @@
 #include "command.h"
 #include "descriptor.h"
 #include "device.h"
+#include "draw.h"
 #include "pass.h"
 #include "pipeline.h"
 #include "shader.h"
 #include "swapchain.h"
 #include "texture.h"
+#include "sync.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -67,30 +69,6 @@ class Instance
     }
     Instance()=default;
 
-    void createSyncObjects(const Swapchain &swapchain);
-    void createFramebuffers(
-        const std::vector<Attachment> &attachments,
-        const Renderpass &renderpass,
-        const Swapchain &swapchain
-    );
-    void createCommandPools();
-
-    void createDrawCommands(
-        const Buffer &indexBuffer,
-        const Buffer &vertexBuffer,
-        const std::vector<Descriptor> &descriptors,
-        const std::vector<Pipeline> &pipelines,
-        const Renderpass &renderpass,
-        const Swapchain &swapchain,
-        const Framebuffer &frambuffers,
-        Commands &commands
-    );
-    void draw(
-        const std::vector<Pipeline> &pipelines,
-        const Swapchain &swapchain,
-        const Commands &commands);
-    void cleanup();
-
     ThreadPool m_threadPool;
     size_t m_numThreads;
 
@@ -101,11 +79,6 @@ class Instance
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
     VkDevice m_device;
-
-    std::vector<VkSemaphore> m_imageAvailableSemaphores;
-    std::vector<VkSemaphore> m_renderFinishedSemaphores;
-    std::vector<VkFence> m_fencesInFlight;
-    std::vector<VkFence> m_imagesInFlight;
 
     uint32_t m_maxFramesInFlight;
 
