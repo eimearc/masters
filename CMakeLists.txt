@@ -36,7 +36,6 @@ set (SOURCES
     ${VULKANROOT}/src/pipeline.cpp
     ${VULKANROOT}/src/shader.cpp
     ${VULKANROOT}/src/evulkan_util.cpp
-    ${VULKANROOT}/src/instance.cpp
     ${VULKANROOT}/src/sync.cpp
     ${VULKANROOT}/src/swapchain.cpp
     ${VULKANROOT}/src/sync.cpp

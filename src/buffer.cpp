@@ -49,8 +49,10 @@ void Buffer::setIndexBuffer(
     const void *indices,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    VkCommandPool commandPool)
+    Commands &commands)
 {
+    VkCommandPool &commandPool = commands.m_commandPools[0];
+
     m_bufferSize = elementSize*numElements;
     m_numElements = numElements;
     m_buffers.resize(1);
@@ -90,8 +92,9 @@ void Buffer::setVertexBuffer(
     const VkDeviceSize &elementSize,
     const size_t numElements,
     Device &device,
-    std::vector<VkCommandPool> commandPools)
+    Commands &commands)
 {
+    std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
     m_numElements = numElements;
     const int numVertsEach = numElements/device.m_numThreads;
     m_bufferSize = numElements * elementSize;

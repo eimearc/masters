@@ -28,20 +28,9 @@ void App::createGrid()
 
 void App::initVulkan()
 {
-    // auto &instance = evkInstance;
-
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
 
     device = {numThreads, validationLayers, window, deviceExtensions};
-
-    // instance.m_threadPool.setThreadCount(numThreads);
-    // instance.m_physicalDevice=device.m_physicalDevice;
-    // instance.m_debugMessenger=device.m_debugMessenger;
-    // instance.m_surface=device.m_surface;
-    // instance.m_graphicsQueue=device.m_graphicsQueue;
-    // instance.m_presentQueue=device.m_presentQueue;
-    // instance.m_device=device.m_device;
-    // instance.m_numThreads=device.m_numThreads;
 
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
@@ -53,7 +42,6 @@ void App::initVulkan()
         framebuffer,
         device
     };
-    // instance.m_maxFramesInFlight = MAX_FRAMES_IN_FLIGHT;
 
     sync = {device, swapchain};
     
@@ -111,16 +99,17 @@ void App::initVulkan()
     vertexInput.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
+    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands);
 
     framebuffers = {device, attachments, renderpass, swapchain}; // Move to be part of attachment creation?
 
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
     shaders = {vertexShader,fragmentShader};
+
     Pipeline pipeline(
         &descriptor,
         vertexInput,
@@ -145,10 +134,6 @@ void App::initMultipassVulkan()
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
     commands = {device, swapchainSize, FLAGS_num_threads};
-
-    evk::SwapChainCreateInfo swapChainCreateInfo{
-        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
-    };
 
     Attachment framebuffer;
     swapchain = {swapchainSize, framebuffer, device};
@@ -194,9 +179,6 @@ void App::initMultipassVulkan()
         device
     };
 
-    auto colorImageViews = colorAttachment.m_imageViews;
-    auto depthImageViews = depthAttachment.m_imageViews;
-
     // Set up UBO.
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
@@ -204,8 +186,8 @@ void App::initMultipassVulkan()
     descriptor0.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT,2);
-    descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addInputAttachment(1, depthAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -217,10 +199,10 @@ void App::initMultipassVulkan()
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands.m_commandPools[0]);
+    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands.m_commandPools);
+    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands);
     framebuffers = {device, attachments, renderpass, swapchain};
 
     VertexInput vertexInput;

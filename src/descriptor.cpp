@@ -87,9 +87,10 @@ void Descriptor::addUniformBuffer(
 
 void Descriptor::addInputAttachment(
     const uint32_t binding,
-    const std::vector<VkImageView> &imageViews,
+    const Attachment &attachment,
     const VkShaderStageFlagBits shaderStage)
 {
+    const std::vector<VkImageView> imageViews = attachment.m_imageViews;
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, shaderStage);
     addWriteDescriptorSetInputAttachment(imageViews, binding);
 }

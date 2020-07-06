@@ -3,8 +3,9 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "evulkan_util.h"
+#include "command.h"
 #include "device.h"
+#include "evulkan_util.h"
 
 class Buffer
 {
@@ -19,14 +20,14 @@ class Buffer
         const void *indices,
         const VkDeviceSize &elementSize,
         const size_t numElements,
-        VkCommandPool commandPool
+        Commands &commands
     );
     void setVertexBuffer(
         const void *vertices,
         const VkDeviceSize &elementSize,
         const size_t numElements,
         Device &device,
-        std::vector<VkCommandPool> commandPools
+        Commands &commands
     );
 
     void destroy();

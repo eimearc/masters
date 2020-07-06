@@ -5,8 +5,9 @@
 #include <vector>
 #include <iostream>
 
-#include "texture.h"
+#include "attachment.h"
 #include "buffer.h"
+#include "texture.h"
 
 class Descriptor
 {
@@ -27,7 +28,7 @@ class Descriptor
 
     void addInputAttachment(
         const uint32_t binding,
-        const std::vector<VkImageView> &imageViews,
+        const Attachment &attachment,
         const VkShaderStageFlagBits shaderStage
     );
 

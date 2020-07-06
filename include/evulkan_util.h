@@ -15,6 +15,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "vertex.h"
+
 namespace evk
 {
     struct SubpassDependency
@@ -22,6 +24,8 @@ namespace evk
         uint32_t srcSubpass;
         uint32_t dstSubpass;
     };
+
+    void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
 }
 
 void createImage(
