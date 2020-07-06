@@ -140,10 +140,10 @@ void App::initMultipassVulkan()
 
     sync = {device, swapchain};
 
-    Attachment colorAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
+    Attachment colorAttachment(device, 1, MAX_FRAMES_IN_FLIGHT);
     colorAttachment.setColorAttachment(swapchain.m_swapChainExtent, device);
 
-    Attachment depthAttachment(device, 2,MAX_FRAMES_IN_FLIGHT);
+    Attachment depthAttachment(device, 2, MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
@@ -185,8 +185,9 @@ void App::initMultipassVulkan()
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
     descriptor0.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
-    Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT,2);
-    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
+    Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
+    descriptor1.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT); // Duplicated binding number.
     descriptor1.addInputAttachment(1, depthAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VertexInput vertexInput0;

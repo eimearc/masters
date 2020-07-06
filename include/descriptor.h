@@ -44,30 +44,36 @@ class Descriptor
     void destroy();
 
     VkDescriptorPool m_descriptorPool;
-    VkDescriptorSetLayout m_descriptorSetLayout;
+    std::vector<VkDescriptorSetLayout> m_descriptorSetLayouts;
 
     std::vector<VkDescriptorSet> m_descriptorSets;
+    std::vector<VkWriteDescriptorSet> m_writeDescriptorSetVertex;
+    std::vector<VkWriteDescriptorSet> m_writeDescriptorSetFragment;
+
     std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
     std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
-    std::vector<std::vector<VkWriteDescriptorSet>> m_writeDescriptorSet;
 
-    std::vector<VkDescriptorBufferInfo> m_descriptorBufferInfo;
-    std::vector<VkDescriptorImageInfo> m_descriptorTextureSamplerInfo;
+    VkDescriptorBufferInfo m_descriptorBufferInfo;
+    VkDescriptorImageInfo m_descriptorTextureSamplerInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorInputAttachmentInfo;
 
     size_t m_swapchainSize;
     size_t m_numAttachments;
 
     private:
-    void addDescriptorPoolSize(const VkDescriptorType type);
+    void addDescriptorPoolSize(const VkDescriptorType type, const size_t count);
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
-    void addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding);
+    
+    void addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetBuffer(
         std::vector<VkBuffer> buffers, VkDeviceSize range,
-        uint32_t binding, VkDescriptorType type);
-    void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding);
+        uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage);
+    void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding, VkShaderStageFlagBits stage);
 
     VkDevice m_device;
+    size_t numUniformBuffers=0;
+    size_t numInputAttachments=0;
+    size_t numImageSamplers=0;
 };
 
 class VertexInput

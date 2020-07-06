@@ -32,8 +32,10 @@ void Attachment::setFramebufferAttachment()
 
 void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
 {
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+
     m_description.flags = 0;
-    m_description.format = VK_FORMAT_R8G8B8A8_UNORM;
+    m_description.format = format;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
     m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     m_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -42,7 +44,6 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -53,6 +54,8 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
             device.m_device, device.m_physicalDevice,
             extent, format, tiling, usage, properties,
             &m_images[i], &m_imageMemories[i]);
+
+        std::cout << "Created image " << m_images[i] << std::endl;
 
         createImageView(
             device.m_device, m_images[i], format,

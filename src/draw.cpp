@@ -109,6 +109,7 @@ void recordDrawCommands(
 
         for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
         {
+            std::cout << "Pass: " << pass << std::endl;
             const Descriptor &descriptor = descriptors[pass];
 
             if (pass == 0 )
@@ -157,12 +158,15 @@ void recordDrawCommands(
 
                 VkDeviceSize offsets[] = {0};
 
+                for (const auto &ds: descriptor.m_descriptorSets) std::cout << "\tdesc:" << ds << std::endl;
+                std::cout << std::endl;
+
                 vkCmdBindVertexBuffers(commands.m_secondaryCommandBuffers[i], 0, 1, vertexBuffer.m_buffers.data(), offsets);
                 vkCmdBindIndexBuffer(commands.m_secondaryCommandBuffers[i], indexBuffer.m_buffers[0], 0, VK_INDEX_TYPE_UINT32);
                 vkCmdBindDescriptorSets(
                     commands.m_secondaryCommandBuffers[i],
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pipelines[pass].m_layout, 0, 1, &(descriptor.m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
+                    pipelines[pass].m_layout, 0, descriptor.m_descriptorSets.size(), descriptor.m_descriptorSets.data(), 0, nullptr); // TODO: why is m_descriptorSets 0?
                 vkCmdDrawIndexed(commands.m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
 
                 if (vkEndCommandBuffer(commands.m_secondaryCommandBuffers[i]) != VK_SUCCESS)
