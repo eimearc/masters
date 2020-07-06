@@ -26,6 +26,8 @@ void Attachment::setFramebufferAttachment()
     m_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    framebuffer=true;
 }
 
 void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
@@ -96,12 +98,15 @@ void Attachment::destroy()
     {
         if (iv != VK_NULL_HANDLE) vkDestroyImageView(m_device, iv, nullptr);
     }
-    // for (auto &i : m_images)
-    // {
-    //     if (i != VK_NULL_HANDLE) vkDestroyImage(m_device, i, nullptr);
-    // }
-    // for (auto &m : m_imageMemories)
-    // {
-    //     if (m != VK_NULL_HANDLE) vkFreeMemory(m_device, m, nullptr);
-    // }
+    if (!framebuffer) // TODO change this - have separate attachment for framebuffer.
+    {
+        for (auto &i : m_images)
+        {
+            if (i != VK_NULL_HANDLE) vkDestroyImage(m_device, i, nullptr);
+        }
+        for (auto &m : m_imageMemories)
+        {
+            if (m != VK_NULL_HANDLE) vkFreeMemory(m_device, m, nullptr);
+        }
+    }
 }

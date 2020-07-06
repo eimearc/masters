@@ -5,15 +5,14 @@ Pipeline::Pipeline(
     const VertexInput &i_vertexInput,
     const size_t subpass,
     const VkExtent2D extent,
-    // const VkRenderPass &renderPass,
     const Renderpass &renderpass,
     const std::vector<Shader> &shaders,
     const Device &device
 )
 {
-    // m_descriptor = pDescriptor;
     m_vertexInput = i_vertexInput;
     m_subpass = subpass;
+    m_device = device.m_device;
 
     // std::vector<VkDescriptorPoolSize> &poolSizes=m_descriptor->m_descriptorPoolSizes;
 
@@ -218,4 +217,10 @@ Pipeline::Pipeline(
     // {
     //     vkDestroyShaderModule(m_device, m, nullptr);
     // }
+}
+
+void Pipeline::destroy()
+{
+    vkDestroyPipelineLayout(m_device, m_layout, nullptr);
+    vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }

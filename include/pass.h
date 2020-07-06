@@ -39,11 +39,13 @@ class Renderpass
         const std::vector<Subpass> &subpasses,
         const Device &device
     );
+    void destroy();
 
     VkRenderPass m_renderPass;
     std::vector<Subpass> m_subpasses;
 
     private:
+    VkDevice m_device;
 };
 
 #endif

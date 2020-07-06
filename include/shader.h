@@ -22,6 +22,8 @@ class Shader
         VkDevice device,
         const std::vector<char>& code,
         VkShaderModule *pShaderModule);
+
+    VkDevice m_device;
 };
 
 #endif

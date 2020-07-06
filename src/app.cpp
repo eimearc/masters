@@ -68,7 +68,6 @@ void App::initVulkan()
         commands.m_commandPools[0]
     };
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
-    // descriptors = {descriptor};
 
     Attachment depthAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
@@ -121,7 +120,7 @@ void App::initVulkan()
 
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
-    std::vector<Shader> shaders = {vertexShader,fragmentShader};
+    shaders = {vertexShader,fragmentShader};
     Pipeline pipeline(
         &descriptor,
         vertexInput,
@@ -200,11 +199,11 @@ void App::initMultipassVulkan()
     attachments = {framebuffer, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
 
-    Renderpass renderpass(
+    renderpass = {
         attachments,
         subpasses,
         device
-    );
+    };
 
     auto colorImageViews = colorAttachment.m_imageViews;
     auto depthImageViews = depthAttachment.m_imageViews;
@@ -270,6 +269,8 @@ void App::initMultipassVulkan()
 
     pipelines = {pipeline0, pipeline1};
     descriptors = {descriptor0, descriptor1};
+    for (const auto &s : shaders0) shaders.push_back(s);
+    for (const auto &s : shaders1) shaders.push_back(s);
     instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
 }
 

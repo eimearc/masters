@@ -22,6 +22,9 @@ class Pipeline
         const Device &device
     );
 
+    void destroy();
+
+    VkDevice m_device;
     VkPipeline m_pipeline;
     VkPipelineLayout m_layout;
     std::vector<std::string> m_shaders;

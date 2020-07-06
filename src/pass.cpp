@@ -42,6 +42,7 @@ Renderpass::Renderpass(
     const std::vector<Subpass> &subpasses,
     const Device &device)
 {
+    m_device = device.m_device;
     m_subpasses = subpasses;
 
     std::vector<VkAttachmentDescription> attachmentDescriptions;
@@ -95,4 +96,9 @@ Renderpass::Renderpass(
     {
         throw std::runtime_error("failed to create render pass.");
     }
+}
+
+void Renderpass::destroy()
+{
+    vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 }

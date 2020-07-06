@@ -32,6 +32,7 @@ class Attachment
     private:
     void createFramebuffer();
     VkDevice m_device;
+    bool framebuffer=false;
 
     size_t m_swapchainSize;
 };

@@ -72,6 +72,9 @@ public:
         swapchain.destroy();
         commands.destroy();
         for (auto &d : descriptors) d.destroy();
+        for (auto &p : pipelines) p.destroy();
+        for (auto &s : shaders) s.destroy();
+        renderpass.destroy();
         device.destroy(); 
     }
 
@@ -88,7 +91,7 @@ private:
     Buffer vertexBuffer;
     Renderpass renderpass;
     std::vector<Attachment> attachments;
-    std::vector<Descriptor> descriptors;
+    std::vector<Descriptor> descriptors; // TODO: make this a vector of pointers.
     Texture texture;
     Swapchain swapchain;
     Commands commands;
@@ -97,6 +100,7 @@ private:
     std::vector<uint32_t> indices;
     evk::Instance evkInstance;
     evk::Instance multipassInstance;
+    std::vector<Shader> shaders;
     GLFWwindow *window;
     std::vector<const char*> validationLayers =
     {

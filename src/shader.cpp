@@ -2,6 +2,7 @@
 
 Shader::Shader(const std::string &fileName, const Stage &stage, const Device &device)
 {   
+    m_device=device.m_device;
     VkShaderStageFlagBits stageFlags;
     switch(stage)
     {
@@ -39,4 +40,9 @@ void Shader::createShaderModule1(
     {
         throw std::runtime_error("failed to create shader module.");
     }
+}
+
+void Shader::destroy()
+{
+    vkDestroyShaderModule(m_device, m_module, nullptr);
 }
