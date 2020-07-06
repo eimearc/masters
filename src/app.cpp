@@ -7,7 +7,7 @@ void App::createGrid()
     grid = Grid(gridSize, cubeSize, NUM_CUBES);
     int i=0;
     const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,0,0}};
+    Vertex vertex = {{}, {1,1,1}};
     for (auto cube : grid.cubes)
     {
         std::vector<glm::vec3> verts = cube.vertices;
@@ -15,7 +15,7 @@ void App::createGrid()
         for(size_t j = 0; j<verts.size(); ++j)
         {
             vertex.pos=verts[j];
-            vertex.color={0,0,1};
+            vertex.color={1,0,1};
             vertices.push_back(vertex);
         }
         for(size_t j = 0; j<ind.size(); ++j)
@@ -197,6 +197,7 @@ void App::initMultipassVulkan()
 
     VertexInput vertexInput1;
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput1.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);

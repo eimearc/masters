@@ -49,6 +49,7 @@ Renderpass::Renderpass(
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subpassDescriptions;
 
+    std::cout << attachments.size() << std::endl;
     attachmentDescriptions.resize(attachments.size()); // Use a set of all attachments from all subpasses?
     for (const auto &a : attachments)
     {
@@ -73,15 +74,15 @@ Renderpass::Renderpass(
         for (const auto &d : sp.m_dependencies) dependencies.push_back(d);
     }
 
-    dependency={};
-    dependency.srcSubpass = 0;
-    dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-    dependencies.push_back(dependency);
+    // dependency={};
+    // dependency.srcSubpass = 0;
+    // dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
+    // dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    // dependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    // dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    // dependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    // dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+    // dependencies.push_back(dependency);
 
     // Create Render Pass
     VkRenderPassCreateInfo renderPassInfo = {};

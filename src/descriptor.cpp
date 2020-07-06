@@ -10,8 +10,6 @@ Descriptor::Descriptor(
     m_numAttachments = numAttachments;
     m_writeDescriptorSetVertex = std::vector<VkWriteDescriptorSet>(); // One per attachment?.
     m_writeDescriptorSetFragment = std::vector<VkWriteDescriptorSet>(); // One per attachment?.
-    // m_descriptorBufferInfo.resize(m_swapchainSize);
-    // m_descriptorTextureSamplerInfo.resize(m_swapchainSize);
     m_descriptorInputAttachmentInfo.resize(m_numAttachments);
 }
 
@@ -75,8 +73,6 @@ void Descriptor::allocateDescriptorSets()
         throw std::runtime_error("failed to allocate descriptor sets.");
     } 
 
-    std::cout << "Vertex: " << m_descriptorSets[0] << " Fragment: " << m_descriptorSets[1] << std::endl;
-
     for (auto &ds : m_writeDescriptorSetVertex) ds.dstSet=m_descriptorSets[0];
     for (auto &ds : m_writeDescriptorSetFragment) ds.dstSet=m_descriptorSets[1];
 
@@ -87,8 +83,6 @@ void Descriptor::allocateDescriptorSets()
     vkUpdateDescriptorSets(m_device,
         static_cast<uint32_t>(writes.size()),
         writes.data(), 0, nullptr);
-
-    std::cout << "WRITES size: " << writes.size() << std::endl;
 }
 
 void Descriptor::addDescriptorPoolSize(const VkDescriptorType type, const size_t count)
