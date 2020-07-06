@@ -116,7 +116,8 @@ void App::initVulkan()
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
 
-    instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
+    // instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
+    framebuffers = {device, attachments, renderpass, swapchain};
 
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
@@ -133,7 +134,7 @@ void App::initVulkan()
 
     descriptors = {descriptor};
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
 }
 
 void App::initMultipassVulkan()
@@ -232,7 +233,8 @@ void App::initMultipassVulkan()
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands.m_commandPools);
-    instance.createFramebuffers(attachments, renderpass, swapchain);
+    // instance.createFramebuffers(attachments, renderpass, swapchain);
+    framebuffers = {device, attachments, renderpass, swapchain};
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -271,7 +273,7 @@ void App::initMultipassVulkan()
     descriptors = {descriptor0, descriptor1};
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
-    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
 }
 
 void App::mainLoop(evk::Instance &instance)

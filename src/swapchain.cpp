@@ -83,3 +83,46 @@ void Swapchain::destroy()
     // for (auto &iv : m_swapChainImageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }
+
+Framebuffer::Framebuffer(
+    const Device &device,
+    const std::vector<Attachment> &attachments,
+    const Renderpass &renderpass,
+    const Swapchain &swapchain) // This should be part of attachment creation.
+{
+    m_device = device.m_device;
+    const size_t numImages = swapchain.m_swapChainImages.size();
+    m_framebuffers.resize(numImages);
+
+    for (size_t i = 0; i < numImages; i++)
+    {
+        std::vector<VkImageView> imageViews(attachments.size());
+        for (const auto &a : attachments)
+        {
+            const uint32_t &index = a.m_index;
+            imageViews[index]=a.m_imageViews[i];
+        }
+
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderpass.m_renderPass;
+        framebufferInfo.attachmentCount = imageViews.size();
+        framebufferInfo.pAttachments = imageViews.data();
+        framebufferInfo.width = swapchain.m_swapChainExtent.width;
+        framebufferInfo.height = swapchain.m_swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create framebuffer.");
+        }
+    }
+}
+
+void Framebuffer::destroy()
+{
+    for (auto framebuffer : m_framebuffers)
+    {
+        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+    }
+}

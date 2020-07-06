@@ -82,6 +82,7 @@ class Instance
         const std::vector<Pipeline> &pipelines,
         const Renderpass &renderpass,
         const Swapchain &swapchain,
+        const Framebuffer &frambuffers,
         Commands &commands
     );
     void draw(
@@ -105,12 +106,6 @@ class Instance
     std::vector<VkSemaphore> m_renderFinishedSemaphores;
     std::vector<VkFence> m_fencesInFlight;
     std::vector<VkFence> m_imagesInFlight;
-
-    std::vector<VkFramebuffer> m_framebuffers;
-
-    // std::vector<VkCommandPool> m_commandPools;
-    // std::vector<VkCommandBuffer> m_primaryCommandBuffers;
-    // std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 
     uint32_t m_maxFramesInFlight;
 

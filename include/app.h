@@ -69,6 +69,7 @@ public:
         indexBuffer.destroy();
         vertexBuffer.destroy();
         for (auto &a : attachments) a.destroy();
+        framebuffers.destroy();
         swapchain.destroy();
         commands.destroy();
         for (auto &d : descriptors) d.destroy();
@@ -95,6 +96,7 @@ private:
     Texture texture;
     Swapchain swapchain;
     Commands commands;
+    Framebuffer framebuffers;
     std::vector<Pipeline> pipelines;
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;

@@ -91,38 +91,38 @@ void createImageView(
         throw std::runtime_error("failed to create texture image view!");
 }
 
-void evk::Instance::createFramebuffers(
-    const std::vector<Attachment> &attachments,
-    const Renderpass &renderpass,
-    const Swapchain &swapchain) // This should be part of attachment creation.
-{
-    const size_t numImages = swapchain.m_swapChainImages.size();
-    m_framebuffers.resize(numImages);
+// void evk::Instance::createFramebuffers(
+//     const std::vector<Attachment> &attachments,
+//     const Renderpass &renderpass,
+//     const Swapchain &swapchain) // This should be part of attachment creation.
+// {
+//     const size_t numImages = swapchain.m_swapChainImages.size();
+//     m_framebuffers.resize(numImages);
 
-    for (size_t i = 0; i < numImages; i++)
-    {
-        std::vector<VkImageView> imageViews(attachments.size());
-        for (const auto &a : attachments)
-        {
-            const uint32_t &index = a.m_index;
-            imageViews[index]=a.m_imageViews[i];
-        }
+//     for (size_t i = 0; i < numImages; i++)
+//     {
+//         std::vector<VkImageView> imageViews(attachments.size());
+//         for (const auto &a : attachments)
+//         {
+//             const uint32_t &index = a.m_index;
+//             imageViews[index]=a.m_imageViews[i];
+//         }
 
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderpass.m_renderPass;
-        framebufferInfo.attachmentCount = imageViews.size();
-        framebufferInfo.pAttachments = imageViews.data();
-        framebufferInfo.width = swapchain.m_swapChainExtent.width;
-        framebufferInfo.height = swapchain.m_swapChainExtent.height;
-        framebufferInfo.layers = 1;
+//         VkFramebufferCreateInfo framebufferInfo = {};
+//         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+//         framebufferInfo.renderPass = renderpass.m_renderPass;
+//         framebufferInfo.attachmentCount = imageViews.size();
+//         framebufferInfo.pAttachments = imageViews.data();
+//         framebufferInfo.width = swapchain.m_swapChainExtent.width;
+//         framebufferInfo.height = swapchain.m_swapChainExtent.height;
+//         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create framebuffer.");
-        }
-    }
-}
+//         if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
+//         {
+//             throw std::runtime_error("failed to create framebuffer.");
+//         }
+//     }
+// }
 
 void evk::Instance::cleanup()
 {
@@ -145,10 +145,10 @@ void evk::Instance::cleanup()
     //     }
     // }
 
-    for (auto framebuffer : m_framebuffers)
-    {
-        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
-    }
+    // for (auto framebuffer : m_framebuffers)
+    // {
+    //     vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+    // }
 
     // for (auto &pipeline : m_pipelines) vkDestroyPipeline(m_device, pipeline, nullptr);
     // for (auto &layout : m_pipelineLayouts) vkDestroyPipelineLayout(m_device, layout, nullptr);

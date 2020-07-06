@@ -5,6 +5,7 @@
 #include "evulkan_util.h"
 #include "attachment.h"
 #include "device.h"
+#include "pass.h"
 
 class Swapchain
 {
@@ -27,6 +28,25 @@ class Swapchain
 
     private:
 
+};
+
+class Framebuffer
+{
+    public:
+    Framebuffer()=default;
+    Framebuffer(
+        const Device &device,
+        const std::vector<Attachment> &attachments,
+        const Renderpass &renderpass,
+        const Swapchain &swapchain
+    );
+
+    void destroy();
+
+    std::vector<VkFramebuffer> m_framebuffers;
+
+    private:
+    VkDevice m_device;
 };
 
 #endif
