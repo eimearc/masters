@@ -12,7 +12,11 @@ class Descriptor
 {
     public:
     Descriptor()=default;
-    Descriptor(const size_t swapchainSize, const size_t numAttachments);
+    Descriptor(
+        const Device &device,
+        const size_t swapchainSize,
+        const size_t numAttachments
+    );
 
     void addUniformBuffer(
         const uint32_t binding,
@@ -32,6 +36,11 @@ class Descriptor
         const Texture &texture,
         const VkShaderStageFlagBits shaderStage
     );
+
+    void allocateDescriptorPool();
+    void allocateDescriptorSets();
+
+    void destroy();
 
     VkDescriptorPool m_descriptorPool;
     VkDescriptorSetLayout m_descriptorSetLayout;
@@ -56,6 +65,8 @@ class Descriptor
         std::vector<VkBuffer> buffers, VkDeviceSize range,
         uint32_t binding, VkDescriptorType type);
     void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding);
+
+    VkDevice m_device;
 };
 
 class VertexInput

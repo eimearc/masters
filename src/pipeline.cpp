@@ -11,60 +11,62 @@ Pipeline::Pipeline(
     const Device &device
 )
 {
-    m_descriptor = pDescriptor;
+    // m_descriptor = pDescriptor;
     m_vertexInput = i_vertexInput;
     m_subpass = subpass;
 
-    std::vector<VkDescriptorPoolSize> &poolSizes=m_descriptor->m_descriptorPoolSizes;
+    // std::vector<VkDescriptorPoolSize> &poolSizes=m_descriptor->m_descriptorPoolSizes;
 
-    VkDescriptorPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(m_descriptor->m_swapchainSize);
+    // VkDescriptorPoolCreateInfo poolInfo = {};
+    // poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    // poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    // poolInfo.pPoolSizes = poolSizes.data();
+    // poolInfo.maxSets = static_cast<uint32_t>(m_descriptor->m_swapchainSize);
 
-    if (vkCreateDescriptorPool(device.m_device, &poolInfo, nullptr, &m_descriptor->m_descriptorPool) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor pool.");
-    }
+    // if (vkCreateDescriptorPool(device.m_device, &poolInfo, nullptr, &m_descriptor->m_descriptorPool) != VK_SUCCESS)
+    // {
+    //     throw std::runtime_error("failed to create descriptor pool.");
+    // }
 
-    std::vector<VkDescriptorSetLayoutBinding> &bindings = m_descriptor->m_descriptorSetBindings;
+    // std::vector<VkDescriptorSetLayoutBinding> &bindings = m_descriptor->m_descriptorSetBindings;
 
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
+    // VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    // layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    // layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    // layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(device.m_device, &layoutInfo, nullptr, &m_descriptor->m_descriptorSetLayout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout.");
-    }
+    // if (vkCreateDescriptorSetLayout(device.m_device, &layoutInfo, nullptr, &m_descriptor->m_descriptorSetLayout) != VK_SUCCESS)
+    // {
+    //     throw std::runtime_error("failed to create descriptor set layout.");
+    // }
 
-    // Create descriptor sets.
-    const size_t &size = m_descriptor->m_swapchainSize;
-    std::vector<VkDescriptorSetLayout> layouts(size, m_descriptor->m_descriptorSetLayout);
-    VkDescriptorSetAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = m_descriptor->m_descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
-    allocInfo.pSetLayouts = layouts.data();
+    // // Create descriptor sets.
+    // const size_t &size = m_descriptor->m_swapchainSize;
+    // std::vector<VkDescriptorSetLayout> layouts(size, m_descriptor->m_descriptorSetLayout);
+    // VkDescriptorSetAllocateInfo allocInfo = {};
+    // allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    // allocInfo.descriptorPool = m_descriptor->m_descriptorPool;
+    // allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
+    // allocInfo.pSetLayouts = layouts.data();
 
-    m_descriptor->m_descriptorSets.resize(size);
-    if(vkAllocateDescriptorSets(device.m_device, &allocInfo, m_descriptor->m_descriptorSets.data())!=VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate descriptor sets.");
-    } 
+    // m_descriptor->m_descriptorSets.resize(size);
+    // if(vkAllocateDescriptorSets(device.m_device, &allocInfo, m_descriptor->m_descriptorSets.data())!=VK_SUCCESS)
+    // {
+    //     throw std::runtime_error("failed to allocate descriptor sets.");
+    // } 
 
-    for (size_t i = 0; i < size; i++)
-    {
-        for (auto &set : m_descriptor->m_writeDescriptorSet[i]) set.dstSet=m_descriptor->m_descriptorSets[i];
+    // for (size_t i = 0; i < size; i++)
+    // {
+    //     for (auto &set : m_descriptor->m_writeDescriptorSet[i]) set.dstSet=m_descriptor->m_descriptorSets[i];
 
-        vkUpdateDescriptorSets(device.m_device,
-            static_cast<uint32_t>(m_descriptor->m_writeDescriptorSet[i].size()),
-            m_descriptor->m_writeDescriptorSet[i].data(), 0, nullptr);
-    }
+    //     vkUpdateDescriptorSets(device.m_device,
+    //         static_cast<uint32_t>(m_descriptor->m_writeDescriptorSet[i].size()),
+    //         m_descriptor->m_writeDescriptorSet[i].data(), 0, nullptr);
+    // }
 
-    // vertexInput = m_vertexInput;
+    m_descriptor = pDescriptor;
+    m_descriptor->allocateDescriptorPool();
+    m_descriptor->allocateDescriptorSets();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -157,7 +159,7 @@ Pipeline::Pipeline(
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &m_descriptor->m_descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &pDescriptor->m_descriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 

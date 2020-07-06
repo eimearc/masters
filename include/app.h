@@ -71,6 +71,7 @@ public:
         for (auto &a : attachments) a.destroy();
         swapchain.destroy();
         commands.destroy();
+        for (auto &d : descriptors) d.destroy();
         device.destroy(); 
     }
 

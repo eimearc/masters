@@ -59,7 +59,7 @@ void App::initVulkan()
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(MAX_FRAMES_IN_FLIGHT,1);
+    Descriptor descriptor(device, MAX_FRAMES_IN_FLIGHT,1);
     evk::loadOBJ("obj/viking_room.obj", v, in);
 
     texture = { // Must be before createDescriptorSets.
@@ -68,7 +68,7 @@ void App::initVulkan()
         commands.m_commandPools[0]
     };
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptors = {descriptor};
+    // descriptors = {descriptor};
 
     Attachment depthAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
     depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
@@ -116,8 +116,6 @@ void App::initVulkan()
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands.m_commandPools);
-    
-    std::vector<Descriptor*> pDescriptors = {&descriptor};
 
     instance.createFramebuffers(attachments, renderpass, swapchain); // Move to be part of attachment creation?
 
@@ -134,8 +132,9 @@ void App::initVulkan()
         device
     );
 
+    descriptors = {descriptor};
     pipelines = {pipeline};
-    instance.createDrawCommands(indexBuffer, vertexBuffer, pDescriptors, pipelines, renderpass, swapchain, commands);
+    instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
 }
 
 void App::initMultipassVulkan()
@@ -213,10 +212,10 @@ void App::initMultipassVulkan()
     // Set up UBO.
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
-    Descriptor descriptor0(MAX_FRAMES_IN_FLIGHT,1);
+    Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
     descriptor0.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
 
-    Descriptor descriptor1(MAX_FRAMES_IN_FLIGHT,2);
+    Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT,2);
     descriptor1.addInputAttachment(0, colorImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthImageViews, VK_SHADER_STAGE_FRAGMENT_BIT);
 
@@ -234,9 +233,6 @@ void App::initMultipassVulkan()
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands.m_commandPools);
-
-    std::vector<Descriptor*> descriptors = {&descriptor0, &descriptor1};
-
     instance.createFramebuffers(attachments, renderpass, swapchain);
 
     VertexInput vertexInput;
@@ -273,6 +269,7 @@ void App::initMultipassVulkan()
     );
 
     pipelines = {pipeline0, pipeline1};
+    descriptors = {descriptor0, descriptor1};
     instance.createDrawCommands(indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, commands);
 }
 

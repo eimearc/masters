@@ -78,7 +78,7 @@ class Instance
     void createDrawCommands(
         const Buffer &indexBuffer,
         const Buffer &vertexBuffer,
-        const std::vector<Descriptor*> descriptor,
+        const std::vector<Descriptor> &descriptors,
         const std::vector<Pipeline> &pipelines,
         const Renderpass &renderpass,
         const Swapchain &swapchain,

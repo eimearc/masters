@@ -74,7 +74,7 @@ void evk::Instance::draw(
 void evk::Instance::createDrawCommands(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    const std::vector<Descriptor*> descriptors,
+    const std::vector<Descriptor> &descriptors,
     const std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
     const Swapchain &swapchain,
@@ -106,7 +106,7 @@ void evk::Instance::createDrawCommands(
 
         for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
         {
-            const Descriptor &descriptor = *descriptors[pass];
+            const Descriptor &descriptor = descriptors[pass];
 
             if (pass == 0 )
                 vkCmdBeginRenderPass(
