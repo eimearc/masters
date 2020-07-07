@@ -187,17 +187,15 @@ void App::initMultipassVulkan()
 
     Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
     descriptor1.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
-    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT); // Duplicated binding number.
+    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
     descriptor1.addInputAttachment(1, depthAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput0.setBindingDescription(sizeof(Vertex));
 
     VertexInput vertexInput1;
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput1.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
     indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);

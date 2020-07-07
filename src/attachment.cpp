@@ -27,6 +27,8 @@ void Attachment::setFramebufferAttachment()
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+    m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
+
     framebuffer=true;
 }
 
@@ -59,6 +61,8 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
             device.m_device, m_images[i], format,
             aspectMask, &m_imageViews[i]);
     }
+
+    m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
 void Attachment::setDepthAttachment(
@@ -91,6 +95,8 @@ void Attachment::setDepthAttachment(
             device.m_device, m_images[i], format,
             aspectMask, &m_imageViews[i]);
     }
+
+    m_clearValue.depthStencil = {1.0f,1};
 }
 
 void Attachment::destroy()

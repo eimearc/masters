@@ -12,7 +12,9 @@ class Attachment
     Attachment()=default;
     Attachment(const Device &device, uint32_t index, uint32_t swapchainSize);
     void setFramebufferAttachment();
-    void setColorAttachment(const VkExtent2D &extent, const Device &device);
+    void setColorAttachment(
+        const VkExtent2D &extent,
+        const Device &device);
     void setDepthAttachment(
         const VkExtent2D &extent,
         const Device &device);
@@ -28,6 +30,8 @@ class Attachment
     std::vector<VkImage> m_images;
     std::vector<VkImageView> m_imageViews;
     std::vector<VkDeviceMemory> m_imageMemories;
+
+    VkClearValue m_clearValue;
 
     private:
     void createFramebuffer();

@@ -88,11 +88,12 @@ void recordDrawCommands(
 
     for (int frame = 0; frame < swapchain.m_swapChainImages.size(); ++frame)
     {
-        std::array<VkClearValue, 3> clearValues = {}; // Start here tomorrow.
-        clearValues[0].color = {1.0f, 1.0f, 1.0f, 1.0f};
-        clearValues[1].color = {1.0f, 1.0f, 1.0f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0};
-        clearValues[2].color = {1.0f, 1.0f, 1.0f, 1.0f};
+        // std::array<VkClearValue, 3> clearValues = {}; // Start here tomorrow.
+        // clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f}; // Framebuffer attachment.
+        // clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f}; // Color attachment.
+        // // clearValues[1].depthStencil = {1.0f, 0};
+        // // clearValues[2].color = {1.0f, 1.0f, 1.0f, 1.0f};
+        // clearValues[2].depthStencil = {1.0f, 0}; // Depth stencil attachment.
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -100,8 +101,8 @@ void recordDrawCommands(
         renderPassInfo.framebuffer = framebuffers.m_framebuffers[frame];
         renderPassInfo.renderArea.offset = {0,0};
         renderPassInfo.renderArea.extent = swapchain.m_swapChainExtent;
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(renderpass.m_clearValues.size());
+        renderPassInfo.pClearValues = renderpass.m_clearValues.data();
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
