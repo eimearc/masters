@@ -68,7 +68,7 @@ class Descriptor
     void addWriteDescriptorSetBuffer(
         std::vector<VkBuffer> buffers, VkDeviceSize range,
         uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage);
-    void addWriteDescriptorSetInputAttachment(std::vector<VkImageView> imageViews, uint32_t binding, VkShaderStageFlagBits stage);
+    void addWriteDescriptorSetInputAttachment(VkImageView imageView, uint32_t binding, VkShaderStageFlagBits stage);
 
     VkDevice m_device;
     size_t numUniformBuffers=0;

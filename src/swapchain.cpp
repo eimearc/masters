@@ -54,33 +54,33 @@ Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, cons
     }
 
     vkGetSwapchainImagesKHR(device.m_device, m_swapChain, &imageCount, nullptr);
-    framebuffer.m_images.resize(imageCount);
-    vkGetSwapchainImagesKHR(device.m_device, m_swapChain, &imageCount, framebuffer.m_images.data());
+    m_swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(device.m_device, m_swapChain, &imageCount, m_swapChainImages.data());
 
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
 
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     VkFormat format = m_swapChainImageFormat;
-    framebuffer.m_imageViews.resize(imageCount);
+    m_swapChainImageViews.resize(imageCount);
     for (uint32_t i = 0; i < imageCount; i++)
     {
         createImageView(
             device.m_device,
-            framebuffer.m_images[i],
+            m_swapChainImages[i],
             format,
             aspectMask,
-            &framebuffer.m_imageViews[i]
+            &m_swapChainImageViews[i]
         );
     }
 
-    m_swapChainImages = framebuffer.m_images;
-    m_swapChainImageViews = framebuffer.m_imageViews;
+    // m_swapChainImages = framebuffer.m_images;
+    // m_swapChainImageViews = framebuffer.m_imageViews;
 }
 
 void Swapchain::destroy()
 {
-    // for (auto &iv : m_swapChainImageViews) vkDestroyImageView(m_device, iv, nullptr);
+    for (auto &iv : m_swapChainImageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }
 
@@ -90,16 +90,19 @@ Framebuffer::Framebuffer(
     const Swapchain &swapchain) // This should be part of attachment creation.
 {
     m_device = device.m_device;
-    const size_t numImages = swapchain.m_swapChainImages.size();
-    m_framebuffers.resize(numImages);
+    const size_t swapchainSize = swapchain.m_swapChainImages.size();
+    m_framebuffers.resize(swapchainSize);
 
-    for (size_t i = 0; i < numImages; i++)
+    // For each image in the swapchain.
+    for (size_t i = 0; i < swapchainSize; i++)
     {
         std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
-        for (const auto &a : renderpass.m_attachments)
+        imageViews[0] = swapchain.m_swapChainImageViews[i];
+        for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
         {
-            const uint32_t &index = a.m_index;
-            imageViews[index]=a.m_imageViews[i];
+            auto attachment = renderpass.m_attachments[j];
+            const uint32_t &index = attachment.m_index;
+            imageViews[index]=attachment.m_imageView;
         }
 
         VkFramebufferCreateInfo framebufferInfo = {};
