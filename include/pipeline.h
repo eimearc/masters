@@ -6,6 +6,7 @@
 #include "descriptor.h"
 #include "device.h"
 #include "shader.h"
+#include "swapchain.h"
 #include "pass.h"
 
 class Pipeline
@@ -13,13 +14,13 @@ class Pipeline
     public:
     Pipeline()=default;
     Pipeline(
+        const Device &device,
+        const Subpass &subpass,
         Descriptor *pDescriptor,
         const VertexInput &vertexInput,
-        const size_t subpass,
-        const VkExtent2D extent,
+        const Swapchain &swapchain,
         const Renderpass &renderpass,
-        const std::vector<Shader> &shaders,
-        const Device &device
+        const std::vector<Shader> &shaders
     );
 
     void destroy();

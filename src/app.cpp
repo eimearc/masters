@@ -66,6 +66,7 @@ void App::initVulkan()
     std::vector<evk::SubpassDependency> dependencies;
     
     Subpass subpass(
+        0,
         dependencies,
         colorAttachments,
         depthAttachments,
@@ -111,13 +112,13 @@ void App::initVulkan()
     shaders = {vertexShader,fragmentShader};
 
     Pipeline pipeline(
+        device,
+        subpass,
         &descriptor,
         vertexInput,
-        0,
-        swapchain.m_swapChainExtent,
+        swapchain,
         renderpass,
-        shaders,
-        device
+        shaders
     );
 
     descriptors = {descriptor};
@@ -135,8 +136,8 @@ void App::initMultipassVulkan()
 
     commands = {device, swapchainSize, FLAGS_num_threads};
 
-    Attachment framebuffer;
-    swapchain = {swapchainSize, framebuffer, device};
+    Attachment framebufferAttachment;
+    swapchain = {swapchainSize, framebufferAttachment, device};
 
     sync = {device, swapchain};
 
@@ -152,25 +153,27 @@ void App::initMultipassVulkan()
     std::vector<evk::SubpassDependency> dependencies;
 
     Subpass subpass0(
+        0,
         dependencies,
         colorAttachments,
         depthAttachments,
         inputAttachments
     );
 
-    colorAttachments = {framebuffer};
+    colorAttachments = {framebufferAttachment};
     depthAttachments.resize(0);
     inputAttachments = {colorAttachment, depthAttachment};
     dependencies = {{0,1}};
 
     Subpass subpass1(
+        1,
         dependencies,
         colorAttachments,
         depthAttachments,
         inputAttachments
     );
 
-    attachments = {framebuffer, colorAttachment, depthAttachment};
+    attachments = {framebufferAttachment, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
 
     renderpass = {
@@ -203,6 +206,7 @@ void App::initMultipassVulkan()
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands);
+
     framebuffers = {device, attachments, renderpass, swapchain};
 
     VertexInput vertexInput;
@@ -215,13 +219,13 @@ void App::initMultipassVulkan()
         {"shaders/multipass_0_frag.spv", Shader::Stage::Fragment, device}
     };
     Pipeline pipeline0(
+        device,
+        subpass0,
         &descriptor0,
         vertexInput0,
-        0,
-        swapchain.m_swapChainExtent,
+        swapchain,
         renderpass,
-        shaders0,
-        device
+        shaders0
     );
 
     std::vector<Shader> shaders1 = {
@@ -229,13 +233,13 @@ void App::initMultipassVulkan()
         {"shaders/multipass_1_frag.spv", Shader::Stage::Fragment, device},
     };
     Pipeline pipeline1(
+        device,
+        subpass1,
         &descriptor1,
         vertexInput1,
-        1,
-        swapchain.m_swapChainExtent,
+        swapchain,
         renderpass,
-        shaders1,
-        device
+        shaders1
     );
 
     pipelines = {pipeline0, pipeline1};
@@ -243,7 +247,7 @@ void App::initMultipassVulkan()
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
     
-    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
+    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands); // Just pass in framebuffers?
 }
 
 void App::mainLoop()

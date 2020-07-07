@@ -1,11 +1,13 @@
 #include "pass.h"
 
 Subpass::Subpass(
+    const uint32_t index,
     const std::vector<evk::SubpassDependency> &dependencies,
     const std::vector<Attachment> &colorAttachments,
     const std::vector<Attachment> &depthAttachments,
     const std::vector<Attachment> &inputAttachments)
 {
+    m_index = index;
     for (const auto &d : dependencies) addDependency(d.srcSubpass, d.dstSubpass);
     m_colorAttachments=colorAttachments;
     m_depthAttachments=depthAttachments;

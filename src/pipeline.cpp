@@ -1,17 +1,17 @@
 #include "pipeline.h"
 
 Pipeline::Pipeline(
+    const Device &device,
+    const Subpass &subpass,
     Descriptor *pDescriptor,
     const VertexInput &i_vertexInput,
-    const size_t subpass,
-    const VkExtent2D extent,
+    const Swapchain &swapchain,
     const Renderpass &renderpass,
-    const std::vector<Shader> &shaders,
-    const Device &device
+    const std::vector<Shader> &shaders
 )
 {
     m_vertexInput = i_vertexInput;
-    m_subpass = subpass;
+    m_subpass = subpass.m_index;
     m_device = device.m_device;
 
     m_descriptor = pDescriptor;
@@ -39,15 +39,15 @@ Pipeline::Pipeline(
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) extent.width;
-    viewport.height = (float) extent.height;
+    viewport.width = (float) swapchain.m_swapChainExtent.width;
+    viewport.height = (float) swapchain.m_swapChainExtent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     // Set up scissor.
     VkRect2D scissor = {};
     scissor.offset = {0,0};
-    scissor.extent = extent;
+    scissor.extent = swapchain.m_swapChainExtent;
 
     // Combine viewport and scissor.
     VkPipelineViewportStateCreateInfo viewportState = {};

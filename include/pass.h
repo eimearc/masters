@@ -11,12 +11,14 @@ class Subpass
     public:
     Subpass()=default;
     Subpass(
+        const uint32_t index,
         const std::vector<evk::SubpassDependency> &dependencies,
         const std::vector<Attachment> &colorAttachments,
         const std::vector<Attachment> &depthAttachments,
         const std::vector<Attachment> &inputAttachments
     );
 
+    uint32_t m_index;
     VkSubpassDescription m_description;
     std::vector<VkSubpassDependency> m_dependencies;
     std::vector<VkAttachmentReference> m_colorReferences;
