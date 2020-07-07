@@ -4,12 +4,13 @@
 
 Sync::Sync(const Device &device, const Swapchain &swapchain)
 {
-    size_t maxFramesInFlight=swapchain.m_swapChainImages.size();
+    const size_t swapchainSize = swapchain.m_images.size();
+    size_t maxFramesInFlight=swapchain.m_images.size();
     m_device = device.m_device;
     m_imageAvailableSemaphores.resize(maxFramesInFlight);
     m_renderFinishedSemaphores.resize(maxFramesInFlight);
     m_fencesInFlight.resize(maxFramesInFlight);
-    m_imagesInFlight.resize(swapchain.m_swapChainImages.size(), VK_NULL_HANDLE);
+    m_imagesInFlight.resize(swapchainSize, VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;

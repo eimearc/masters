@@ -12,7 +12,7 @@ void executeDrawCommands(
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device.m_device, swapchain.m_swapChain, UINT64_MAX,
+        device.m_device, swapchain.m_swapchain, UINT64_MAX,
         sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
@@ -57,7 +57,7 @@ void executeDrawCommands(
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapChains[] = {swapchain.m_swapChain};
+    VkSwapchainKHR swapChains[] = {swapchain.m_swapchain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
@@ -70,7 +70,7 @@ void executeDrawCommands(
 
     vkQueueWaitIdle(device.m_presentQueue);
 
-    currentFrame = ((currentFrame)+1) % swapchain.m_swapChainImages.size();
+    currentFrame = ((currentFrame)+1) % swapchain.m_images.size();
 }
 
 void recordDrawCommands(
@@ -87,7 +87,7 @@ void recordDrawCommands(
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
     framebuffers = {device, renderpass, swapchain};
 
-    for (int frame = 0; frame < swapchain.m_swapChainImages.size(); ++frame)
+    for (size_t frame = 0; frame < swapchain.m_images.size(); ++frame)
     {
         // std::array<VkClearValue, 3> clearValues = {}; // Start here tomorrow.
         // clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f}; // Framebuffer attachment.
@@ -101,7 +101,7 @@ void recordDrawCommands(
         renderPassInfo.renderPass = renderpass.m_renderPass;
         renderPassInfo.framebuffer = framebuffers.m_framebuffers[frame];
         renderPassInfo.renderArea.offset = {0,0};
-        renderPassInfo.renderArea.extent = swapchain.m_swapChainExtent;
+        renderPassInfo.renderArea.extent = swapchain.m_extent;
         renderPassInfo.clearValueCount = static_cast<uint32_t>(renderpass.m_clearValues.size());
         renderPassInfo.pClearValues = renderpass.m_clearValues.data();
 

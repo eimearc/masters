@@ -20,11 +20,11 @@ class Swapchain
     void destroy();
 
     VkDevice m_device;
-    VkSwapchainKHR m_swapChain;
-    std::vector<VkImage> m_swapChainImages;
-    std::vector<VkImageView> m_swapChainImageViews;
-    VkFormat m_swapChainImageFormat;
-    VkExtent2D m_swapChainExtent;
+    VkSwapchainKHR m_swapchain;
+    std::vector<VkImage> m_images;
+    std::vector<VkImageView> m_imageViews;
+    VkFormat m_format;
+    VkExtent2D m_extent;
 
     private:
 

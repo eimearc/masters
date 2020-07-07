@@ -39,15 +39,15 @@ Pipeline::Pipeline(
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) swapchain.m_swapChainExtent.width;
-    viewport.height = (float) swapchain.m_swapChainExtent.height;
+    viewport.width = (float) swapchain.m_extent.width;
+    viewport.height = (float) swapchain.m_extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     // Set up scissor.
     VkRect2D scissor = {};
     scissor.offset = {0,0};
-    scissor.extent = swapchain.m_swapChainExtent;
+    scissor.extent = swapchain.m_extent;
 
     // Combine viewport and scissor.
     VkPipelineViewportStateCreateInfo viewportState = {};

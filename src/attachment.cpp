@@ -1,10 +1,9 @@
 #include "attachment.h"
 
-Attachment::Attachment(const Device &device, uint32_t index, uint32_t swapchainSize)
+Attachment::Attachment(const Device &device, uint32_t index)
 {
     m_device = device.m_device;
     m_index = index;
-    m_swapchainSize = swapchainSize;
 
     m_inputReference = {index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     m_colorReference = {index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
@@ -24,8 +23,6 @@ void Attachment::setFramebufferAttachment()
     m_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
-
-    framebuffer=true;
 }
 
 void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
@@ -94,9 +91,6 @@ void Attachment::setDepthAttachment(
 void Attachment::destroy()
 {
     if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
-    if (!framebuffer) // TODO change this - have separate attachment for framebuffer.
-    {
-        if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr);
-        if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
-    }
+    if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr);
+    if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
 }

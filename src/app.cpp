@@ -57,8 +57,8 @@ void App::initVulkan()
     };
     descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    Attachment depthAttachment(device, 1,MAX_FRAMES_IN_FLIGHT);
-    depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
+    Attachment depthAttachment(device, 1);
+    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
 
     std::vector<Attachment> colorAttachments = {framebuffer};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -142,11 +142,11 @@ void App::initMultipassVulkan()
 
     sync = {device, swapchain};
 
-    Attachment colorAttachment(device, 1, MAX_FRAMES_IN_FLIGHT);
-    colorAttachment.setColorAttachment(swapchain.m_swapChainExtent, device);
+    Attachment colorAttachment(device, 1);
+    colorAttachment.setColorAttachment(swapchain.m_extent, device);
 
-    Attachment depthAttachment(device, 2, MAX_FRAMES_IN_FLIGHT);
-    depthAttachment.setDepthAttachment(swapchain.m_swapChainExtent, device);
+    Attachment depthAttachment(device, 2);
+    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
