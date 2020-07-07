@@ -26,7 +26,6 @@ class Buffer
         const void *vertices,
         const VkDeviceSize &elementSize,
         const size_t numElements,
-        Device &device,
         Commands &commands
     );
 
@@ -42,6 +41,7 @@ class Buffer
     VkPhysicalDevice m_physicalDevice;
     VkDeviceSize m_bufferSize;
     VkQueue m_queue;
+    size_t m_numThreads;
 
     void copyBuffer(
         VkCommandPool commandPool,

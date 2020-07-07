@@ -401,3 +401,14 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
         func(instance, debugMessenger, pAllocator);
     }
 }
+
+VkShaderStageFlagBits shaderStageFlags(const ShaderStage &shaderStage)
+{
+    switch (shaderStage)
+    {
+    case ShaderStage::VERTEX:
+        return VK_SHADER_STAGE_VERTEX_BIT;
+    case ShaderStage::FRAGMENT:
+        return VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+}

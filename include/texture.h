@@ -2,6 +2,7 @@
 #define TEXTURE
 
 #include <vulkan/vulkan.h>
+#include "command.h"
 #include "device.h"
 #include "evulkan_util.h"
 
@@ -12,7 +13,7 @@ class Texture
     Texture(
         const std::string &fileName,
         const Device &device,
-        const VkCommandPool &commandPool
+        const Commands &commands
     );
 
     void destroy();

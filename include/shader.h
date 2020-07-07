@@ -8,10 +8,9 @@
 class Shader
 {
     public:
-    enum Stage{Vertex, Fragment};
 
     Shader()=default;
-    Shader(const std::string &fileName, const Stage &stage, const Device &device);
+    Shader(const std::string &fileName, const ShaderStage &stage, const Device &device);
     void destroy();
 
     VkShaderModule m_module;

@@ -22,20 +22,20 @@ class Descriptor
     void addUniformBuffer(
         const uint32_t binding,
         const Buffer &buffer,
-        const VkShaderStageFlagBits shaderStage,
+        const ShaderStage shaderStage,
         const VkDeviceSize bufferSize
     );
 
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
-        const VkShaderStageFlagBits shaderStage
+        const ShaderStage shaderStage
     );
 
     void addTextureSampler(
         const uint32_t binding,
         const Texture &texture,
-        const VkShaderStageFlagBits shaderStage
+        const ShaderStage shaderStage
     );
 
     void allocateDescriptorPool();

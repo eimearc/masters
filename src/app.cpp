@@ -53,9 +53,9 @@ void App::initVulkan()
     texture = { // Must be before createDescriptorSets.
         "tex/viking_room.png",
         device,
-        commands.m_commandPools[0]
+        commands
     };
-    descriptor.addTextureSampler(1, texture, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
     Attachment depthAttachment(device, 1);
     depthAttachment.setDepthAttachment(swapchain.m_extent, device);
@@ -91,7 +91,7 @@ void App::initVulkan()
     // Set up UBO.
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
-    descriptor.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    descriptor.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -103,10 +103,10 @@ void App::initVulkan()
     indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands);
+    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), commands);
 
-    Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
-    Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
+    Shader vertexShader("shaders/vert.spv", ShaderStage::VERTEX, device);
+    Shader fragmentShader("shaders/frag.spv", ShaderStage::FRAGMENT, device);
     shaders = {vertexShader,fragmentShader};
 
     Pipeline pipeline(
@@ -187,12 +187,12 @@ void App::initMultipassVulkan()
     buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     buffer.setBuffer(sizeof(UniformBufferObject));
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
-    descriptor0.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
-    descriptor1.addUniformBuffer(0, buffer, VK_SHADER_STAGE_VERTEX_BIT, sizeof(UniformBufferObject));
-    descriptor1.addInputAttachment(0, colorAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
-    descriptor1.addInputAttachment(1, depthAttachment, VK_SHADER_STAGE_FRAGMENT_BIT);
+    descriptor1.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
+    descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
 
     VertexInput vertexInput0;
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -206,7 +206,7 @@ void App::initMultipassVulkan()
     indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
 
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
-    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands);
+    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -214,8 +214,8 @@ void App::initMultipassVulkan()
     vertexInput.setBindingDescription(sizeof(Vertex));
 
     std::vector<Shader> shaders0 = {
-        {"shaders/multipass_0_vert.spv", Shader::Stage::Vertex, device},
-        {"shaders/multipass_0_frag.spv", Shader::Stage::Fragment, device}
+        {"shaders/multipass_0_vert.spv", ShaderStage::VERTEX, device},
+        {"shaders/multipass_0_frag.spv", ShaderStage::FRAGMENT, device}
     };
     Pipeline pipeline0(
         device,
@@ -228,8 +228,8 @@ void App::initMultipassVulkan()
     );
 
     std::vector<Shader> shaders1 = {
-        {"shaders/multipass_1_vert.spv", Shader::Stage::Vertex, device},
-        {"shaders/multipass_1_frag.spv", Shader::Stage::Fragment, device},
+        {"shaders/multipass_1_vert.spv", ShaderStage::VERTEX, device},
+        {"shaders/multipass_1_frag.spv", ShaderStage::FRAGMENT, device},
     };
     Pipeline pipeline1(
         device,

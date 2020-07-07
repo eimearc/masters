@@ -1,18 +1,9 @@
 #include "shader.h"
 
-Shader::Shader(const std::string &fileName, const Stage &stage, const Device &device)
+Shader::Shader(const std::string &fileName, const ShaderStage &stage, const Device &device)
 {   
     m_device=device.m_device;
-    VkShaderStageFlagBits stageFlags;
-    switch(stage)
-    {
-        case Stage::Vertex:
-        stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        break;
-        case Stage::Fragment:
-        stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        break;
-    }
+    auto stageFlags = shaderStageFlags(stage);
 
     auto shaderCode = readFile(fileName);
     createShaderModule1(device.m_device, shaderCode, &m_module);
