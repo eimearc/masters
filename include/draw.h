@@ -29,7 +29,7 @@ void recordDrawCommands(
     const std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
     const Swapchain &swapchain,
-    const Framebuffer &framebuffers,
+    Framebuffer &framebuffers,
     Commands &commands
 );
 

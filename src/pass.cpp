@@ -46,6 +46,7 @@ Renderpass::Renderpass(
 {
     m_device = device.m_device;
     m_subpasses = subpasses;
+    m_attachments = attachments;
 
     std::vector<VkAttachmentDescription> attachmentDescriptions;
     std::vector<VkSubpassDependency> dependencies;

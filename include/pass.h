@@ -46,6 +46,7 @@ class Renderpass
     VkRenderPass m_renderPass;
     std::vector<Subpass> m_subpasses;
     std::vector<VkClearValue> m_clearValues;
+    std::vector<Attachment> m_attachments;
 
     private:
     VkDevice m_device;

@@ -36,7 +36,6 @@ class Framebuffer
     Framebuffer()=default;
     Framebuffer(
         const Device &device,
-        const std::vector<Attachment> &attachments,
         const Renderpass &renderpass,
         const Swapchain &swapchain
     );

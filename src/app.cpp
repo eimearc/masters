@@ -105,8 +105,6 @@ void App::initVulkan()
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), device, commands);
 
-    framebuffers = {device, attachments, renderpass, swapchain}; // Move to be part of attachment creation?
-
     Shader vertexShader("shaders/vert.spv", Shader::Stage::Vertex, device);
     Shader fragmentShader("shaders/frag.spv", Shader::Stage::Fragment, device);
     shaders = {vertexShader,fragmentShader};
@@ -124,7 +122,10 @@ void App::initVulkan()
     descriptors = {descriptor};
     pipelines = {pipeline};
 
-    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands);
+    recordDrawCommands(
+        device, indexBuffer, vertexBuffer,
+        descriptors, pipelines, renderpass,
+        swapchain, framebuffers, commands);
 }
 
 void App::initMultipassVulkan()
@@ -207,8 +208,6 @@ void App::initMultipassVulkan()
     vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), device, commands);
 
-    framebuffers = {device, attachments, renderpass, swapchain};
-
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
@@ -247,7 +246,10 @@ void App::initMultipassVulkan()
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
     
-    recordDrawCommands(device, indexBuffer, vertexBuffer, descriptors, pipelines, renderpass, swapchain, framebuffers, commands); // Just pass in framebuffers?
+    recordDrawCommands(
+        device, indexBuffer, vertexBuffer,
+        descriptors, pipelines, renderpass,
+        swapchain, framebuffers, commands);
 }
 
 void App::mainLoop()

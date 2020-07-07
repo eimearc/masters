@@ -86,7 +86,6 @@ void Swapchain::destroy()
 
 Framebuffer::Framebuffer(
     const Device &device,
-    const std::vector<Attachment> &attachments,
     const Renderpass &renderpass,
     const Swapchain &swapchain) // This should be part of attachment creation.
 {
@@ -96,8 +95,8 @@ Framebuffer::Framebuffer(
 
     for (size_t i = 0; i < numImages; i++)
     {
-        std::vector<VkImageView> imageViews(attachments.size());
-        for (const auto &a : attachments)
+        std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
+        for (const auto &a : renderpass.m_attachments)
         {
             const uint32_t &index = a.m_index;
             imageViews[index]=a.m_imageViews[i];

@@ -81,10 +81,11 @@ void recordDrawCommands(
     const std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
     const Swapchain &swapchain,
-    const Framebuffer &framebuffers,
+    Framebuffer &framebuffers,
     Commands &commands)
 {
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
+    framebuffers = {device, renderpass, swapchain};
 
     for (int frame = 0; frame < swapchain.m_swapChainImages.size(); ++frame)
     {
