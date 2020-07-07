@@ -32,13 +32,13 @@ void Attachment::setFramebufferAttachment()
 
 void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
 {
-    VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
     m_description.flags = 0;
     m_description.format = format;
     m_description.samples = VK_SAMPLE_COUNT_1_BIT;
-    m_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    m_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    m_description.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    m_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     m_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     m_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
