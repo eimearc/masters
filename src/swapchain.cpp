@@ -1,15 +1,18 @@
-#include "evulkan_core.h"
+#include "swapchain.h"
 
-void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
+Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, const Device &device)
 {
-    m_maxFramesInFlight=pCreateInfo->maxFramesInFlight;
+    m_device = device.m_device;
 
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physicalDevice, m_surface);
+    framebuffer = {device,0};
+    framebuffer.setFramebufferAttachment();
+
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.m_physicalDevice, device.m_surface);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
+    VkExtent2D extent = chooseSwapExtent(device.m_window, swapChainSupport.capabilities);
 
-    uint32_t imageCount = m_maxFramesInFlight;
+    uint32_t imageCount = swapchainSize;
     if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
     {
         throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
@@ -17,7 +20,7 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = m_surface;
+    createInfo.surface = device.m_surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -25,7 +28,7 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice, m_surface);
+    QueueFamilyIndices indices = findQueueFamilies(device.m_physicalDevice, device.m_surface);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily)
     {
@@ -45,25 +48,80 @@ void evk::Instance::createSwapChain(const SwapChainCreateInfo *pCreateInfo)
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if(vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+    if(vkCreateSwapchainKHR(device.m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain.");
     }
 
-    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
-    m_swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+    vkGetSwapchainImagesKHR(device.m_device, m_swapchain, &imageCount, nullptr);
+    m_images.resize(imageCount);
+    vkGetSwapchainImagesKHR(device.m_device, m_swapchain, &imageCount, m_images.data());
 
-    m_swapChainImageFormat = surfaceFormat.format;
-    m_swapChainExtent = extent;
+    m_format = surfaceFormat.format;
+    m_extent = extent;
 
-    ImageViewCreateInfo imageViewCreateInfo;
-    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
-    imageViewCreateInfo.format=m_swapChainImageFormat;
-    m_swapChainImageViews.resize(m_swapChainImages.size());
-    for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkFormat format = m_format;
+    m_imageViews.resize(imageCount);
+    for (uint32_t i = 0; i < imageCount; i++)
     {
-        imageViewCreateInfo.image=m_swapChainImages[i];
-        createImageView(&imageViewCreateInfo, &m_swapChainImageViews[i]);
+        createImageView(
+            device.m_device,
+            m_images[i],
+            format,
+            aspectMask,
+            &m_imageViews[i]
+        );
+    }
+}
+
+void Swapchain::destroy()
+{
+    for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
+    vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+}
+
+Framebuffer::Framebuffer(
+    const Device &device,
+    const Renderpass &renderpass,
+    const Swapchain &swapchain) // This should be part of attachment creation.
+{
+    m_device = device.m_device;
+    const size_t swapchainSize = swapchain.m_images.size();
+    m_framebuffers.resize(swapchainSize);
+
+    // For each image in the swapchain.
+    for (size_t i = 0; i < swapchainSize; i++)
+    {
+        std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
+        imageViews[0] = swapchain.m_imageViews[i];
+        for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
+        {
+            auto attachment = renderpass.m_attachments[j];
+            const uint32_t &index = attachment.m_index;
+            imageViews[index]=attachment.m_imageView;
+        }
+
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderpass.m_renderPass;
+        framebufferInfo.attachmentCount = imageViews.size();
+        framebufferInfo.pAttachments = imageViews.data();
+        framebufferInfo.width = swapchain.m_extent.width;
+        framebufferInfo.height = swapchain.m_extent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create framebuffer.");
+        }
+    }
+}
+
+void Framebuffer::destroy()
+{
+    for (auto framebuffer : m_framebuffers)
+    {
+        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 }

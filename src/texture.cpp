@@ -1,10 +1,16 @@
-#include "evulkan_core.h"
+#include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-void evk::Instance::loadTexture(const std::string &fileName)
+Texture::Texture(
+    const std::string &fileName,
+    const Device &device,
+    const Commands &commands)
 {
+    m_device = device.m_device;
+    auto &commandPool = commands.m_commandPools[0];
+
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(fileName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
@@ -12,38 +18,34 @@ void evk::Instance::loadTexture(const std::string &fileName)
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(m_device, m_physicalDevice, imageSize,
+    createBuffer(device.m_device, device.m_physicalDevice, imageSize,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &stagingBuffer, &stagingBufferMemory);
 
     void* data;
-    vkMapMemory(m_device, stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(device.m_device, stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(m_device, stagingBufferMemory);
+    vkUnmapMemory(device.m_device, stagingBufferMemory);
 
     stbi_image_free(pixels);
 
-    ImageCreateInfo imageCreateInfo;
-    imageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-    imageCreateInfo.height = texHeight;
-    imageCreateInfo.width = texWidth;
-    imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    imageCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    createImage(&imageCreateInfo, &m_textureImage, &m_textureImageMemory);
-    transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    copyBufferToImage(stagingBuffer, m_textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    VkExtent2D extent = {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)};
+    VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    VkMemoryPropertyFlagBits properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    createImage(device.m_device, device.m_physicalDevice, extent, format, tiling, usage, properties, &m_image, &m_memory);
 
-    vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-    vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+    transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    copyBufferToImage(device, commandPool, stagingBuffer, m_image, extent);
+    transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    ImageViewCreateInfo imageViewCreateInfo;
-    imageViewCreateInfo.image=m_textureImage;
-    imageViewCreateInfo.format=VK_FORMAT_R8G8B8A8_SRGB;
-    imageViewCreateInfo.aspectFlags=VK_IMAGE_ASPECT_COLOR_BIT;
-    createImageView(&imageViewCreateInfo, &m_textureImageView);
+    vkDestroyBuffer(device.m_device, stagingBuffer, nullptr);
+    vkFreeMemory(device.m_device, stagingBufferMemory, nullptr);
+
+    VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+    createImageView(device.m_device, m_image, format, aspectFlags, &m_imageView);
 
     // Create sampler.
     VkSamplerCreateInfo samplerInfo{};
@@ -63,17 +65,28 @@ void evk::Instance::loadTexture(const std::string &fileName)
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
-    if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+    if (vkCreateSampler(device.m_device, &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler.");
-
-    addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT);
-    addWriteDescriptorSetTextureSampler(m_textureImageView, m_textureSampler, 1);
 }
 
-void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+void Texture::destroy()
+{
+    vkDestroySampler(m_device, m_imageSampler, nullptr);
+    vkDestroyImageView(m_device, m_imageView, nullptr);
+    vkDestroyImage(m_device, m_image, nullptr);
+    vkFreeMemory(m_device, m_memory, nullptr);
+}
+
+void Texture::transitionImageLayout(
+    const Device &device,
+    VkCommandPool commandPool,
+    VkImage image,
+    VkFormat format,
+    VkImageLayout oldLayout,
+    VkImageLayout newLayout)
+{
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(m_device, m_commandPools[0], &commandBuffer);
+    beginSingleTimeCommands(device.m_device, commandPool, &commandBuffer);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -87,8 +100,8 @@ void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImag
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
-    barrier.srcAccessMask = 0; // TODO
-    barrier.dstAccessMask = 0; // TODO
+    barrier.srcAccessMask = 0; // TODO?
+    barrier.dstAccessMask = 0; // TODO?
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -116,12 +129,18 @@ void evk::Instance::transitionImageLayout(VkImage image, VkFormat format, VkImag
         1, &barrier
     );
 
-    endSingleTimeCommands(m_device, m_graphicsQueue, m_commandPools[0], commandBuffer);
+    endSingleTimeCommands(device.m_device, device.m_graphicsQueue, commandPool, commandBuffer);
 }
 
-void evk::Instance::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+void Texture::copyBufferToImage(
+    const Device &device,
+    VkCommandPool commandPool,
+    VkBuffer buffer,
+    VkImage image,
+    VkExtent2D extent)
+{
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(m_device, m_commandPools[0], &commandBuffer);
+    beginSingleTimeCommands(device.m_device, commandPool, &commandBuffer);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -133,8 +152,8 @@ void evk::Instance::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t w
     region.imageSubresource.layerCount = 1;
     region.imageOffset = {0, 0, 0};
     region.imageExtent = {
-        width,
-        height,
+        extent.width,
+        extent.height,
         1
     };
 
@@ -147,5 +166,5 @@ void evk::Instance::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t w
         &region
     );
 
-    endSingleTimeCommands(m_device, m_graphicsQueue, m_commandPools[0], commandBuffer);
+    endSingleTimeCommands(device.m_device, device.m_graphicsQueue, commandPool, commandBuffer);
 }

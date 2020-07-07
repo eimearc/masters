@@ -11,6 +11,9 @@
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 */
 
+#ifndef THREADPOOL
+#define THREADPOOL
+
 #include <vector>
 #include <thread>
 #include <queue>
@@ -120,3 +123,5 @@ public:
 		}
 	}
 };
+
+#endif

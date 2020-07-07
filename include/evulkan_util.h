@@ -15,6 +15,44 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "vertex.h"
+
+namespace evk
+{
+    struct SubpassDependency
+    {
+        uint32_t srcSubpass;
+        uint32_t dstSubpass;
+    };
+
+    void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
+}
+
+enum ShaderStage{VERTEX, FRAGMENT};
+
+VkShaderStageFlagBits shaderStageFlags(const ShaderStage &shaderStage);
+
+void createImage(
+    const VkDevice &device,
+    const VkPhysicalDevice &physicalDevice,
+    const VkExtent2D &extent,
+    const VkFormat &format,
+    const VkImageTiling &tiling,
+    const VkImageUsageFlags &usage,
+    const VkMemoryPropertyFlags &properties,
+    VkImage *pImage,
+    VkDeviceMemory *pImageMemory
+);
+void createImageView(
+    const VkDevice &device,
+    const VkImage &image,
+    const VkFormat &format,
+    const VkImageAspectFlags &aspectMask,
+    VkImageView *pImageView
+);
+
+std::vector<char> readFile(const std::string& filename);
+
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;

@@ -1,11 +1,46 @@
-#include "evulkan_core.h"
+#include "device.h"
 
-#include <set>
-#include <vector>
-#include <string>
-#include <iostream>
+Device::Device(
+    uint32_t numThreads,
+    std::vector<const char*> validationLayers,
+    GLFWwindow *window,
+    std::vector<const char *> deviceExtensions)
+{
+    m_threadPool.setThreadCount(numThreads);
+    m_numThreads=numThreads;
 
-void evk::Instance::createInstance(std::vector<const char*> validationLayers)
+    m_deviceExtensions=deviceExtensions;
+    m_validationLayers=validationLayers;
+    m_window=window;
+
+    createInstance(validationLayers);
+    createSurface(window);
+    pickPhysicalDevice(deviceExtensions);
+    setDepthFormat();
+    createDevice(true);
+}
+
+void Device::destroy()
+{
+    if (vkDeviceWaitIdle(m_device)!=VK_SUCCESS)
+    {
+        throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
+    }
+    vkDestroyDevice(m_device, nullptr);
+
+    if (m_validationLayers.size() > 0)
+    {
+        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+    }
+
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
+
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
+}
+
+void Device::createInstance(std::vector<const char*> validationLayers)
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -43,7 +78,7 @@ void evk::Instance::createInstance(std::vector<const char*> validationLayers)
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &m_vkInstance) != VK_SUCCESS)
+    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create instance->");
     }
@@ -53,32 +88,32 @@ void evk::Instance::createInstance(std::vector<const char*> validationLayers)
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
 
-        if (createDebugUtilsMessengerEXT(m_vkInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
+        if (createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to set up debug messenger.");
         }
     }
 }
 
-void evk::Instance::createSurface(GLFWwindow *window)
+void Device::createSurface(GLFWwindow *window)
 {
-    if (glfwCreateWindowSurface(m_vkInstance, window, nullptr, &m_surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create window instance->surface.");
     }
 }
 
-void evk::Instance::pickPhysicalDevice(std::vector<const char *> deviceExtensions)
+void Device::pickPhysicalDevice(std::vector<const char *> deviceExtensions)
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_vkInstance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
     if (deviceCount == 0)
     {
         throw std::runtime_error("failed to find GPUs with Vulkan support.");
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(m_vkInstance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
     for (const auto& device : devices)
     {
         if (isDeviceSuitable(device, m_surface, deviceExtensions))
@@ -94,7 +129,7 @@ void evk::Instance::pickPhysicalDevice(std::vector<const char *> deviceExtension
     }
 }
 
-void evk::Instance::createDevice(bool enableValidation)
+void Device::createDevice(bool enableValidation)
 {
     QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
 
@@ -139,7 +174,7 @@ void evk::Instance::createDevice(bool enableValidation)
     vkGetDeviceQueue(m_device, indices.presentFamily.value(), 0, &m_presentQueue);
 }
 
-VkResult evk::Instance::createDebugUtilsMessengerEXT(VkInstance instance,
+VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pDebugMessenger)
@@ -151,4 +186,34 @@ VkResult evk::Instance::createDebugUtilsMessengerEXT(VkInstance instance,
     } else {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
+}
+
+void Device::setDepthFormat()
+{
+    std::vector<VkFormat> candidates = {
+        VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    m_depthFormat = getSupportedFormat(candidates, tiling, features);
+}
+
+VkFormat Device::getSupportedFormat(
+    const std::vector<VkFormat>& candidates,
+    VkImageTiling tiling,
+    VkFormatFeatureFlags features)
+{
+    for (VkFormat format : candidates)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
+        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+    throw std::runtime_error("failed to find supported format.");
 }

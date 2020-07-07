@@ -1,15 +1,25 @@
-#include "evulkan_core.h"
+#include "draw.h"
 
-void evk::Instance::draw()
+void executeDrawCommands(
+    const Device &device,
+    const std::vector<Pipeline> &pipelines,
+    const Swapchain &swapchain,
+    const Commands &commands,
+    Sync &sync)
 {
     static size_t currentFrame=0;
-    vkWaitForFences(m_device, 1, &m_fencesInFlight[currentFrame], VK_TRUE, UINT64_MAX);
+    
+    auto &frameFence = sync.m_fencesInFlight[currentFrame];
+
+    vkWaitForFences(device.m_device, 1, &frameFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        m_device, m_swapChain, UINT64_MAX,
-        m_imageAvailableSemaphores[currentFrame],
+        device.m_device, swapchain.m_swapchain, UINT64_MAX,
+        sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
+
+    auto &imageFence = sync.m_imagesInFlight[imageIndex];
 
     if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -19,31 +29,31 @@ void evk::Instance::draw()
     }
 
     // Check if a previous frame is using this image. If so, wait on its fence.
-    if (m_imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+    if (imageFence != VK_NULL_HANDLE)
     {
-        vkWaitForFences(m_device, 1, &(m_imagesInFlight[imageIndex]), VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device.m_device, 1, &(imageFence), VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as being in use.
-    m_imagesInFlight[imageIndex] = m_fencesInFlight[currentFrame];
+    imageFence = frameFence;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {sync.m_imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &m_primaryCommandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &commands.m_primaryCommandBuffers[currentFrame];
 
-    VkSemaphore signalSemaphores[] = {(m_renderFinishedSemaphores)[currentFrame]};
+    VkSemaphore signalSemaphores[] = {(sync.m_renderFinishedSemaphores)[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(m_device, 1, &m_fencesInFlight[currentFrame]);
+    vkResetFences(device.m_device, 1, &frameFence);
 
-    if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_fencesInFlight[currentFrame]) != VK_SUCCESS)
+    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -52,127 +62,134 @@ void evk::Instance::draw()
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapChains[] = {m_swapChain};
+    VkSwapchainKHR swapchains[] = {swapchain.m_swapchain};
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
+    presentInfo.pSwapchains = swapchains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    if (vkQueuePresentKHR(m_presentQueue, &presentInfo) != VK_SUCCESS)
+    if (vkQueuePresentKHR(device.m_presentQueue, &presentInfo) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to present swap chain image.");
     }
 
-    vkQueueWaitIdle(m_presentQueue);
+    vkQueueWaitIdle(device.m_presentQueue);
 
-    currentFrame = ((currentFrame)+1) % m_maxFramesInFlight;
+    currentFrame = ((currentFrame)+1) % swapchain.m_images.size();
 }
 
-void evk::Instance::createDrawCommands()
+void recordDrawCommands(
+    Device &device,
+    const Buffer &indexBuffer,
+    const Buffer &vertexBuffer,
+    const std::vector<Descriptor> &descriptors,
+    const std::vector<Pipeline> &pipelines,
+    const Renderpass &renderpass,
+    const Swapchain &swapchain,
+    Framebuffer &framebuffers,
+    Commands &commands)
 {
-    m_primaryCommandBuffers.resize(m_maxFramesInFlight);
-    m_secondaryCommandBuffers.resize(m_numThreads);
+    const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
+    framebuffers = {device, renderpass, swapchain};
+    
+    VkRenderPassBeginInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderpass.m_renderPass;
+    renderPassInfo.renderArea.offset = {0,0};
+    renderPassInfo.renderArea.extent = swapchain.m_extent;
+    renderPassInfo.clearValueCount = renderpass.m_clearValues.size();
+    renderPassInfo.pClearValues = renderpass.m_clearValues.data();
 
-    const size_t numIndicesEach=m_indices.size()/m_numThreads;
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    for (int frame = 0; frame < m_maxFramesInFlight; ++frame)
+    for (size_t imageIndex = 0; imageIndex < swapchain.m_images.size(); ++imageIndex)
     {
-        // Create primary command buffer.
-        VkCommandBufferAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = m_commandPools[0];
-        allocInfo.commandBufferCount = 1;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        vkAllocateCommandBuffers(m_device, &allocInfo, &m_primaryCommandBuffers[frame]);
+        auto &primaryCommandBuffer = commands.m_primaryCommandBuffers[imageIndex];
 
-        std::array<VkClearValue, 2> clearValues = {};
-        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0};
+        renderPassInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
+        vkBeginCommandBuffer(primaryCommandBuffer, &beginInfo);
 
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = m_renderPass;
-        renderPassInfo.framebuffer = m_framebuffers[frame];
-        renderPassInfo.renderArea.offset = {0,0};
-        renderPassInfo.renderArea.extent = m_swapChainExtent;
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
-
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        vkBeginCommandBuffer(
-            m_primaryCommandBuffers[frame],
-            &beginInfo);
-
-        vkCmdBeginRenderPass(
-            m_primaryCommandBuffers[frame],
-            &renderPassInfo,
-            VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
-        auto createDrawCommands =[&](int i)
+        for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
         {
-            size_t numIndices=numIndicesEach;
-            size_t indexOffset=numIndicesEach*i;
-            if (i==(m_numThreads-1)) numIndices = m_indices.size()-(i*numIndicesEach);
-            VkCommandBufferAllocateInfo allocInfo = {};
-            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            allocInfo.commandPool = m_commandPools[i];
-            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-            allocInfo.commandBufferCount = 1;
+            auto &descriptor = descriptors[pass];
+            auto &descriptorSets = descriptor.m_descriptorSets;
+            auto &pipeline = pipelines[pass].m_pipeline;
+            auto &pipelineLayout = pipelines[pass].m_layout;
 
-            if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_secondaryCommandBuffers[i]) != VK_SUCCESS)
+            if (pass == 0 )
+                vkCmdBeginRenderPass(
+                    primaryCommandBuffer,
+                    &renderPassInfo,
+                    VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+            else
+                vkCmdNextSubpass(
+                    primaryCommandBuffer,
+                    VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+            auto createDrawCommands =[&](int i)
             {
-                throw std::runtime_error("failed to allocate command buffers.");
-            }
+                auto &secondaryCommandBuffer = commands.m_secondaryCommandBuffers[i];
 
-            VkCommandBufferInheritanceInfo inheritanceInfo = {};
-            inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-            inheritanceInfo.renderPass = m_renderPass;
-            inheritanceInfo.framebuffer = m_framebuffers[frame];
+                size_t numIndices=numIndicesEach;
+                size_t indexOffset=numIndicesEach*i;
+                if (i==(device.m_numThreads-1)) numIndices = indexBuffer.m_numElements-(i*numIndicesEach);
 
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-            beginInfo.pInheritanceInfo = &inheritanceInfo;
+                VkCommandBufferAllocateInfo allocInfo = {};
+                allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                allocInfo.commandPool = commands.m_commandPools[i];
+                allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+                allocInfo.commandBufferCount = 1;
+                if (vkAllocateCommandBuffers(device.m_device, &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to allocate command buffers.");
+                }
 
-            if (vkBeginCommandBuffer(m_secondaryCommandBuffers[i], &beginInfo) != VK_SUCCESS)
+                VkCommandBufferInheritanceInfo inheritanceInfo = {};
+                inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+                inheritanceInfo.renderPass = renderpass.m_renderPass;
+                inheritanceInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
+                inheritanceInfo.subpass=pass;
+
+                VkCommandBufferBeginInfo beginInfo = {};
+                beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+                beginInfo.pInheritanceInfo = &inheritanceInfo;
+
+                if (vkBeginCommandBuffer(secondaryCommandBuffer, &beginInfo) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to begin recording command buffer.");
+                }
+
+                vkCmdBindPipeline(secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+                VkDeviceSize offsets[] = {0};
+
+                vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vertexBuffer.m_buffer, offsets);
+                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.m_buffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindDescriptorSets(
+                    secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                    0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+                vkCmdDrawIndexed(secondaryCommandBuffer, numIndices, 1, indexOffset, 0, 0);
+
+                if (vkEndCommandBuffer(secondaryCommandBuffer) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to record command buffer.");
+                }
+            };
+
+            int counter = 0;
+            for (auto &t: device.m_threadPool.threads)
             {
-                throw std::runtime_error("failed to begin recording command buffer.");
+                t->addJob(std::bind(createDrawCommands,counter++));
             }
-            
-            vkCmdBindPipeline(m_secondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
-
-            size_t vertexBufferIndex = (m_bufferMap["VERTEX"]).index;
-            size_t indexBufferIndex = (m_bufferMap["INDEX"]).index;
-            VkBuffer vertexBuffers[] = {m_buffers[vertexBufferIndex]};
-            VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(m_secondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-            vkCmdBindIndexBuffer(m_secondaryCommandBuffers[i], m_buffers[indexBufferIndex], 0, VK_INDEX_TYPE_UINT32);
-            vkCmdBindDescriptorSets(
-                m_secondaryCommandBuffers[i],
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_graphicsPipelineLayout, 0, 1, &(m_descriptorSets[frame]), 0, nullptr); // TODO: why is m_descriptorSets 0?
-
-            vkCmdDrawIndexed(m_secondaryCommandBuffers[i], numIndices, 1, indexOffset, 0, 0);
-
-            if (vkEndCommandBuffer(m_secondaryCommandBuffers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to record command buffer.");
-            }
-        };
-
-        int counter = 0;
-        for (auto &t: m_threadPool.threads)
-        {
-            t->addJob(std::bind(createDrawCommands,counter++));
+            device.m_threadPool.wait();
+            vkCmdExecuteCommands(primaryCommandBuffer, commands.m_secondaryCommandBuffers.size(), commands.m_secondaryCommandBuffers.data());
         }
-        m_threadPool.wait();
 
-        vkCmdExecuteCommands(m_primaryCommandBuffers[frame], m_secondaryCommandBuffers.size(), m_secondaryCommandBuffers.data());
+        vkCmdEndRenderPass(primaryCommandBuffer);
 
-        vkCmdEndRenderPass(m_primaryCommandBuffers[frame]);
-
-        if (vkEndCommandBuffer(m_primaryCommandBuffers[frame]) != VK_SUCCESS)
+        if (vkEndCommandBuffer(primaryCommandBuffer) != VK_SUCCESS)
         {
             throw std::runtime_error("Could not end primaryCommandBuffer.");   
         }

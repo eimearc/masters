@@ -7,7 +7,7 @@ void App::createGrid()
     grid = Grid(gridSize, cubeSize, NUM_CUBES);
     int i=0;
     const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,0,0}};
+    Vertex vertex = {{}, {1,1,1}};
     for (auto cube : grid.cubes)
     {
         std::vector<glm::vec3> verts = cube.vertices;
@@ -15,7 +15,7 @@ void App::createGrid()
         for(size_t j = 0; j<verts.size(); ++j)
         {
             vertex.pos=verts[j];
-            vertex.color=cube.color;
+            vertex.color={1,0,1};
             vertices.push_back(vertex);
         }
         for(size_t j = 0; j<ind.size(); ++j)
@@ -28,99 +28,230 @@ void App::createGrid()
 
 void App::initVulkan()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+    const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
-    evk::InstanceCreateInfo instanceCreateInfo{
-        validationLayers,
-        window,
-        deviceExtensions
+    device = {numThreads, validationLayers, window, deviceExtensions};
+
+    commands = {device, swapchainSize, FLAGS_num_threads};
+
+    Attachment framebuffer;
+    swapchain = {
+        swapchainSize,
+        framebuffer,
+        device
     };
-    evkInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
 
-    evkInstance.createCommandPools();
-    evk::SwapChainCreateInfo swapChainCreateInfo{
-        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
-    };
-    evkInstance.createSwapChain(&swapChainCreateInfo);
-
-    evkInstance.createSyncObjects();
-    evkInstance.createRenderPass();
-
-    evkInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
+    sync = {device, swapchain};
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
+    Descriptor descriptor(device, MAX_FRAMES_IN_FLIGHT,1);
     evk::loadOBJ("obj/viking_room.obj", v, in);
-    evkInstance.loadTexture("tex/viking_room.png"); // Must be before createDescriptorSets.
 
-    evkInstance.registerVertexShader("shaders/vert.spv");
-    evkInstance.registerFragmentShader("shaders/frag.spv");
+    texture = { // Must be before createDescriptorSets.
+        "tex/viking_room.png",
+        device,
+        commands
+    };
+    descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
-    evkInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    evkInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    evkInstance.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
-    evkInstance.setBindingDescription(sizeof(Vertex));
+    Attachment depthAttachment(device, 1);
+    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
 
-    evkInstance.createDescriptorSets();
-    evkInstance.createGraphicsPipeline();
-
-    evkInstance.createDepthResources();
-    evkInstance.createFramebuffers();
-
-    evkInstance.createIndexBuffer(in);
-    evkInstance.createVertexBuffer(v);
+    std::vector<Attachment> colorAttachments = {framebuffer};
+    std::vector<Attachment> depthAttachments = {depthAttachment};
+    std::vector<Attachment> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
     
-    evkInstance.createDrawCommands();
+    Subpass subpass(
+        0,
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments
+    );
+
+    attachments = {framebuffer, depthAttachment};
+    std::vector<Subpass> subpasses = {subpass};
+    renderpass = {
+        attachments,
+        subpasses,
+        device
+    };
+
+    UniformBufferObject ubo = {};
+    ubo.model=glm::mat4(1.0f);
+    ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f), glm::vec3(0.0f,0.0f,1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+
+    // Set up UBO.
+    buffer = Buffer(device);
+    buffer.setBuffer(sizeof(UniformBufferObject));
+    descriptor.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+
+    VertexInput vertexInput;
+    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
+    vertexInput.setBindingDescription(sizeof(Vertex));
+
+    indexBuffer = Buffer(device);
+    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
+
+    vertexBuffer = Buffer(device);
+    vertexBuffer.setVertexBuffer(device, v.data(), sizeof(v[0]), v.size(), commands);
+
+    Shader vertexShader("shaders/vert.spv", ShaderStage::VERTEX, device);
+    Shader fragmentShader("shaders/frag.spv", ShaderStage::FRAGMENT, device);
+    shaders = {vertexShader,fragmentShader};
+
+    Pipeline pipeline(
+        device,
+        subpass,
+        &descriptor,
+        vertexInput,
+        swapchain,
+        renderpass,
+        shaders
+    );
+
+    descriptors = {descriptor};
+    pipelines = {pipeline};
+
+    recordDrawCommands(
+        device, indexBuffer, vertexBuffer,
+        descriptors, pipelines, renderpass,
+        swapchain, framebuffers, commands);
 }
 
 void App::initMultipassVulkan()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+    const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
+    device = {numThreads, validationLayers, window, deviceExtensions};
 
-    evk::InstanceCreateInfo instanceCreateInfo{
-        validationLayers,
-        window,
-        deviceExtensions
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+
+    commands = {device, swapchainSize, FLAGS_num_threads};
+
+    Attachment framebufferAttachment;
+    swapchain = {swapchainSize, framebufferAttachment, device};
+
+    sync = {device, swapchain};
+
+    Attachment colorAttachment(device, 1);
+    colorAttachment.setColorAttachment(swapchain.m_extent, device);
+
+    Attachment depthAttachment(device, 2);
+    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
+
+    std::vector<Attachment> colorAttachments = {colorAttachment};
+    std::vector<Attachment> depthAttachments = {depthAttachment};
+    std::vector<Attachment> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
+
+    Subpass subpass0(
+        0,
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments
+    );
+
+    colorAttachments = {framebufferAttachment};
+    depthAttachments.resize(0);
+    inputAttachments = {colorAttachment, depthAttachment};
+    dependencies = {{0,1}};
+
+    Subpass subpass1(
+        1,
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments
+    );
+
+    attachments = {framebufferAttachment, colorAttachment, depthAttachment};
+    std::vector<Subpass> subpasses = {subpass0, subpass1};
+
+    renderpass = {
+        attachments,
+        subpasses,
+        device
     };
-    multipassInstance=evk::Instance(FLAGS_num_threads, &instanceCreateInfo);
 
-    multipassInstance.createCommandPools();
-    evk::SwapChainCreateInfo swapChainCreateInfo{
-        static_cast<uint8_t>(MAX_FRAMES_IN_FLIGHT)
+    // Set up UBO.
+    buffer = Buffer(device);
+    buffer.setBuffer(sizeof(UniformBufferObject));
+    Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
+    descriptor0.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+
+    Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
+    descriptor1.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
+    descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
+
+    VertexInput vertexInput0;
+    vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput0.setBindingDescription(sizeof(Vertex));
+
+    VertexInput vertexInput1;
+    vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput1.setBindingDescription(sizeof(Vertex));
+
+    indexBuffer = Buffer(device);
+    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
+
+    vertexBuffer = Buffer(device);
+    vertexBuffer.setVertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
+
+    VertexInput vertexInput;
+    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.setBindingDescription(sizeof(Vertex));
+
+    std::vector<Shader> shaders0 = {
+        {"shaders/multipass_0_vert.spv", ShaderStage::VERTEX, device},
+        {"shaders/multipass_0_frag.spv", ShaderStage::FRAGMENT, device}
     };
-    multipassInstance.createSwapChain(&swapChainCreateInfo);
+    Pipeline pipeline0(
+        device,
+        subpass0,
+        &descriptor0,
+        vertexInput0,
+        swapchain,
+        renderpass,
+        shaders0
+    );
 
-    multipassInstance.createSyncObjects();
-    multipassInstance.createRenderPass();
+    std::vector<Shader> shaders1 = {
+        {"shaders/multipass_1_vert.spv", ShaderStage::VERTEX, device},
+        {"shaders/multipass_1_frag.spv", ShaderStage::FRAGMENT, device},
+    };
+    Pipeline pipeline1(
+        device,
+        subpass1,
+        &descriptor1,
+        vertexInput1,
+        swapchain,
+        renderpass,
+        shaders1
+    );
 
-    multipassInstance.createBufferObject("UBO", sizeof(UniformBufferObject));
-
-    multipassInstance.registerVertexShader("shaders/multipass_vert.spv");
-    multipassInstance.registerFragmentShader("shaders/multipass_frag.spv");
-
-    multipassInstance.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    multipassInstance.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    multipassInstance.setBindingDescription(sizeof(Vertex));
-
-    multipassInstance.createDescriptorSets();
-    multipassInstance.createGraphicsPipeline();
-
-    multipassInstance.createDepthResources();
-    multipassInstance.createFramebuffers();
-
-    multipassInstance.createIndexBuffer(indices);
-    multipassInstance.createVertexBuffer(vertices);
+    pipelines = {pipeline0, pipeline1};
+    descriptors = {descriptor0, descriptor1};
+    for (const auto &s : shaders0) shaders.push_back(s);
+    for (const auto &s : shaders1) shaders.push_back(s);
     
-    multipassInstance.createDrawCommands();
+    recordDrawCommands(
+        device, indexBuffer, vertexBuffer,
+        descriptors, pipelines, renderpass,
+        swapchain, framebuffers, commands);
 }
 
-void App::mainLoop(evk::Instance &instance)
+void App::mainLoop()
 {
     size_t frameIndex=0;
     size_t counter=0;
@@ -135,9 +266,9 @@ void App::mainLoop(evk::Instance &instance)
         ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
-        instance.updateBufferObject("UBO",sizeof(ubo), &ubo, frameIndex);
+        buffer.updateBuffer(&ubo);
 
-        instance.draw();
+        executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
         frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;

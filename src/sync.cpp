@@ -1,13 +1,16 @@
-#include "evulkan_core.h"
+#include "sync.h"
 
 #include <iostream>
 
-void evk::Instance::createSyncObjects()
+Sync::Sync(const Device &device, const Swapchain &swapchain)
 {
-    m_imageAvailableSemaphores.resize(m_maxFramesInFlight);
-    m_renderFinishedSemaphores.resize(m_maxFramesInFlight);
-    m_fencesInFlight.resize(m_maxFramesInFlight);
-    m_imagesInFlight.resize(m_swapChainImages.size(), VK_NULL_HANDLE);
+    const size_t swapchainSize = swapchain.m_images.size();
+    size_t maxFramesInFlight=swapchain.m_images.size();
+    m_device = device.m_device;
+    m_imageAvailableSemaphores.resize(maxFramesInFlight);
+    m_renderFinishedSemaphores.resize(maxFramesInFlight);
+    m_fencesInFlight.resize(maxFramesInFlight);
+    m_imagesInFlight.resize(swapchainSize, VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -16,7 +19,7 @@ void evk::Instance::createSyncObjects()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < m_maxFramesInFlight; i++)
+    for (size_t i = 0; i < maxFramesInFlight; i++)
     {
         if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &(m_imageAvailableSemaphores)[i]) != VK_SUCCESS ||
             vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &(m_renderFinishedSemaphores)[i]) != VK_SUCCESS ||
@@ -25,4 +28,11 @@ void evk::Instance::createSyncObjects()
             throw std::runtime_error("failed to create semaphores for a frame.");
         }
     }
+}
+
+void Sync::destroy()
+{
+    for (auto &s : m_renderFinishedSemaphores) vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &f : m_fencesInFlight) vkDestroyFence(m_device, f, nullptr);
 }

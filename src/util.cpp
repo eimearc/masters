@@ -1,6 +1,8 @@
-#include "evulkan_core.h"
+#include "evulkan_util.h"
 
-std::vector<char> evk::Instance::readFile(const std::string& filename)
+#include <fstream>
+
+std::vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 

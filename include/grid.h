@@ -12,7 +12,7 @@ struct Grid
         gridSize = _gridSize;
         float stepSize = _gridSize/_num;
 
-        glm::vec3 color{1,0,0};
+        glm::vec3 color{1,1,1};
         glm::vec3 center{0,0,0};
         float left = (center.x-_gridSize/2.0f)+0.5f*stepSize;
         float top = (center.y+_gridSize/2.0f)-0.5f*stepSize;
