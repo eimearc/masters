@@ -23,6 +23,7 @@ class Buffer
         Commands &commands
     );
     void setVertexBuffer(
+        Device &device,
         const void *vertices,
         const VkDeviceSize &elementSize,
         const size_t numElements,

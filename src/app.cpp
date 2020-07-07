@@ -102,7 +102,7 @@ void App::initVulkan()
     indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
 
     vertexBuffer = Buffer(device);
-    vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), commands);
+    vertexBuffer.setVertexBuffer(device, v.data(), sizeof(v[0]), v.size(), commands);
 
     Shader vertexShader("shaders/vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shaders/frag.spv", ShaderStage::FRAGMENT, device);
@@ -205,7 +205,7 @@ void App::initMultipassVulkan()
     indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
 
     vertexBuffer = Buffer(device);
-    vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
+    vertexBuffer.setVertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));

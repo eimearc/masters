@@ -75,6 +75,7 @@ void Buffer::setIndexBuffer(
 }
 
 void Buffer::setVertexBuffer(
+    Device &device,
     const void *vertices,
     const VkDeviceSize &elementSize,
     const size_t numElements,
@@ -85,9 +86,9 @@ void Buffer::setVertexBuffer(
     const int numVertsEach = numElements/m_numThreads;
     m_bufferSize = numElements * elementSize;
 
-    std::vector<VkCommandBuffer> commandBuffers(1);
-    std::vector<VkBuffer> buffers(1);
-    std::vector<VkDeviceMemory> bufferMemory(1);
+    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
+    std::vector<VkBuffer> buffers(m_numThreads);
+    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
     // Use a device-local buffer as the actual vertex buffer.
     createBuffer(
@@ -99,45 +100,65 @@ void Buffer::setVertexBuffer(
         &m_buffer,
         &m_bufferMemory);
 
-    auto &stagingBuffer = buffers;
-    auto &stagingBufferMemory = bufferMemory;
+    auto copyVertices = [&](int i)
+    {
+        int numVerts=numVertsEach;
+        int vertsOffset = numVertsEach*i;
+        size_t bufferOffset=(numVertsEach*elementSize)*i;
+        if (i==(m_numThreads-1)) numVerts = numElements-(i*numVertsEach);
+        size_t bufferSize = numVerts*elementSize;
 
-    // Use a host visible buffer as a staging buffer.
-    createBuffer(
-        m_device,
-        m_physicalDevice,
-        m_bufferSize,
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &buffers[0], &bufferMemory[0]);
+        auto &stagingBuffer = buffers[i];
+        auto &stagingBufferMemory = bufferMemory[i];
 
-    // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
-    // accessible memory.
-    void *data;
-    vkMapMemory(m_device, bufferMemory[0], 0, m_bufferSize, 0, &data);
-    memcpy(data, vertices, m_bufferSize);
-    vkUnmapMemory(m_device, bufferMemory[0]);
+        // Use a host visible buffer as a staging buffer.
+        createBuffer(
+            m_device,
+            m_physicalDevice,
+            bufferSize,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            &buffers[i], &bufferMemory[i]);
 
-    // Copy the vertex data from the staging buffer to the device-local buffer.
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPools[0];
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
-    vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[0]);
+        // TODO: Check if below is valid.
+        const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(vertices);
+        auto offset = vertsOffset*elementSize;
 
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
+        // accessible memory.
+        void *data;
+        vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
+        memcpy(data, bytePtr+offset, bufferSize); // Need to offset vertices.
+        vkUnmapMemory(m_device, bufferMemory[i]);
 
-    vkBeginCommandBuffer(commandBuffers[0], &beginInfo);
+        // Copy the vertex data from the staging buffer to the device-local buffer.
+        VkCommandBufferAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = commandPools[i];
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
+        vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
 
-    VkBufferCopy copyRegion = {};
-    copyRegion.size = m_bufferSize;
-    copyRegion.dstOffset = 0;
-    vkCmdCopyBuffer(commandBuffers[0], buffers[0], m_buffer, 1, &copyRegion);
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    vkEndCommandBuffer(commandBuffers[0]);
+        vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
+
+        VkBufferCopy copyRegion = {};
+        copyRegion.size = bufferSize;
+        copyRegion.dstOffset = bufferOffset;
+        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_buffer, 1, &copyRegion);
+
+        vkEndCommandBuffer(commandBuffers[i]);
+    };
+
+    int counter = 0;
+    for (auto &t: device.m_threadPool.threads)
+    {
+        t->addJob(std::bind(copyVertices,counter++));
+    }
+    device.m_threadPool.wait();
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -147,8 +168,7 @@ void Buffer::setVertexBuffer(
     vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(m_queue);
 
-    // for (size_t i = 0; i<commandPools.size(); ++i)
-    for (size_t i = 0; i<1; ++i) // Change this back in when multithreading works.
+    for (size_t i = 0; i<m_numThreads; ++i)
     {
         vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
         vkDestroyBuffer(m_device, buffers[i], nullptr);
