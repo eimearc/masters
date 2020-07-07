@@ -8,13 +8,18 @@ void executeDrawCommands(
     Sync &sync)
 {
     static size_t currentFrame=0;
-    vkWaitForFences(device.m_device, 1, &sync.m_fencesInFlight[currentFrame], VK_TRUE, UINT64_MAX);
+    
+    auto &frameFence = sync.m_fencesInFlight[currentFrame];
+
+    vkWaitForFences(device.m_device, 1, &frameFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
         device.m_device, swapchain.m_swapchain, UINT64_MAX,
         sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
+
+    auto &imageFence = sync.m_imagesInFlight[imageIndex];
 
     if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -24,13 +29,13 @@ void executeDrawCommands(
     }
 
     // Check if a previous frame is using this image. If so, wait on its fence.
-    if (sync.m_imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+    if (imageFence != VK_NULL_HANDLE)
     {
-        vkWaitForFences(device.m_device, 1, &(sync.m_imagesInFlight[imageIndex]), VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device.m_device, 1, &(imageFence), VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as being in use.
-    sync.m_imagesInFlight[imageIndex] = sync.m_fencesInFlight[currentFrame];
+    imageFence = frameFence;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -46,9 +51,9 @@ void executeDrawCommands(
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(device.m_device, 1, &sync.m_fencesInFlight[currentFrame]);
+    vkResetFences(device.m_device, 1, &frameFence);
 
-    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, sync.m_fencesInFlight[currentFrame]) != VK_SUCCESS)
+    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -57,9 +62,9 @@ void executeDrawCommands(
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapChains[] = {swapchain.m_swapchain};
+    VkSwapchainKHR swapchains[] = {swapchain.m_swapchain};
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
+    presentInfo.pSwapchains = swapchains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
