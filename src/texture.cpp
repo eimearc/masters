@@ -100,8 +100,8 @@ void Texture::transitionImageLayout(
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
-    barrier.srcAccessMask = 0; // TODO
-    barrier.dstAccessMask = 0; // TODO
+    barrier.srcAccessMask = 0; // TODO?
+    barrier.dstAccessMask = 0; // TODO?
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;

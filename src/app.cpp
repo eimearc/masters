@@ -29,10 +29,9 @@ void App::createGrid()
 void App::initVulkan()
 {
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
+    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
     device = {numThreads, validationLayers, window, deviceExtensions};
-
-    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
     commands = {device, swapchainSize, FLAGS_num_threads};
 
@@ -89,7 +88,7 @@ void App::initVulkan()
     ubo.proj[1][1] *= -1;
 
     // Set up UBO.
-    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    buffer = Buffer(device);
     buffer.setBuffer(sizeof(UniformBufferObject));
     descriptor.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
@@ -99,10 +98,10 @@ void App::initVulkan()
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     vertexInput.setBindingDescription(sizeof(Vertex));
 
-    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    indexBuffer = Buffer(device);
     indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
 
-    vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    vertexBuffer = Buffer(device);
     vertexBuffer.setVertexBuffer(v.data(), sizeof(v[0]), v.size(), commands);
 
     Shader vertexShader("shaders/vert.spv", ShaderStage::VERTEX, device);
@@ -184,7 +183,7 @@ void App::initMultipassVulkan()
     };
 
     // Set up UBO.
-    buffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    buffer = Buffer(device);
     buffer.setBuffer(sizeof(UniformBufferObject));
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
     descriptor0.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
@@ -202,10 +201,10 @@ void App::initMultipassVulkan()
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    indexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    indexBuffer = Buffer(device);
     indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
 
-    vertexBuffer = Buffer(MAX_FRAMES_IN_FLIGHT, device);
+    vertexBuffer = Buffer(device);
     vertexBuffer.setVertexBuffer(vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
 
     VertexInput vertexInput;

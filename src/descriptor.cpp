@@ -101,7 +101,7 @@ void Descriptor::addUniformBuffer(
 {
     auto shaderStage = shaderStageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
-    addWriteDescriptorSetBuffer(buffer.m_buffers, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
+    addWriteDescriptorSetBuffer(buffer.m_buffer, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
 }
 
 void Descriptor::addInputAttachment(
@@ -154,11 +154,11 @@ void Descriptor::addDescriptorSetBinding(
 }
 
 void Descriptor::addWriteDescriptorSetBuffer(
-    std::vector<VkBuffer> buffers, VkDeviceSize range,
+    VkBuffer buffer, VkDeviceSize range,
     uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage)
 {
     VkDescriptorBufferInfo bufferInfo = {};
-    bufferInfo.buffer = buffers[0];
+    bufferInfo.buffer = buffer;
     bufferInfo.offset = 0;
     bufferInfo.range = range;
     m_descriptorBufferInfo = bufferInfo; // Overwriting?

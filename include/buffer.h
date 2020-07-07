@@ -11,7 +11,7 @@ class Buffer
 {
     public:
     Buffer()=default;
-    Buffer(size_t swapchainSize, const Device &device);
+    Buffer(const Device &device);
 
     void setBuffer(const VkDeviceSize &bufferSize);
     void updateBuffer(const void *srcBuffer);
@@ -31,12 +31,11 @@ class Buffer
 
     void destroy();
 
-    std::vector<VkBuffer> m_buffers;
-    std::vector<VkDeviceMemory> m_bufferMemories;
+    VkBuffer m_buffer;
+    VkDeviceMemory m_bufferMemory;
     size_t m_numElements;
 
     private:
-    size_t m_swapchainSize;
     VkDevice m_device;
     VkPhysicalDevice m_physicalDevice;
     VkDeviceSize m_bufferSize;

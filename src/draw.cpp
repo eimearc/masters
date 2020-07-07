@@ -165,11 +165,11 @@ void recordDrawCommands(
 
                 VkDeviceSize offsets[] = {0};
 
-                vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, vertexBuffer.m_buffers.data(), offsets);
-                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.m_buffers[0], 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vertexBuffer.m_buffer, offsets);
+                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.m_buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdBindDescriptorSets(
                     secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    0, descriptorSets.size(), descriptorSets.data(), 0, nullptr); // TODO: why is m_descriptorSets 0?
+                    0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
                 vkCmdDrawIndexed(secondaryCommandBuffer, numIndices, 1, indexOffset, 0, 0);
 
                 if (vkEndCommandBuffer(secondaryCommandBuffer) != VK_SUCCESS)

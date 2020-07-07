@@ -67,6 +67,7 @@ private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     Grid grid;
+    
     Device device;
     Buffer buffer;
     Buffer indexBuffer;

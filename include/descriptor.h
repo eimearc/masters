@@ -66,7 +66,7 @@ class Descriptor
     
     void addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetBuffer(
-        std::vector<VkBuffer> buffers, VkDeviceSize range,
+        VkBuffer buffer, VkDeviceSize range,
         uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetInputAttachment(VkImageView imageView, uint32_t binding, VkShaderStageFlagBits stage);
 

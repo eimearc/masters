@@ -4,13 +4,13 @@ Pipeline::Pipeline(
     const Device &device,
     const Subpass &subpass,
     Descriptor *pDescriptor,
-    const VertexInput &i_vertexInput,
+    const VertexInput &vertexInput,
     const Swapchain &swapchain,
     const Renderpass &renderpass,
     const std::vector<Shader> &shaders
 )
 {
-    m_vertexInput = i_vertexInput;
+    m_vertexInput = vertexInput;
     m_subpass = subpass.m_index;
     m_device = device.m_device;
 
@@ -20,7 +20,7 @@ Pipeline::Pipeline(
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (m_vertexInput.m_bindingDescription.stride>0)
+    if (m_vertexInput.m_bindingDescription.stride>0) // TODO: remove this?
     {
         // Set up input to vertex shader.
         vertexInputInfo.vertexBindingDescriptionCount = 1;
@@ -88,7 +88,7 @@ Pipeline::Pipeline(
         | VK_COLOR_COMPONENT_B_BIT
         | VK_COLOR_COMPONENT_A_BIT;
     colorBlendAttachment.colorWriteMask = 0xf;
-    // colorBlendAttachment.blendEnable = VK_FALSE;
+    colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
@@ -100,7 +100,7 @@ Pipeline::Pipeline(
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-    colorBlending.attachmentCount = 1; //is this right? TODO:
+    colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
     colorBlending.blendConstants[0] = 0.0f; // Optional
     colorBlending.blendConstants[1] = 0.0f; // Optional
@@ -139,8 +139,6 @@ Pipeline::Pipeline(
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = shadersCreateInfo.size();
     pipelineInfo.pStages = shadersCreateInfo.data();
-
-    // Fixed function stages.
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
@@ -149,18 +147,14 @@ Pipeline::Pipeline(
     pipelineInfo.pDepthStencilState = nullptr;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
-    
     pipelineInfo.layout = m_layout;
     pipelineInfo.renderPass = renderpass.m_renderPass;
     pipelineInfo.subpass = m_subpass;
-
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
-
-    // Add the depth stencil.
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(device.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS) // Validation error is here.
+    if (vkCreateGraphicsPipelines(device.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     }
