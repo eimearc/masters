@@ -25,6 +25,8 @@ class Texture
     VkSampler m_imageSampler;
     VkDescriptorImageInfo m_imageDescriptor;
 
+    bool m_allocated=false;
+
     private:
     void transitionImageLayout(
         const Device &device,

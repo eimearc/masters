@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.1)
 project (evulkan)
 
+# set(CMAKE_AUTOMOC ON)
+# set(CMAKE_AUTORCC ON)
+# set(CMAKE_AUTOUIC ON)
+
+# find_package(Qt5Gui)
 find_package(PkgConfig REQUIRED)
 set (CMAKE_CXX_STANDARD 17)
 
@@ -65,7 +70,7 @@ set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
 add_library(evulkan SHARED ${SOURCES})
 
 install(TARGETS evulkan DESTINATION lib)
-install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
+install(FILES ${VULKANROOT}/include/evulkan_core.h DESTINATION include)
 
 set(MAIN_SOURCES
     ${VULKANROOT}/src/main.cpp

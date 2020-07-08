@@ -67,14 +67,19 @@ Texture::Texture(
     samplerInfo.maxLod = 0.0f;
     if (vkCreateSampler(device.m_device, &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler.");
+
+    m_allocated=true;
 }
 
 void Texture::destroy()
 {
-    vkDestroySampler(m_device, m_imageSampler, nullptr);
-    vkDestroyImageView(m_device, m_imageView, nullptr);
-    vkDestroyImage(m_device, m_image, nullptr);
-    vkFreeMemory(m_device, m_memory, nullptr);
+    if (m_allocated)
+    {
+        vkDestroySampler(m_device, m_imageSampler, nullptr);
+        vkDestroyImageView(m_device, m_imageView, nullptr);
+        vkDestroyImage(m_device, m_image, nullptr);
+        vkFreeMemory(m_device, m_memory, nullptr);
+    }
 }
 
 void Texture::transitionImageLayout(
