@@ -29,7 +29,7 @@ public:
 
     void destroy()
     {
-        buffer.destroy();
+        ubo.destroy();
         indexBuffer.destroy();
         vertexBuffer.destroy();
         texture.destroy();
@@ -51,24 +51,30 @@ private:
     const size_t NUM_CUBES = sqrt(FLAGS_num_cubes);
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
-    Grid grid;
-    
+    Grid grid;  
+
     Device device;
-    Buffer buffer;
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    Buffer ubo;
     Buffer indexBuffer;
     Buffer vertexBuffer;
-    Renderpass renderpass;
+
     std::vector<Attachment> attachments;
-    std::vector<Descriptor> descriptors; // TODO: make this a vector of pointers.
+    std::vector<Descriptor> descriptors; // TODO: make this a vector of pointers?
+
     Texture texture;
     Swapchain swapchain;
     Commands commands;
     Framebuffer framebuffers;
     Sync sync;
-    std::vector<Pipeline> pipelines;
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
+
     std::vector<Shader> shaders;
+    std::vector<Pipeline> pipelines;
+    Renderpass renderpass;
+
     GLFWwindow *window;
     std::vector<const char*> validationLayers =
     {

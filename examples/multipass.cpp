@@ -56,13 +56,13 @@ void App::initVulkan()
     };
 
     // Set up UBO.
-    buffer = Buffer(device);
-    buffer.setBuffer(sizeof(UniformBufferObject));
+    ubo = Buffer(device);
+    ubo.setBuffer(sizeof(UniformBufferObject));
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
-    descriptor0.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
-    descriptor1.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
     descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
     descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
 

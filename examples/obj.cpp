@@ -54,17 +54,10 @@ void App::initVulkan()
         device
     };
 
-    UniformBufferObject ubo = {};
-    ubo.model=glm::mat4(1.0f);
-    ubo.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f), glm::vec3(0.0f,0.0f,1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
-    ubo.proj[1][1] *= -1;
-
     // Set up UBO.
-    buffer = Buffer(device);
-    buffer.setBuffer(sizeof(UniformBufferObject));
-    descriptor.addUniformBuffer(0, buffer, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    ubo = Buffer(device);
+    ubo.setBuffer(sizeof(UniformBufferObject));
+    descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
