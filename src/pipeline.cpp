@@ -1,20 +1,28 @@
 #include "pipeline.h"
 
 Pipeline::Pipeline(
-    const Device &device,
     const Subpass &subpass,
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
-    const Swapchain &swapchain,
     const Renderpass &renderpass,
     const std::vector<Shader> &shaders
 )
 {
     m_vertexInput = vertexInput;
     m_subpass = subpass.m_index;
-    m_device = device.m_device;
-
     m_descriptor = pDescriptor;
+    m_shaders = shaders;
+    m_renderpass = renderpass;
+}
+
+void Pipeline::setup(
+    Device &device,
+    Swapchain &swapchain
+)
+{
+    m_device = device.m_device;
+    m_swapchain = swapchain;
+
     m_descriptor->allocateDescriptorPool();
     m_descriptor->allocateDescriptorSets();
 
@@ -109,8 +117,8 @@ Pipeline::Pipeline(
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = pDescriptor->m_descriptorSetLayouts.size();
-    pipelineLayoutInfo.pSetLayouts = pDescriptor->m_descriptorSetLayouts.data();
+    pipelineLayoutInfo.setLayoutCount = m_descriptor->m_descriptorSetLayouts.size();
+    pipelineLayoutInfo.pSetLayouts = m_descriptor->m_descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -133,7 +141,7 @@ Pipeline::Pipeline(
     depthStencil.back = {};
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
-    for (const auto &s : shaders) shadersCreateInfo.push_back(s.m_createInfo);
+    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -148,7 +156,7 @@ Pipeline::Pipeline(
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = m_layout;
-    pipelineInfo.renderPass = renderpass.m_renderPass;
+    pipelineInfo.renderPass = m_renderpass.m_renderPass;
     pipelineInfo.subpass = m_subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
@@ -161,7 +169,7 @@ Pipeline::Pipeline(
 }
 
 void Pipeline::destroy()
-{
+{   
     vkDestroyPipelineLayout(m_device, m_layout, nullptr);
     vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }

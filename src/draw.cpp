@@ -82,15 +82,15 @@ void recordDrawCommands(
     Device &device,
     Buffer &indexBuffer,
     Buffer &vertexBuffer,
-    const std::vector<Descriptor> &descriptors,
-    const std::vector<Pipeline> &pipelines,
+    std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    const Swapchain &swapchain,
+    Swapchain &swapchain,
     Framebuffer &framebuffers,
     Commands &commands)
 {
     vertexBuffer.finalizeVertex(device, commands);
     indexBuffer.finalizeIndex(device, commands);
+    for (auto &p : pipelines) p.setup(device, swapchain);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
     framebuffers = {device, renderpass, swapchain};
@@ -115,7 +115,7 @@ void recordDrawCommands(
 
         for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
         {
-            auto &descriptor = descriptors[pass];
+            auto descriptor = *(pipelines[pass].m_descriptor);
             auto &descriptorSets = descriptor.m_descriptorSets;
             auto &pipeline = pipelines[pass].m_pipeline;
             auto &pipelineLayout = pipelines[pass].m_layout;

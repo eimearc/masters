@@ -73,22 +73,21 @@ void App::initVulkan()
     shaders = {vertexShader,fragmentShader};
 
     Pipeline pipeline(
-        device,
         subpass,
         &descriptor,
         vertexInput,
-        swapchain,
         renderpass,
         shaders
     );
 
-    descriptors = {descriptor};
     pipelines = {pipeline};
 
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        descriptors, pipelines, renderpass,
+        pipelines, renderpass,
         swapchain, framebuffers, commands);
+
+    descriptors = {descriptor};
 }
 
 int main(int argc, char **argv)

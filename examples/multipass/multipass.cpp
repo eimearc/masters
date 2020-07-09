@@ -58,6 +58,7 @@ void App::initVulkan()
     // Set up UBO.
     ubo = Buffer(device);
     ubo.setBuffer(sizeof(UniformBufferObject));
+
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
     descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
@@ -87,11 +88,9 @@ void App::initVulkan()
         {"pass_0_frag.spv", ShaderStage::FRAGMENT, device}
     };
     Pipeline pipeline0(
-        device,
         subpass0,
         &descriptor0,
         vertexInput0,
-        swapchain,
         renderpass,
         shaders0
     );
@@ -101,24 +100,23 @@ void App::initVulkan()
         {"pass_1_frag.spv", ShaderStage::FRAGMENT, device},
     };
     Pipeline pipeline1(
-        device,
         subpass1,
         &descriptor1,
         vertexInput1,
-        swapchain,
         renderpass,
         shaders1
     );
 
     pipelines = {pipeline0, pipeline1};
-    descriptors = {descriptor0, descriptor1};
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
     
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        descriptors, pipelines, renderpass,
+        pipelines, renderpass,
         swapchain, framebuffers, commands);
+
+    descriptors = {descriptor0, descriptor1}; // TODO: make more elegant.
 }
 
 int main(int argc, char **argv)

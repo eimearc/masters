@@ -25,10 +25,9 @@ void recordDrawCommands(
     Device &device,
     Buffer &indexBuffer,
     Buffer &vertexBuffer,
-    const std::vector<Descriptor> &descriptors,
-    const std::vector<Pipeline> &pipelines,
+    std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    const Swapchain &swapchain,
+    Swapchain &swapchain,
     Framebuffer &framebuffers,
     Commands &commands
 );
