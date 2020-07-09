@@ -1,12 +1,11 @@
-#ifndef DESC
-#define DESC
-
-#include <vulkan/vulkan.h>
-#include <vector>
-#include <iostream>
+#ifndef EVK_DESCRIPTOR
+#define EVK_DESCRIPTOR
 
 #include "attachment.h"
 #include "buffer.h"
+#include <iostream>
+#include <vector>
+#include <vulkan/vulkan.h>
 #include "texture.h"
 
 class Descriptor

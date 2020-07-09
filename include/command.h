@@ -1,10 +1,10 @@
-#ifndef COMMAND
-#define COMMAND
+#ifndef EVK_COMMAND
+#define EVK_COMMAND
 
-#include <vulkan/vulkan.h>
 #include "device.h"
 #include "util.h"
 #include <vector>
+#include <vulkan/vulkan.h>
 
 class Commands
 {
@@ -24,7 +24,6 @@ class Commands
 
     private:
     VkDevice m_device;
-    // size_t m_numThreads;
 };
 
 #endif

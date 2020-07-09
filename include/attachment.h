@@ -1,10 +1,10 @@
-#ifndef ATTACHMENT
-#define ATTACHMENT
+#ifndef EVK_ATTACHMENT
+#define EVK_ATTACHMENT
 
+#include "device.h"
 #include <vulkan/vulkan.h>
 #include <vector>
 #include "util.h"
-#include "device.h"
 
 class Attachment
 {

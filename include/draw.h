@@ -1,17 +1,17 @@
-#ifndef DRAW
-#define DRAW
+#ifndef EVK_DRAW
+#define EVK_DRAW
 
-#include <vulkan/vulkan.h>
-#include "util.h"
+#include <array>
 #include "buffer.h"
-#include "descriptor.h"
-#include <vector>
 #include "command.h"
+#include "descriptor.h"
+#include "pass.h"
 #include "pipeline.h"
 #include "swapchain.h"
-#include "pass.h"
 #include "sync.h"
-#include <array>
+#include "util.h"
+#include <vector>
+#include <vulkan/vulkan.h>
 
 void executeDrawCommands(
     const Device &device,

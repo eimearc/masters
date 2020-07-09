@@ -1,9 +1,9 @@
-#ifndef SYNC
-#define SYNC
+#ifndef EVK_SYNC
+#define EVK_SYNC
 
-#include <vulkan/vulkan.h>
-#include "util.h"
 #include "swapchain.h"
+#include "util.h"
+#include <vulkan/vulkan.h>
 
 class Sync
 {

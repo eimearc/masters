@@ -1,11 +1,11 @@
-#ifndef BUF
-#define BUF
+#ifndef EVK_BUFFER
+#define EVK_BUFFER
 
-#include <vulkan/vulkan.h>
-#include <vector>
 #include "command.h"
 #include "device.h"
 #include "util.h"
+#include <vector>
+#include <vulkan/vulkan.h>
 
 class Buffer
 {

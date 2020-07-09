@@ -1,9 +1,9 @@
 #ifndef SHADER
 #define SHADER
 
-#include <vulkan/vulkan.h>
-#include "util.h"
 #include "device.h"
+#include "util.h"
+#include <vulkan/vulkan.h>
 
 class Shader
 {

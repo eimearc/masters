@@ -1,10 +1,10 @@
-#ifndef TEXTURE
-#define TEXTURE
+#ifndef EVK_TEXTURE
+#define EVK_TEXTURE
 
-#include <vulkan/vulkan.h>
 #include "command.h"
 #include "device.h"
 #include "util.h"
+#include <vulkan/vulkan.h>
 
 class Texture
 {

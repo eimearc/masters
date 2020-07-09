@@ -1,9 +1,9 @@
-#ifndef DEVICE
-#define DEVICE
+#ifndef EVK_DEVICE
+#define EVK_DEVICE
 
-#include <vulkan/vulkan.h>
 #include "threadpool.h"
 #include "util.h"
+#include <vulkan/vulkan.h>
 
 class Device
 {

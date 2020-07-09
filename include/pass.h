@@ -1,10 +1,10 @@
-#ifndef PASS
-#define PASS
+#ifndef EVK_PASS
+#define EVK_PASS
 
-#include <vulkan/vulkan.h>
-#include "util.h"
 #include "attachment.h"
+#include "util.h"
 #include <vector>
+#include <vulkan/vulkan.h>
 
 class Subpass
 {

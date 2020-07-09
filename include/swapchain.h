@@ -1,11 +1,11 @@
-#ifndef SWAPCHAIN
-#define SWAPCHAIN
+#ifndef EVK_SWAPCHAIN
+#define EVK_SWAPCHAIN
 
-#include <vulkan/vulkan.h>
-#include "util.h"
 #include "attachment.h"
 #include "device.h"
 #include "pass.h"
+#include "util.h"
+#include <vulkan/vulkan.h>
 
 class Swapchain
 {

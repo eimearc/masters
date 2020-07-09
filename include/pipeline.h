@@ -1,13 +1,13 @@
-#ifndef PIPELINE
-#define PIPELINE
+#ifndef EVK_PIPELINE
+#define EVK_PIPELINE
 
-#include <vulkan/vulkan.h>
-#include "util.h"
 #include "descriptor.h"
 #include "device.h"
 #include "shader.h"
 #include "swapchain.h"
 #include "pass.h"
+#include "util.h"
+#include <vulkan/vulkan.h>
 
 class Pipeline
 {
