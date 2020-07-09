@@ -1,0 +1,21 @@
+include_directories(../)
+
+find_package(gflags REQUIRED)
+
+set(
+    FILES
+    obj.cpp
+    ../app.cpp
+    ../app.h
+    ../flags.cpp
+    ../flags.h
+    ../grid.h
+)
+
+add_executable(obj ${FILES})
+target_link_libraries(obj evulkan gflags)
+
+configure_file("viking_room.png" "." COPYONLY)
+configure_file("viking_room.obj" "." COPYONLY)
+configure_file("frag.spv" "." COPYONLY)
+configure_file("vert.spv" "." COPYONLY)
