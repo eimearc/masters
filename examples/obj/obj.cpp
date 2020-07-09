@@ -71,8 +71,8 @@ void App::initVulkan()
     vertexBuffer = Buffer(device);
     vertexBuffer.setVertexBuffer(device, v.data(), sizeof(v[0]), v.size(), commands);
 
-    Shader vertexShader("vert.spv", ShaderStage::VERTEX, device);
-    Shader fragmentShader("frag.spv", ShaderStage::FRAGMENT, device);
+    Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
+    Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
     shaders = {vertexShader,fragmentShader};
 
     Pipeline pipeline(
