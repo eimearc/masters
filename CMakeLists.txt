@@ -64,20 +64,8 @@ set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
 add_library(evulkan SHARED ${SOURCES})
 
 install(TARGETS evulkan DESTINATION lib)
-install(FILES ${VULKANROOT}/include/evulkan_core.h DESTINATION include)
+install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
-# set(MAIN_SOURCES
-#     ${VULKANROOT}/src/main.cpp
-#     ${VULKANROOT}/include/app.h
-#     ${VULKANROOT}/src/app.cpp
-#     ${STB_INCLUDE_PATH}/gflags/gflags.h
-#     ${VULKANROOT}/include/flags.h
-#     ${VULKANROOT}/src/flags.cpp
-#     ${VULKANROOT}/include/cube.h
-#     ${VULKANROOT}/include/grid.h
-# )
-
-# add_executable(main ${MAIN_SOURCES})
-# target_link_libraries(main gflags) # Must only link to main, otherwise get error in main.
-# target_link_libraries(main evulkan)
-# set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../")
+# Build examples.
+add_subdirectory(examples/obj)
+add_subdirectory(examples/multipass)

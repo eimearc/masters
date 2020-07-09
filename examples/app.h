@@ -1,7 +1,7 @@
 #ifndef APP
 #define APP
 
-#include "evulkan_core.h"
+#include "evulkan.h"
 #include "flags.h"
 #include "grid.h"
 
