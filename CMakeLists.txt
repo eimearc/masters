@@ -67,5 +67,4 @@ install(TARGETS evulkan DESTINATION lib)
 install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
 # Build examples.
-add_subdirectory(examples/obj)
-add_subdirectory(examples/multipass)
+add_subdirectory(examples)
