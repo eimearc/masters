@@ -23,8 +23,8 @@ void executeDrawCommands(
 
 void recordDrawCommands(
     Device &device,
-    const Buffer &indexBuffer,
-    const Buffer &vertexBuffer,
+    Buffer &indexBuffer,
+    Buffer &vertexBuffer,
     const std::vector<Descriptor> &descriptors,
     const std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,

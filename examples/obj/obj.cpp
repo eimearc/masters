@@ -65,11 +65,8 @@ void App::initVulkan()
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     vertexInput.setBindingDescription(sizeof(Vertex));
 
-    indexBuffer = Buffer(device);
-    indexBuffer.setIndexBuffer(in.data(), sizeof(in[0]), in.size(), commands);
-
-    vertexBuffer = Buffer(device);
-    vertexBuffer.setVertexBuffer(device, v.data(), sizeof(v[0]), v.size(), commands);
+    indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
+    vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);

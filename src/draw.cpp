@@ -80,8 +80,8 @@ void executeDrawCommands(
 
 void recordDrawCommands(
     Device &device,
-    const Buffer &indexBuffer,
-    const Buffer &vertexBuffer,
+    Buffer &indexBuffer,
+    Buffer &vertexBuffer,
     const std::vector<Descriptor> &descriptors,
     const std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
@@ -89,6 +89,9 @@ void recordDrawCommands(
     Framebuffer &framebuffers,
     Commands &commands)
 {
+    vertexBuffer.finalizeVertex(device, commands);
+    indexBuffer.finalizeIndex(device, commands);
+
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
     framebuffers = {device, renderpass, swapchain};
     

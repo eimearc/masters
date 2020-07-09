@@ -12,23 +12,20 @@ class Buffer
     public:
     Buffer()=default;
     Buffer(const Device &device);
+    Buffer(
+        const Device &device,
+        void *data,
+        const VkDeviceSize &elementSize,
+        const size_t numElements
+    );
+
+    enum Type{INDEX,VERTEX};
 
     void setBuffer(const VkDeviceSize &bufferSize);
     void updateBuffer(const void *srcBuffer);
 
-    void setIndexBuffer(
-        const void *indices,
-        const VkDeviceSize &elementSize,
-        const size_t numElements,
-        Commands &commands
-    );
-    void setVertexBuffer(
-        Device &device,
-        const void *vertices,
-        const VkDeviceSize &elementSize,
-        const size_t numElements,
-        Commands &commands
-    );
+    void finalizeVertex(Device &device, Commands &commands);
+    void finalizeIndex(Device &device, Commands &commands);
 
     void destroy();
 
@@ -42,6 +39,9 @@ class Buffer
     VkDeviceSize m_bufferSize;
     VkQueue m_queue;
     size_t m_numThreads;
+
+    void *m_data;
+    VkDeviceSize m_elementSize;
 
     void copyBuffer(
         VkCommandPool commandPool,

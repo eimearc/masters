@@ -8,42 +8,31 @@ Buffer::Buffer(const Device &device)
     m_numThreads = device.m_numThreads;
 }
 
-void Buffer::destroy()
-{
-    vkDestroyBuffer(m_device, m_buffer, nullptr);
-    vkFreeMemory(m_device, m_bufferMemory, nullptr);
-}
-
-void Buffer::setBuffer(const VkDeviceSize &bufferSize)
-{
-    m_bufferSize=bufferSize;
-    createBuffer(
-        m_device,
-        m_physicalDevice,
-        bufferSize,
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &m_buffer, &m_bufferMemory);
-}
-
-void Buffer::updateBuffer(const void *srcBuffer)
-{
-    void* dstBuffer;
-    vkMapMemory(m_device, m_bufferMemory, 0, m_bufferSize, 0, &dstBuffer);
-    memcpy(dstBuffer, srcBuffer, m_bufferSize);
-    vkUnmapMemory(m_device, m_bufferMemory);
-}
-
-void Buffer::setIndexBuffer(
-    const void *indices,
+Buffer::Buffer(
+    const Device &device,
+    void *data,
     const VkDeviceSize &elementSize,
-    const size_t numElements,
+    const size_t numElements
+)
+{
+    m_device = device.m_device;
+    m_physicalDevice = device.m_physicalDevice;
+    m_queue = device.m_graphicsQueue;
+    m_numThreads = device.m_numThreads;
+
+    m_data=data;
+    m_elementSize=elementSize;
+    m_numElements=numElements;
+    m_bufferSize = m_numElements * m_elementSize;
+}
+
+void Buffer::finalizeIndex(
+    Device &device,
     Commands &commands)
 {
     VkCommandPool &commandPool = commands.m_commandPools[0];
 
-    m_bufferSize = elementSize*numElements;
-    m_numElements = numElements;
+    m_bufferSize = m_elementSize*m_numElements;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -57,7 +46,7 @@ void Buffer::setIndexBuffer(
 
     void *data;
     vkMapMemory(m_device, stagingBufferMemory, 0, m_bufferSize, 0, &data);
-    memcpy(data, indices, m_bufferSize);
+    memcpy(data, m_data, m_bufferSize);
     vkUnmapMemory(m_device, stagingBufferMemory);
 
     createBuffer(
@@ -74,17 +63,10 @@ void Buffer::setIndexBuffer(
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
-void Buffer::setVertexBuffer(
-    Device &device,
-    const void *vertices,
-    const VkDeviceSize &elementSize,
-    const size_t numElements,
-    Commands &commands)
+void Buffer::finalizeVertex(Device &device, Commands &commands)
 {
     std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
-    m_numElements = numElements;
-    const int numVertsEach = numElements/m_numThreads;
-    m_bufferSize = numElements * elementSize;
+    const int numVertsEach = m_numElements/m_numThreads;
 
     std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
     std::vector<VkBuffer> buffers(m_numThreads);
@@ -104,9 +86,9 @@ void Buffer::setVertexBuffer(
     {
         int numVerts=numVertsEach;
         int vertsOffset = numVertsEach*i;
-        size_t bufferOffset=(numVertsEach*elementSize)*i;
-        if (i==(m_numThreads-1)) numVerts = numElements-(i*numVertsEach);
-        size_t bufferSize = numVerts*elementSize;
+        size_t bufferOffset=(numVertsEach*m_elementSize)*i;
+        if (i==(m_numThreads-1)) numVerts = m_numElements-(i*numVertsEach);
+        size_t bufferSize = numVerts*m_elementSize;
 
         auto &stagingBuffer = buffers[i];
         auto &stagingBufferMemory = bufferMemory[i];
@@ -121,8 +103,8 @@ void Buffer::setVertexBuffer(
             &buffers[i], &bufferMemory[i]);
 
         // TODO: Check if below is valid.
-        const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(vertices);
-        auto offset = vertsOffset*elementSize;
+        const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
+        auto offset = vertsOffset*m_elementSize;
 
         // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
         // accessible memory.
@@ -174,6 +156,32 @@ void Buffer::setVertexBuffer(
         vkDestroyBuffer(m_device, buffers[i], nullptr);
         vkFreeMemory(m_device, bufferMemory[i], nullptr);
     }
+}
+
+void Buffer::destroy()
+{
+    vkDestroyBuffer(m_device, m_buffer, nullptr);
+    vkFreeMemory(m_device, m_bufferMemory, nullptr);
+}
+
+void Buffer::setBuffer(const VkDeviceSize &bufferSize)
+{
+    m_bufferSize=bufferSize;
+    createBuffer(
+        m_device,
+        m_physicalDevice,
+        bufferSize,
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &m_buffer, &m_bufferMemory);
+}
+
+void Buffer::updateBuffer(const void *srcBuffer)
+{
+    void* dstBuffer;
+    vkMapMemory(m_device, m_bufferMemory, 0, m_bufferSize, 0, &dstBuffer);
+    memcpy(dstBuffer, srcBuffer, m_bufferSize);
+    vkUnmapMemory(m_device, m_bufferMemory);
 }
 
 void Buffer::copyBuffer(

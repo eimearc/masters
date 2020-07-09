@@ -74,11 +74,8 @@ void App::initVulkan()
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput1.setBindingDescription(sizeof(Vertex));
 
-    indexBuffer = Buffer(device);
-    indexBuffer.setIndexBuffer(indices.data(), sizeof(indices[0]), indices.size(), commands);
-
-    vertexBuffer = Buffer(device);
-    vertexBuffer.setVertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), commands);
+    indexBuffer = Buffer(device, indices.data(), sizeof(indices[0]), indices.size());
+    vertexBuffer = Buffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
 
     VertexInput vertexInput;
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
