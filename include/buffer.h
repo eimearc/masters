@@ -5,7 +5,7 @@
 #include <vector>
 #include "command.h"
 #include "device.h"
-#include "evulkan_util.h"
+#include "util.h"
 
 class Buffer
 {

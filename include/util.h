@@ -1,14 +1,15 @@
 #ifndef EVK_UTIL
 #define EVK_UTIL
 
-#include <vulkan/vulkan.h>
-#include <optional>
-#include <vector>
+#include <fstream>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <optional>
 #include <string>
 #include <set>
-#include <iostream>
+#include <vector>
+#include <vulkan/vulkan.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

@@ -2,7 +2,7 @@
 #define PIPELINE
 
 #include <vulkan/vulkan.h>
-#include "evulkan_util.h"
+#include "util.h"
 #include "descriptor.h"
 #include "device.h"
 #include "shader.h"

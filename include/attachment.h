@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "evulkan_util.h"
+#include "util.h"
 #include "device.h"
 
 class Attachment

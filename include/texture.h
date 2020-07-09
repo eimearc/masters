@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include "command.h"
 #include "device.h"
-#include "evulkan_util.h"
+#include "util.h"
 
 class Texture
 {

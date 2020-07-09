@@ -2,7 +2,7 @@
 #define SHADER
 
 #include <vulkan/vulkan.h>
-#include "evulkan_util.h"
+#include "util.h"
 #include "device.h"
 
 class Shader

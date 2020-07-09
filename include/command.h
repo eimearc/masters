@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include "device.h"
-#include "evulkan_util.h"
+#include "util.h"
 #include <vector>
 
 class Commands

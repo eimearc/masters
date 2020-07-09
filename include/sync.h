@@ -2,7 +2,7 @@
 #define SYNC
 
 #include <vulkan/vulkan.h>
-#include "evulkan_util.h"
+#include "util.h"
 #include "swapchain.h"
 
 class Sync
