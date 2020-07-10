@@ -5,8 +5,6 @@ find_package(gflags REQUIRED)
 set(
     FILES
     multipass.cpp
-    ../app.cpp
-    ../app.h
     ../flags.cpp
     ../flags.h
     ../grid.h

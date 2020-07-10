@@ -1,33 +1,50 @@
-#include "app.h"
+#include "evulkan.h"
+#include "flags.h"
 
-void App::initVulkan()
+const uint32_t MAX_FRAMES_IN_FLIGHT=2;
+struct UniformBufferObject
 {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+std::vector<const char*> validationLayers =
+{
+    "VK_LAYER_LUNARG_standard_validation"
+};
+std::vector<const char*> deviceExtensions = 
+{
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+int main(int argc, char **argv)
+{
+    gflags::SetUsageMessage("A program demonstrating how to use OBJs and textures in Vulkan.");
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
-    device = {numThreads, validationLayers, window, deviceExtensions};
+    Device device = Device(numThreads, validationLayers, window, deviceExtensions);
 
-    commands = {device, swapchainSize, numThreads};
+    Commands commands = Commands(device, swapchainSize, numThreads);
 
     Attachment framebuffer;
-    swapchain = {
-        swapchainSize,
-        framebuffer,
-        device
-    };
+    Swapchain swapchain = Swapchain(swapchainSize,framebuffer,device);
 
-    sync = {device, swapchain};
+    Sync sync = Sync(device, swapchain);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     Descriptor descriptor(device, MAX_FRAMES_IN_FLIGHT,1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    texture = { // Must be before createDescriptorSets.
-        "viking_room.png",
-        device,
-        commands
-    };
+    Texture texture = Texture("viking_room.png", device, commands);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
     Attachment depthAttachment(device, 1);
@@ -46,16 +63,15 @@ void App::initVulkan()
         inputAttachments
     );
 
-    attachments = {framebuffer, depthAttachment};
+    std::vector<Attachment> attachments = {framebuffer, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
-    renderpass = {
+    Renderpass renderpass = {
         attachments,
         subpasses,
         device
     };
 
-    // Set up UBO.
-    ubo = Buffer(device);
+    Buffer ubo = Buffer(device);
     ubo.setBuffer(sizeof(UniformBufferObject));
     descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
@@ -65,12 +81,12 @@ void App::initVulkan()
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
     vertexInput.setBindingDescription(sizeof(Vertex));
 
-    indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
-    vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());
+    Buffer indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
+    Buffer vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
-    shaders = {vertexShader,fragmentShader};
+    std::vector<Shader> shaders = {vertexShader,fragmentShader};
 
     Pipeline pipeline(
         subpass,
@@ -80,20 +96,48 @@ void App::initVulkan()
         shaders
     );
 
-    pipelines = {pipeline};
-
+    std::vector<Pipeline> pipelines = {pipeline};
+    Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
         pipelines, renderpass,
         swapchain, framebuffers, commands);
 
-    descriptors = {descriptor};
-}
+    // Main loop.
+    size_t frameIndex=0;
+    size_t counter=0;
+    while(!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
 
-int main(int argc, char **argv)
-{
-    gflags::SetUsageMessage("A program demonstrating how to use OBJs and textures in Vulkan.");
-    gflags::ParseCommandLineFlags(&argc, &argv, true);
-    App app;
-    app.run();
+        UniformBufferObject uboUpdate = {};
+        uboUpdate.model=glm::mat4(1.0f);
+        uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
+        uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+        uboUpdate.proj[1][1] *= -1;
+
+        ubo.updateBuffer(&uboUpdate);
+
+        executeDrawCommands(device, pipelines, swapchain, commands, sync);
+
+        frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
+        counter++;
+    }
+
+    // Tidy.
+    ubo.destroy();
+    indexBuffer.destroy();
+    vertexBuffer.destroy();
+    texture.destroy();
+    for (auto &a : attachments) a.destroy();
+    framebuffers.destroy();
+    swapchain.destroy();
+    commands.destroy();
+    descriptor.destroy();
+    for (auto &p : pipelines) p.destroy();
+    for (auto &s : shaders) s.destroy();
+    renderpass.destroy();
+    sync.destroy();
+    device.destroy();
 }

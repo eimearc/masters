@@ -5,11 +5,8 @@ find_package(gflags REQUIRED)
 set(
     FILES
     obj.cpp
-    ../app.cpp
-    ../app.h
     ../flags.cpp
     ../flags.h
-    ../grid.h
 )
 
 add_executable(obj ${FILES})
