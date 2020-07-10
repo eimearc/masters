@@ -6,7 +6,6 @@ set(
     FILES
     obj.cpp
     ../flags.cpp
-    ../flags.h
 )
 
 add_executable(obj ${FILES})

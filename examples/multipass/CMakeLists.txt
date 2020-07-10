@@ -6,8 +6,8 @@ set(
     FILES
     multipass.cpp
     ../flags.cpp
-    ../flags.h
-    ../grid.h
+    grid.h
+    cube.h
 )
 
 add_executable(multipass ${FILES})
