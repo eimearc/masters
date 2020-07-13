@@ -15,6 +15,7 @@
 #include "descriptor.h"
 #include "device.h"
 #include "draw.h"
+#include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
 #include "shader.h"

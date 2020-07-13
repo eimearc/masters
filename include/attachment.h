@@ -2,17 +2,16 @@
 #define EVK_ATTACHMENT
 
 #include "device.h"
+#include "swapchain.h"
 #include <vulkan/vulkan.h>
-#include <vector>
 #include "util.h"
-
-class Swapchain; // TODO: Why can't import directly? Cycle?
 
 class Attachment
 {
     public:
     Attachment()=default;
     Attachment(const Device &device, uint32_t index);
+
     void setFramebufferAttachment();
     void setColorAttachment(
         const Device &device,
@@ -22,6 +21,7 @@ class Attachment
         const Device &device,
         const Swapchain &swapchain
     );
+
     void destroy();
 
     uint32_t m_index;

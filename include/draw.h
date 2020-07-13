@@ -5,6 +5,7 @@
 #include "buffer.h"
 #include "command.h"
 #include "descriptor.h"
+#include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
 #include "swapchain.h"

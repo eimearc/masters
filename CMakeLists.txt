@@ -32,6 +32,7 @@ set (SOURCES
     ${VULKAN_SRC}/descriptor.cpp
     ${VULKAN_SRC}/device.cpp
     ${VULKAN_SRC}/draw.cpp
+    ${VULKAN_SRC}/framebuffer.cpp
     ${VULKAN_SRC}/pass.cpp
     ${VULKAN_SRC}/pipeline.cpp
     ${VULKAN_SRC}/shader.cpp
