@@ -152,66 +152,6 @@ void StaticBuffer::copyData(
     vkEndCommandBuffer(command_buffer);
 }
 
-void StaticBuffer::finalizeVertex(Device &device, Commands &commands)
-{
-    std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
-    const int numVertsEach = m_numElements/m_numThreads;
-
-    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
-    std::vector<VkBuffer> buffers(m_numThreads);
-    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
-
-    // Use a device-local buffer as the actual vertex buffer.
-    createBuffer(
-        m_device,
-        m_physicalDevice,
-        m_bufferSize,
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        &m_buffer,
-        &m_bufferMemory);
-
-    auto copyVertices = [&](int i)
-    {
-        int numVerts=numVertsEach;
-        int vertsOffset = numVertsEach*i;
-        size_t bufferOffset=(numVertsEach*m_elementSize)*i;
-        if (i==(m_numThreads-1)) numVerts = m_numElements-(i*numVertsEach);
-        size_t bufferSize = numVerts*m_elementSize;
-
-        auto &stagingBuffer = buffers[i];
-        auto &stagingBufferMemory = bufferMemory[i];
-
-        copyData(
-            m_device, m_physicalDevice, commandPools[i], commandBuffers[i], 
-            m_buffer, stagingBuffer, stagingBufferMemory, numVerts,
-            m_elementSize, vertsOffset
-        );
-    };
-
-    int counter = 0;
-    for (auto &t: device.m_threadPool.threads)
-    {
-        t->addJob(std::bind(copyVertices,counter++));
-    }
-    device.m_threadPool.wait();
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = commandBuffers.size();
-    submitInfo.pCommandBuffers = commandBuffers.data();
-
-    vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(m_queue);
-
-    for (size_t i = 0; i<m_numThreads; ++i)
-    {
-        vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
-        vkDestroyBuffer(m_device, buffers[i], nullptr);
-        vkFreeMemory(m_device, bufferMemory[i], nullptr);
-    }
-}
-
 void Buffer::destroy()
 {
     vkDestroyBuffer(m_device, m_buffer, nullptr);

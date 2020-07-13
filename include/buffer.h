@@ -61,7 +61,6 @@ class StaticBuffer : public Buffer
     );
 
     void finalize(Device &device,Commands &commands, const Type &type);
-    void finalizeVertex(Device &device,Commands &commands);
 
     void copyData(
         VkDevice device,
