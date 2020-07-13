@@ -10,7 +10,7 @@
 class Buffer
 {
     public:
-    enum Type{INDEX,VERTEX,CUSTOM};
+    enum Type{INDEX,VERTEX,UBO};
     void destroy();
 
     VkBuffer m_buffer;

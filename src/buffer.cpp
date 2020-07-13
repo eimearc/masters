@@ -41,6 +41,9 @@ void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type
         case INDEX:
             usageFlags |=  VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
             break;
+        case UBO:
+            usageFlags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            break;
         // TODO: Default case.
     }
 
