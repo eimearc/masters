@@ -80,8 +80,8 @@ void executeDrawCommands(
 
 void recordDrawCommands(
     Device &device,
-    Buffer &indexBuffer,
-    Buffer &vertexBuffer,
+    StaticBuffer &indexBuffer,
+    StaticBuffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
     Swapchain &swapchain,

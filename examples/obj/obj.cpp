@@ -66,8 +66,7 @@ int main(int argc, char **argv)
     std::vector<Subpass> subpasses = {subpass};
     Renderpass renderpass = {device,attachments,subpasses};
 
-    Buffer ubo = Buffer(device);
-    ubo.setBuffer(sizeof(UniformBufferObject));
+    DynamicBuffer ubo = DynamicBuffer(device, sizeof(UniformBufferObject));
     descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     VertexInput vertexInput(sizeof(Vertex));
@@ -75,8 +74,8 @@ int main(int argc, char **argv)
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    Buffer indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
-    Buffer vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());
+    StaticBuffer indexBuffer = StaticBuffer(device, in.data(), sizeof(in[0]), in.size());
+    StaticBuffer vertexBuffer = StaticBuffer(device, v.data(), sizeof(v[0]), v.size());
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
 
-        ubo.updateBuffer(&uboUpdate);
+        ubo.update(&uboUpdate);
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 

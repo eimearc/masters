@@ -1,14 +1,6 @@
 #include "buffer.h"
 
-Buffer::Buffer(const Device &device)
-{
-    m_device = device.m_device;
-    m_physicalDevice = device.m_physicalDevice;
-    m_queue = device.m_graphicsQueue;
-    m_numThreads = device.m_numThreads;
-}
-
-Buffer::Buffer(
+StaticBuffer::StaticBuffer(
     const Device &device,
     void *data,
     const VkDeviceSize &elementSize,
@@ -26,9 +18,7 @@ Buffer::Buffer(
     m_bufferSize = m_numElements * m_elementSize;
 }
 
-void Buffer::finalizeIndex(
-    Device &device,
-    Commands &commands)
+void StaticBuffer::finalizeIndex(Device &device,Commands &commands)
 {
     VkCommandPool &commandPool = commands.m_commandPools[0];
 
@@ -63,7 +53,7 @@ void Buffer::finalizeIndex(
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
-void Buffer::finalizeVertex(Device &device, Commands &commands)
+void StaticBuffer::finalizeVertex(Device &device, Commands &commands)
 {
     std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
     const int numVertsEach = m_numElements/m_numThreads;
@@ -164,19 +154,22 @@ void Buffer::destroy()
     vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
 
-void Buffer::setBuffer(const VkDeviceSize &bufferSize)
+DynamicBuffer::DynamicBuffer(
+    const Device &device,
+    const VkDeviceSize &bufferSize)
 {
+    m_device = device.m_device;
     m_bufferSize=bufferSize;
     createBuffer(
         m_device,
-        m_physicalDevice,
+        device.m_physicalDevice,
         bufferSize,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &m_buffer, &m_bufferMemory);
 }
 
-void Buffer::updateBuffer(const void *srcBuffer)
+void DynamicBuffer::update(const void *srcBuffer)
 {
     void* dstBuffer;
     vkMapMemory(m_device, m_bufferMemory, 0, m_bufferSize, 0, &dstBuffer);

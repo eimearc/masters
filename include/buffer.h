@@ -1,5 +1,5 @@
-#ifndef EVK_BUFFER
-#define EVK_BUFFER
+#ifndef EVK_BUFFER_H_
+#define EVK_BUFFER_H_
 
 #include "command.h"
 #include "device.h"
@@ -10,30 +10,13 @@
 class Buffer
 {
     public:
-    Buffer()=default;
-    Buffer(const Device &device);
-    Buffer(
-        const Device &device,
-        void *data,
-        const VkDeviceSize &elementSize,
-        const size_t numElements
-    );
-
-    enum Type{INDEX,VERTEX};
-
-    void setBuffer(const VkDeviceSize &bufferSize);
-    void updateBuffer(const void *srcBuffer);
-
-    void finalizeVertex(Device &device, Commands &commands);
-    void finalizeIndex(Device &device, Commands &commands);
-
+    // enum Type{INDEX,VERTEX};
     void destroy();
 
     VkBuffer m_buffer;
     VkDeviceMemory m_bufferMemory;
     size_t m_numElements;
 
-    private:
     VkDevice m_device;
     VkPhysicalDevice m_physicalDevice;
     VkDeviceSize m_bufferSize;
@@ -52,6 +35,30 @@ class Buffer
     uint32_t findMemoryType(
         uint32_t typeFilter,
         VkMemoryPropertyFlags properties);
+};
+
+class DynamicBuffer : public Buffer
+{
+    public:
+    DynamicBuffer()=default;
+    DynamicBuffer(const Device &device, const VkDeviceSize &bufferSize);
+
+    void update(const void *srcBuffer);
+};
+
+class StaticBuffer : public Buffer
+{
+    public:
+    StaticBuffer()=default;
+    StaticBuffer(
+        const Device &device,
+        void *data,
+        const VkDeviceSize &elementSize,
+        const size_t numElements
+    );
+
+    void finalizeIndex(Device &device,Commands &commands);
+    void finalizeVertex(Device &device,Commands &commands);
 };
 
 #endif
