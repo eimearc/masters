@@ -2,13 +2,9 @@
 
 Swapchain::Swapchain(
     const Device &device,
-    const uint32_t swapchainSize,
-    Attachment &framebuffer)
+    const uint32_t swapchainSize)
 {
     m_device = device.m_device;
-
-    framebuffer = {device,0};
-    framebuffer.setFramebufferAttachment();
 
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.m_physicalDevice, device.m_surface);
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);

@@ -6,6 +6,8 @@
 #include <vector>
 #include "util.h"
 
+class Swapchain; // TODO: Why can't import directly? Cycle?
+
 class Attachment
 {
     public:
@@ -13,11 +15,13 @@ class Attachment
     Attachment(const Device &device, uint32_t index);
     void setFramebufferAttachment();
     void setColorAttachment(
-        const VkExtent2D &extent,
-        const Device &device);
+        const Device &device,
+        const Swapchain &swapchain
+    );
     void setDepthAttachment(
-        const VkExtent2D &extent,
-        const Device &device);
+        const Device &device,
+        const Swapchain &swapchain
+    );
     void destroy();
 
     uint32_t m_index;

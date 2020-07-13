@@ -34,8 +34,7 @@ int main(int argc, char **argv)
 
     Commands commands = Commands(device, swapchainSize, numThreads);
 
-    Attachment framebuffer;
-    Swapchain swapchain = Swapchain(device,swapchainSize,framebuffer);
+    Swapchain swapchain = Swapchain(device,swapchainSize);
 
     Sync sync = Sync(device, swapchain);
     
@@ -47,10 +46,13 @@ int main(int argc, char **argv)
     Texture texture = Texture("viking_room.png", device, commands);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
-    Attachment depthAttachment(device, 1);
-    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
+    Attachment framebufferAttachment(device, 0);
+    framebufferAttachment.setFramebufferAttachment();
 
-    std::vector<Attachment> colorAttachments = {framebuffer};
+    Attachment depthAttachment(device, 1);
+    depthAttachment.setDepthAttachment(device, swapchain);
+
+    std::vector<Attachment> colorAttachments = {framebufferAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
     std::vector<Attachment> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebuffer, depthAttachment};
+    std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
     Renderpass renderpass = {
         attachments,

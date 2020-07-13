@@ -69,16 +69,18 @@ int main(int argc, char **argv)
 
     Commands commands = {device, swapchainSize, numThreads};
 
-    Attachment framebufferAttachment;
-    Swapchain swapchain = {device, swapchainSize, framebufferAttachment};
+    Swapchain swapchain = {device, swapchainSize};
 
     Sync sync = {device, swapchain};
 
+    Attachment framebufferAttachment(device, 0);
+    framebufferAttachment.setFramebufferAttachment();
+
     Attachment colorAttachment(device, 1);
-    colorAttachment.setColorAttachment(swapchain.m_extent, device);
+    colorAttachment.setColorAttachment(device, swapchain);
 
     Attachment depthAttachment(device, 2);
-    depthAttachment.setDepthAttachment(swapchain.m_extent, device);
+    depthAttachment.setDepthAttachment(device, swapchain);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};

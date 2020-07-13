@@ -1,7 +1,6 @@
 #ifndef EVK_SWAPCHAIN
 #define EVK_SWAPCHAIN
 
-#include "attachment.h"
 #include "device.h"
 #include "pass.h"
 #include "util.h"
@@ -13,8 +12,7 @@ class Swapchain
     Swapchain()=default;
     Swapchain(
         const Device &device,
-        const uint32_t swapchainSize,
-        Attachment &framebuffer
+        const uint32_t swapchainSize
     );
 
     void destroy();

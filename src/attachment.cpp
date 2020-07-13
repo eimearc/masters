@@ -1,5 +1,7 @@
 #include "attachment.h"
 
+#include "swapchain.h"
+
 Attachment::Attachment(const Device &device, uint32_t index)
 {
     m_device = device.m_device;
@@ -25,7 +27,7 @@ void Attachment::setFramebufferAttachment()
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &device)
+void Attachment::setColorAttachment(const Device &device, const Swapchain &swapchain)
 {
     VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -46,7 +48,7 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
 
     createImage(
         device.m_device, device.m_physicalDevice,
-        extent, format, tiling, usage, properties,
+        swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
@@ -56,9 +58,7 @@ void Attachment::setColorAttachment(const VkExtent2D &extent, const Device &devi
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setDepthAttachment(
-    const VkExtent2D &extent,
-    const Device &device)
+void Attachment::setDepthAttachment(const Device &device, const Swapchain &swapchain)
 {
     m_description.flags = 0;
     m_description.format = device.m_depthFormat;
@@ -78,7 +78,7 @@ void Attachment::setDepthAttachment(
 
     createImage(
         device.m_device, device.m_physicalDevice,
-        extent, format, tiling, usage, properties,
+        swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
