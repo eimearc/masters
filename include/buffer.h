@@ -11,6 +11,7 @@ class Buffer
 {
     public:
     enum Type{INDEX,VERTEX,UBO};
+
     void destroy();
 
     VkBuffer m_buffer;
@@ -25,6 +26,8 @@ class Buffer
 
     void *m_data;
     VkDeviceSize m_elementSize;
+
+    VkBufferUsageFlags typeToFlag(const Type &type);
 
     void copyBuffer(
         VkCommandPool commandPool,
@@ -43,6 +46,13 @@ class DynamicBuffer : public Buffer
     public:
     DynamicBuffer()=default;
     DynamicBuffer(const Device &device, const VkDeviceSize &bufferSize);
+    DynamicBuffer(
+        Device &device,
+        void *data,
+        const VkDeviceSize &element_size,
+        const size_t num_elements,
+        const Type &type
+    );
 
     void update(const void *srcBuffer);
 };

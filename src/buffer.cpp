@@ -6,8 +6,7 @@ StaticBuffer::StaticBuffer(
     void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    const Type &type
-)
+    const Type &type)
 {
     m_device = device.m_device;
     m_physicalDevice = device.m_physicalDevice;
@@ -22,6 +21,20 @@ StaticBuffer::StaticBuffer(
     finalize(device, commands, type);
 }
 
+VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
+{
+    switch(type)
+    {
+        case VERTEX:
+            return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        case INDEX:
+            return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        case UBO:
+            return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        // TODO: Default case.
+    }
+}
+
 void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type)
 {
     std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
@@ -33,19 +46,7 @@ void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type
     std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
     VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-    switch(type)
-    {
-        case VERTEX:
-            usageFlags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            break;
-        case INDEX:
-            usageFlags |=  VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-            break;
-        case UBO:
-            usageFlags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-            break;
-        // TODO: Default case.
-    }
+    usageFlags |= typeToFlag(type);
 
     // Create the device-local buffer.
     createBuffer(
@@ -182,6 +183,29 @@ void DynamicBuffer::update(const void *srcBuffer)
     vkMapMemory(m_device, m_bufferMemory, 0, m_bufferSize, 0, &dstBuffer);
     memcpy(dstBuffer, srcBuffer, m_bufferSize);
     vkUnmapMemory(m_device, m_bufferMemory);
+}
+
+DynamicBuffer::DynamicBuffer(
+    Device &device,
+    void *data,
+    const VkDeviceSize &element_size,
+    const size_t num_elements,
+    const Type &type)
+{
+    m_device = device.m_device;
+    m_bufferSize=element_size*num_elements;
+
+    VkBufferUsageFlags usageFlags = typeToFlag(type);
+
+    createBuffer(
+        m_device,
+        device.m_physicalDevice,
+        m_bufferSize,
+        usageFlags,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &m_buffer, &m_bufferMemory);
+
+    update(data);
 }
 
 void Buffer::copyBuffer(

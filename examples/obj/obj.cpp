@@ -68,11 +68,11 @@ int main(int argc, char **argv)
 
     UniformBufferObject uboUpdate = {};
     uboUpdate.model=glm::mat4(1.0f);
-    uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.001f * glm::radians(90.0f)*1, glm::vec3(0.0f,0.0f,1.0f));
+    uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.001f * glm::radians(90.0f)*0, glm::vec3(0.0f,0.0f,1.0f));
     uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     uboUpdate.proj[1][1] *= -1;
-    StaticBuffer ubo = StaticBuffer(device, commands, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+    DynamicBuffer ubo = DynamicBuffer(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
     descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
@@ -115,8 +115,7 @@ int main(int argc, char **argv)
         uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
-
-        // ubo.update(&uboUpdate);
+        ubo.update(&uboUpdate);
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
