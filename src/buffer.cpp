@@ -2,9 +2,11 @@
 
 StaticBuffer::StaticBuffer(
     const Device &device,
+    Commands &commands,
     void *data,
     const VkDeviceSize &elementSize,
-    const size_t numElements
+    const size_t numElements,
+    const Type &type
 )
 {
     m_device = device.m_device;
@@ -53,6 +55,64 @@ void StaticBuffer::finalizeIndex(Device &device,Commands &commands)
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
+void StaticBuffer::copyData(
+    VkDevice device,
+    VkPhysicalDevice physicalDevice,
+    VkCommandPool command_pool,
+    VkCommandBuffer &command_buffer,
+    VkBuffer device_buffer,
+    VkBuffer &staging_buffer,
+    VkDeviceMemory &staging_buffer_memory,
+    const size_t num_elements,
+    const VkDeviceSize element_size,
+    const size_t element_offset
+)
+{
+    const size_t buffer_offset = element_offset*element_size;
+    const size_t buffer_size = num_elements*element_size;
+
+    // Use a host visible buffer as a staging buffer.
+    createBuffer(
+        device,
+        physicalDevice,
+        buffer_size,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &staging_buffer, &staging_buffer_memory);
+
+    // TODO: Check if below is valid.
+    const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
+    auto offset = element_offset*element_size;
+
+    // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
+    // accessible memory.
+    void *data;
+    vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &data);
+    memcpy(data, bytePtr+offset, buffer_size); // Need to offset vertices.
+    vkUnmapMemory(device, staging_buffer_memory);
+
+    // Copy the vertex data from the staging buffer to the device-local buffer.
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = command_pool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+    vkAllocateCommandBuffers(device, &allocInfo, &command_buffer);
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(command_buffer, &beginInfo);
+
+    VkBufferCopy copyRegion = {};
+    copyRegion.size = buffer_size;
+    copyRegion.dstOffset = buffer_offset;
+    vkCmdCopyBuffer(command_buffer, staging_buffer, device_buffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(command_buffer);
+}
+
 void StaticBuffer::finalizeVertex(Device &device, Commands &commands)
 {
     std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
@@ -83,46 +143,52 @@ void StaticBuffer::finalizeVertex(Device &device, Commands &commands)
         auto &stagingBuffer = buffers[i];
         auto &stagingBufferMemory = bufferMemory[i];
 
-        // Use a host visible buffer as a staging buffer.
-        createBuffer(
-            m_device,
-            m_physicalDevice,
-            bufferSize,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &buffers[i], &bufferMemory[i]);
+        copyData(
+            m_device, m_physicalDevice, commandPools[i], commandBuffers[i], 
+            m_buffer, stagingBuffer, stagingBufferMemory, numVerts,
+            m_elementSize, vertsOffset
+        );
 
-        // TODO: Check if below is valid.
-        const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
-        auto offset = vertsOffset*m_elementSize;
+        // // Use a host visible buffer as a staging buffer.
+        // createBuffer(
+        //     m_device,
+        //     m_physicalDevice,
+        //     bufferSize,
+        //     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        //     &buffers[i], &bufferMemory[i]);
 
-        // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
-        // accessible memory.
-        void *data;
-        vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
-        memcpy(data, bytePtr+offset, bufferSize); // Need to offset vertices.
-        vkUnmapMemory(m_device, bufferMemory[i]);
+        // // TODO: Check if below is valid.
+        // const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
+        // auto offset = vertsOffset*m_elementSize;
 
-        // Copy the vertex data from the staging buffer to the device-local buffer.
-        VkCommandBufferAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPools[i];
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
-        vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
+        // // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
+        // // accessible memory.
+        // void *data;
+        // vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
+        // memcpy(data, bytePtr+offset, bufferSize); // Need to offset vertices.
+        // vkUnmapMemory(m_device, bufferMemory[i]);
 
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        // // Copy the vertex data from the staging buffer to the device-local buffer.
+        // VkCommandBufferAllocateInfo allocInfo = {};
+        // allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        // allocInfo.commandPool = commandPools[i];
+        // allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        // allocInfo.commandBufferCount = 1;
+        // vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
 
-        vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
+        // VkCommandBufferBeginInfo beginInfo = {};
+        // beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        // beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-        VkBufferCopy copyRegion = {};
-        copyRegion.size = bufferSize;
-        copyRegion.dstOffset = bufferOffset;
-        vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_buffer, 1, &copyRegion);
+        // vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
 
-        vkEndCommandBuffer(commandBuffers[i]);
+        // VkBufferCopy copyRegion = {};
+        // copyRegion.size = bufferSize;
+        // copyRegion.dstOffset = bufferOffset;
+        // vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_buffer, 1, &copyRegion);
+
+        // vkEndCommandBuffer(commandBuffers[i]);
     };
 
     int counter = 0;

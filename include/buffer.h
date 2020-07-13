@@ -10,7 +10,7 @@
 class Buffer
 {
     public:
-    // enum Type{INDEX,VERTEX};
+    enum Type{INDEX,VERTEX,CUSTOM};
     void destroy();
 
     VkBuffer m_buffer;
@@ -35,6 +35,7 @@ class Buffer
     uint32_t findMemoryType(
         uint32_t typeFilter,
         VkMemoryPropertyFlags properties);
+        
 };
 
 class DynamicBuffer : public Buffer
@@ -52,13 +53,28 @@ class StaticBuffer : public Buffer
     StaticBuffer()=default;
     StaticBuffer(
         const Device &device,
+        Commands &commands,
         void *data,
         const VkDeviceSize &elementSize,
-        const size_t numElements
+        const size_t numElements,
+        const Type &type
     );
 
     void finalizeIndex(Device &device,Commands &commands);
     void finalizeVertex(Device &device,Commands &commands);
+
+    void copyData(
+        VkDevice device,
+        VkPhysicalDevice physicalDevice,
+        VkCommandPool command_pool,
+        VkCommandBuffer &command_buffer,
+        VkBuffer device_buffer,
+        VkBuffer &staging_buffer,
+        VkDeviceMemory &staging_buffer_memory,
+        const size_t num_elements,
+        const VkDeviceSize element_size,
+        const size_t element_offset
+    );
 };
 
 #endif

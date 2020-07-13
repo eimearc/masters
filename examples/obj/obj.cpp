@@ -74,8 +74,8 @@ int main(int argc, char **argv)
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    StaticBuffer indexBuffer = StaticBuffer(device, in.data(), sizeof(in[0]), in.size());
-    StaticBuffer vertexBuffer = StaticBuffer(device, v.data(), sizeof(v[0]), v.size());
+    StaticBuffer indexBuffer = StaticBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer = StaticBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
     vertexBuffer.finalizeVertex(device, commands);
     indexBuffer.finalizeIndex(device, commands);
 

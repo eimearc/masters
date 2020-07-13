@@ -129,8 +129,8 @@ int main(int argc, char **argv)
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
 
-    StaticBuffer indexBuffer = StaticBuffer(device, indices.data(), sizeof(indices[0]), indices.size());
-    StaticBuffer vertexBuffer = StaticBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
+    StaticBuffer indexBuffer = StaticBuffer(device, commands, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer = StaticBuffer(device, commands, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
     vertexBuffer.finalizeVertex(device, commands);
     indexBuffer.finalizeIndex(device, commands);
 
