@@ -76,8 +76,6 @@ int main(int argc, char **argv)
 
     StaticBuffer indexBuffer = StaticBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer = StaticBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
-    vertexBuffer.finalizeVertex(device, commands);
-    indexBuffer.finalizeIndex(device, commands);
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);

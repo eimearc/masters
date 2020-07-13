@@ -52,7 +52,7 @@ class StaticBuffer : public Buffer
     public:
     StaticBuffer()=default;
     StaticBuffer(
-        const Device &device,
+        Device &device,
         Commands &commands,
         void *data,
         const VkDeviceSize &elementSize,
@@ -60,7 +60,7 @@ class StaticBuffer : public Buffer
         const Type &type
     );
 
-    void finalizeIndex(Device &device,Commands &commands);
+    void finalize(Device &device,Commands &commands, const Type &type);
     void finalizeVertex(Device &device,Commands &commands);
 
     void copyData(

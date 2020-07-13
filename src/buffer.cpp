@@ -1,7 +1,7 @@
 #include "buffer.h"
 
 StaticBuffer::StaticBuffer(
-    const Device &device,
+    Device &device,
     Commands &commands,
     void *data,
     const VkDeviceSize &elementSize,
@@ -18,9 +18,11 @@ StaticBuffer::StaticBuffer(
     m_elementSize=elementSize;
     m_numElements=numElements;
     m_bufferSize = m_numElements * m_elementSize;
+
+    finalize(device, commands, type);
 }
 
-void StaticBuffer::finalizeIndex(Device &device, Commands &commands)
+void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type)
 {
     std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
     const int num_elements_each = m_numElements/m_numThreads;
@@ -30,19 +32,31 @@ void StaticBuffer::finalizeIndex(Device &device, Commands &commands)
     std::vector<VkBuffer> buffers(m_numThreads);
     std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
-    // Create the device-local index buffer.
+    VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    switch(type)
+    {
+        case VERTEX:
+            usageFlags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            break;
+        case INDEX:
+            usageFlags |=  VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            break;
+        // TODO: Default case.
+    }
+
+    // Create the device-local buffer.
     createBuffer(
         m_device,
         m_physicalDevice,
         m_bufferSize,
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        usageFlags,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         &m_buffer, &m_bufferMemory);
 
     auto setupCopyFunction = [&](int thread)
     {
         int element_offset = num_elements_each*thread;
-        
+
         int num_elements=num_elements_each;
         if (thread==(m_numThreads-1)) 
             num_elements = m_numElements-(thread*num_elements_each);
@@ -78,26 +92,6 @@ void StaticBuffer::finalizeIndex(Device &device, Commands &commands)
         vkDestroyBuffer(m_device, buffers[i], nullptr);
         vkFreeMemory(m_device, bufferMemory[i], nullptr);
     }
-
-    // VkBuffer stagingBuffer;
-    // VkDeviceMemory stagingBufferMemory;
-    // createBuffer(
-    //     m_device,
-    //     m_physicalDevice,
-    //     m_bufferSize,
-    //     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-    //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-    //     &stagingBuffer, &stagingBufferMemory);
-
-    // void *data;
-    // vkMapMemory(m_device, stagingBufferMemory, 0, m_bufferSize, 0, &data);
-    // memcpy(data, m_data, m_bufferSize);
-    // vkUnmapMemory(m_device, stagingBufferMemory);
-
-    // copyBuffer(commandPool, m_queue, stagingBuffer, m_buffer);
-
-    // vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-    // vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
 void StaticBuffer::copyData(
