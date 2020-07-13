@@ -39,28 +39,28 @@ void StaticBuffer::finalizeIndex(Device &device, Commands &commands)
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         &m_buffer, &m_bufferMemory);
 
-    auto copyVertices = [&](int i)
+    auto setupCopyFunction = [&](int thread)
     {
-        int numVerts=num_elements_each;
-        int vertsOffset = num_elements_each*i;
-        size_t bufferOffset=(num_elements_each*m_elementSize)*i;
-        if (i==(m_numThreads-1)) numVerts = m_numElements-(i*num_elements_each);
-        size_t bufferSize = numVerts*m_elementSize;
+        int element_offset = num_elements_each*thread;
+        
+        int num_elements=num_elements_each;
+        if (thread==(m_numThreads-1)) 
+            num_elements = m_numElements-(thread*num_elements_each);
 
-        auto &stagingBuffer = buffers[i];
-        auto &stagingBufferMemory = bufferMemory[i];
+        auto &staging_buffer = buffers[thread];
+        auto &staging_buffer_memory = bufferMemory[thread];
 
         copyData(
-            m_device, m_physicalDevice, commandPools[i], commandBuffers[i], 
-            m_buffer, stagingBuffer, stagingBufferMemory, numVerts,
-            m_elementSize, vertsOffset
+            m_device, m_physicalDevice, commandPools[thread], commandBuffers[thread], 
+            m_buffer, staging_buffer, staging_buffer_memory, num_elements,
+            m_elementSize, element_offset
         );
     };
 
     int counter = 0;
     for (auto &t: device.m_threadPool.threads)
     {
-        t->addJob(std::bind(copyVertices,counter++));
+        t->addJob(std::bind(setupCopyFunction,counter++));
     }
     device.m_threadPool.wait();
 
