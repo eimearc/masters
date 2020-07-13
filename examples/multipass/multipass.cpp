@@ -113,8 +113,7 @@ int main(int argc, char **argv)
     Renderpass renderpass = {device,attachments,subpasses};
 
     // Set up UBO.
-    Buffer ubo = Buffer(device);
-    ubo.setBuffer(sizeof(UniformBufferObject));
+    DynamicBuffer ubo = DynamicBuffer(device, sizeof(UniformBufferObject));
 
     Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT, 1);
     descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
@@ -130,8 +129,10 @@ int main(int argc, char **argv)
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
 
-    Buffer indexBuffer = Buffer(device, indices.data(), sizeof(indices[0]), indices.size());
-    Buffer vertexBuffer = Buffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
+    StaticBuffer indexBuffer = StaticBuffer(device, indices.data(), sizeof(indices[0]), indices.size());
+    StaticBuffer vertexBuffer = StaticBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
+    vertexBuffer.finalizeVertex(device, commands);
+    indexBuffer.finalizeIndex(device, commands);
 
     std::vector<Shader> shaders0 = {
         {"pass_0_vert.spv", ShaderStage::VERTEX, device},
@@ -182,7 +183,7 @@ int main(int argc, char **argv)
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
 
-        ubo.updateBuffer(&uboUpdate);
+        ubo.update(&uboUpdate);
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
