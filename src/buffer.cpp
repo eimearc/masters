@@ -20,27 +20,17 @@ StaticBuffer::StaticBuffer(
     m_bufferSize = m_numElements * m_elementSize;
 }
 
-void StaticBuffer::finalizeIndex(Device &device,Commands &commands)
+void StaticBuffer::finalizeIndex(Device &device, Commands &commands)
 {
-    VkCommandPool &commandPool = commands.m_commandPools[0];
-
+    std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
+    const int num_elements_each = m_numElements/m_numThreads;
     m_bufferSize = m_elementSize*m_numElements;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    createBuffer(
-        m_device,
-        m_physicalDevice,
-        m_bufferSize,
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &stagingBuffer, &stagingBufferMemory);
+    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
+    std::vector<VkBuffer> buffers(m_numThreads);
+    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
 
-    void *data;
-    vkMapMemory(m_device, stagingBufferMemory, 0, m_bufferSize, 0, &data);
-    memcpy(data, m_data, m_bufferSize);
-    vkUnmapMemory(m_device, stagingBufferMemory);
-
+    // Create the device-local index buffer.
     createBuffer(
         m_device,
         m_physicalDevice,
@@ -49,10 +39,65 @@ void StaticBuffer::finalizeIndex(Device &device,Commands &commands)
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         &m_buffer, &m_bufferMemory);
 
-    copyBuffer(commandPool, m_queue, stagingBuffer, m_buffer);
+    auto copyVertices = [&](int i)
+    {
+        int numVerts=num_elements_each;
+        int vertsOffset = num_elements_each*i;
+        size_t bufferOffset=(num_elements_each*m_elementSize)*i;
+        if (i==(m_numThreads-1)) numVerts = m_numElements-(i*num_elements_each);
+        size_t bufferSize = numVerts*m_elementSize;
 
-    vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-    vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+        auto &stagingBuffer = buffers[i];
+        auto &stagingBufferMemory = bufferMemory[i];
+
+        copyData(
+            m_device, m_physicalDevice, commandPools[i], commandBuffers[i], 
+            m_buffer, stagingBuffer, stagingBufferMemory, numVerts,
+            m_elementSize, vertsOffset
+        );
+    };
+
+    int counter = 0;
+    for (auto &t: device.m_threadPool.threads)
+    {
+        t->addJob(std::bind(copyVertices,counter++));
+    }
+    device.m_threadPool.wait();
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = commandBuffers.size();
+    submitInfo.pCommandBuffers = commandBuffers.data();
+
+    vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_queue);
+
+    for (size_t i = 0; i<m_numThreads; ++i)
+    {
+        vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
+        vkDestroyBuffer(m_device, buffers[i], nullptr);
+        vkFreeMemory(m_device, bufferMemory[i], nullptr);
+    }
+
+    // VkBuffer stagingBuffer;
+    // VkDeviceMemory stagingBufferMemory;
+    // createBuffer(
+    //     m_device,
+    //     m_physicalDevice,
+    //     m_bufferSize,
+    //     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    //     &stagingBuffer, &stagingBufferMemory);
+
+    // void *data;
+    // vkMapMemory(m_device, stagingBufferMemory, 0, m_bufferSize, 0, &data);
+    // memcpy(data, m_data, m_bufferSize);
+    // vkUnmapMemory(m_device, stagingBufferMemory);
+
+    // copyBuffer(commandPool, m_queue, stagingBuffer, m_buffer);
+
+    // vkDestroyBuffer(m_device, stagingBuffer, nullptr);
+    // vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
 
 void StaticBuffer::copyData(
@@ -148,47 +193,6 @@ void StaticBuffer::finalizeVertex(Device &device, Commands &commands)
             m_buffer, stagingBuffer, stagingBufferMemory, numVerts,
             m_elementSize, vertsOffset
         );
-
-        // // Use a host visible buffer as a staging buffer.
-        // createBuffer(
-        //     m_device,
-        //     m_physicalDevice,
-        //     bufferSize,
-        //     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        //     &buffers[i], &bufferMemory[i]);
-
-        // // TODO: Check if below is valid.
-        // const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
-        // auto offset = vertsOffset*m_elementSize;
-
-        // // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
-        // // accessible memory.
-        // void *data;
-        // vkMapMemory(m_device, bufferMemory[i], 0, bufferSize, 0, &data);
-        // memcpy(data, bytePtr+offset, bufferSize); // Need to offset vertices.
-        // vkUnmapMemory(m_device, bufferMemory[i]);
-
-        // // Copy the vertex data from the staging buffer to the device-local buffer.
-        // VkCommandBufferAllocateInfo allocInfo = {};
-        // allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        // allocInfo.commandPool = commandPools[i];
-        // allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        // allocInfo.commandBufferCount = 1;
-        // vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffers[i]);
-
-        // VkCommandBufferBeginInfo beginInfo = {};
-        // beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        // beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        // vkBeginCommandBuffer(commandBuffers[i], &beginInfo);
-
-        // VkBufferCopy copyRegion = {};
-        // copyRegion.size = bufferSize;
-        // copyRegion.dstOffset = bufferOffset;
-        // vkCmdCopyBuffer(commandBuffers[i], buffers[i], m_buffer, 1, &copyRegion);
-
-        // vkEndCommandBuffer(commandBuffers[i]);
     };
 
     int counter = 0;
