@@ -31,11 +31,8 @@ int main(int argc, char **argv)
     const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
 
     Device device = Device(numThreads, validationLayers, window, deviceExtensions);
-
     Commands commands = Commands(device, swapchainSize, numThreads);
-
-    Swapchain swapchain = Swapchain(device,swapchainSize);
-
+    Swapchain swapchain = Swapchain(device, swapchainSize);
     Sync sync = Sync(device, swapchain);
     
     std::vector<Vertex> v;
@@ -67,21 +64,16 @@ int main(int argc, char **argv)
 
     std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
-    Renderpass renderpass = {
-        attachments,
-        subpasses,
-        device
-    };
+    Renderpass renderpass = {device,attachments,subpasses};
 
     Buffer ubo = Buffer(device);
     ubo.setBuffer(sizeof(UniformBufferObject));
     descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
-    VertexInput vertexInput;
+    VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
-    vertexInput.setBindingDescription(sizeof(Vertex));
 
     Buffer indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
     Buffer vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());

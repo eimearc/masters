@@ -30,18 +30,6 @@ Commands::Commands(
     for (auto &cb : m_primaryCommandBuffers) vkAllocateCommandBuffers(m_device, &allocInfo, &cb);
 
     m_secondaryCommandBuffers.resize(numThreads);
-    // for (uint32_t i=0; i < numThreads; ++i)
-    // {
-    //     VkCommandBufferAllocateInfo allocInfo = {};
-    //     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    //     allocInfo.commandPool = m_commandPools[i];
-    //     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-    //     allocInfo.commandBufferCount = 1;
-    //     if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_secondaryCommandBuffers[i]) != VK_SUCCESS)
-    //     {
-    //         throw std::runtime_error("failed to allocate command buffers.");
-    //     }
-    // }
 }
 
 void Commands::destroy()

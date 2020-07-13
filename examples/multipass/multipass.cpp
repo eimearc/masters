@@ -110,18 +110,13 @@ int main(int argc, char **argv)
 
     std::vector<Attachment> attachments = {framebufferAttachment, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
-
-    Renderpass renderpass = {
-        attachments,
-        subpasses,
-        device
-    };
+    Renderpass renderpass = {device,attachments,subpasses};
 
     // Set up UBO.
     Buffer ubo = Buffer(device);
     ubo.setBuffer(sizeof(UniformBufferObject));
 
-    Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT,1);
+    Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT, 1);
     descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
@@ -129,21 +124,14 @@ int main(int argc, char **argv)
     descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
     descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
 
-    VertexInput vertexInput0;
+    VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput0.setBindingDescription(sizeof(Vertex));
 
-    VertexInput vertexInput1;
+    VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput1.setBindingDescription(sizeof(Vertex));
 
     Buffer indexBuffer = Buffer(device, indices.data(), sizeof(indices[0]), indices.size());
     Buffer vertexBuffer = Buffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
-
-    VertexInput vertexInput;
-    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    vertexInput.setBindingDescription(sizeof(Vertex));
 
     std::vector<Shader> shaders0 = {
         {"pass_0_vert.spv", ShaderStage::VERTEX, device},

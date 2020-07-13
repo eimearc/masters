@@ -215,6 +215,11 @@ void Descriptor::addWriteDescriptorSetInputAttachment(VkImageView imageView, uin
     index++;
 }
 
+VertexInput::VertexInput(uint32_t stride)
+{
+    setBindingDescription(stride);
+}
+
 void VertexInput::addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset)
 {
     VkVertexInputAttributeDescription desc;

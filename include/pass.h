@@ -37,9 +37,9 @@ class Renderpass
     public:
     Renderpass()=default;
     Renderpass(
+        const Device &device,
         const std::vector<Attachment> &attachments,
-        const std::vector<Subpass> &subpasses,
-        const Device &device
+        const std::vector<Subpass> &subpasses
     );
     void destroy();
 
