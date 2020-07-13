@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     Commands commands = {device, swapchainSize, numThreads};
 
     Attachment framebufferAttachment;
-    Swapchain swapchain = {swapchainSize, framebufferAttachment, device};
+    Swapchain swapchain = {device, swapchainSize, framebufferAttachment};
 
     Sync sync = {device, swapchain};
 

@@ -12,9 +12,9 @@ class Swapchain
     public:
     Swapchain()=default;
     Swapchain(
+        const Device &device,
         const uint32_t swapchainSize,
-        Attachment &framebuffer,
-        const Device &device
+        Attachment &framebuffer
     );
 
     void destroy();

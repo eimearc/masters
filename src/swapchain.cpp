@@ -1,6 +1,9 @@
 #include "swapchain.h"
 
-Swapchain::Swapchain(const uint32_t swapchainSize, Attachment &framebuffer, const Device &device)
+Swapchain::Swapchain(
+    const Device &device,
+    const uint32_t swapchainSize,
+    Attachment &framebuffer)
 {
     m_device = device.m_device;
 

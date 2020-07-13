@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     Commands commands = Commands(device, swapchainSize, numThreads);
 
     Attachment framebuffer;
-    Swapchain swapchain = Swapchain(swapchainSize,framebuffer,device);
+    Swapchain swapchain = Swapchain(device,swapchainSize,framebuffer);
 
     Sync sync = Sync(device, swapchain);
     
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
         UniformBufferObject uboUpdate = {};
         uboUpdate.model=glm::mat4(1.0f);
-        uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
+        uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.001f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
         uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
