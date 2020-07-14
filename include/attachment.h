@@ -9,17 +9,14 @@
 class Attachment
 {
     public:
-    Attachment()=default;
-    Attachment(const Device &device, uint32_t index);
+    enum class Type{FRAMEBUFFER,COLOR,DEPTH};
 
-    void setFramebufferAttachment();
-    void setColorAttachment(
+    Attachment()=default;
+    Attachment(
         const Device &device,
-        const Swapchain &swapchain
-    );
-    void setDepthAttachment(
-        const Device &device,
-        const Swapchain &swapchain
+        uint32_t index,
+        const Swapchain &swapchain,
+        const Type &type
     );
 
     void destroy();
@@ -41,6 +38,15 @@ class Attachment
     VkDevice m_device;
 
     void createFramebuffer();
+    void setFramebufferAttachment();
+    void setColorAttachment(
+        const Device &device,
+        const Swapchain &swapchain
+    );
+    void setDepthAttachment(
+        const Device &device,
+        const Swapchain &swapchain
+    );
 };
 
 #endif

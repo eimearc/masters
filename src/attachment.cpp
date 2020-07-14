@@ -2,7 +2,11 @@
 
 #include "swapchain.h"
 
-Attachment::Attachment(const Device &device, uint32_t index)
+Attachment::Attachment(
+    const Device &device,
+    uint32_t index,
+    const Swapchain &swapchain,
+    const Type &type)
 {
     m_device = device.m_device;
     m_index = index;
@@ -10,6 +14,19 @@ Attachment::Attachment(const Device &device, uint32_t index)
     m_inputReference = {index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     m_colorReference = {index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
     m_depthReference = {index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+
+    switch(type)
+    {
+        case Type::FRAMEBUFFER:
+            setFramebufferAttachment();
+            break;
+        case Type::COLOR:
+            setColorAttachment(device, swapchain);
+            break;
+        case Type::DEPTH:
+            setDepthAttachment(device, swapchain);
+            break;
+    }
 }
 
 void Attachment::setFramebufferAttachment()

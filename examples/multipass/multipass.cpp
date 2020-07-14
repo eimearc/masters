@@ -2,7 +2,6 @@
 #include "flags.h"
 #include "grid.h"
 
-const uint32_t MAX_FRAMES_IN_FLIGHT=2;
 struct UniformBufferObject
 {
     glm::mat4 model;
@@ -23,13 +22,13 @@ void createGrid(
     std::vector<Vertex> &vertices,
     std::vector<uint32_t> &indices)
 {
+    constexpr size_t NUM_VERTS = 8;
+    constexpr float GRID_SIZE = 2.0f;
     numCubes = sqrt(numCubes);
-    float gridSize = 2.0f;
-    float cubeSize = (gridSize/numCubes)*0.5;
-    Grid grid = Grid(gridSize, cubeSize, numCubes);
+    float cubeSize = (GRID_SIZE/numCubes)*0.5;
+    Grid grid = Grid(GRID_SIZE, cubeSize, numCubes);
     int i=0;
-    const size_t numVerts = 8;
-    Vertex vertex = {{}, {1,1,1}};
+    Vertex vertex;
     for (auto cube : grid.cubes)
     {
         std::vector<glm::vec3> verts = cube.vertices;
@@ -42,7 +41,7 @@ void createGrid(
         }
         for(size_t j = 0; j<ind.size(); ++j)
         {
-            indices.push_back(ind[j]+i*numVerts);
+            indices.push_back(ind[j]+i*NUM_VERTS);
         }
         ++i;
     }
@@ -63,24 +62,19 @@ int main(int argc, char **argv)
     std::vector<uint32_t> indices;
     createGrid(FLAGS_num_cubes, vertices, indices);
 
-    Device device = {numThreads, validationLayers, window, deviceExtensions};
+    Device device(numThreads, validationLayers, window, deviceExtensions);
 
-    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+    const uint32_t swapchainSize = 2;
 
-    Commands commands = {device, swapchainSize, numThreads};
+    Commands commands(device, swapchainSize, numThreads);
 
-    Swapchain swapchain = {device, swapchainSize};
+    Swapchain swapchain(device, swapchainSize);
 
-    Sync sync = {device, swapchain};
+    Sync sync(device, swapchain);
 
-    Attachment framebufferAttachment(device, 0);
-    framebufferAttachment.setFramebufferAttachment();
-
-    Attachment colorAttachment(device, 1);
-    colorAttachment.setColorAttachment(device, swapchain);
-
-    Attachment depthAttachment(device, 2);
-    depthAttachment.setDepthAttachment(device, swapchain);
+    Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
+    Attachment colorAttachment(device, 1, swapchain, Attachment::Type::COLOR);
+    Attachment depthAttachment(device, 2, swapchain, Attachment::Type::DEPTH);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -110,16 +104,15 @@ int main(int argc, char **argv)
 
     std::vector<Attachment> attachments = {framebufferAttachment, colorAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass0, subpass1};
-    Renderpass renderpass = {device,attachments,subpasses};
+    Renderpass renderpass(device,attachments,subpasses);
 
     // Set up UBO.
-    Buffer ubo = Buffer(device);
-    ubo.setBuffer(sizeof(UniformBufferObject));
+    DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
-    Descriptor descriptor0(device, MAX_FRAMES_IN_FLIGHT, 1);
+    Descriptor descriptor0(device, swapchainSize, 1);
     descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
 
-    Descriptor descriptor1(device, MAX_FRAMES_IN_FLIGHT, 3);
+    Descriptor descriptor1(device, swapchainSize, 3);
     descriptor1.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
     descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
     descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
@@ -130,8 +123,8 @@ int main(int argc, char **argv)
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
 
-    Buffer indexBuffer = Buffer(device, indices.data(), sizeof(indices[0]), indices.size());
-    Buffer vertexBuffer = Buffer(device, vertices.data(), sizeof(vertices[0]), vertices.size());
+    StaticBuffer indexBuffer(device, commands, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer(device, commands, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
 
     std::vector<Shader> shaders0 = {
         {"pass_0_vert.spv", ShaderStage::VERTEX, device},
@@ -169,7 +162,6 @@ int main(int argc, char **argv)
         swapchain, framebuffers, commands);
 
     // Main loop.
-    size_t frameIndex=0;
     size_t counter=0;
     while(!glfwWindowShouldClose(window))
     {
@@ -182,11 +174,10 @@ int main(int argc, char **argv)
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
 
-        ubo.updateBuffer(&uboUpdate);
+        ubo.update(&uboUpdate);
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
-        frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;
     }
 

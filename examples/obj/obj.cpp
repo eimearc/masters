@@ -1,7 +1,6 @@
 #include "evulkan.h"
 #include "flags.h"
 
-const uint32_t MAX_FRAMES_IN_FLIGHT=2;
 struct UniformBufferObject
 {
     glm::mat4 model;
@@ -28,26 +27,23 @@ int main(int argc, char **argv)
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
-    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+    const uint32_t swapchainSize = 2;
 
-    Device device = Device(numThreads, validationLayers, window, deviceExtensions);
-    Commands commands = Commands(device, swapchainSize, numThreads);
-    Swapchain swapchain = Swapchain(device, swapchainSize);
-    Sync sync = Sync(device, swapchain);
+    Device device(numThreads, validationLayers, window, deviceExtensions);
+    Commands commands(device, swapchainSize, numThreads);
+    Swapchain swapchain(device, swapchainSize);
+    Sync sync(device, swapchain);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(device, MAX_FRAMES_IN_FLIGHT,1);
+    Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    Texture texture = Texture("viking_room.png", device, commands);
+    Texture texture("viking_room.png", device, commands);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
-    Attachment framebufferAttachment(device, 0);
-    framebufferAttachment.setFramebufferAttachment();
-
-    Attachment depthAttachment(device, 1);
-    depthAttachment.setDepthAttachment(device, swapchain);
+    Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
+    Attachment depthAttachment(device, 1, swapchain, Attachment::Type::DEPTH);
 
     std::vector<Attachment> colorAttachments = {framebufferAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -64,19 +60,24 @@ int main(int argc, char **argv)
 
     std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
-    Renderpass renderpass = {device,attachments,subpasses};
+    Renderpass renderpass(device,attachments,subpasses);
 
-    Buffer ubo = Buffer(device);
-    ubo.setBuffer(sizeof(UniformBufferObject));
-    descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    UniformBufferObject uboUpdate = {};
+    uboUpdate.model=glm::mat4(1.0f);
+    uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.001f * glm::radians(90.0f)*0, glm::vec3(0.0f,0.0f,1.0f));
+    uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+    uboUpdate.proj[1][1] *= -1;
+    DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+    descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    Buffer indexBuffer = Buffer(device, in.data(), sizeof(in[0]), in.size());
-    Buffer vertexBuffer = Buffer(device, v.data(), sizeof(v[0]), v.size());
+    StaticBuffer indexBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
@@ -98,7 +99,6 @@ int main(int argc, char **argv)
         swapchain, framebuffers, commands);
 
     // Main loop.
-    size_t frameIndex=0;
     size_t counter=0;
     while(!glfwWindowShouldClose(window))
     {
@@ -110,12 +110,10 @@ int main(int argc, char **argv)
         uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
         uboUpdate.proj[1][1] *= -1;
-
-        ubo.updateBuffer(&uboUpdate);
+        ubo.update(&uboUpdate);
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
-        frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;
     }
 
