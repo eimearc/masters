@@ -1,28 +1,30 @@
 #include "device.h"
 
 Device::Device(
-    uint32_t numThreads,
-    std::vector<const char*> validationLayers,
+    const uint32_t &num_threads,
+    const std::vector<const char*> &validation_layers,
     GLFWwindow *window,
-    std::vector<const char *> deviceExtensions,
-    uint32_t swapchainSize)
+    const std::vector<const char *> &device_extensions,
+    const uint32_t &swapchain_size,
+    const bool &enable_validation
+    )
 {
-    m_threadPool.setThreadCount(numThreads);
-    m_numThreads=numThreads;
+    m_threadPool.setThreadCount(num_threads);
+    m_numThreads=num_threads;
 
-    m_deviceExtensions=deviceExtensions;
-    m_validationLayers=validationLayers;
+    m_deviceExtensions=device_extensions;
+    m_validationLayers=validation_layers;
     m_window=window;
 
-    createInstance(validationLayers);
+    createInstance(validation_layers);
     createSurface(window);
-    pickPhysicalDevice(deviceExtensions);
+    pickPhysicalDevice(device_extensions);
     setDepthFormat();
-    createDevice(true);
+    createDevice(enable_validation);
 
-    m_swapchain=Swapchain(*this, swapchainSize);
+    m_swapchain=Swapchain(*this, swapchain_size);
     m_sync=Sync(*this, m_swapchain);
-    m_commands=Commands(*this, swapchainSize, numThreads);
+    m_commands=Commands(m_device, m_physicalDevice, m_surface, swapchain_size, num_threads);
 }
 
 void Device::destroy()
@@ -49,7 +51,7 @@ void Device::destroy()
     glfwTerminate();
 }
 
-void Device::createInstance(std::vector<const char*> validationLayers)
+void Device::createInstance(std::vector<const char*> validation_layers)
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -73,10 +75,10 @@ void Device::createInstance(std::vector<const char*> validationLayers)
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    if(validationLayers.size() > 0)
+    if(validation_layers.size() > 0)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
+        createInfo.ppEnabledLayerNames = validation_layers.data();
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
         
@@ -92,7 +94,7 @@ void Device::createInstance(std::vector<const char*> validationLayers)
         throw std::runtime_error("failed to create instance->");
     }
 
-    if (validationLayers.size() > 0)
+    if (validation_layers.size() > 0)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
@@ -112,7 +114,7 @@ void Device::createSurface(GLFWwindow *window)
     }
 }
 
-void Device::pickPhysicalDevice(std::vector<const char *> deviceExtensions)
+void Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -125,7 +127,7 @@ void Device::pickPhysicalDevice(std::vector<const char *> deviceExtensions)
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
     for (const auto& device : devices)
     {
-        if (isDeviceSuitable(device, m_surface, deviceExtensions))
+        if (isDeviceSuitable(device, m_surface, device_extensions))
         {
             m_physicalDevice = device;
             break;

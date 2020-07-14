@@ -13,11 +13,12 @@ class Device
     public:
     Device()=default;
     Device(
-        uint32_t numThreads,
-        std::vector<const char*> validationLayers,
+        const uint32_t &num_threads,
+        const std::vector<const char*> &validation_layers,
         GLFWwindow *window,
-        std::vector<const char *> deviceExtensions,
-        uint32_t swapchainSize
+        const std::vector<const char *> &device_extensions,
+        const uint32_t &swapchain_size,
+        const bool &enable_validation
     );
     void destroy();
 

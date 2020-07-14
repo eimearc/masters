@@ -5,14 +5,14 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-class Device;
-
 class Commands
 {
     public:
     Commands()=default;
     Commands(
-        const Device &device,
+        const VkDevice &device,
+        const VkPhysicalDevice &physicalDevice,
+        const VkSurfaceKHR &surface,
         const uint32_t &swapchainSize,
         const uint32_t &numThreads
     );
