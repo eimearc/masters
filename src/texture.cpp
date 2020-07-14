@@ -5,11 +5,10 @@
 
 Texture::Texture(
     const std::string &fileName,
-    const Device &device,
-    const Commands &commands)
+    const Device &device)
 {
-    m_device = device.m_device;
-    auto &commandPool = commands.m_commandPools[0];
+    m_device = device.device();
+    auto &commandPool = device.m_commands.m_commandPools[0];
 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(fileName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -18,15 +17,15 @@ Texture::Texture(
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(device.m_device, device.m_physicalDevice, imageSize,
+    createBuffer(device.device(), device.physicalDevice(), imageSize,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &stagingBuffer, &stagingBufferMemory);
 
     void* data;
-    vkMapMemory(device.m_device, stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(device.device(), stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(device.m_device, stagingBufferMemory);
+    vkUnmapMemory(device.device(), stagingBufferMemory);
 
     stbi_image_free(pixels);
 
@@ -35,17 +34,17 @@ Texture::Texture(
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     VkMemoryPropertyFlagBits properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    createImage(device.m_device, device.m_physicalDevice, extent, format, tiling, usage, properties, &m_image, &m_memory);
+    createImage(device.device(), device.physicalDevice(), extent, format, tiling, usage, properties, &m_image, &m_memory);
 
     transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     copyBufferToImage(device, commandPool, stagingBuffer, m_image, extent);
     transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(device.m_device, stagingBuffer, nullptr);
-    vkFreeMemory(device.m_device, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(device.device(), stagingBuffer, nullptr);
+    vkFreeMemory(device.device(), stagingBufferMemory, nullptr);
 
     VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
-    createImageView(device.m_device, m_image, format, aspectFlags, &m_imageView);
+    createImageView(device.device(), m_image, format, aspectFlags, &m_imageView);
 
     // Create sampler.
     VkSamplerCreateInfo samplerInfo{};
@@ -65,7 +64,7 @@ Texture::Texture(
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
-    if (vkCreateSampler(device.m_device, &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
+    if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler.");
 
     m_allocated=true;
@@ -91,7 +90,7 @@ void Texture::transitionImageLayout(
     VkImageLayout newLayout)
 {
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(device.m_device, commandPool, &commandBuffer);
+    beginSingleTimeCommands(device.device(), commandPool, &commandBuffer);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -134,7 +133,7 @@ void Texture::transitionImageLayout(
         1, &barrier
     );
 
-    endSingleTimeCommands(device.m_device, device.m_graphicsQueue, commandPool, commandBuffer);
+    endSingleTimeCommands(device.device(), device.m_graphicsQueue, commandPool, commandBuffer);
 }
 
 void Texture::copyBufferToImage(
@@ -145,7 +144,7 @@ void Texture::copyBufferToImage(
     VkExtent2D extent)
 {
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(device.m_device, commandPool, &commandBuffer);
+    beginSingleTimeCommands(device.device(), commandPool, &commandBuffer);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -171,5 +170,5 @@ void Texture::copyBufferToImage(
         &region
     );
 
-    endSingleTimeCommands(device.m_device, device.m_graphicsQueue, commandPool, commandBuffer);
+    endSingleTimeCommands(device.device(), device.m_graphicsQueue, commandPool, commandBuffer);
 }

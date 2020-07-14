@@ -1,6 +1,9 @@
 #ifndef EVK_DEVICE
 #define EVK_DEVICE
 
+#include "command.h"
+#include "swapchain.h"
+#include "sync.h"
 #include "threadpool.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -10,29 +13,41 @@ class Device
     public:
     Device()=default;
     Device(
-        uint32_t numThreads,
-        std::vector<const char*> validationLayers,
+        const uint32_t &num_threads,
+        const std::vector<const char*> &validation_layers,
         GLFWwindow *window,
-        std::vector<const char *> deviceExtensions
+        const std::vector<const char *> &device_extensions,
+        const uint32_t &swapchain_size,
+        const bool &enable_validation
     );
     void destroy();
 
-    std::vector<const char *> m_deviceExtensions;
-    std::vector<const char *> m_validationLayers;
-    GLFWwindow *m_window;
+    GLFWwindow* window() const { return m_window; }
+    VkInstance instance() const { return m_instance; }
+    VkSurfaceKHR surface() const { return m_surface; }
+    VkPhysicalDevice physicalDevice() const { return m_physicalDevice; }
+    VkDevice device() const { return m_device; }
     
-    VkInstance m_instance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
-    VkSurfaceKHR m_surface;
-    VkPhysicalDevice m_physicalDevice;
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
-    VkDevice m_device;
     ThreadPool m_threadPool;
     size_t m_numThreads;
     VkFormat m_depthFormat;
 
+    Swapchain m_swapchain;
+    Sync m_sync;
+    Commands m_commands;
+
     private:
+    std::vector<const char *> m_deviceExtensions;
+    std::vector<const char *> m_validationLayers;
+    GLFWwindow *m_window;
+    VkInstance m_instance;
+    VkSurfaceKHR m_surface;
+    VkPhysicalDevice m_physicalDevice;
+    VkDevice m_device;
+
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);

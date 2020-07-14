@@ -12,8 +12,7 @@ class Texture
     Texture()=default;
     Texture(
         const std::string &fileName,
-        const Device &device,
-        const Commands &commands
+        const Device &device
     );
 
     void destroy();

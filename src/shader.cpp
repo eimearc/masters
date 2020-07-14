@@ -2,11 +2,11 @@
 
 Shader::Shader(const std::string &fileName, const ShaderStage &stage, const Device &device)
 {   
-    m_device=device.m_device;
+    m_device=device.device();
     auto stageFlags = shaderStageFlags(stage);
 
     auto shaderCode = readFile(fileName);
-    createShaderModule1(device.m_device, shaderCode, &m_module);
+    createShaderModule1(device.device(), shaderCode, &m_module);
 
     m_createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_createInfo.stage = stageFlags;

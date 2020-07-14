@@ -20,7 +20,7 @@ void Pipeline::setup(
     Swapchain &swapchain
 )
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_swapchain = swapchain;
 
     m_descriptor->allocateDescriptorPool();
@@ -122,7 +122,7 @@ void Pipeline::setup(
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    if (vkCreatePipelineLayout(device.m_device, &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(device.device(), &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline layout.");
     }
@@ -162,7 +162,7 @@ void Pipeline::setup(
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(device.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     }

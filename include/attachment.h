@@ -15,7 +15,6 @@ class Attachment
     Attachment(
         const Device &device,
         uint32_t index,
-        const Swapchain &swapchain,
         const Type &type
     );
 
@@ -40,12 +39,10 @@ class Attachment
     void createFramebuffer();
     void setFramebufferAttachment();
     void setColorAttachment(
-        const Device &device,
-        const Swapchain &swapchain
+        const Device &device
     );
     void setDepthAttachment(
-        const Device &device,
-        const Swapchain &swapchain
+        const Device &device
     );
 };
 

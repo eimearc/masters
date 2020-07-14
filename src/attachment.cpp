@@ -5,10 +5,9 @@
 Attachment::Attachment(
     const Device &device,
     uint32_t index,
-    const Swapchain &swapchain,
     const Type &type)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_index = index;
 
     m_inputReference = {index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
@@ -21,10 +20,10 @@ Attachment::Attachment(
             setFramebufferAttachment();
             break;
         case Type::COLOR:
-            setColorAttachment(device, swapchain);
+            setColorAttachment(device);
             break;
         case Type::DEPTH:
-            setDepthAttachment(device, swapchain);
+            setDepthAttachment(device);
             break;
     }
 }
@@ -44,7 +43,7 @@ void Attachment::setFramebufferAttachment()
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setColorAttachment(const Device &device, const Swapchain &swapchain)
+void Attachment::setColorAttachment(const Device &device)
 {
     VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -64,18 +63,18 @@ void Attachment::setColorAttachment(const Device &device, const Swapchain &swapc
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
     createImage(
-        device.m_device, device.m_physicalDevice,
-        swapchain.m_extent, format, tiling, usage, properties,
+        device.device(), device.physicalDevice(),
+        device.m_swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
-        device.m_device, m_image, format,
+        device.device(), m_image, format,
         aspectMask, &m_imageView);
 
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setDepthAttachment(const Device &device, const Swapchain &swapchain)
+void Attachment::setDepthAttachment(const Device &device)
 {
     m_description.flags = 0;
     m_description.format = device.m_depthFormat;
@@ -94,12 +93,12 @@ void Attachment::setDepthAttachment(const Device &device, const Swapchain &swapc
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
     createImage(
-        device.m_device, device.m_physicalDevice,
-        swapchain.m_extent, format, tiling, usage, properties,
+        device.device(), device.physicalDevice(),
+        device.m_swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
-        device.m_device, m_image, format,
+        device.device(), m_image, format,
         aspectMask, &m_imageView);
 
     m_clearValue.depthStencil = {1.0f,1};

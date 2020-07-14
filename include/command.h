@@ -1,7 +1,6 @@
 #ifndef EVK_COMMAND
 #define EVK_COMMAND
 
-#include "device.h"
 #include "util.h"
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -11,7 +10,9 @@ class Commands
     public:
     Commands()=default;
     Commands(
-        const Device &device,
+        const VkDevice &device,
+        const VkPhysicalDevice &physicalDevice,
+        const VkSurfaceKHR &surface,
         const uint32_t &swapchainSize,
         const uint32_t &numThreads
     );

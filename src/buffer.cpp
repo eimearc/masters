@@ -2,14 +2,13 @@
 
 StaticBuffer::StaticBuffer(
     Device &device,
-    Commands &commands,
     void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
     const Type &type)
 {
-    m_device = device.m_device;
-    m_physicalDevice = device.m_physicalDevice;
+    m_device = device.device();
+    m_physicalDevice = device.physicalDevice();
     m_queue = device.m_graphicsQueue;
     m_numThreads = device.m_numThreads;
 
@@ -18,7 +17,7 @@ StaticBuffer::StaticBuffer(
     m_numElements=numElements;
     m_bufferSize = m_numElements * m_elementSize;
 
-    finalize(device, commands, type);
+    finalize(device, type);
 }
 
 VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
@@ -35,9 +34,9 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
     }
 }
 
-void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type)
+void StaticBuffer::finalize(Device &device, const Type &type)
 {
-    std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
+    std::vector<VkCommandPool> &commandPools = device.m_commands.m_commandPools;
     const int num_elements_each = m_numElements/m_numThreads;
     m_bufferSize = m_elementSize*m_numElements;
 
@@ -166,11 +165,11 @@ DynamicBuffer::DynamicBuffer(
     const Device &device,
     const VkDeviceSize &bufferSize)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_bufferSize=bufferSize;
     createBuffer(
         m_device,
-        device.m_physicalDevice,
+        device.physicalDevice(),
         bufferSize,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -192,14 +191,14 @@ DynamicBuffer::DynamicBuffer(
     const size_t num_elements,
     const Type &type)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_bufferSize=element_size*num_elements;
 
     VkBufferUsageFlags usageFlags = typeToFlag(type);
 
     createBuffer(
         m_device,
-        device.m_physicalDevice,
+        device.physicalDevice(),
         m_bufferSize,
         usageFlags,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,

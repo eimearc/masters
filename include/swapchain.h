@@ -1,9 +1,10 @@
 #ifndef EVK_SWAPCHAIN
 #define EVK_SWAPCHAIN
 
-#include "device.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
+
+class Device;
 
 class Swapchain
 {

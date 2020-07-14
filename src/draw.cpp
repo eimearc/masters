@@ -1,25 +1,23 @@
 #include "draw.h"
 
 void executeDrawCommands(
-    const Device &device,
-    const std::vector<Pipeline> &pipelines,
-    const Swapchain &swapchain,
-    const Commands &commands,
-    Sync &sync)
+    Device &device,
+    const std::vector<Pipeline> &pipelines)
 {
     static size_t currentFrame=0;
     
-    auto &frameFence = sync.m_fencesInFlight[currentFrame];
+    auto &commands = device.m_commands;
+    auto &frameFence = device.m_sync.m_fencesInFlight[currentFrame];
 
-    vkWaitForFences(device.m_device, 1, &frameFence, VK_TRUE, UINT64_MAX);
+    vkWaitForFences(device.device(), 1, &frameFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device.m_device, swapchain.m_swapchain, UINT64_MAX,
-        sync.m_imageAvailableSemaphores[currentFrame],
+        device.device(), device.m_swapchain.m_swapchain, UINT64_MAX,
+        device.m_sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
-    auto &imageFence = sync.m_imagesInFlight[imageIndex];
+    auto &imageFence = device.m_sync.m_imagesInFlight[imageIndex];
 
     if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -31,7 +29,7 @@ void executeDrawCommands(
     // Check if a previous frame is using this image. If so, wait on its fence.
     if (imageFence != VK_NULL_HANDLE)
     {
-        vkWaitForFences(device.m_device, 1, &(imageFence), VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device.device(), 1, &(imageFence), VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as being in use.
@@ -39,7 +37,7 @@ void executeDrawCommands(
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[] = {sync.m_imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {device.m_sync.m_imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -47,11 +45,11 @@ void executeDrawCommands(
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commands.m_primaryCommandBuffers[currentFrame];
 
-    VkSemaphore signalSemaphores[] = {(sync.m_renderFinishedSemaphores)[currentFrame]};
+    VkSemaphore signalSemaphores[] = {(device.m_sync.m_renderFinishedSemaphores)[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(device.m_device, 1, &frameFence);
+    vkResetFences(device.device(), 1, &frameFence);
 
     if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
     {
@@ -62,7 +60,7 @@ void executeDrawCommands(
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapchains[] = {swapchain.m_swapchain};
+    VkSwapchainKHR swapchains[] = {device.m_swapchain.m_swapchain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapchains;
     presentInfo.pImageIndices = &imageIndex;
@@ -75,7 +73,7 @@ void executeDrawCommands(
 
     vkQueueWaitIdle(device.m_presentQueue);
 
-    currentFrame = ((currentFrame)+1) % swapchain.m_images.size();
+    currentFrame = ((currentFrame)+1) % device.m_swapchain.m_images.size();
 }
 
 void recordDrawCommands(
@@ -84,27 +82,27 @@ void recordDrawCommands(
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    Swapchain &swapchain,
-    Framebuffer &framebuffers,
-    Commands &commands)
+    Framebuffer &framebuffers)
 {
-    for (auto &p : pipelines) p.setup(device, swapchain);
+    auto &commands = device.m_commands;
+
+    for (auto &p : pipelines) p.setup(device, device.m_swapchain);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
-    framebuffers = {device, renderpass, swapchain};
+    framebuffers = {device, renderpass, device.m_swapchain};
     
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderpass.m_renderPass;
     renderPassInfo.renderArea.offset = {0,0};
-    renderPassInfo.renderArea.extent = swapchain.m_extent;
+    renderPassInfo.renderArea.extent = device.m_swapchain.m_extent;
     renderPassInfo.clearValueCount = renderpass.m_clearValues.size();
     renderPassInfo.pClearValues = renderpass.m_clearValues.data();
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    for (size_t imageIndex = 0; imageIndex < swapchain.m_images.size(); ++imageIndex)
+    for (size_t imageIndex = 0; imageIndex < device.m_swapchain.m_images.size(); ++imageIndex)
     {
         auto &primaryCommandBuffer = commands.m_primaryCommandBuffers[imageIndex];
 
@@ -141,7 +139,7 @@ void recordDrawCommands(
                 allocInfo.commandPool = commands.m_commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                if (vkAllocateCommandBuffers(device.m_device, &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
+                if (vkAllocateCommandBuffers(device.device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to allocate command buffers.");
                 }

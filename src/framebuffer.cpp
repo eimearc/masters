@@ -7,7 +7,7 @@ Framebuffer::Framebuffer(
     const Renderpass &renderpass,
     const Swapchain &swapchain) // This should be part of attachment creation.
 {
-    m_device = device.m_device;
+    m_device = device.device();
     const size_t swapchainSize = swapchain.m_images.size();
     m_framebuffers.resize(swapchainSize);
 
