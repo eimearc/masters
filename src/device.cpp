@@ -4,7 +4,8 @@ Device::Device(
     uint32_t numThreads,
     std::vector<const char*> validationLayers,
     GLFWwindow *window,
-    std::vector<const char *> deviceExtensions)
+    std::vector<const char *> deviceExtensions,
+    uint32_t swapchainSize)
 {
     m_threadPool.setThreadCount(numThreads);
     m_numThreads=numThreads;
@@ -18,10 +19,16 @@ Device::Device(
     pickPhysicalDevice(deviceExtensions);
     setDepthFormat();
     createDevice(true);
+
+    m_swapchain=Swapchain(*this, swapchainSize);
+    m_sync=Sync(*this, m_swapchain);
 }
 
 void Device::destroy()
 {
+    m_swapchain.destroy();
+    m_sync.destroy();
+
     if (vkDeviceWaitIdle(m_device)!=VK_SUCCESS)
     {
         throw std::runtime_error("Could not wait for vkDeviceWaitIdle");

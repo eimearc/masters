@@ -15,11 +15,9 @@
 #include <vulkan/vulkan.h>
 
 void executeDrawCommands(
-    const Device &device,
+    Device &device,
     const std::vector<Pipeline> &pipelines,
-    const Swapchain &swapchain,
-    const Commands &commands,
-    Sync &sync
+    const Commands &commands
 );
 
 void recordDrawCommands(
@@ -28,7 +26,6 @@ void recordDrawCommands(
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    Swapchain &swapchain,
     Framebuffer &framebuffers,
     Commands &commands
 );

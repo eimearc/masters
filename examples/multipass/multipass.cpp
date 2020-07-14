@@ -53,6 +53,8 @@ int main(int argc, char **argv)
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
+    const uint32_t swapchainSize = 2;
+
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -62,19 +64,12 @@ int main(int argc, char **argv)
     std::vector<uint32_t> indices;
     createGrid(FLAGS_num_cubes, vertices, indices);
 
-    Device device(numThreads, validationLayers, window, deviceExtensions);
-
-    const uint32_t swapchainSize = 2;
-
+    Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize);
     Commands commands(device, swapchainSize, numThreads);
 
-    Swapchain swapchain(device, swapchainSize);
-
-    Sync sync(device, swapchain);
-
-    Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
-    Attachment colorAttachment(device, 1, swapchain, Attachment::Type::COLOR);
-    Attachment depthAttachment(device, 2, swapchain, Attachment::Type::DEPTH);
+    Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
+    Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
+    Attachment depthAttachment(device, 2, Attachment::Type::DEPTH);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -158,8 +153,7 @@ int main(int argc, char **argv)
     Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        pipelines, renderpass,
-        swapchain, framebuffers, commands);
+        pipelines, renderpass, framebuffers, commands);
 
     // Main loop.
     size_t counter=0;
@@ -176,7 +170,7 @@ int main(int argc, char **argv)
 
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines, swapchain, commands, sync);
+        executeDrawCommands(device, pipelines, commands);
 
         counter++;
     }
@@ -187,13 +181,11 @@ int main(int argc, char **argv)
     vertexBuffer.destroy();
     for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
-    swapchain.destroy();
     commands.destroy();
     descriptor0.destroy();
     descriptor1.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
-    sync.destroy();
     device.destroy(); 
 }

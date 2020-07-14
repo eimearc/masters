@@ -1,5 +1,6 @@
 #include "sync.h"
 
+#include "device.h"
 #include <iostream>
 
 Sync::Sync(const Device &device, const Swapchain &swapchain)

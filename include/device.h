@@ -1,6 +1,8 @@
 #ifndef EVK_DEVICE
 #define EVK_DEVICE
 
+#include "swapchain.h"
+#include "sync.h"
 #include "threadpool.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -13,7 +15,8 @@ class Device
         uint32_t numThreads,
         std::vector<const char*> validationLayers,
         GLFWwindow *window,
-        std::vector<const char *> deviceExtensions
+        std::vector<const char *> deviceExtensions,
+        uint32_t swapchainSize
     );
     void destroy();
 
@@ -31,6 +34,9 @@ class Device
     ThreadPool m_threadPool;
     size_t m_numThreads;
     VkFormat m_depthFormat;
+
+    Swapchain m_swapchain;
+    Sync m_sync;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

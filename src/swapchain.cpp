@@ -1,5 +1,7 @@
 #include "swapchain.h"
 
+#include "device.h"
+
 Swapchain::Swapchain(
     const Device &device,
     const uint32_t swapchainSize)
