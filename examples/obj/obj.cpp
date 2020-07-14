@@ -37,17 +37,14 @@ int main(int argc, char **argv)
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(device, MAX_FRAMES_IN_FLIGHT,1);
+    Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
     Texture texture = Texture("viking_room.png", device, commands);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
-    Attachment framebufferAttachment(device, 0);
-    framebufferAttachment.setFramebufferAttachment();
-
-    Attachment depthAttachment(device, 1);
-    depthAttachment.setDepthAttachment(device, swapchain);
+    Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
+    Attachment depthAttachment(device, 1, swapchain, Attachment::Type::DEPTH);
 
     std::vector<Attachment> colorAttachments = {framebufferAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};

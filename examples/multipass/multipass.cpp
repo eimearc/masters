@@ -73,14 +73,9 @@ int main(int argc, char **argv)
 
     Sync sync = {device, swapchain};
 
-    Attachment framebufferAttachment(device, 0);
-    framebufferAttachment.setFramebufferAttachment();
-
-    Attachment colorAttachment(device, 1);
-    colorAttachment.setColorAttachment(device, swapchain);
-
-    Attachment depthAttachment(device, 2);
-    depthAttachment.setDepthAttachment(device, swapchain);
+    Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
+    Attachment colorAttachment(device, 1, swapchain, Attachment::Type::COLOR);
+    Attachment depthAttachment(device, 2, swapchain, Attachment::Type::DEPTH);
 
     std::vector<Attachment> colorAttachments = {colorAttachment};
     std::vector<Attachment> depthAttachments = {depthAttachment};
@@ -131,8 +126,6 @@ int main(int argc, char **argv)
 
     StaticBuffer indexBuffer = StaticBuffer(device, commands, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer = StaticBuffer(device, commands, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
-    // vertexBuffer.finalizeVertex(device, commands);
-    // indexBuffer.finalizeIndex(device, commands);
 
     std::vector<Shader> shaders0 = {
         {"pass_0_vert.spv", ShaderStage::VERTEX, device},
