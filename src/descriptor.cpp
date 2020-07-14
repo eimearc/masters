@@ -5,7 +5,7 @@ Descriptor::Descriptor(
     const size_t swapchainSize,
     const size_t numAttachments)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_swapchainSize = swapchainSize;
     m_numAttachments = numAttachments;
     m_writeDescriptorSetVertex = std::vector<VkWriteDescriptorSet>(); // One per attachment?.

@@ -7,7 +7,7 @@ Attachment::Attachment(
     uint32_t index,
     const Type &type)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_index = index;
 
     m_inputReference = {index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
@@ -63,12 +63,12 @@ void Attachment::setColorAttachment(const Device &device)
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
     createImage(
-        device.m_device, device.physicalDevice(),
+        device.device(), device.physicalDevice(),
         device.m_swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
-        device.m_device, m_image, format,
+        device.device(), m_image, format,
         aspectMask, &m_imageView);
 
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
@@ -93,12 +93,12 @@ void Attachment::setDepthAttachment(const Device &device)
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
     createImage(
-        device.m_device, device.physicalDevice(),
+        device.device(), device.physicalDevice(),
         device.m_swapchain.m_extent, format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
-        device.m_device, m_image, format,
+        device.device(), m_image, format,
         aspectMask, &m_imageView);
 
     m_clearValue.depthStencil = {1.0f,1};

@@ -44,7 +44,7 @@ Renderpass::Renderpass(
     const std::vector<Attachment> &attachments,
     const std::vector<Subpass> &subpasses)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_subpasses = subpasses;
     m_attachments = attachments;
 
@@ -86,7 +86,7 @@ Renderpass::Renderpass(
     renderPassInfo.pSubpasses = subpassDescriptions.data();
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
-    if (vkCreateRenderPass(device.m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create render pass.");
     }

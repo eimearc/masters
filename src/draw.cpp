@@ -9,11 +9,11 @@ void executeDrawCommands(
     auto &commands = device.m_commands;
     auto &frameFence = device.m_sync.m_fencesInFlight[currentFrame];
 
-    vkWaitForFences(device.m_device, 1, &frameFence, VK_TRUE, UINT64_MAX);
+    vkWaitForFences(device.device(), 1, &frameFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device.m_device, device.m_swapchain.m_swapchain, UINT64_MAX,
+        device.device(), device.m_swapchain.m_swapchain, UINT64_MAX,
         device.m_sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
@@ -29,7 +29,7 @@ void executeDrawCommands(
     // Check if a previous frame is using this image. If so, wait on its fence.
     if (imageFence != VK_NULL_HANDLE)
     {
-        vkWaitForFences(device.m_device, 1, &(imageFence), VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device.device(), 1, &(imageFence), VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as being in use.
@@ -49,7 +49,7 @@ void executeDrawCommands(
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(device.m_device, 1, &frameFence);
+    vkResetFences(device.device(), 1, &frameFence);
 
     if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
     {
@@ -139,7 +139,7 @@ void recordDrawCommands(
                 allocInfo.commandPool = commands.m_commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                if (vkAllocateCommandBuffers(device.m_device, &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
+                if (vkAllocateCommandBuffers(device.device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to allocate command buffers.");
                 }

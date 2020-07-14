@@ -25,11 +25,11 @@ class Device
     VkInstance instance() const { return m_instance; }
     VkSurfaceKHR surface() const { return m_surface; }
     VkPhysicalDevice physicalDevice() const { return m_physicalDevice; }
+    VkDevice device() const { return m_device; }
     
     VkDebugUtilsMessengerEXT m_debugMessenger;
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
-    VkDevice m_device;
     ThreadPool m_threadPool;
     size_t m_numThreads;
     VkFormat m_depthFormat;
@@ -45,6 +45,7 @@ class Device
     VkInstance m_instance;
     VkSurfaceKHR m_surface;
     VkPhysicalDevice m_physicalDevice;
+    VkDevice m_device;
 
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);

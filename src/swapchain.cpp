@@ -6,7 +6,7 @@ Swapchain::Swapchain(
     const Device &device,
     const uint32_t swapchainSize)
 {
-    m_device = device.m_device;
+    m_device = device.device();
 
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.physicalDevice(), device.surface());
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -49,14 +49,14 @@ Swapchain::Swapchain(
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if(vkCreateSwapchainKHR(device.m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
+    if(vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain.");
     }
 
-    vkGetSwapchainImagesKHR(device.m_device, m_swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(device.device(), m_swapchain, &imageCount, nullptr);
     m_images.resize(imageCount);
-    vkGetSwapchainImagesKHR(device.m_device, m_swapchain, &imageCount, m_images.data());
+    vkGetSwapchainImagesKHR(device.device(), m_swapchain, &imageCount, m_images.data());
 
     m_format = surfaceFormat.format;
     m_extent = extent;
@@ -67,7 +67,7 @@ Swapchain::Swapchain(
     for (uint32_t i = 0; i < imageCount; i++)
     {
         createImageView(
-            device.m_device,
+            device.device(),
             m_images[i],
             format,
             aspectMask,

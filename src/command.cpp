@@ -8,7 +8,7 @@ Commands::Commands(
     const uint32_t &numThreads
 )
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_commandPools.resize(numThreads);
     for (auto &commandPool : m_commandPools)
     {
@@ -17,7 +17,7 @@ Commands::Commands(
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        if (vkCreateCommandPool(device.m_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+        if (vkCreateCommandPool(device.device(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create command pool.");
         }

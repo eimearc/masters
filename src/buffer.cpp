@@ -7,7 +7,7 @@ StaticBuffer::StaticBuffer(
     const size_t numElements,
     const Type &type)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_physicalDevice = device.physicalDevice();
     m_queue = device.m_graphicsQueue;
     m_numThreads = device.m_numThreads;
@@ -165,7 +165,7 @@ DynamicBuffer::DynamicBuffer(
     const Device &device,
     const VkDeviceSize &bufferSize)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_bufferSize=bufferSize;
     createBuffer(
         m_device,
@@ -191,7 +191,7 @@ DynamicBuffer::DynamicBuffer(
     const size_t num_elements,
     const Type &type)
 {
-    m_device = device.m_device;
+    m_device = device.device();
     m_bufferSize=element_size*num_elements;
 
     VkBufferUsageFlags usageFlags = typeToFlag(type);
