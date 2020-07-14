@@ -17,7 +17,7 @@ Texture::Texture(
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(device.m_device, device.m_physicalDevice, imageSize,
+    createBuffer(device.m_device, device.physicalDevice(), imageSize,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &stagingBuffer, &stagingBufferMemory);
@@ -34,7 +34,7 @@ Texture::Texture(
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     VkMemoryPropertyFlagBits properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    createImage(device.m_device, device.m_physicalDevice, extent, format, tiling, usage, properties, &m_image, &m_memory);
+    createImage(device.m_device, device.physicalDevice(), extent, format, tiling, usage, properties, &m_image, &m_memory);
 
     transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     copyBufferToImage(device, commandPool, stagingBuffer, m_image, extent);

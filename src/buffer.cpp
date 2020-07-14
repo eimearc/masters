@@ -8,7 +8,7 @@ StaticBuffer::StaticBuffer(
     const Type &type)
 {
     m_device = device.m_device;
-    m_physicalDevice = device.m_physicalDevice;
+    m_physicalDevice = device.physicalDevice();
     m_queue = device.m_graphicsQueue;
     m_numThreads = device.m_numThreads;
 
@@ -169,7 +169,7 @@ DynamicBuffer::DynamicBuffer(
     m_bufferSize=bufferSize;
     createBuffer(
         m_device,
-        device.m_physicalDevice,
+        device.physicalDevice(),
         bufferSize,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -198,7 +198,7 @@ DynamicBuffer::DynamicBuffer(
 
     createBuffer(
         m_device,
-        device.m_physicalDevice,
+        device.physicalDevice(),
         m_bufferSize,
         usageFlags,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,

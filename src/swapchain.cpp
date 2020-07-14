@@ -8,10 +8,10 @@ Swapchain::Swapchain(
 {
     m_device = device.m_device;
 
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.m_physicalDevice, device.m_surface);
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.physicalDevice(), device.surface());
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(device.m_window, swapChainSupport.capabilities);
+    VkExtent2D extent = chooseSwapExtent(device.window(), swapChainSupport.capabilities);
 
     uint32_t imageCount = swapchainSize;
     if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -21,7 +21,7 @@ Swapchain::Swapchain(
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = device.m_surface;
+    createInfo.surface = device.surface();
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -29,7 +29,7 @@ Swapchain::Swapchain(
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(device.m_physicalDevice, device.m_surface);
+    QueueFamilyIndices indices = findQueueFamilies(device.physicalDevice(), device.surface());
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily)
     {

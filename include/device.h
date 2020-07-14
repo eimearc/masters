@@ -21,14 +21,12 @@ class Device
     );
     void destroy();
 
-    std::vector<const char *> m_deviceExtensions;
-    std::vector<const char *> m_validationLayers;
-    GLFWwindow *m_window;
+    GLFWwindow* window() const { return m_window; }
+    VkInstance instance() const { return m_instance; }
+    VkSurfaceKHR surface() const { return m_surface; }
+    VkPhysicalDevice physicalDevice() const { return m_physicalDevice; }
     
-    VkInstance m_instance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
-    VkSurfaceKHR m_surface;
-    VkPhysicalDevice m_physicalDevice;
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
     VkDevice m_device;
@@ -41,6 +39,13 @@ class Device
     Commands m_commands;
 
     private:
+    std::vector<const char *> m_deviceExtensions;
+    std::vector<const char *> m_validationLayers;
+    GLFWwindow *m_window;
+    VkInstance m_instance;
+    VkSurfaceKHR m_surface;
+    VkPhysicalDevice m_physicalDevice;
+
     void createInstance(std::vector<const char*> validationLayers);
     void createSurface(GLFWwindow *window);
     void pickPhysicalDevice(std::vector<const char *> deviceExtensions);
