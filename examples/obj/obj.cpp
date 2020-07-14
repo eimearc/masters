@@ -1,7 +1,6 @@
 #include "evulkan.h"
 #include "flags.h"
 
-const uint32_t MAX_FRAMES_IN_FLIGHT=2;
 struct UniformBufferObject
 {
     glm::mat4 model;
@@ -28,19 +27,19 @@ int main(int argc, char **argv)
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
-    const uint32_t swapchainSize = MAX_FRAMES_IN_FLIGHT;
+    const uint32_t swapchainSize = 2;
 
-    Device device = Device(numThreads, validationLayers, window, deviceExtensions);
-    Commands commands = Commands(device, swapchainSize, numThreads);
-    Swapchain swapchain = Swapchain(device, swapchainSize);
-    Sync sync = Sync(device, swapchain);
+    Device device(numThreads, validationLayers, window, deviceExtensions);
+    Commands commands(device, swapchainSize, numThreads);
+    Swapchain swapchain(device, swapchainSize);
+    Sync sync(device, swapchain);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    Texture texture = Texture("viking_room.png", device, commands);
+    Texture texture("viking_room.png", device, commands);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, swapchain, Attachment::Type::FRAMEBUFFER);
@@ -61,7 +60,7 @@ int main(int argc, char **argv)
 
     std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
     std::vector<Subpass> subpasses = {subpass};
-    Renderpass renderpass = {device,attachments,subpasses};
+    Renderpass renderpass(device,attachments,subpasses);
 
     UniformBufferObject uboUpdate = {};
     uboUpdate.model=glm::mat4(1.0f);
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
     uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     uboUpdate.proj[1][1] *= -1;
-    DynamicBuffer ubo = DynamicBuffer(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+    DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
     descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
@@ -77,8 +76,8 @@ int main(int argc, char **argv)
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    StaticBuffer indexBuffer = StaticBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
-    StaticBuffer vertexBuffer = StaticBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
+    StaticBuffer indexBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
@@ -100,7 +99,6 @@ int main(int argc, char **argv)
         swapchain, framebuffers, commands);
 
     // Main loop.
-    size_t frameIndex=0;
     size_t counter=0;
     while(!glfwWindowShouldClose(window))
     {
@@ -116,7 +114,6 @@ int main(int argc, char **argv)
 
         executeDrawCommands(device, pipelines, swapchain, commands, sync);
 
-        frameIndex=(frameIndex+1)%MAX_FRAMES_IN_FLIGHT;
         counter++;
     }
 
