@@ -16,8 +16,7 @@
 
 void executeDrawCommands(
     Device &device,
-    const std::vector<Pipeline> &pipelines,
-    const Commands &commands
+    const std::vector<Pipeline> &pipelines
 );
 
 void recordDrawCommands(
@@ -26,8 +25,7 @@ void recordDrawCommands(
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    Framebuffer &framebuffers,
-    Commands &commands
+    Framebuffer &framebuffers
 );
 
 #endif

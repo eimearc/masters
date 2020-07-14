@@ -1,6 +1,7 @@
 #ifndef EVK_DEVICE
 #define EVK_DEVICE
 
+#include "command.h"
 #include "swapchain.h"
 #include "sync.h"
 #include "threadpool.h"
@@ -37,6 +38,7 @@ class Device
 
     Swapchain m_swapchain;
     Sync m_sync;
+    Commands m_commands;
 
     private:
     void createInstance(std::vector<const char*> validationLayers);

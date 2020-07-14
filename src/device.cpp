@@ -22,10 +22,12 @@ Device::Device(
 
     m_swapchain=Swapchain(*this, swapchainSize);
     m_sync=Sync(*this, m_swapchain);
+    m_commands=Commands(*this, swapchainSize, numThreads);
 }
 
 void Device::destroy()
 {
+    m_commands.destroy();
     m_swapchain.destroy();
     m_sync.destroy();
 

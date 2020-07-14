@@ -2,7 +2,6 @@
 
 StaticBuffer::StaticBuffer(
     Device &device,
-    Commands &commands,
     void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
@@ -18,7 +17,7 @@ StaticBuffer::StaticBuffer(
     m_numElements=numElements;
     m_bufferSize = m_numElements * m_elementSize;
 
-    finalize(device, commands, type);
+    finalize(device, type);
 }
 
 VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
@@ -35,9 +34,9 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
     }
 }
 
-void StaticBuffer::finalize(Device &device, Commands &commands, const Type &type)
+void StaticBuffer::finalize(Device &device, const Type &type)
 {
-    std::vector<VkCommandPool> &commandPools = commands.m_commandPools;
+    std::vector<VkCommandPool> &commandPools = device.m_commands.m_commandPools;
     const int num_elements_each = m_numElements/m_numThreads;
     m_bufferSize = m_elementSize*m_numElements;
 

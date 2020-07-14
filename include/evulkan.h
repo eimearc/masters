@@ -19,10 +19,8 @@
 #include "pass.h"
 #include "pipeline.h"
 #include "shader.h"
-#include "swapchain.h"
 #include "texture.h"
 #include "threadpool.h"
-#include "sync.h"
 
 #define GLFW_INCLUDE_VULKAN
 

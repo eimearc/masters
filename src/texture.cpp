@@ -5,11 +5,10 @@
 
 Texture::Texture(
     const std::string &fileName,
-    const Device &device,
-    const Commands &commands)
+    const Device &device)
 {
     m_device = device.m_device;
-    auto &commandPool = commands.m_commandPools[0];
+    auto &commandPool = device.m_commands.m_commandPools[0];
 
     int texWidth, texHeight, texChannels;
     stbi_uc* pixels = stbi_load(fileName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);

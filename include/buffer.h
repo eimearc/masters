@@ -63,14 +63,13 @@ class StaticBuffer : public Buffer
     StaticBuffer()=default;
     StaticBuffer(
         Device &device,
-        Commands &commands,
         void *data,
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
     );
 
-    void finalize(Device &device,Commands &commands, const Type &type);
+    void finalize(Device &device, const Type &type);
 
     void copyData(
         VkDevice device,

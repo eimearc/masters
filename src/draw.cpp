@@ -2,11 +2,11 @@
 
 void executeDrawCommands(
     Device &device,
-    const std::vector<Pipeline> &pipelines,
-    const Commands &commands)
+    const std::vector<Pipeline> &pipelines)
 {
     static size_t currentFrame=0;
     
+    auto &commands = device.m_commands;
     auto &frameFence = device.m_sync.m_fencesInFlight[currentFrame];
 
     vkWaitForFences(device.m_device, 1, &frameFence, VK_TRUE, UINT64_MAX);
@@ -82,9 +82,10 @@ void recordDrawCommands(
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
     const Renderpass &renderpass,
-    Framebuffer &framebuffers,
-    Commands &commands)
+    Framebuffer &framebuffers)
 {
+    auto &commands = device.m_commands;
+
     for (auto &p : pipelines) p.setup(device, device.m_swapchain);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;

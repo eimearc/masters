@@ -65,7 +65,6 @@ int main(int argc, char **argv)
     createGrid(FLAGS_num_cubes, vertices, indices);
 
     Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize);
-    Commands commands(device, swapchainSize, numThreads);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
@@ -118,8 +117,8 @@ int main(int argc, char **argv)
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
 
-    StaticBuffer indexBuffer(device, commands, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
-    StaticBuffer vertexBuffer(device, commands, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
+    StaticBuffer indexBuffer(device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
 
     std::vector<Shader> shaders0 = {
         {"pass_0_vert.spv", ShaderStage::VERTEX, device},
@@ -153,7 +152,7 @@ int main(int argc, char **argv)
     Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers, commands);
+        pipelines, renderpass, framebuffers);
 
     // Main loop.
     size_t counter=0;
@@ -170,7 +169,7 @@ int main(int argc, char **argv)
 
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines, commands);
+        executeDrawCommands(device, pipelines);
 
         counter++;
     }
@@ -181,7 +180,6 @@ int main(int argc, char **argv)
     vertexBuffer.destroy();
     for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
-    commands.destroy();
     descriptor0.destroy();
     descriptor1.destroy();
     for (auto &p : pipelines) p.destroy();

@@ -30,16 +30,14 @@ int main(int argc, char **argv)
     const uint32_t swapchainSize = 2;
 
     Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize);
-    Commands commands(device, swapchainSize, numThreads);
-    // Swapchain swapchain(device, swapchainSize);
-    // Sync sync(device, swapchain);
+    // Commands commands(device, swapchainSize, numThreads);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
     Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    Texture texture("viking_room.png", device, commands);
+    Texture texture("viking_room.png", device);
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
@@ -76,8 +74,8 @@ int main(int argc, char **argv)
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    StaticBuffer indexBuffer(device, commands, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
-    StaticBuffer vertexBuffer(device, commands, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
+    StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
+    StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
     Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
     Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
@@ -95,7 +93,7 @@ int main(int argc, char **argv)
     Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers, commands);
+        pipelines, renderpass, framebuffers);
 
     // Main loop.
     size_t counter=0;
@@ -111,7 +109,7 @@ int main(int argc, char **argv)
         uboUpdate.proj[1][1] *= -1;
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines, commands);
+        executeDrawCommands(device, pipelines);
 
         counter++;
     }
@@ -123,12 +121,9 @@ int main(int argc, char **argv)
     texture.destroy();
     for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
-    // swapchain.destroy();
-    commands.destroy();
     descriptor.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
-    // sync.destroy();
     device.destroy();
 }

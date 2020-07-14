@@ -1,5 +1,7 @@
 #include "command.h"
 
+#include "device.h"
+
 Commands::Commands(
     const Device &device,
     const uint32_t &swapchainSize,

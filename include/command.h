@@ -1,10 +1,11 @@
 #ifndef EVK_COMMAND
 #define EVK_COMMAND
 
-#include "device.h"
 #include "util.h"
 #include <vector>
 #include <vulkan/vulkan.h>
+
+class Device;
 
 class Commands
 {
