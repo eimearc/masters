@@ -77,9 +77,6 @@ void Pipeline::setup(
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
-    rasterizer.depthBiasConstantFactor = 0.0f;
-    rasterizer.depthBiasClamp = 0.0f;
-    rasterizer.depthBiasSlopeFactor = 0.0f;
 
     // Set up multisampling.
     VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -92,22 +89,24 @@ void Pipeline::setup(
     multisampling.alphaToOneEnable = VK_FALSE;
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};// TODO: Must equal colorAttachmentCount.
-    if (m_writeDepth) // GBuffer
-    {
-        colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.colorWriteMask = 0xf;
-    }
-    else // Lighting
-    {
-        colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
-        colorBlendAttachment.colorWriteMask = 0xf;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
-    }
+    colorBlendAttachment.blendEnable = VK_FALSE;
+    colorBlendAttachment.colorWriteMask = 0xf;
+    // if (m_writeDepth) // GBuffer
+    // {
+    //     colorBlendAttachment.blendEnable = VK_FALSE;
+    //     colorBlendAttachment.colorWriteMask = 0xf;
+    // }
+    // else // Lighting
+    // {
+    //     colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
+    //     colorBlendAttachment.colorWriteMask = 0xf;
+    //     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    //     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+    //     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
+    //     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    //     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+    //     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
+    // }
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

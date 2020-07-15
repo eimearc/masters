@@ -12,8 +12,8 @@ const vec3 ka = vec3(0.1);
 const vec3 kd = vec3(1.0);
 const vec3 ks = vec3(1.0);
 const float specular_exponent = 1.0;
-const vec3 la = vec3(0.1);
-const vec3 ld = vec3(2.0);
+const vec3 la = vec3(1.0);
+const vec3 ld = vec3(1.0);
 const vec3 ls = vec3(1.0);
 
 // From Jon Macey's lectures.
@@ -40,5 +40,5 @@ void main() {
 
     // vec4 clip = vec4(gl_FragCoord.xy, subpassLoad(inputDepth).x, 1.0);
 
-    outColor=vec4(phongModel(),1);
+    outColor=vec4(phongModel(),0);
 }
