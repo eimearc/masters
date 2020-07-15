@@ -98,9 +98,11 @@ void Pipeline::setup(
     colorBlendAttachment.colorWriteMask = 0xf;
     colorBlendAttachment.blendEnable = VK_FALSE;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    // colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Needs to be configured depending on operation.
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    // colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
@@ -137,8 +139,14 @@ void Pipeline::setup(
     depthStencil.minDepthBounds = 0.0f;
     depthStencil.maxDepthBounds = 1.0f;
     depthStencil.stencilTestEnable = VK_FALSE;
-    depthStencil.front = {};
-    depthStencil.back = {};
+    depthStencil.front.passOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.compareOp = VK_COMPARE_OP_EQUAL;
+    depthStencil.front.compareMask = 0xff;
+    depthStencil.front.writeMask = 0x0;
+    depthStencil.front.reference = 1;
+    depthStencil.back = depthStencil.front;
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
     for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);

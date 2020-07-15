@@ -4,9 +4,9 @@
 
 struct UniformBufferObject
 {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    glm::mat4 MVP_model;
+    glm::mat4 MVP_light;
+    glm::mat4 MV;
 };
 std::vector<const char*> validationLayers =
 {
@@ -37,6 +37,8 @@ void createGrid(
         {
             vertex.pos=verts[j];
             vertex.color={1,0,1};
+            vertex.normal=cube.center-vertex.pos;
+            vertex.normal=-vertex.pos;
             vertices.push_back(vertex);
         }
         for(size_t j = 0; j<ind.size(); ++j)
@@ -113,6 +115,7 @@ int main(int argc, char **argv)
 
     VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,normal));
 
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -156,16 +159,21 @@ int main(int argc, char **argv)
 
     // Main loop.
     size_t counter=0;
+    glm::mat4 model(1.0f);
+    glm::mat4 view(1.0f);
+    glm::mat4 proj(1.0f);
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
         UniformBufferObject uboUpdate = {};
-        uboUpdate.model=glm::mat4(1.0f);
-        uboUpdate.model=glm::rotate(glm::mat4(1.0f), 0.01f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
-        uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
-        uboUpdate.proj[1][1] *= -1;
+        model = glm::rotate(glm::mat4(1.0f), 0.005f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
+        view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+        proj[1][1] *= -1;
+        uboUpdate.MV = view * model;
+        uboUpdate.MVP_model = proj * view * model;
+        uboUpdate.MVP_light = proj * view;
 
         ubo.update(&uboUpdate);
 
