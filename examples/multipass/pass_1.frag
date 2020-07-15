@@ -35,7 +35,10 @@ vec3 phongModel()
 }
 
 void main() {
+    vec3 color = subpassLoad(inputColor).rgb;
     float depth = subpassLoad(inputDepth).r;
-    // outColor = vec4(depth/10.0);
+
+    // vec4 clip = vec4(gl_FragCoord.xy, subpassLoad(inputDepth).x, 1.0);
+
     outColor=vec4(phongModel(),1);
 }

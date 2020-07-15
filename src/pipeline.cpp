@@ -91,47 +91,28 @@ void Pipeline::setup(
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {}; // TODO: One per attachment?
-    // if (m_writeDepth) // GBuffer
-    // {
-    //     colorBlendAttachment.blendEnable = VK_FALSE;
-    //     colorBlendAttachment.colorWriteMask = 0xf;
-    // }
-    // else // Lighting
-    // {
-        // colorBlendAttachment.blendEnable = true;
-        // colorBlendAttachment.colorWriteMask = 0xf;
-        // colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        // colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        // colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
-        // colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        // colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        // colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
-    // }
-
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT
-    | VK_COLOR_COMPONENT_G_BIT
-    | VK_COLOR_COMPONENT_B_BIT
-    | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.colorWriteMask = 0xf;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Needs to be configured depending on operation.
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};// TODO: Must equal colorAttachmentCount.
+    if (m_writeDepth) // GBuffer
+    {
+        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.colorWriteMask = 0xf;
+    }
+    else // Lighting
+    {
+        colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
+        colorBlendAttachment.colorWriteMask = 0xf;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
+    }
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending.blendConstants[0] = 0.0f; // Optional
-    colorBlending.blendConstants[1] = 0.0f; // Optional
-    colorBlending.blendConstants[2] = 0.0f; // Optional
-    colorBlending.blendConstants[3] = 0.0f; // Optional
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
