@@ -85,7 +85,8 @@ int main(int argc, char **argv)
         &descriptor,
         vertexInput,
         renderpass,
-        shaders
+        shaders,
+        true
     );
 
     std::vector<Pipeline> pipelines = {pipeline};
