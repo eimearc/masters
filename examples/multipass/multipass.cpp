@@ -37,7 +37,6 @@ void createGrid(
         {
             vertex.pos=verts[j];
             vertex.color={1,0,1};
-            vertex.normal=cube.center-vertex.pos;
             vertex.normal=-vertex.pos;
             vertices.push_back(vertex);
         }
