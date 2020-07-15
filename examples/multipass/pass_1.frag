@@ -8,13 +8,13 @@ layout(location = 1) in vec3 light;
 
 layout(location = 0) out vec4 outColor;
 
-const vec3 ka = vec3 (1.0, 1.0, 1.0);
-const vec3 kd = vec3 (1.0, 1.0, 1.0);
-const vec3 ks = vec3 (1.0, 1.0, 1.0);
+const vec3 ka = vec3(0.1);
+const vec3 kd = vec3(1.0);
+const vec3 ks = vec3(1.0);
 const float specular_exponent = 1.0;
 const vec3 la = vec3(0.1);
-const vec3 ld = vec3(1.0,1.0,1.0);
-const vec3 ls = vec3(1.0,1.0,1.0);
+const vec3 ld = vec3(2.0);
+const vec3 ls = vec3(1.0);
 
 // From Jon Macey's lectures.
 vec3 phongModel()
@@ -31,11 +31,11 @@ vec3 phongModel()
 	{
 		spec = vec3(la * ka * pow(max(dot(r,v), 0.0), specular_exponent));
 	}
-	// return ambient + diffuse + spec;
-    return diffuse;
+	return ambient + diffuse + spec;
 }
 
 void main() {
-    // float depth = subpassLoad(inputDepth).r;
+    float depth = subpassLoad(inputDepth).r;
+    // outColor = vec4(depth/10.0);
     outColor=vec4(phongModel(),1);
 }

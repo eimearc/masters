@@ -132,7 +132,8 @@ int main(int argc, char **argv)
         &descriptor0,
         vertexInput0,
         renderpass,
-        shaders0
+        shaders0,
+        true
     );
 
     std::vector<Shader> shaders1 = {
@@ -144,7 +145,8 @@ int main(int argc, char **argv)
         &descriptor1,
         vertexInput1,
         renderpass,
-        shaders1
+        shaders1,
+        false
     );
 
     std::vector<Pipeline> pipelines = {pipeline0, pipeline1};
