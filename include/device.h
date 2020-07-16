@@ -1,7 +1,6 @@
 #ifndef EVK_DEVICE
 #define EVK_DEVICE
 
-#include "command.h"
 #include "sync.h"
 #include "threadpool.h"
 #include "util.h"
@@ -41,12 +40,16 @@ class Device
     VkSwapchainKHR swapchain() const { return m_swapchain->m_swapchain; };
     uint32_t swapchainSize() const { return m_swapchain->m_images.size(); };
     std::vector<VkImageView> swapchainImageViews() const { return m_swapchain->m_imageViews; };
+
+    // Commands.
+    std::vector<VkCommandPool> commandPools() const { return m_commands->m_commandPools; };
+    std::vector<VkCommandBuffer> primaryCommandBuffers() const { return m_commands->m_primaryCommandBuffers; };
+    std::vector<VkCommandBuffer> secondaryCommandBuffers() const { return m_commands->m_secondaryCommandBuffers; };
     
     ThreadPool m_threadPool;
     size_t m_numThreads;
 
     Sync m_sync;
-    Commands m_commands;
 
     private:
     class _Device
@@ -126,9 +129,34 @@ class Device
         VkFormat m_format;
         VkExtent2D m_extent;
     };
+
+    class Commands
+    {
+        public:
+        Commands()=default;
+        Commands(const Commands&)=default;
+        Commands& operator=(const Commands&)=default;
+        Commands(Commands&&)=default;
+        Commands& operator=(Commands&&)=default;
+        ~Commands() noexcept;
+
+        Commands(
+            const VkDevice &device,
+            const VkPhysicalDevice &physicalDevice,
+            const VkSurfaceKHR &surface,
+            const uint32_t &swapchainSize,
+            const uint32_t &numThreads
+        );
+
+        VkDevice m_device;
+        std::vector<VkCommandPool> m_commandPools;
+        std::vector<VkCommandBuffer> m_primaryCommandBuffers;
+        std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
+    };
     
     std::unique_ptr<_Device> m_innerDevice;
     std::unique_ptr<Swapchain> m_swapchain;
+    std::unique_ptr<Commands> m_commands;
 };
 
 #endif

@@ -15,7 +15,7 @@ Device::Device(
     m_innerDevice=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
     m_swapchain=std::make_unique<Swapchain>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, window, swapchain_size);
     m_sync=Sync(m_innerDevice->m_device, swapchain_size);
-    m_commands=Commands(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, swapchain_size, num_threads);
+    m_commands=std::make_unique<Commands>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, swapchain_size, num_threads);
 }
 
 Device::_Device::_Device(
@@ -42,7 +42,7 @@ Device::_Device::~_Device() noexcept
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
     // glfwDestroyWindow(m_window); // TODO: Bring this back in.
-    // glfwTerminate();
+    // glfwTerminate(); // TODO: Bring this back in.
 }
 
 Device::~Device() noexcept

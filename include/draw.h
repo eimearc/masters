@@ -3,7 +3,6 @@
 
 #include <array>
 #include "buffer.h"
-#include "command.h"
 #include "descriptor.h"
 #include "framebuffer.h"
 #include "pass.h"

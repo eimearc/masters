@@ -43,7 +43,7 @@ set (SOURCES
     ${VULKAN_SRC}/obj.cpp
     ${VULKAN_SRC}/texture.cpp
     ${VULKAN_INCLUDE}/evulkan.h
-    ${VULKAN_INCLUDE}/command.h
+    # ${VULKAN_INCLUDE}/command.h
     ${VULKAN_INCLUDE}/descriptor.h
     ${VULKAN_INCLUDE}/draw.h
     ${VULKAN_INCLUDE}/attachment.h

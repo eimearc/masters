@@ -11,7 +11,6 @@
 
 #include "attachment.h"
 #include "buffer.h"
-#include "command.h"
 #include "descriptor.h"
 #include "device.h"
 #include "draw.h"

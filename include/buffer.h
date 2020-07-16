@@ -1,7 +1,6 @@
 #ifndef EVK_BUFFER_H_
 #define EVK_BUFFER_H_
 
-#include "command.h"
 #include "device.h"
 #include "util.h"
 #include <vector>

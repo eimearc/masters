@@ -1,7 +1,6 @@
 #ifndef EVK_TEXTURE
 #define EVK_TEXTURE
 
-#include "command.h"
 #include "device.h"
 #include "util.h"
 #include <vulkan/vulkan.h>

@@ -36,7 +36,7 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
 
 void StaticBuffer::finalize(Device &device, const Type &type)
 {
-    std::vector<VkCommandPool> &commandPools = device.m_commands.m_commandPools;
+    const std::vector<VkCommandPool> &commandPools = device.commandPools();
     const int num_elements_each = m_numElements/m_numThreads;
     m_bufferSize = m_elementSize*m_numElements;
 

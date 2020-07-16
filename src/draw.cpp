@@ -5,8 +5,6 @@ void executeDrawCommands(
     const std::vector<Pipeline> &pipelines)
 {
     static size_t currentFrame=0;
-    
-    auto &commands = device.m_commands;
     auto &frameFence = device.m_sync.m_fencesInFlight[currentFrame];
 
     vkWaitForFences(device.device(), 1, &frameFence, VK_TRUE, UINT64_MAX);
@@ -35,6 +33,8 @@ void executeDrawCommands(
     // Mark the image as being in use.
     imageFence = frameFence;
 
+    const auto &primaryCommandBuffers = device.primaryCommandBuffers();
+
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     VkSemaphore waitSemaphores[] = {device.m_sync.m_imageAvailableSemaphores[currentFrame]};
@@ -43,7 +43,7 @@ void executeDrawCommands(
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commands.m_primaryCommandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &primaryCommandBuffers[currentFrame];
 
     VkSemaphore signalSemaphores[] = {(device.m_sync.m_renderFinishedSemaphores)[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -87,7 +87,9 @@ void recordDrawCommands(
     const Renderpass &renderpass,
     Framebuffer &framebuffers)
 {
-    auto &commands = device.m_commands;
+    const auto &primaryCommandBuffers = device.primaryCommandBuffers();
+    auto secondaryCommandBuffers = device.secondaryCommandBuffers();
+    const auto &commandPools = device.commandPools();
 
     for (auto &p : pipelines) p.setup(device);
 
@@ -107,7 +109,7 @@ void recordDrawCommands(
 
     for (size_t imageIndex = 0; imageIndex < device.swapchainSize(); ++imageIndex)
     {
-        auto &primaryCommandBuffer = commands.m_primaryCommandBuffers[imageIndex];
+        auto &primaryCommandBuffer = primaryCommandBuffers[imageIndex];
 
         renderPassInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
         vkBeginCommandBuffer(primaryCommandBuffer, &beginInfo);
@@ -131,7 +133,7 @@ void recordDrawCommands(
 
             auto createDrawCommands =[&](int i)
             {
-                auto &secondaryCommandBuffer = commands.m_secondaryCommandBuffers[i];
+                auto &secondaryCommandBuffer = secondaryCommandBuffers[i];
 
                 size_t numIndices=numIndicesEach;
                 size_t indexOffset=numIndicesEach*i;
@@ -139,7 +141,7 @@ void recordDrawCommands(
 
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                allocInfo.commandPool = commands.m_commandPools[i];
+                allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
                 if (vkAllocateCommandBuffers(device.device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
@@ -186,7 +188,7 @@ void recordDrawCommands(
                 t->addJob(std::bind(createDrawCommands,counter++));
             }
             device.m_threadPool.wait();
-            vkCmdExecuteCommands(primaryCommandBuffer, commands.m_secondaryCommandBuffers.size(), commands.m_secondaryCommandBuffers.data());
+            vkCmdExecuteCommands(primaryCommandBuffer, secondaryCommandBuffers.size(), secondaryCommandBuffers.data());
         }
 
         vkCmdEndRenderPass(primaryCommandBuffer);

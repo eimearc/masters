@@ -1,6 +1,6 @@
-#include "command.h"
+#include "device.h"
 
-Commands::Commands(
+Device::Commands::Commands(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
     const VkSurfaceKHR &surface,
@@ -34,7 +34,7 @@ Commands::Commands(
     m_secondaryCommandBuffers.resize(numThreads);
 }
 
-void Commands::destroy()
+Device::Commands::~Commands() noexcept
 {
     for (int i = 0; i < m_commandPools.size(); ++i)
     {
