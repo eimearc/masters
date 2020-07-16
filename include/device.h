@@ -1,7 +1,6 @@
 #ifndef EVK_DEVICE
 #define EVK_DEVICE
 
-#include "sync.h"
 #include "threadpool.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -45,11 +44,15 @@ class Device
     std::vector<VkCommandPool> commandPools() const { return m_commands->m_commandPools; };
     std::vector<VkCommandBuffer> primaryCommandBuffers() const { return m_commands->m_primaryCommandBuffers; };
     std::vector<VkCommandBuffer> secondaryCommandBuffers() const { return m_commands->m_secondaryCommandBuffers; };
+
+    // Sync.
+    std::vector<VkFence> frameFences() const { return m_sync->m_fencesInFlight; };
+    std::vector<VkFence> imageFences() const { return m_sync->m_imagesInFlight; };
+    std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
+    std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
     
     ThreadPool m_threadPool;
     size_t m_numThreads;
-
-    Sync m_sync;
 
     private:
     class _Device
@@ -153,10 +156,30 @@ class Device
         std::vector<VkCommandBuffer> m_primaryCommandBuffers;
         std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
     };
+
+    class Sync
+    {
+        public:
+        Sync()=default;
+        Sync(const Sync&)=default;
+        Sync& operator=(const Sync&)=default;
+        Sync(Sync&&)=default;
+        Sync& operator=(Sync&&)=default;
+        ~Sync() noexcept;
+
+        Sync(const VkDevice &device, const uint32_t &swapchainSize);
+
+        VkDevice m_device;
+        std::vector<VkSemaphore> m_imageAvailableSemaphores;
+        std::vector<VkSemaphore> m_renderFinishedSemaphores;
+        std::vector<VkFence> m_fencesInFlight;
+        std::vector<VkFence> m_imagesInFlight;
+    };
     
     std::unique_ptr<_Device> m_innerDevice;
     std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
+    std::unique_ptr<Sync> m_sync;
 };
 
 #endif

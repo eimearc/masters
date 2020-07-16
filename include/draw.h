@@ -7,7 +7,6 @@
 #include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
-#include "sync.h"
 #include "util.h"
 #include <vector>
 #include <vulkan/vulkan.h>

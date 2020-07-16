@@ -14,7 +14,7 @@ Device::Device(
 
     m_innerDevice=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
     m_swapchain=std::make_unique<Swapchain>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, window, swapchain_size);
-    m_sync=Sync(m_innerDevice->m_device, swapchain_size);
+    m_sync=std::make_unique<Sync>(m_innerDevice->m_device, swapchain_size);
     m_commands=std::make_unique<Commands>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, swapchain_size, num_threads);
 }
 

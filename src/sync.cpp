@@ -1,8 +1,8 @@
-#include "sync.h"
+#include "device.h"
 
 #include <iostream>
 
-Sync::Sync(
+Device::Sync::Sync(
     const VkDevice &device,
     const uint32_t &swapchainSize)
 {
@@ -31,7 +31,7 @@ Sync::Sync(
     }
 }
 
-void Sync::destroy()
+Device::Sync::~Sync() noexcept
 {
     for (auto &s : m_renderFinishedSemaphores) vkDestroySemaphore(m_device, s, nullptr);
     for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);

@@ -1,21 +1,27 @@
 #include "draw.h"
 
+// TODO: Make part of device.
 void executeDrawCommands(
     Device &device,
     const std::vector<Pipeline> &pipelines)
 {
     static size_t currentFrame=0;
-    auto &frameFence = device.m_sync.m_fencesInFlight[currentFrame];
+    auto frameFences = device.frameFences();
+    auto imageFences = device.imageFences();
+    const auto &imageSemaphores = device.imageSempahores();
+    const auto &renderSemaphores = device.renderSempahores();
+
+    auto &frameFence = frameFences[currentFrame];
 
     vkWaitForFences(device.device(), 1, &frameFence, VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
         device.device(), device.swapchain(), UINT64_MAX,
-        device.m_sync.m_imageAvailableSemaphores[currentFrame],
+        imageSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
-    auto &imageFence = device.m_sync.m_imagesInFlight[imageIndex];
+    auto &imageFence = imageFences[imageIndex];
 
     if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -37,7 +43,7 @@ void executeDrawCommands(
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[] = {device.m_sync.m_imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {imageSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -45,7 +51,7 @@ void executeDrawCommands(
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &primaryCommandBuffers[currentFrame];
 
-    VkSemaphore signalSemaphores[] = {(device.m_sync.m_renderFinishedSemaphores)[currentFrame]};
+    VkSemaphore signalSemaphores[] = {(renderSemaphores)[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
