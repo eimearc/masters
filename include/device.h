@@ -11,8 +11,8 @@ class Device
     Device()=default;
     Device(const Device&)=delete;
     Device& operator=(const Device&)=delete;
-    Device(Device&&)=default;
-    Device& operator=(Device&&)=default;
+    Device(Device&&)=delete;
+    Device& operator=(Device&&)=delete;
     ~Device()=default;
 
     Device(
@@ -59,10 +59,10 @@ class Device
     {
         public:
         _Device()=default;
-        _Device(const _Device&)=default;
-        _Device& operator=(const _Device&)=default;
-        _Device(_Device&&)=default;
-        _Device& operator=(_Device&&)=default;
+        _Device(const _Device&)=delete;
+        _Device& operator=(const _Device&)=delete;
+        _Device(_Device&&)=delete;
+        _Device& operator=(_Device&&)=delete;
         ~_Device() noexcept;
 
         _Device(
@@ -111,10 +111,10 @@ class Device
     {
         public:
         Swapchain()=default;
-        Swapchain(const Swapchain&)=default;
-        Swapchain& operator=(const Swapchain&)=default;
-        Swapchain(Swapchain&&)=default;
-        Swapchain& operator=(Swapchain&&)=default;
+        Swapchain(const Swapchain&)=delete;
+        Swapchain& operator=(const Swapchain&)=delete;
+        Swapchain(Swapchain&&)=delete;
+        Swapchain& operator=(Swapchain&&)=delete;
         ~Swapchain() noexcept;
 
         Swapchain(
@@ -137,10 +137,10 @@ class Device
     {
         public:
         Commands()=default;
-        Commands(const Commands&)=default;
-        Commands& operator=(const Commands&)=default;
-        Commands(Commands&&)=default;
-        Commands& operator=(Commands&&)=default;
+        Commands(const Commands&)=delete;
+        Commands& operator=(const Commands&)=delete;
+        Commands(Commands&&)=delete;
+        Commands& operator=(Commands&&)=delete;
         ~Commands() noexcept;
 
         Commands(
@@ -161,10 +161,10 @@ class Device
     {
         public:
         Sync()=default;
-        Sync(const Sync&)=default;
-        Sync& operator=(const Sync&)=default;
-        Sync(Sync&&)=default;
-        Sync& operator=(Sync&&)=default;
+        Sync(const Sync&)=delete;
+        Sync& operator=(const Sync&)=delete;
+        Sync(Sync&&)=delete;
+        Sync& operator=(Sync&&)=delete;
         ~Sync() noexcept;
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
