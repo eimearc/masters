@@ -35,7 +35,6 @@ Device::_Device::_Device(
 
 Device::_Device::~_Device() noexcept
 {
-    std::cout << "_Device dtor\n";
     // TODO: Should wait for idle?
     vkDestroyDevice(m_device, nullptr);
     DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr); // TODO: Only delete if used.
@@ -43,14 +42,6 @@ Device::_Device::~_Device() noexcept
     vkDestroyInstance(m_instance, nullptr);
     // glfwDestroyWindow(m_window); // TODO: Bring this back in.
     // glfwTerminate(); // TODO: Bring this back in.
-}
-
-Device::~Device() noexcept
-{
-    // m_commands.destroy();
-    // m_sync.destroy();
-
-    std::cout << "Destroying device\n";
 }
 
 void Device::_Device::createInstance(std::vector<const char*> validation_layers)

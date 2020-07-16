@@ -10,7 +10,7 @@ StaticBuffer::StaticBuffer(
     m_device = device.device();
     m_physicalDevice = device.physicalDevice();
     m_queue = device.graphicsQueue();
-    m_numThreads = device.m_numThreads;
+    m_numThreads = device.numThreads();
 
     m_data=data;
     m_elementSize=elementSize;

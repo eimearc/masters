@@ -7,7 +7,6 @@ Device::Swapchain::Swapchain(
     GLFWwindow *window, //TODO: Make const.
     const uint32_t swapchainSize)
 {
-    std::cout << "Swapchain ctor\n";
     m_device = device;
 
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
@@ -78,7 +77,7 @@ Device::Swapchain::Swapchain(
     }
 }
 
-Device::Swapchain::~Swapchain()
+Device::Swapchain::~Swapchain() noexcept
 {
     for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);

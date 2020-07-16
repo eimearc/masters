@@ -14,16 +14,12 @@ Framebuffer::Framebuffer(
     for (size_t i = 0; i < swapchainSize; i++)
     {
         std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
-        // imageViews[0] = swapchain.m_imageViews[i];
         imageViews[0] = swapchainImageViews[i];
-        std::cout << imageViews[0] << std::endl;
-        std::cout << renderpass.m_attachments.size() << std::endl;
         for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
         {
             auto attachment = renderpass.m_attachments[j];
             const uint32_t &index = attachment.m_index;
             imageViews[index]=attachment.m_imageView;
-            std::cout << "Other image view: " << imageViews[index] << std::endl;
         }
 
         VkFramebufferCreateInfo framebufferInfo = {};
@@ -34,9 +30,6 @@ Framebuffer::Framebuffer(
         framebufferInfo.width = extent.width;
         framebufferInfo.height = extent.height;
         framebufferInfo.layers = 1;
-
-        std::cout << imageViews.size() << std::endl;
-        for (const auto &v: imageViews) std::cout << "\tImageView: " << v << std::endl;
 
         if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
         {

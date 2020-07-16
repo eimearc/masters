@@ -68,7 +68,6 @@ int main(int argc, char **argv)
     createGrid(FLAGS_num_cubes, vertices, indices);
 
     Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
-    std::cout << "HERE\n";
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
@@ -197,5 +196,6 @@ int main(int argc, char **argv)
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
+
     // device.~Device(); called
 }

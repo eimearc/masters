@@ -96,10 +96,11 @@ void recordDrawCommands(
     const auto &primaryCommandBuffers = device.primaryCommandBuffers();
     auto secondaryCommandBuffers = device.secondaryCommandBuffers();
     const auto &commandPools = device.commandPools();
+    const auto numThreads = device.numThreads();
 
     for (auto &p : pipelines) p.setup(device);
 
-    const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
+    const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
     framebuffers = {device, renderpass};
     
     VkRenderPassBeginInfo renderPassInfo = {};
@@ -143,7 +144,7 @@ void recordDrawCommands(
 
                 size_t numIndices=numIndicesEach;
                 size_t indexOffset=numIndicesEach*i;
-                if (i==(device.m_numThreads-1)) numIndices = indexBuffer.m_numElements-(i*numIndicesEach);
+                if (i==(numThreads-1)) numIndices = indexBuffer.m_numElements-(i*numIndicesEach);
 
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

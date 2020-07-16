@@ -13,7 +13,7 @@ class Device
     Device& operator=(const Device&)=delete;
     Device(Device&&)=default;
     Device& operator=(Device&&)=default;
-    ~Device() noexcept;
+    ~Device()=default;
 
     Device(
         const uint32_t &num_threads,
@@ -33,6 +33,7 @@ class Device
     VkFormat depthFormat() const { return m_innerDevice->m_depthFormat; };
     VkQueue graphicsQueue() const { return m_innerDevice->m_graphicsQueue; };
     VkQueue presentQueue() const { return m_innerDevice->m_presentQueue; };
+    uint32_t numThreads() const { return m_numThreads; };
 
     // Swapchain.
     VkExtent2D extent() const { return m_swapchain->m_extent; };
@@ -52,7 +53,6 @@ class Device
     std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
     
     ThreadPool m_threadPool;
-    size_t m_numThreads;
 
     private:
     class _Device
@@ -180,6 +180,8 @@ class Device
     std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
     std::unique_ptr<Sync> m_sync;
+
+    size_t m_numThreads;
 };
 
 #endif
