@@ -11,39 +11,29 @@ Device::Device(
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
-
-    m_deviceExtensions=device_extensions;
-    m_validationLayers=validation_layers;
     m_window=window;
 
     createInstance(validation_layers);
     createSurface(window);
     pickPhysicalDevice(device_extensions);
     setDepthFormat();
-    createDevice(enable_validation);
+    createDevice(enable_validation, device_extensions, validation_layers);
 
     m_swapchain=Swapchain(*this, swapchain_size);
     m_sync=Sync(*this, m_swapchain);
     m_commands=Commands(m_device, m_physicalDevice, m_surface, swapchain_size, num_threads);
 }
 
-void Device::destroy()
+Device::~Device() noexcept
 {
+    std::cout <<"Calling before swapchain destroy\n";
     m_commands.destroy();
     m_swapchain.destroy();
     m_sync.destroy();
 
-    if (vkDeviceWaitIdle(m_device)!=VK_SUCCESS)
-    {
-        throw std::runtime_error("Could not wait for vkDeviceWaitIdle");
-    }
+    // TODO: Should wait for idle?
     vkDestroyDevice(m_device, nullptr);
-
-    if (m_validationLayers.size() > 0)
-    {
-        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
-    }
-
+    DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr); // TODO: Only delete if used.
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 
@@ -140,7 +130,11 @@ void Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
     }
 }
 
-void Device::createDevice(bool enableValidation)
+void Device::createDevice(
+    bool enableValidation,
+    const std::vector<const char *> &deviceExtensions,
+    const std::vector<const char*> &validationLayers
+)
 {
     QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
 
@@ -166,12 +160,12 @@ void Device::createDevice(bool enableValidation)
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if (enableValidation) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
-        createInfo.ppEnabledLayerNames = m_validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -202,29 +196,20 @@ VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
 void Device::setDepthFormat()
 {
     std::vector<VkFormat> candidates = {
-        VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+        VK_FORMAT_D32_SFLOAT,VK_FORMAT_D32_SFLOAT_S8_UINT,
+        VK_FORMAT_D24_UNORM_S8_UINT
+    };
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkFormatFeatureFlags features = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    m_depthFormat = getSupportedFormat(candidates, tiling, features);
-}
 
-VkFormat Device::getSupportedFormat(
-    const std::vector<VkFormat>& candidates,
-    VkImageTiling tiling,
-    VkFormatFeatureFlags features)
-{
+    VkFormatProperties props;
     for (VkFormat format : candidates)
     {
-        VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
-        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+        if ((props.optimalTilingFeatures & features) == features)
         {
-            return format;
-        }
-        else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
-        {
-            return format;
+            m_depthFormat = format;
+            break;
         }
     }
-    throw std::runtime_error("failed to find supported format.");
 }

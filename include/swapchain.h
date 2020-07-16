@@ -14,6 +14,7 @@ class Swapchain
         const Device &device,
         const uint32_t swapchainSize
     );
+    ~Swapchain() noexcept {std::cout << "Calling swapchain dtor.\n";};
 
     void destroy();
 

@@ -194,5 +194,5 @@ int main(int argc, char **argv)
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
-    device.destroy(); 
+    // device.~Device(); called
 }
