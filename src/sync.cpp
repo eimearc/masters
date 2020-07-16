@@ -7,9 +7,7 @@ Sync::Sync(
     const uint32_t &swapchainSize)
 {
     m_device = device;
-    // const size_t &swapchainSize = device.swapchainSize();
-    // size_t maxFramesInFlight=device.swapchainSize(); // TODO: Is this correct?
-    size_t maxFramesInFlight = swapchainSize;
+    size_t maxFramesInFlight = swapchainSize; // TODO: Is this correct?
     m_imageAvailableSemaphores.resize(maxFramesInFlight);
     m_renderFinishedSemaphores.resize(maxFramesInFlight);
     m_fencesInFlight.resize(maxFramesInFlight);
