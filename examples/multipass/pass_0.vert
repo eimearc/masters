@@ -2,13 +2,20 @@
 
 layout(set=0, binding = 0) uniform UniformBufferObject
 {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
+    mat4 MVP_model;
+    mat4 MVP_light;
+    mat4 MV;
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inNormal;
+
+layout(location = 0) out vec3 outNormal;
+
+// TODO: Calculate in geometry shader, once per triangle.
+// PBR method, pass in via a map.
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.MVP_model * vec4(inPosition, 1.0);
+    outNormal = normalize(ubo.MV * vec4(inNormal,0)).xyz;
 }

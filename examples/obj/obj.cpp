@@ -85,7 +85,8 @@ int main(int argc, char **argv)
         &descriptor,
         vertexInput,
         renderpass,
-        shaders
+        shaders,
+        true
     );
 
     std::vector<Pipeline> pipelines = {pipeline};
@@ -124,5 +125,4 @@ int main(int argc, char **argv)
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
-    device.destroy();
 }

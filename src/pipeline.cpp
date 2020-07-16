@@ -5,7 +5,8 @@ Pipeline::Pipeline(
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
     const Renderpass &renderpass,
-    const std::vector<Shader> &shaders
+    const std::vector<Shader> &shaders,
+    bool writeDepth
 )
 {
     m_vertexInput = vertexInput;
@@ -13,6 +14,7 @@ Pipeline::Pipeline(
     m_descriptor = pDescriptor;
     m_shaders = shaders;
     m_renderpass = renderpass;
+    m_writeDepth=writeDepth;
 }
 
 void Pipeline::setup(
@@ -72,12 +74,9 @@ void Pipeline::setup(
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    // rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
-    rasterizer.depthBiasConstantFactor = 0.0f;
-    rasterizer.depthBiasClamp = 0.0f;
-    rasterizer.depthBiasSlopeFactor = 0.0f;
 
     // Set up multisampling.
     VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -89,31 +88,30 @@ void Pipeline::setup(
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    // Set up colour blending.
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT
-        | VK_COLOR_COMPONENT_G_BIT
-        | VK_COLOR_COMPONENT_B_BIT
-        | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.colorWriteMask = 0xf;
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};// TODO: Must equal colorAttachmentCount.
     colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.colorWriteMask = 0xf;
+    // if (m_writeDepth) // GBuffer
+    // {
+    //     colorBlendAttachment.blendEnable = VK_FALSE;
+    //     colorBlendAttachment.colorWriteMask = 0xf;
+    // }
+    // else // Lighting
+    // {
+    //     colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
+    //     colorBlendAttachment.colorWriteMask = 0xf;
+    //     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    //     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+    //     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
+    //     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    //     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+    //     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
+    // }
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending.blendConstants[0] = 0.0f; // Optional
-    colorBlending.blendConstants[1] = 0.0f; // Optional
-    colorBlending.blendConstants[2] = 0.0f; // Optional
-    colorBlending.blendConstants[3] = 0.0f; // Optional
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -130,15 +128,40 @@ void Pipeline::setup(
     // Set up depth testing.
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-    depthStencil.depthBoundsTestEnable = VK_FALSE;
-    depthStencil.minDepthBounds = 0.0f;
-    depthStencil.maxDepthBounds = 1.0f;
-    depthStencil.stencilTestEnable = VK_FALSE;
-    depthStencil.front = {};
-    depthStencil.back = {};
+
+    if (m_writeDepth) // G-Buffer
+    {
+        depthStencil.depthTestEnable = true;
+        depthStencil.depthWriteEnable = true;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+        depthStencil.depthBoundsTestEnable = false;
+        depthStencil.stencilTestEnable = true;
+        depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
+        depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
+        depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
+        depthStencil.front.compareOp = VK_COMPARE_OP_ALWAYS;
+        depthStencil.front.compareMask = 0xff;
+        depthStencil.front.writeMask = 0xff;
+        depthStencil.front.reference = 1;
+        depthStencil.back = depthStencil.front;
+    }
+    else // Lighting
+    {
+        depthStencil.depthTestEnable = true;
+        depthStencil.depthWriteEnable = false;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+        depthStencil.depthBoundsTestEnable = false;
+        depthStencil.stencilTestEnable = true;
+        depthStencil.front.passOp = VK_STENCIL_OP_KEEP;
+        depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
+        depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
+        depthStencil.front.compareOp = VK_COMPARE_OP_EQUAL;
+        depthStencil.front.compareMask = 0xff;
+        depthStencil.front.writeMask = 0x0;
+        depthStencil.front.reference = 1;
+        depthStencil.back = depthStencil.front;
+    }
+    
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
     for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);

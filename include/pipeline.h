@@ -18,7 +18,8 @@ class Pipeline
         Descriptor *pDescriptor,
         const VertexInput &vertexInput,
         const Renderpass &renderpass,
-        const std::vector<Shader> &shaders
+        const std::vector<Shader> &shaders,
+        bool writeDepth
     );
 
     void setup(
@@ -39,6 +40,7 @@ class Pipeline
     Renderpass m_renderpass;
 
     private:
+    bool m_writeDepth;
 };
 
 #endif
