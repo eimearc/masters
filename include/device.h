@@ -25,14 +25,14 @@ class Device
     );
 
     // Device.
-    GLFWwindow* window() const { return m_innerDevice->m_window; }
-    VkInstance instance() const { return m_innerDevice->m_instance; }
-    VkSurfaceKHR surface() const { return m_innerDevice->m_surface; }
-    VkPhysicalDevice physicalDevice() const { return m_innerDevice->m_physicalDevice; }
-    VkDevice device() const { return m_innerDevice->m_device; }
-    VkFormat depthFormat() const { return m_innerDevice->m_depthFormat; };
-    VkQueue graphicsQueue() const { return m_innerDevice->m_graphicsQueue; };
-    VkQueue presentQueue() const { return m_innerDevice->m_presentQueue; };
+    GLFWwindow* window() const { return m_device->m_window; }
+    VkInstance instance() const { return m_device->m_instance; }
+    VkSurfaceKHR surface() const { return m_device->m_surface; }
+    VkPhysicalDevice physicalDevice() const { return m_device->m_physicalDevice; }
+    VkDevice device() const { return m_device->m_device; }
+    VkFormat depthFormat() const { return m_device->m_depthFormat; };
+    VkQueue graphicsQueue() const { return m_device->m_graphicsQueue; };
+    VkQueue presentQueue() const { return m_device->m_presentQueue; };
     uint32_t numThreads() const { return m_numThreads; };
 
     // Swapchain.
@@ -176,11 +176,10 @@ class Device
         std::vector<VkFence> m_imagesInFlight;
     };
     
-    std::unique_ptr<_Device> m_innerDevice;
+    std::unique_ptr<_Device> m_device;
     std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
     std::unique_ptr<Sync> m_sync;
-
     size_t m_numThreads;
 };
 

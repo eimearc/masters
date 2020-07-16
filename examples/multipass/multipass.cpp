@@ -197,5 +197,8 @@ int main(int argc, char **argv)
     for (auto &s : shaders) s.destroy();
     renderpass.destroy();
 
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
     // device.~Device(); called
 }

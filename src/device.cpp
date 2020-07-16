@@ -12,10 +12,10 @@ Device::Device(
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
 
-    m_innerDevice=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
-    m_swapchain=std::make_unique<Swapchain>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, window, swapchain_size);
-    m_sync=std::make_unique<Sync>(m_innerDevice->m_device, swapchain_size);
-    m_commands=std::make_unique<Commands>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, swapchain_size, num_threads);
+    m_device=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
+    m_swapchain=std::make_unique<Swapchain>(m_device->m_device, m_device->m_physicalDevice, m_device->m_surface, window, swapchain_size);
+    m_sync=std::make_unique<Sync>(m_device->m_device, swapchain_size);
+    m_commands=std::make_unique<Commands>(m_device->m_device, m_device->m_physicalDevice, m_device->m_surface, swapchain_size, num_threads);
 }
 
 Device::_Device::_Device(
@@ -26,6 +26,7 @@ Device::_Device::_Device(
     const bool &enable_validation
 )
 {
+    m_window=window;
     createInstance(validation_layers);
     createSurface(window);
     pickPhysicalDevice(device_extensions);
@@ -40,8 +41,6 @@ Device::_Device::~_Device() noexcept
     DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr); // TODO: Only delete if used.
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
-    // glfwDestroyWindow(m_window); // TODO: Bring this back in.
-    // glfwTerminate(); // TODO: Bring this back in.
 }
 
 void Device::_Device::createInstance(std::vector<const char*> validation_layers)
