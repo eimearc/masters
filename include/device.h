@@ -121,7 +121,7 @@ class Device
             const VkDevice &device,
             const VkPhysicalDevice &physicalDevice,
             const VkSurfaceKHR &surface,
-            GLFWwindow *window, //TODO: Make const.
+            GLFWwindow *window,
             const uint32_t swapchainSize
         );
 

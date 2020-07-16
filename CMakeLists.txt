@@ -42,17 +42,6 @@ set (SOURCES
     ${VULKAN_SRC}/util.cpp
     ${VULKAN_SRC}/obj.cpp
     ${VULKAN_SRC}/texture.cpp
-    ${VULKAN_INCLUDE}/evulkan.h
-    ${VULKAN_INCLUDE}/descriptor.h
-    ${VULKAN_INCLUDE}/draw.h
-    ${VULKAN_INCLUDE}/attachment.h
-    ${VULKAN_INCLUDE}/pipeline.h
-    ${VULKAN_INCLUDE}/pass.h
-    ${VULKAN_INCLUDE}/shader.h
-    ${VULKAN_INCLUDE}/texture.h
-    ${VULKAN_INCLUDE}/buffer.h
-    ${VULKAN_INCLUDE}/device.h
-    ${VULKAN_INCLUDE}/util.h
     ${VULKAN_INCLUDE}/threadpool.h
     ${VULKAN_INCLUDE}/vertex.h
 )
