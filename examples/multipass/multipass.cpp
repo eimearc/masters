@@ -17,6 +17,8 @@ std::vector<const char*> deviceExtensions =
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
+GLFWwindow *window;
+
 void createGrid(
     uint32_t numCubes,
     std::vector<Vertex> &vertices,
@@ -59,7 +61,7 @@ int main(int argc, char **argv)
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    auto window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;

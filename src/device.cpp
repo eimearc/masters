@@ -11,36 +11,49 @@ Device::Device(
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
-    m_window=window;
 
+    m_innerDevice=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
+    m_swapchain=std::make_unique<Swapchain>(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, window, swapchain_size);
+    m_sync=Sync(m_innerDevice->m_device, swapchain_size);
+    m_commands=Commands(m_innerDevice->m_device, m_innerDevice->m_physicalDevice, m_innerDevice->m_surface, swapchain_size, num_threads);
+}
+
+Device::_Device::_Device(
+    const uint32_t &num_threads,
+    const std::vector<const char*> &validation_layers,
+    GLFWwindow *window,
+    const std::vector<const char *> &device_extensions,
+    const bool &enable_validation
+)
+{
     createInstance(validation_layers);
     createSurface(window);
     pickPhysicalDevice(device_extensions);
     setDepthFormat();
     createDevice(enable_validation, device_extensions, validation_layers);
-
-    m_swapchain=std::make_unique<Swapchain>(m_device, m_physicalDevice, m_surface, window, swapchain_size);
-    m_sync=Sync(m_device, swapchain_size);
-    m_commands=Commands(m_device, m_physicalDevice, m_surface, swapchain_size, num_threads);
 }
 
-Device::~Device() noexcept
+Device::_Device::~_Device() noexcept
 {
-    m_commands.destroy();
-    // m_swapchain.destroy();
-    m_sync.destroy();
-
+    std::cout << "_Device dtor\n";
     // TODO: Should wait for idle?
     vkDestroyDevice(m_device, nullptr);
     DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr); // TODO: Only delete if used.
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
-
-    glfwDestroyWindow(m_window);
-    glfwTerminate();
+    // glfwDestroyWindow(m_window); // TODO: Bring this back in.
+    // glfwTerminate();
 }
 
-void Device::createInstance(std::vector<const char*> validation_layers)
+Device::~Device() noexcept
+{
+    // m_commands.destroy();
+    // m_sync.destroy();
+
+    std::cout << "Destroying device\n";
+}
+
+void Device::_Device::createInstance(std::vector<const char*> validation_layers)
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -95,7 +108,7 @@ void Device::createInstance(std::vector<const char*> validation_layers)
     }
 }
 
-void Device::createSurface(GLFWwindow *window)
+void Device::_Device::createSurface(GLFWwindow *window)
 {
     if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS)
     {
@@ -103,7 +116,7 @@ void Device::createSurface(GLFWwindow *window)
     }
 }
 
-void Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
+void Device::_Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -129,7 +142,7 @@ void Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
     }
 }
 
-void Device::createDevice(
+void Device::_Device::createDevice(
     bool enableValidation,
     const std::vector<const char *> &deviceExtensions,
     const std::vector<const char*> &validationLayers
@@ -178,7 +191,7 @@ void Device::createDevice(
     vkGetDeviceQueue(m_device, indices.presentFamily.value(), 0, &m_presentQueue);
 }
 
-VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
+VkResult Device::_Device::createDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pDebugMessenger)
@@ -192,7 +205,7 @@ VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
-void Device::setDepthFormat()
+void Device::_Device::setDepthFormat()
 {
     std::vector<VkFormat> candidates = {
         VK_FORMAT_D32_SFLOAT,VK_FORMAT_D32_SFLOAT_S8_UINT,

@@ -75,13 +75,11 @@ Device::Swapchain::Swapchain(
             aspectMask,
             &m_imageViews[i]
         );
-        std::cout << "Created swapchain image view: " << m_imageViews[i] << std::endl;
     }
 }
 
 Device::Swapchain::~Swapchain()
 {
-    std::cout << "Swapchain dtor\n";
     for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
     vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 }

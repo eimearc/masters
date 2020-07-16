@@ -51,7 +51,10 @@ void executeDrawCommands(
 
     vkResetFences(device.device(), 1, &frameFence);
 
-    if (vkQueueSubmit(device.m_graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
+    const auto &graphicsQueue = device.graphicsQueue();
+    const auto &presentQueue = device.presentQueue();
+
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, frameFence) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -66,12 +69,12 @@ void executeDrawCommands(
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    if (vkQueuePresentKHR(device.m_presentQueue, &presentInfo) != VK_SUCCESS)
+    if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to present swap chain image.");
     }
 
-    vkQueueWaitIdle(device.m_presentQueue);
+    vkQueueWaitIdle(presentQueue);
 
     currentFrame = ((currentFrame)+1) % device.swapchainSize();
 }

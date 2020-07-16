@@ -133,7 +133,7 @@ void Texture::transitionImageLayout(
         1, &barrier
     );
 
-    endSingleTimeCommands(device.device(), device.m_graphicsQueue, commandPool, commandBuffer);
+    endSingleTimeCommands(device.device(), device.graphicsQueue(), commandPool, commandBuffer);
 }
 
 void Texture::copyBufferToImage(
@@ -170,5 +170,5 @@ void Texture::copyBufferToImage(
         &region
     );
 
-    endSingleTimeCommands(device.device(), device.m_graphicsQueue, commandPool, commandBuffer);
+    endSingleTimeCommands(device.device(), device.graphicsQueue(), commandPool, commandBuffer);
 }
