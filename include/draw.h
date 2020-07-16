@@ -8,7 +8,6 @@
 #include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
-#include "swapchain.h"
 #include "sync.h"
 #include "util.h"
 #include <vector>

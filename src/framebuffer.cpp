@@ -1,26 +1,29 @@
 #include "framebuffer.h"
 
-#include "swapchain.h"
-
 Framebuffer::Framebuffer(
     const Device &device,
-    const Renderpass &renderpass,
-    const Swapchain &swapchain) // This should be part of attachment creation.
+    const Renderpass &renderpass) // This should be part of attachment creation.
 {
     m_device = device.device();
-    const size_t swapchainSize = swapchain.m_images.size();
+    const size_t &swapchainSize = device.swapchainSize();
+    const auto &swapchainImageViews = device.swapchainImageViews();
+    const auto &extent = device.extent();
     m_framebuffers.resize(swapchainSize);
 
     // For each image in the swapchain.
     for (size_t i = 0; i < swapchainSize; i++)
     {
         std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
-        imageViews[0] = swapchain.m_imageViews[i];
+        // imageViews[0] = swapchain.m_imageViews[i];
+        imageViews[0] = swapchainImageViews[i];
+        std::cout << imageViews[0] << std::endl;
+        std::cout << renderpass.m_attachments.size() << std::endl;
         for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
         {
             auto attachment = renderpass.m_attachments[j];
             const uint32_t &index = attachment.m_index;
             imageViews[index]=attachment.m_imageView;
+            std::cout << "Other image view: " << imageViews[index] << std::endl;
         }
 
         VkFramebufferCreateInfo framebufferInfo = {};
@@ -28,9 +31,12 @@ Framebuffer::Framebuffer(
         framebufferInfo.renderPass = renderpass.m_renderPass;
         framebufferInfo.attachmentCount = imageViews.size();
         framebufferInfo.pAttachments = imageViews.data();
-        framebufferInfo.width = swapchain.m_extent.width;
-        framebufferInfo.height = swapchain.m_extent.height;
+        framebufferInfo.width = extent.width;
+        framebufferInfo.height = extent.height;
         framebufferInfo.layers = 1;
+
+        std::cout << imageViews.size() << std::endl;
+        for (const auto &v: imageViews) std::cout << "\tImageView: " << v << std::endl;
 
         if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
         {

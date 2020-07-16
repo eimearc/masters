@@ -19,16 +19,15 @@ Device::Device(
     setDepthFormat();
     createDevice(enable_validation, device_extensions, validation_layers);
 
-    m_swapchain=Swapchain(*this, swapchain_size);
-    m_sync=Sync(*this, m_swapchain);
+    m_swapchain=std::make_unique<Swapchain>(m_device, m_physicalDevice, m_surface, window, swapchain_size);
+    m_sync=Sync(m_device, swapchain_size);
     m_commands=Commands(m_device, m_physicalDevice, m_surface, swapchain_size, num_threads);
 }
 
 Device::~Device() noexcept
 {
-    std::cout <<"Calling before swapchain destroy\n";
     m_commands.destroy();
-    m_swapchain.destroy();
+    // m_swapchain.destroy();
     m_sync.destroy();
 
     // TODO: Should wait for idle?

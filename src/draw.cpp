@@ -13,7 +13,7 @@ void executeDrawCommands(
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device.device(), device.m_swapchain.m_swapchain, UINT64_MAX,
+        device.device(), device.swapchain(), UINT64_MAX,
         device.m_sync.m_imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
@@ -60,7 +60,7 @@ void executeDrawCommands(
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
-    VkSwapchainKHR swapchains[] = {device.m_swapchain.m_swapchain};
+    VkSwapchainKHR swapchains[] = {device.swapchain()};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapchains;
     presentInfo.pImageIndices = &imageIndex;
@@ -73,7 +73,7 @@ void executeDrawCommands(
 
     vkQueueWaitIdle(device.m_presentQueue);
 
-    currentFrame = ((currentFrame)+1) % device.m_swapchain.m_images.size();
+    currentFrame = ((currentFrame)+1) % device.swapchainSize();
 }
 
 void recordDrawCommands(
@@ -86,23 +86,23 @@ void recordDrawCommands(
 {
     auto &commands = device.m_commands;
 
-    for (auto &p : pipelines) p.setup(device, device.m_swapchain);
+    for (auto &p : pipelines) p.setup(device);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.m_numThreads;
-    framebuffers = {device, renderpass, device.m_swapchain};
+    framebuffers = {device, renderpass};
     
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderpass.m_renderPass;
     renderPassInfo.renderArea.offset = {0,0};
-    renderPassInfo.renderArea.extent = device.m_swapchain.m_extent;
+    renderPassInfo.renderArea.extent = device.extent();
     renderPassInfo.clearValueCount = renderpass.m_clearValues.size();
     renderPassInfo.pClearValues = renderpass.m_clearValues.data();
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    for (size_t imageIndex = 0; imageIndex < device.m_swapchain.m_images.size(); ++imageIndex)
+    for (size_t imageIndex = 0; imageIndex < device.swapchainSize(); ++imageIndex)
     {
         auto &primaryCommandBuffer = commands.m_primaryCommandBuffers[imageIndex];
 

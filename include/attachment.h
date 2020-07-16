@@ -2,7 +2,6 @@
 #define EVK_ATTACHMENT
 
 #include "device.h"
-#include "swapchain.h"
 #include <vulkan/vulkan.h>
 #include "util.h"
 

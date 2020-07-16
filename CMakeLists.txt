@@ -50,7 +50,7 @@ set (SOURCES
     ${VULKAN_INCLUDE}/pipeline.h
     ${VULKAN_INCLUDE}/pass.h
     ${VULKAN_INCLUDE}/shader.h
-    ${VULKAN_INCLUDE}/swapchain.h
+    # ${VULKAN_INCLUDE}/swapchain.h
     ${VULKAN_INCLUDE}/sync.h
     ${VULKAN_INCLUDE}/texture.h
     ${VULKAN_INCLUDE}/buffer.h

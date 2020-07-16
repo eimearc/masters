@@ -18,12 +18,10 @@ Pipeline::Pipeline(
 }
 
 void Pipeline::setup(
-    Device &device,
-    Swapchain &swapchain
+    Device &device
 )
 {
     m_device = device.device();
-    m_swapchain = swapchain;
 
     m_descriptor->allocateDescriptorPool();
     m_descriptor->allocateDescriptorSets();
@@ -45,19 +43,21 @@ void Pipeline::setup(
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+    const auto &extent = device.extent(); 
+
     // Set up the viewport.
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) swapchain.m_extent.width;
-    viewport.height = (float) swapchain.m_extent.height;
+    viewport.width = (float) extent.width;
+    viewport.height = (float) extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     // Set up scissor.
     VkRect2D scissor = {};
     scissor.offset = {0,0};
-    scissor.extent = swapchain.m_extent;
+    scissor.extent = extent;
 
     // Combine viewport and scissor.
     VkPipelineViewportStateCreateInfo viewportState = {};

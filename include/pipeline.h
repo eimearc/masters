@@ -4,7 +4,6 @@
 #include "descriptor.h"
 #include "device.h"
 #include "shader.h"
-#include "swapchain.h"
 #include "pass.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -23,8 +22,7 @@ class Pipeline
     );
 
     void setup(
-        Device &device,
-        Swapchain &swapchain
+        Device &device
     );
 
     void destroy();
@@ -35,7 +33,6 @@ class Pipeline
     Descriptor* m_descriptor;
     VertexInput m_vertexInput;
     uint32_t m_subpass;
-    Swapchain m_swapchain;
     std::vector<Shader> m_shaders;
     Renderpass m_renderpass;
 

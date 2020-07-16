@@ -1,13 +1,15 @@
 #include "sync.h"
 
-#include "device.h"
 #include <iostream>
 
-Sync::Sync(const Device &device, const Swapchain &swapchain)
+Sync::Sync(
+    const VkDevice &device,
+    const uint32_t &swapchainSize)
 {
-    const size_t swapchainSize = swapchain.m_images.size();
-    size_t maxFramesInFlight=swapchain.m_images.size();
-    m_device = device.device();
+    m_device = device;
+    // const size_t &swapchainSize = device.swapchainSize();
+    // size_t maxFramesInFlight=device.swapchainSize(); // TODO: Is this correct?
+    size_t maxFramesInFlight = swapchainSize;
     m_imageAvailableSemaphores.resize(maxFramesInFlight);
     m_renderFinishedSemaphores.resize(maxFramesInFlight);
     m_fencesInFlight.resize(maxFramesInFlight);

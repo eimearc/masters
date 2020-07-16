@@ -1,7 +1,5 @@
 #include "attachment.h"
 
-#include "swapchain.h"
-
 Attachment::Attachment(
     const Device &device,
     uint32_t index,
@@ -64,7 +62,7 @@ void Attachment::setColorAttachment(const Device &device)
 
     createImage(
         device.device(), device.physicalDevice(),
-        device.m_swapchain.m_extent, format, tiling, usage, properties,
+        device.extent(), format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(
@@ -94,7 +92,7 @@ void Attachment::setDepthAttachment(const Device &device)
 
     createImage(
         device.device(), device.physicalDevice(),
-        device.m_swapchain.m_extent, format, tiling, usage, properties,
+        device.extent(), format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
     createImageView(

@@ -2,7 +2,6 @@
 #define EVK_DEVICE
 
 #include "command.h"
-#include "swapchain.h"
 #include "sync.h"
 #include "threadpool.h"
 #include "util.h"
@@ -12,8 +11,8 @@ class Device
 {
     public:
     Device()=default;
-    Device(const Device&)=default;
-    Device& operator=(const Device&)=default;
+    Device(const Device&)=delete;
+    Device& operator=(const Device&)=delete;
     Device(Device&&)=default;
     Device& operator=(Device&&)=default;
     ~Device() noexcept;
@@ -32,6 +31,12 @@ class Device
     VkSurfaceKHR surface() const { return m_surface; }
     VkPhysicalDevice physicalDevice() const { return m_physicalDevice; }
     VkDevice device() const { return m_device; }
+
+    // Swapchain.
+    VkExtent2D extent() const { return m_swapchain->m_extent; };
+    VkSwapchainKHR swapchain() const { return m_swapchain->m_swapchain; };
+    uint32_t swapchainSize() const { return m_swapchain->m_images.size(); };
+    std::vector<VkImageView> swapchainImageViews() const { return m_swapchain->m_imageViews; };
     
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
@@ -39,9 +44,6 @@ class Device
     size_t m_numThreads;
     VkFormat m_depthFormat;
 
-    // Need some sort of internal device for dtor.
-    // _Device m_device;
-    Swapchain m_swapchain;
     Sync m_sync;
     Commands m_commands;
 
@@ -52,8 +54,35 @@ class Device
         ~_Device(){print();};
         void print(){std::cout << "Hello from _Device.\n";};
     };
+
+    class Swapchain
+    {
+        public:
+        Swapchain()=default;
+        Swapchain(const Swapchain&)=default;
+        Swapchain& operator=(const Swapchain&)=default;
+        Swapchain(Swapchain&&)=default;
+        Swapchain& operator=(Swapchain&&)=default;
+        ~Swapchain() noexcept;
+
+        Swapchain(
+            const VkDevice &device,
+            const VkPhysicalDevice &physicalDevice,
+            const VkSurfaceKHR &surface,
+            GLFWwindow *window, //TODO: Make const.
+            const uint32_t swapchainSize
+        );
+
+        VkDevice m_device;
+        VkSwapchainKHR m_swapchain;
+        std::vector<VkImage> m_images;
+        std::vector<VkImageView> m_imageViews;
+        VkFormat m_format;
+        VkExtent2D m_extent;
+    };
     
     _Device m_innerDevice;
+    std::unique_ptr<Swapchain> m_swapchain;
 
     VkInstance m_instance;
     VkSurfaceKHR m_surface;

@@ -11,8 +11,7 @@ class Framebuffer
     Framebuffer()=default;
     Framebuffer(
         const Device &device,
-        const Renderpass &renderpass,
-        const Swapchain &swapchain
+        const Renderpass &renderpass
     );
 
     void destroy();

@@ -1,7 +1,6 @@
 #ifndef EVK_SYNC
 #define EVK_SYNC
 
-#include "swapchain.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
 
@@ -9,7 +8,7 @@ class Sync
 {
     public:
     Sync()=default;
-    Sync(const Device &device, const Swapchain &swapchain);
+    Sync(const VkDevice &device, const uint32_t &swapchainSize);
     
     void destroy();
 
