@@ -190,11 +190,11 @@ void recordDrawCommands(
             };
 
             int counter = 0;
-            for (auto &t: device.m_threadPool.threads)
+            for (auto &t: device.threads())
             {
                 t->addJob(std::bind(createDrawCommands,counter++));
             }
-            device.m_threadPool.wait();
+            device.wait();
             vkCmdExecuteCommands(primaryCommandBuffer, secondaryCommandBuffers.size(), secondaryCommandBuffers.data());
         }
 

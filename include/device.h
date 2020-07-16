@@ -34,6 +34,8 @@ class Device
     VkQueue graphicsQueue() const { return m_device->m_graphicsQueue; };
     VkQueue presentQueue() const { return m_device->m_presentQueue; };
     uint32_t numThreads() const { return m_numThreads; };
+    std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; }; // TODO: Check if this is right.
+    void wait() { m_threadPool.wait(); };
 
     // Swapchain.
     VkExtent2D extent() const { return m_swapchain->m_extent; };
@@ -51,8 +53,6 @@ class Device
     std::vector<VkFence> imageFences() const { return m_sync->m_imagesInFlight; };
     std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
     std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
-    
-    ThreadPool m_threadPool;
 
     private:
     class _Device
@@ -180,6 +180,7 @@ class Device
     std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
     std::unique_ptr<Sync> m_sync;
+    ThreadPool m_threadPool;
     size_t m_numThreads;
 };
 

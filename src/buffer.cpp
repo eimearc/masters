@@ -75,11 +75,11 @@ void StaticBuffer::finalize(Device &device, const Type &type)
     };
 
     int counter = 0;
-    for (auto &t: device.m_threadPool.threads)
+    for (auto &t: device.threads())
     {
         t->addJob(std::bind(setupCopyFunction,counter++));
     }
-    device.m_threadPool.wait();
+    device.wait();
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
