@@ -158,8 +158,8 @@ int main(int argc, char **argv)
     for (const auto &s : shaders1) shaders.push_back(s);
     
     recordDrawCommands(
-        device, indexBuffer, vertexBuffer,
-        pipelines, renderpass);
+        device, indexBuffer, vertexBuffer, pipelines
+    );
 
     // Main loop.
     size_t counter=0;

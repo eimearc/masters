@@ -14,8 +14,7 @@ void recordDrawCommands(
     Device &device,
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    const std::vector<Pipeline*> &pipelines,
-    const Renderpass &renderpass
+    const std::vector<Pipeline*> &pipelines
 );
 
 #endif

@@ -4,23 +4,23 @@ void recordDrawCommands(
     Device &device,
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    const std::vector<Pipeline*> &pipelines,
-    const Renderpass &renderpass)
+    const std::vector<Pipeline*> &pipelines)
 {
     const auto &primaryCommandBuffers = device.primaryCommandBuffers();
     auto secondaryCommandBuffers = device.secondaryCommandBuffers();
     const auto &commandPools = device.commandPools();
     const auto numThreads = device.numThreads();
     const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
+    const auto renderpass=pipelines[0]->m_renderpass;
 
-    device.setupFramebuffer(renderpass);
+    device.setupFramebuffer(*renderpass);
     const auto &framebuffers = device.framebuffers();
 
-    const auto &clearValues = renderpass.clearValues();
+    const auto &clearValues = renderpass->clearValues();
     
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderpass.renderpass();
+    renderPassInfo.renderPass = renderpass->renderpass();
     renderPassInfo.renderArea.offset = {0,0};
     renderPassInfo.renderArea.extent = device.extent();
     renderPassInfo.clearValueCount = clearValues.size();
@@ -29,7 +29,7 @@ void recordDrawCommands(
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    const auto &numSubpasses = renderpass.subpasses().size();
+    const auto &numSubpasses = renderpass->subpasses().size();
 
     for (size_t imageIndex = 0; imageIndex < device.swapchainSize(); ++imageIndex)
     {
@@ -74,7 +74,7 @@ void recordDrawCommands(
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-                inheritanceInfo.renderPass = renderpass.renderpass();
+                inheritanceInfo.renderPass = renderpass->renderpass();
                 inheritanceInfo.framebuffer = framebuffers[imageIndex];
                 inheritanceInfo.subpass=pass;
 
