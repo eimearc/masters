@@ -42,9 +42,9 @@ int main(int argc, char **argv)
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
 
-    std::vector<Attachment> colorAttachments = {framebufferAttachment};
-    std::vector<Attachment> depthAttachments = {depthAttachment};
-    std::vector<Attachment> inputAttachments;
+    std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
+    std::vector<Attachment*> depthAttachments = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
     
     Subpass subpass(
@@ -55,8 +55,8 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
-    std::vector<Subpass> subpasses = {subpass};
+    std::vector<Attachment*> attachments = {&framebufferAttachment, &depthAttachment};
+    std::vector<Subpass*> subpasses = {&subpass};
     Renderpass renderpass(device,attachments,subpasses);
 
     UniformBufferObject uboUpdate = {};
@@ -119,7 +119,6 @@ int main(int argc, char **argv)
     indexBuffer.destroy();
     vertexBuffer.destroy();
     texture.destroy();
-    for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();

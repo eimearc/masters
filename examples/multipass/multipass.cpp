@@ -73,9 +73,9 @@ int main(int argc, char **argv)
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
     Attachment depthAttachment(device, 2, Attachment::Type::DEPTH);
 
-    std::vector<Attachment> colorAttachments = {colorAttachment};
-    std::vector<Attachment> depthAttachments = {depthAttachment};
-    std::vector<Attachment> inputAttachments;
+    std::vector<Attachment*> colorAttachments = {&colorAttachment};
+    std::vector<Attachment*> depthAttachments = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
 
     Subpass subpass0(
@@ -86,9 +86,9 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    colorAttachments = {framebufferAttachment};
+    colorAttachments = {&framebufferAttachment};
     depthAttachments.resize(0);
-    inputAttachments = {colorAttachment, depthAttachment};
+    inputAttachments = {&colorAttachment, &depthAttachment};
     dependencies = {{0,1}};
 
     Subpass subpass1(
@@ -99,8 +99,8 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebufferAttachment, colorAttachment, depthAttachment};
-    std::vector<Subpass> subpasses = {subpass0, subpass1};
+    std::vector<Attachment*> attachments = {&framebufferAttachment, &colorAttachment, &depthAttachment};
+    std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
     Renderpass renderpass(device,attachments,subpasses);
 
     // Set up UBO.
@@ -189,13 +189,10 @@ int main(int argc, char **argv)
     ubo.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
-    for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    // device.~Device(); called
 }

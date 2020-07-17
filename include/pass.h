@@ -9,13 +9,12 @@
 class Subpass
 {
     public:
-    Subpass()=default;
     Subpass(
         const uint32_t index,
         const std::vector<evk::SubpassDependency> &dependencies,
-        const std::vector<Attachment> &colorAttachments,
-        const std::vector<Attachment> &depthAttachments,
-        const std::vector<Attachment> &inputAttachments
+        const std::vector<Attachment*> &colorAttachments,
+        const std::vector<Attachment*> &depthAttachments,
+        const std::vector<Attachment*> &inputAttachments
     );
 
     uint32_t m_index;
@@ -27,9 +26,9 @@ class Subpass
 
     private:
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
-    std::vector<Attachment> m_colorAttachments;
-    std::vector<Attachment> m_depthAttachments;
-    std::vector<Attachment> m_inputAttachments;
+    std::vector<Attachment*> m_colorAttachments;
+    std::vector<Attachment*> m_depthAttachments;
+    std::vector<Attachment*> m_inputAttachments;
 };
 
 class Renderpass
@@ -44,21 +43,21 @@ class Renderpass
 
     Renderpass(
         const Device &device,
-        const std::vector<Attachment> &attachments,
-        const std::vector<Subpass> &subpasses
+        const std::vector<Attachment*> &attachments,
+        std::vector<Subpass*> &subpasses
     );
 
-    std::vector<Attachment> attachments() const { return m_attachments; };
+    const std::vector<Attachment*>& attachments() const { return m_attachments; };
     std::vector<VkClearValue> clearValues() const { return m_clearValues; };
     VkRenderPass renderpass() const { return m_renderPass; };
-    std::vector<Subpass> subpasses() const { return m_subpasses; };
+    std::vector<Subpass*> subpasses() const { return m_subpasses; };
 
     private:
     VkDevice m_device;
     VkRenderPass m_renderPass;
-    std::vector<Subpass> m_subpasses;
+    std::vector<Subpass*> m_subpasses;
     std::vector<VkClearValue> m_clearValues;
-    std::vector<Attachment> m_attachments;
+    std::vector<Attachment*> m_attachments;
 };
 
 #endif

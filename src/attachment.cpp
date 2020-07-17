@@ -102,7 +102,7 @@ void Attachment::setDepthAttachment(const Device &device)
     m_clearValue.depthStencil = {1.0f,1};
 }
 
-void Attachment::destroy()
+Attachment::~Attachment() noexcept
 {
     if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
     if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr);

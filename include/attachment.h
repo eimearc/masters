@@ -11,13 +11,17 @@ class Attachment
     enum class Type{FRAMEBUFFER,COLOR,DEPTH};
 
     Attachment()=default;
+    Attachment(const Attachment&)=delete;
+    Attachment& operator=(const Attachment&)=delete;
+    Attachment(Attachment&&)=delete;
+    Attachment& operator=(Attachment&&)=delete;
+    ~Attachment() noexcept;
+
     Attachment(
         const Device &device,
         uint32_t index,
         const Type &type
     );
-
-    void destroy();
 
     uint32_t m_index;
     VkAttachmentDescription m_description;
