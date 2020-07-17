@@ -129,6 +129,7 @@ int main(int argc, char **argv)
         {"pass_0_frag.spv", ShaderStage::FRAGMENT, device}
     };
     Pipeline pipeline0(
+        device,
         subpass0,
         &descriptor0,
         vertexInput0,
@@ -142,6 +143,7 @@ int main(int argc, char **argv)
         {"pass_1_frag.spv", ShaderStage::FRAGMENT, device},
     };
     Pipeline pipeline1(
+        device,
         subpass1,
         &descriptor1,
         vertexInput1,

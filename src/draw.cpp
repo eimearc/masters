@@ -97,7 +97,7 @@ void recordDrawCommands(
     const auto &commandPools = device.commandPools();
     const auto numThreads = device.numThreads();
 
-    for (auto &p : pipelines) p.setup(device);
+    // for (auto &p : pipelines) p.setup(device);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
 

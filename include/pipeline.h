@@ -13,16 +13,13 @@ class Pipeline
     public:
     Pipeline()=default;
     Pipeline(
+        Device &device,
         const Subpass &subpass,
         Descriptor *pDescriptor,
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
         const std::vector<Shader> &shaders,
         bool writeDepth
-    );
-
-    void setup(
-        Device &device
     );
 
     void destroy();
@@ -38,6 +35,10 @@ class Pipeline
 
     private:
     bool m_writeDepth;
+
+    void setup(
+        Device &device
+    );
 };
 
 #endif

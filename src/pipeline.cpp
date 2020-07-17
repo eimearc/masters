@@ -1,6 +1,7 @@
 #include "pipeline.h"
 
 Pipeline::Pipeline(
+    Device &device,
     const Subpass &subpass,
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
@@ -15,11 +16,11 @@ Pipeline::Pipeline(
     m_shaders = shaders;
     m_renderpass = pRenderpass;
     m_writeDepth=writeDepth;
+
+    setup(device);
 }
 
-void Pipeline::setup(
-    Device &device
-)
+void Pipeline::setup(Device &device)
 {
     m_device = device.device();
 

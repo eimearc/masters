@@ -4,7 +4,6 @@
 #include <array>
 #include "buffer.h"
 #include "descriptor.h"
-#include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
 #include "util.h"
