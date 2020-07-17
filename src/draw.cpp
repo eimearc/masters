@@ -1,9 +1,7 @@
 #include "draw.h"
 
 // TODO: Make part of device.
-void executeDrawCommands(
-    Device &device,
-    const std::vector<Pipeline> &pipelines)
+void executeDrawCommands(Device &device)
 {
     static size_t currentFrame=0;
     auto frameFences = device.frameFences();
@@ -89,16 +87,13 @@ void recordDrawCommands(
     Device &device,
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    std::vector<Pipeline> &pipelines,
+    const std::vector<Pipeline*> &pipelines,
     const Renderpass &renderpass)
 {
     const auto &primaryCommandBuffers = device.primaryCommandBuffers();
     auto secondaryCommandBuffers = device.secondaryCommandBuffers();
     const auto &commandPools = device.commandPools();
     const auto numThreads = device.numThreads();
-
-    // for (auto &p : pipelines) p.setup(device);
-
     const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
 
     device.setupFramebuffer(renderpass);
@@ -128,9 +123,9 @@ void recordDrawCommands(
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
-            const auto &descriptorSets = pipelines[pass].m_descriptor->sets();
-            auto &pipeline = pipelines[pass].m_pipeline;
-            auto &pipelineLayout = pipelines[pass].m_layout;
+            const auto &descriptorSets = pipelines[pass]->m_descriptor->sets();
+            auto &pipeline = pipelines[pass]->m_pipeline;
+            auto &pipelineLayout = pipelines[pass]->m_layout;
 
             if (pass == 0 )
                 vkCmdBeginRenderPass(

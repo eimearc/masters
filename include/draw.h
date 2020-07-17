@@ -11,15 +11,14 @@
 #include <vulkan/vulkan.h>
 
 void executeDrawCommands(
-    Device &device,
-    const std::vector<Pipeline> &pipelines
+    Device &device
 );
 
 void recordDrawCommands(
     Device &device,
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
-    std::vector<Pipeline> &pipelines,
+    const std::vector<Pipeline*> &pipelines,
     const Renderpass &renderpass
 );
 

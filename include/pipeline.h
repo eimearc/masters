@@ -12,6 +12,11 @@ class Pipeline
 {
     public:
     Pipeline()=default;
+    Pipeline(const Pipeline&)=delete;
+    Pipeline& operator=(const Pipeline&)=delete;
+    Pipeline(Pipeline&&)=delete;
+    Pipeline& operator=(Pipeline&&)=delete;
+    ~Pipeline() noexcept;
     Pipeline(
         Device &device,
         const Subpass &subpass,
@@ -21,8 +26,6 @@ class Pipeline
         const std::vector<Shader> &shaders,
         bool writeDepth
     );
-
-    void destroy();
 
     VkDevice m_device;
     VkPipeline m_pipeline;

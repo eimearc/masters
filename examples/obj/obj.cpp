@@ -90,7 +90,7 @@ int main(int argc, char **argv)
         true
     );
 
-    std::vector<Pipeline> pipelines = {pipeline};
+    std::vector<Pipeline*> pipelines = {&pipeline};
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
         pipelines, renderpass);
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         uboUpdate.proj[1][1] *= -1;
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines);
+        executeDrawCommands(device);
 
         counter++;
     }
@@ -119,6 +119,5 @@ int main(int argc, char **argv)
     indexBuffer.destroy();
     vertexBuffer.destroy();
     texture.destroy();
-    for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 }

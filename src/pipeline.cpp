@@ -194,7 +194,7 @@ void Pipeline::setup(Device &device)
     }
 }
 
-void Pipeline::destroy()
+Pipeline::~Pipeline() noexcept
 {   
     vkDestroyPipelineLayout(m_device, m_layout, nullptr);
     vkDestroyPipeline(m_device, m_pipeline, nullptr);

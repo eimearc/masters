@@ -152,7 +152,7 @@ int main(int argc, char **argv)
         false
     );
 
-    std::vector<Pipeline> pipelines = {pipeline0, pipeline1};
+    std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};
     std::vector<Shader> shaders;
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines);
+        executeDrawCommands(device);
 
         counter++;
     }
@@ -190,7 +190,6 @@ int main(int argc, char **argv)
     ubo.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
-    for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 
     glfwDestroyWindow(window);
