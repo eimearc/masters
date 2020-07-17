@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device);
+        device.draw();
 
         counter++;
     }

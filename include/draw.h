@@ -10,10 +10,6 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-void executeDrawCommands(
-    Device &device
-);
-
 void recordDrawCommands(
     Device &device,
     const Buffer &indexBuffer,

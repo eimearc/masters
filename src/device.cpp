@@ -215,3 +215,83 @@ void Device::_Device::setDepthFormat()
         }
     }
 }
+
+void Device::draw()
+{
+    static size_t currentFrame=0;
+    const auto &device = this->device();
+    auto frameFences = this->frameFences();
+    auto imageFences = this->imageFences();
+    const auto &imageSemaphores = imageSempahores();
+    const auto &renderSemaphores = renderSempahores();
+    auto &frameFence = frameFences[currentFrame];
+
+    vkWaitForFences(device, 1, &frameFence, VK_TRUE, UINT64_MAX);
+
+    uint32_t imageIndex;
+    VkResult result = vkAcquireNextImageKHR(
+        device, swapchain(), UINT64_MAX,
+        imageSemaphores[currentFrame],
+        VK_NULL_HANDLE, &imageIndex);
+
+    auto &imageFence = imageFences[imageIndex];
+
+    if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
+
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to acquire swap chain image.");
+    }
+
+    // Check if a previous frame is using this image. If so, wait on its fence.
+    if (imageFence != VK_NULL_HANDLE)
+    {
+        vkWaitForFences(device, 1, &(imageFence), VK_TRUE, UINT64_MAX);
+    }
+
+    // Mark the image as being in use.
+    imageFence = frameFence;
+
+    const auto &primaryCommandBuffers = this->primaryCommandBuffers();
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    VkSemaphore waitSemaphores[] = {imageSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &primaryCommandBuffers[currentFrame];
+
+    VkSemaphore signalSemaphores[] = {(renderSemaphores)[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(device, 1, &frameFence);
+
+    if (vkQueueSubmit(graphicsQueue(), 1, &submitInfo, frameFence) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+    VkSwapchainKHR swapchains[] = {swapchain()};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapchains;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr;
+
+    const auto &presentQueue = this->presentQueue();
+    if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to present swap chain image.");
+    }
+
+    vkQueueWaitIdle(presentQueue);
+
+    currentFrame = ((currentFrame)+1) % swapchainSize();
+}

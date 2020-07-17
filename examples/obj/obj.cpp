@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         uboUpdate.proj[1][1] *= -1;
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device);
+        device.draw();
 
         counter++;
     }

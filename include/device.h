@@ -60,6 +60,9 @@ class Device
     void setupFramebuffer(const Renderpass &renderpass) {m_framebuffer = std::make_unique<Framebuffer>(device(), swapchainSize(), swapchainImageViews(), extent(), renderpass); };
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
 
+    // Draw.
+    void draw();
+
     private:
     class _Device
     {
