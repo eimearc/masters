@@ -156,10 +156,8 @@ int main(int argc, char **argv)
     std::vector<Shader> shaders;
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
-    
-    recordDrawCommands(
-        device, indexBuffer, vertexBuffer, pipelines
-    );
+
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     // Main loop.
     size_t counter=0;

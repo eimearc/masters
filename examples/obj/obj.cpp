@@ -73,6 +73,7 @@ int main(int argc, char **argv)
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
+    // device.indexBuffer(...)?
     StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
@@ -91,9 +92,7 @@ int main(int argc, char **argv)
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};
-    recordDrawCommands(
-        device, indexBuffer, vertexBuffer,
-        pipelines, renderpass);
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     // Main loop.
     size_t counter=0;

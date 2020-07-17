@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+class Buffer;
+class Pipeline;
 class Renderpass;
 
 class Device
@@ -61,6 +63,11 @@ class Device
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
 
     // Draw.
+    void finalize(
+        const Buffer &indexBuffer,
+        const Buffer &vertexBuffer,
+        const std::vector<Pipeline*> &pipelines
+    );
     void draw();
 
     private:

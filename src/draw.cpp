@@ -1,28 +1,28 @@
-#include "draw.h"
+#include "device.h"
 
-void recordDrawCommands(
-    Device &device,
+#include "buffer.h"
+#include "pipeline.h"
+
+void Device::finalize(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
     const std::vector<Pipeline*> &pipelines)
 {
-    const auto &primaryCommandBuffers = device.primaryCommandBuffers();
-    auto secondaryCommandBuffers = device.secondaryCommandBuffers();
-    const auto &commandPools = device.commandPools();
-    const auto numThreads = device.numThreads();
-    const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
-    const auto renderpass=pipelines[0]->m_renderpass;
-
-    device.setupFramebuffer(*renderpass);
-    const auto &framebuffers = device.framebuffers();
-
+    const auto &primaryCommandBuffers = this->primaryCommandBuffers();
+    auto secondaryCommandBuffers = this->secondaryCommandBuffers();
+    const auto &commandPools = this->commandPools();
+    const auto numThreads = this->numThreads();
+    const size_t numIndicesEach=indexBuffer.m_numElements/this->numThreads();
+    const auto renderpass=pipelines[0]->m_renderpass; // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
+    setupFramebuffer(*renderpass);
+    const auto &framebuffers = this->framebuffers();
     const auto &clearValues = renderpass->clearValues();
     
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderpass->renderpass();
     renderPassInfo.renderArea.offset = {0,0};
-    renderPassInfo.renderArea.extent = device.extent();
+    renderPassInfo.renderArea.extent = this->extent();
     renderPassInfo.clearValueCount = clearValues.size();
     renderPassInfo.pClearValues = clearValues.data();
 
@@ -31,7 +31,7 @@ void recordDrawCommands(
 
     const auto &numSubpasses = renderpass->subpasses().size();
 
-    for (size_t imageIndex = 0; imageIndex < device.swapchainSize(); ++imageIndex)
+    for (size_t imageIndex = 0; imageIndex < this->swapchainSize(); ++imageIndex)
     {
         auto &primaryCommandBuffer = primaryCommandBuffers[imageIndex];
 
@@ -67,7 +67,7 @@ void recordDrawCommands(
                 allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                if (vkAllocateCommandBuffers(device.device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
+                if (vkAllocateCommandBuffers(this->device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to allocate command buffers.");
                 }
@@ -106,11 +106,11 @@ void recordDrawCommands(
             };
 
             int counter = 0;
-            for (auto &t: device.threads())
+            for (auto &t: this->threads())
             {
                 t->addJob(std::bind(createDrawCommands,counter++));
             }
-            device.wait();
+            this->wait();
             vkCmdExecuteCommands(primaryCommandBuffer, secondaryCommandBuffers.size(), secondaryCommandBuffers.data());
         }
 

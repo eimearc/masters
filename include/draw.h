@@ -10,11 +10,11 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-void recordDrawCommands(
-    Device &device,
-    const Buffer &indexBuffer,
-    const Buffer &vertexBuffer,
-    const std::vector<Pipeline*> &pipelines
-);
+// void recordDrawCommands(
+//     Device &device,
+//     const Buffer &indexBuffer,
+//     const Buffer &vertexBuffer,
+//     const std::vector<Pipeline*> &pipelines
+// );
 
 #endif
