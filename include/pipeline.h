@@ -8,6 +8,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+#include "vertexinput.h"
+
 class Pipeline
 {
     public:

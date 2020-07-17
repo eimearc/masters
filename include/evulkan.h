@@ -18,6 +18,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "threadpool.h"
+#include "vertexinput.h"
 
 #define GLFW_INCLUDE_VULKAN
 

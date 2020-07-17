@@ -77,20 +77,4 @@ class Descriptor
     void addWriteDescriptorSetInputAttachment(VkImageView imageView, uint32_t binding, VkShaderStageFlagBits stage);
 };
 
-class VertexInput
-{
-    public:
-    VertexInput()=default;
-    VertexInput(uint32_t stride);
-
-    void addVertexAttributeVec3(const uint32_t &location, const uint32_t &offset);
-    void addVertexAttributeVec2(const uint32_t &location, const uint32_t &offset);
-
-    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
-    VkVertexInputBindingDescription m_bindingDescription;
-
-    private:
-    void setBindingDescription(uint32_t stride);
-};
-
 #endif

@@ -27,16 +27,19 @@ void Pipeline::setup(Device &device)
     m_descriptor->allocateDescriptorPool();
     m_descriptor->allocateDescriptorSets();
 
+    const auto &bindingDescription = m_vertexInput.bindingDescription();
+    const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (m_vertexInput.m_bindingDescription.stride>0) // TODO: remove this?
-    {
+    // if (m_vertexInput.bindingDescription().stride>0) // TODO: remove this?
+    // {
         // Set up input to vertex shader.
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &m_vertexInput.m_bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertexInput.m_attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = m_vertexInput.m_attributeDescriptions.data();
-    }
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    // }
 
     // Set up input assembly.
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -50,8 +53,8 @@ void Pipeline::setup(Device &device)
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) extent.width;
-    viewport.height = (float) extent.height;
+    viewport.width = extent.width;
+    viewport.height = extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -164,7 +167,6 @@ void Pipeline::setup(Device &device)
         depthStencil.front.reference = 1;
         depthStencil.back = depthStencil.front;
     }
-    
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
     for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);

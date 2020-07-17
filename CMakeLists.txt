@@ -42,6 +42,7 @@ set (SOURCES
     ${VULKAN_SRC}/util.cpp
     ${VULKAN_SRC}/obj.cpp
     ${VULKAN_SRC}/texture.cpp
+    ${VULKAN_SRC}/vertexinput.cpp
     ${VULKAN_INCLUDE}/threadpool.h
     ${VULKAN_INCLUDE}/vertex.h
 )
