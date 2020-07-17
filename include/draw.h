@@ -21,8 +21,7 @@ void recordDrawCommands(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
-    const Renderpass &renderpass,
-    Framebuffer &framebuffers
+    const Renderpass &renderpass
 );
 
 #endif

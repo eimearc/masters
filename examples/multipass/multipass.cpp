@@ -155,10 +155,9 @@ int main(int argc, char **argv)
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
     
-    Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers);
+        pipelines, renderpass);
 
     // Main loop.
     size_t counter=0;
@@ -189,7 +188,6 @@ int main(int argc, char **argv)
     ubo.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
-    framebuffers.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 

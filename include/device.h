@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+class Renderpass;
+
 class Device
 {
     public:
@@ -54,6 +56,10 @@ class Device
     std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
     std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
 
+    // Framebuffers. TODO: remove.
+    void setupFramebuffer(const Renderpass &renderpass) {m_framebuffer = std::make_unique<Framebuffer>(device(), swapchainSize(), swapchainImageViews(), extent(), renderpass); };
+    std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
+
     private:
     class _Device
     {
@@ -66,11 +72,11 @@ class Device
         ~_Device() noexcept;
 
         _Device(
-            const uint32_t &num_threads,
+            uint32_t num_threads,
             const std::vector<const char*> &validation_layers,
             GLFWwindow *window,
             const std::vector<const char *> &device_extensions,
-            const bool &enable_validation
+            bool enable_validation
         );
 
         VkInstance m_instance;
@@ -85,13 +91,13 @@ class Device
 
         private:
         void createInstance(
-            std::vector<const char*> validationLayers
+            const std::vector<const char*> &validationLayers
         );
         void createSurface(
             GLFWwindow *window
         );
         void pickPhysicalDevice(
-            std::vector<const char *> deviceExtensions
+            const std::vector<const char *> &deviceExtensions
         );
         void createDevice(
             bool enableValidation,
@@ -175,11 +181,33 @@ class Device
         std::vector<VkFence> m_fencesInFlight;
         std::vector<VkFence> m_imagesInFlight;
     };
+
+    class Framebuffer
+    {
+        public:
+        Framebuffer()=default;
+        Framebuffer(const Framebuffer&)=delete;
+        Framebuffer& operator=(const Framebuffer&)=delete;
+        Framebuffer(Framebuffer&&)=delete;
+        Framebuffer& operator=(Framebuffer&&)=delete;
+        ~Framebuffer() noexcept;
+        Framebuffer(
+            const VkDevice &device,
+            size_t swapchainSize,
+            const std::vector<VkImageView> &swapchainImageViews,
+            VkExtent2D extent,
+            const Renderpass &renderpass
+        );
+
+        VkDevice m_device;
+        std::vector<VkFramebuffer> m_framebuffers;
+    };
     
     std::unique_ptr<_Device> m_device;
     std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
     std::unique_ptr<Sync> m_sync;
+    std::unique_ptr<Framebuffer> m_framebuffer;
     ThreadPool m_threadPool;
     size_t m_numThreads;
 };

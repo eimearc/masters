@@ -19,11 +19,11 @@ Device::Device(
 }
 
 Device::_Device::_Device(
-    const uint32_t &num_threads,
+    uint32_t num_threads,
     const std::vector<const char*> &validation_layers,
     GLFWwindow *window,
     const std::vector<const char *> &device_extensions,
-    const bool &enable_validation
+    bool enable_validation
 )
 {
     m_window=window;
@@ -43,7 +43,7 @@ Device::_Device::~_Device() noexcept
     vkDestroyInstance(m_instance, nullptr);
 }
 
-void Device::_Device::createInstance(std::vector<const char*> validation_layers)
+void Device::_Device::createInstance(const std::vector<const char*> &validation_layers)
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -106,7 +106,7 @@ void Device::_Device::createSurface(GLFWwindow *window)
     }
 }
 
-void Device::_Device::pickPhysicalDevice(std::vector<const char *> device_extensions)
+void Device::_Device::pickPhysicalDevice(const std::vector<const char *> &device_extensions)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);

@@ -1,15 +1,17 @@
-#include "framebuffer.h"
+#include "device.h"
 
-Framebuffer::Framebuffer(
-    const Device &device,
+#include "pass.h"
+
+Device::Framebuffer::Framebuffer(
+    const VkDevice &device,
+    size_t swapchainSize,
+    const std::vector<VkImageView> &swapchainImageViews,
+    VkExtent2D extent,
     const Renderpass &renderpass) // This should be part of attachment creation.
 {
-    m_device = device.device();
+    m_device = device;
     const auto &attachments = renderpass.attachments();
     const auto &numAttachments = attachments.size();
-    const auto &swapchainSize = device.swapchainSize();
-    const auto &swapchainImageViews = device.swapchainImageViews();
-    const auto &extent = device.extent();
     m_framebuffers.resize(swapchainSize);
 
     std::vector<VkImageView> imageViews(numAttachments);
@@ -39,7 +41,7 @@ Framebuffer::Framebuffer(
     }
 }
 
-void Framebuffer::destroy()
+Device::Framebuffer::~Framebuffer() noexcept
 {
     for (auto framebuffer : m_framebuffers)
     {

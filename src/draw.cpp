@@ -90,8 +90,7 @@ void recordDrawCommands(
     const Buffer &indexBuffer,
     const Buffer &vertexBuffer,
     std::vector<Pipeline> &pipelines,
-    const Renderpass &renderpass,
-    Framebuffer &framebuffers)
+    const Renderpass &renderpass)
 {
     const auto &primaryCommandBuffers = device.primaryCommandBuffers();
     auto secondaryCommandBuffers = device.secondaryCommandBuffers();
@@ -101,7 +100,9 @@ void recordDrawCommands(
     for (auto &p : pipelines) p.setup(device);
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
-    framebuffers = {device, renderpass};
+
+    device.setupFramebuffer(renderpass);
+    const auto &framebuffers = device.framebuffers();
 
     const auto &clearValues = renderpass.clearValues();
     
@@ -122,7 +123,7 @@ void recordDrawCommands(
     {
         auto &primaryCommandBuffer = primaryCommandBuffers[imageIndex];
 
-        renderPassInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
+        renderPassInfo.framebuffer = framebuffers[imageIndex];
         vkBeginCommandBuffer(primaryCommandBuffer, &beginInfo);
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
@@ -162,7 +163,7 @@ void recordDrawCommands(
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
                 inheritanceInfo.renderPass = renderpass.renderpass();
-                inheritanceInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
+                inheritanceInfo.framebuffer = framebuffers[imageIndex];
                 inheritanceInfo.subpass=pass;
 
                 VkCommandBufferBeginInfo beginInfo = {};

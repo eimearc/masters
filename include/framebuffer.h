@@ -1,25 +1,25 @@
-#ifndef EVK_FRAMEBUFFER
-#define EVK_FRAMEBUFFER
+// #ifndef EVK_FRAMEBUFFER
+// #define EVK_FRAMEBUFFER
 
-#include "device.h"
-#include "pass.h"
-#include <vulkan/vulkan.h>
+// #include "device.h"
+// #include "pass.h"
+// #include <vulkan/vulkan.h>
 
-class Framebuffer
-{
-    public:
-    Framebuffer()=default;
-    Framebuffer(
-        const Device &device,
-        const Renderpass &renderpass
-    );
+// class Framebuffer
+// {
+//     public:
+//     Framebuffer()=default;
+//     Framebuffer(
+//         const Device &device,
+//         const Renderpass &renderpass
+//     );
 
-    void destroy();
+//     void destroy();
 
-    std::vector<VkFramebuffer> m_framebuffers;
+//     std::vector<VkFramebuffer> m_framebuffers;
 
-    private:
-    VkDevice m_device;
-};
+//     private:
+//     VkDevice m_device;
+// };
 
-#endif
+// #endif

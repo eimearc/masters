@@ -90,10 +90,9 @@ int main(int argc, char **argv)
     );
 
     std::vector<Pipeline> pipelines = {pipeline};
-    Framebuffer framebuffers;
     recordDrawCommands(
         device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers);
+        pipelines, renderpass);
 
     // Main loop.
     size_t counter=0;
@@ -119,7 +118,6 @@ int main(int argc, char **argv)
     indexBuffer.destroy();
     vertexBuffer.destroy();
     texture.destroy();
-    framebuffers.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 }
