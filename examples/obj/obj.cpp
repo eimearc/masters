@@ -121,7 +121,6 @@ int main(int argc, char **argv)
     texture.destroy();
     for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
-    descriptor.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
 }

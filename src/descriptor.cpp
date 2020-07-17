@@ -249,7 +249,7 @@ void VertexInput::setBindingDescription(uint32_t stride)
     m_bindingDescription=bindingDescription;
 }
 
-void Descriptor::destroy()
+Descriptor::~Descriptor() noexcept
 {
     for (auto &l: m_descriptorSetLayouts) vkDestroyDescriptorSetLayout(m_device, l, nullptr);
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);

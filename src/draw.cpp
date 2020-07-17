@@ -127,8 +127,7 @@ void recordDrawCommands(
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
-            auto descriptor = *(pipelines[pass].m_descriptor);
-            auto &descriptorSets = descriptor.m_descriptorSets;
+            const auto &descriptorSets = pipelines[pass].m_descriptor->sets();
             auto &pipeline = pipelines[pass].m_pipeline;
             auto &pipelineLayout = pipelines[pass].m_layout;
 

@@ -12,6 +12,12 @@ class Descriptor
 {
     public:
     Descriptor()=default;
+    Descriptor(const Descriptor&)=delete;
+    Descriptor& operator=(const Descriptor&)=delete;
+    Descriptor(Descriptor&&)=delete;
+    Descriptor& operator=(Descriptor&&)=delete;
+    ~Descriptor() noexcept;
+
     Descriptor(
         const Device &device,
         const size_t swapchainSize,
@@ -40,26 +46,27 @@ class Descriptor
     void allocateDescriptorPool();
     void allocateDescriptorSets();
 
-    void destroy();
+    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_descriptorSetLayouts; };
+    std::vector<VkDescriptorSet> sets() const { return m_descriptorSets; };
 
+    private:
+    VkDevice m_device;
     VkDescriptorPool m_descriptorPool;
     std::vector<VkDescriptorSetLayout> m_descriptorSetLayouts;
-
     std::vector<VkDescriptorSet> m_descriptorSets;
     std::vector<VkWriteDescriptorSet> m_writeDescriptorSetVertex;
     std::vector<VkWriteDescriptorSet> m_writeDescriptorSetFragment;
-
     std::vector<VkDescriptorPoolSize> m_descriptorPoolSizes;
     std::vector<VkDescriptorSetLayoutBinding> m_descriptorSetBindings;
-
     VkDescriptorBufferInfo m_descriptorBufferInfo;
     VkDescriptorImageInfo m_descriptorTextureSamplerInfo;
     std::vector<VkDescriptorImageInfo> m_descriptorInputAttachmentInfo;
-
     size_t m_swapchainSize;
     size_t m_numAttachments;
+    size_t numUniformBuffers=0;
+    size_t numInputAttachments=0;
+    size_t numImageSamplers=0;
 
-    private:
     void addDescriptorPoolSize(const VkDescriptorType type, const size_t count);
     void addDescriptorSetBinding(const VkDescriptorType type, uint32_t binding, VkShaderStageFlagBits stage);
     
@@ -68,11 +75,6 @@ class Descriptor
         VkBuffer buffer, VkDeviceSize range,
         uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage);
     void addWriteDescriptorSetInputAttachment(VkImageView imageView, uint32_t binding, VkShaderStageFlagBits stage);
-
-    VkDevice m_device;
-    size_t numUniformBuffers=0;
-    size_t numInputAttachments=0;
-    size_t numImageSamplers=0;
 };
 
 class VertexInput

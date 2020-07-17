@@ -191,11 +191,8 @@ int main(int argc, char **argv)
     vertexBuffer.destroy();
     for (auto &a : attachments) a.destroy();
     framebuffers.destroy();
-    descriptor0.destroy();
-    descriptor1.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
-    // renderpass.destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();
