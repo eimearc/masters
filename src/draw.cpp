@@ -88,13 +88,16 @@ void Device::finalize(
     const Buffer &vertexBuffer,
     const std::vector<Pipeline*> &pipelines)
 {
+    auto renderpass=pipelines[0]->m_renderpass; // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
+    m_framebuffer = std::make_unique<Framebuffer>(
+        device(), swapchainSize(), swapchainImageViews(), extent(), *renderpass
+    );
+
     const auto &primaryCommandBuffers = this->primaryCommandBuffers();
     auto secondaryCommandBuffers = this->secondaryCommandBuffers();
     const auto &commandPools = this->commandPools();
     const auto numThreads = this->numThreads();
     const size_t numIndicesEach=indexBuffer.m_numElements/this->numThreads();
-    const auto renderpass=pipelines[0]->m_renderpass; // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
-    setupFramebuffer(*renderpass);
     const auto &framebuffers = this->framebuffers();
     const auto &clearValues = renderpass->clearValues();
     

@@ -58,8 +58,7 @@ class Device
     std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
     std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
 
-    // Framebuffers. TODO: remove.
-    void setupFramebuffer(const Renderpass &renderpass) {m_framebuffer = std::make_unique<Framebuffer>(device(), swapchainSize(), swapchainImageViews(), extent(), renderpass); };
+    // Framebuffers.
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
 
     // Draw.
