@@ -34,7 +34,7 @@ class Device
     VkQueue graphicsQueue() const { return m_device->m_graphicsQueue; };
     VkQueue presentQueue() const { return m_device->m_presentQueue; };
     uint32_t numThreads() const { return m_numThreads; };
-    std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; }; // TODO: Check if this is right.
+    std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
     void wait() { m_threadPool.wait(); };
 
     // Swapchain.

@@ -4,7 +4,7 @@ Pipeline::Pipeline(
     const Subpass &subpass,
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
-    const Renderpass &renderpass,
+    Renderpass *pRenderpass,
     const std::vector<Shader> &shaders,
     bool writeDepth
 )
@@ -13,7 +13,7 @@ Pipeline::Pipeline(
     m_subpass = subpass.m_index;
     m_descriptor = pDescriptor;
     m_shaders = shaders;
-    m_renderpass = renderpass;
+    m_renderpass = pRenderpass;
     m_writeDepth=writeDepth;
 }
 
@@ -179,7 +179,7 @@ void Pipeline::setup(
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = m_layout;
-    pipelineInfo.renderPass = m_renderpass.m_renderPass;
+    pipelineInfo.renderPass = m_renderpass->renderpass();
     pipelineInfo.subpass = m_subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;

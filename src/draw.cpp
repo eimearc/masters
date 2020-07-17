@@ -102,17 +102,21 @@ void recordDrawCommands(
 
     const size_t numIndicesEach=indexBuffer.m_numElements/device.numThreads();
     framebuffers = {device, renderpass};
+
+    const auto &clearValues = renderpass.clearValues();
     
     VkRenderPassBeginInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderpass.m_renderPass;
+    renderPassInfo.renderPass = renderpass.renderpass();
     renderPassInfo.renderArea.offset = {0,0};
     renderPassInfo.renderArea.extent = device.extent();
-    renderPassInfo.clearValueCount = renderpass.m_clearValues.size();
-    renderPassInfo.pClearValues = renderpass.m_clearValues.data();
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    const auto &numSubpasses = renderpass.subpasses().size();
 
     for (size_t imageIndex = 0; imageIndex < device.swapchainSize(); ++imageIndex)
     {
@@ -121,7 +125,7 @@ void recordDrawCommands(
         renderPassInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
         vkBeginCommandBuffer(primaryCommandBuffer, &beginInfo);
 
-        for (size_t pass = 0; pass < renderpass.m_subpasses.size(); ++pass)
+        for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
             auto descriptor = *(pipelines[pass].m_descriptor);
             auto &descriptorSets = descriptor.m_descriptorSets;
@@ -158,7 +162,7 @@ void recordDrawCommands(
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-                inheritanceInfo.renderPass = renderpass.m_renderPass;
+                inheritanceInfo.renderPass = renderpass.renderpass();
                 inheritanceInfo.framebuffer = framebuffers.m_framebuffers[imageIndex];
                 inheritanceInfo.subpass=pass;
 

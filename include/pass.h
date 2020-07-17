@@ -36,20 +36,29 @@ class Renderpass
 {
     public:
     Renderpass()=default;
+    Renderpass(const Renderpass&)=delete;
+    Renderpass& operator=(const Renderpass&)=delete;
+    Renderpass(Renderpass&&)=delete;
+    Renderpass& operator=(Renderpass&&)=delete;
+    ~Renderpass() noexcept;
+
     Renderpass(
         const Device &device,
         const std::vector<Attachment> &attachments,
         const std::vector<Subpass> &subpasses
     );
-    void destroy();
 
+    std::vector<Attachment> attachments() const { return m_attachments; };
+    std::vector<VkClearValue> clearValues() const { return m_clearValues; };
+    VkRenderPass renderpass() const { return m_renderPass; };
+    std::vector<Subpass> subpasses() const { return m_subpasses; };
+
+    private:
+    VkDevice m_device;
     VkRenderPass m_renderPass;
     std::vector<Subpass> m_subpasses;
     std::vector<VkClearValue> m_clearValues;
     std::vector<Attachment> m_attachments;
-
-    private:
-    VkDevice m_device;
 };
 
 #endif

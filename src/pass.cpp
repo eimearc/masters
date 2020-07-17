@@ -92,7 +92,7 @@ Renderpass::Renderpass(
     }
 }
 
-void Renderpass::destroy()
+Renderpass::~Renderpass() noexcept
 {
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 }

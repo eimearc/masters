@@ -16,7 +16,7 @@ class Pipeline
         const Subpass &subpass,
         Descriptor *pDescriptor,
         const VertexInput &vertexInput,
-        const Renderpass &renderpass,
+        Renderpass *pRenderpass,
         const std::vector<Shader> &shaders,
         bool writeDepth
     );
@@ -34,7 +34,7 @@ class Pipeline
     VertexInput m_vertexInput;
     uint32_t m_subpass;
     std::vector<Shader> m_shaders;
-    Renderpass m_renderpass;
+    Renderpass *m_renderpass;
 
     private:
     bool m_writeDepth;

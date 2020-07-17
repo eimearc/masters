@@ -132,7 +132,7 @@ int main(int argc, char **argv)
         subpass0,
         &descriptor0,
         vertexInput0,
-        renderpass,
+        &renderpass,
         shaders0,
         true
     );
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
         subpass1,
         &descriptor1,
         vertexInput1,
-        renderpass,
+        &renderpass,
         shaders1,
         false
     );
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
     descriptor1.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
-    renderpass.destroy();
+    // renderpass.destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();

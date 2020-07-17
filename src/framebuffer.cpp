@@ -5,6 +5,8 @@ Framebuffer::Framebuffer(
     const Renderpass &renderpass) // This should be part of attachment creation.
 {
     m_device = device.device();
+    const auto &attachments = renderpass.attachments();
+    const auto &numAttachments = attachments.size();
     const size_t &swapchainSize = device.swapchainSize();
     const auto &swapchainImageViews = device.swapchainImageViews();
     const auto &extent = device.extent();
@@ -13,18 +15,18 @@ Framebuffer::Framebuffer(
     // For each image in the swapchain.
     for (size_t i = 0; i < swapchainSize; i++)
     {
-        std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
+        std::vector<VkImageView> imageViews(numAttachments);
         imageViews[0] = swapchainImageViews[i];
-        for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
+        for (size_t j = 1; j < numAttachments; j++)
         {
-            auto attachment = renderpass.m_attachments[j];
+            auto attachment = attachments[j];
             const uint32_t &index = attachment.m_index;
             imageViews[index]=attachment.m_imageView;
         }
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderpass.m_renderPass;
+        framebufferInfo.renderPass = renderpass.renderpass();
         framebufferInfo.attachmentCount = imageViews.size();
         framebufferInfo.pAttachments = imageViews.data();
         framebufferInfo.width = extent.width;

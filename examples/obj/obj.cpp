@@ -84,7 +84,7 @@ int main(int argc, char **argv)
         subpass,
         &descriptor,
         vertexInput,
-        renderpass,
+        &renderpass,
         shaders,
         true
     );
@@ -124,5 +124,4 @@ int main(int argc, char **argv)
     descriptor.destroy();
     for (auto &p : pipelines) p.destroy();
     for (auto &s : shaders) s.destroy();
-    renderpass.destroy();
 }
