@@ -15,8 +15,8 @@ class Device
     Device()=default;
     Device(const Device&)=delete;
     Device& operator=(const Device&)=delete;
-    Device(Device&&)=default;
-    Device& operator=(Device&&)=default;
+    Device(Device&&) noexcept;
+    Device& operator=(Device&&) noexcept;
     ~Device()=default;
 
     Device(
@@ -225,12 +225,12 @@ class Device
         std::vector<VkFramebuffer> m_framebuffers;
     };
     
-    std::unique_ptr<_Device> m_device;
-    std::unique_ptr<Commands> m_commands;
+    std::unique_ptr<_Device> m_device=nullptr;
+    std::unique_ptr<Commands> m_commands=nullptr;
     std::unique_ptr<Framebuffer> m_framebuffer=nullptr;
-    size_t m_numThreads;
-    std::unique_ptr<Swapchain> m_swapchain;
-    std::unique_ptr<Sync> m_sync;
+    size_t m_numThreads=1;
+    std::unique_ptr<Swapchain> m_swapchain=nullptr;
+    std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
 };
 

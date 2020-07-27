@@ -21,15 +21,48 @@ Device::Device(
 bool Device::operator==(const Device& other)
 {
     bool result = true;
-    result &= (*m_commands.get() == *other.m_commands.get());
-    result &= (*m_device.get() == *other.m_device.get());
+    if ((m_commands!=nullptr) && (other.m_commands!=nullptr))
+        result &= (*m_commands.get() == *other.m_commands.get());
+    else result &= ((m_commands==nullptr) && (other.m_commands==nullptr));
+
+    if ((m_device!=nullptr) && (other.m_device!=nullptr))
+        result &= (*m_device.get() == *other.m_device.get());
+    else result &= ((m_device==nullptr) && (other.m_device==nullptr));
+
     if ((m_framebuffer!=nullptr) && other.m_framebuffer!=nullptr)
         result &= (*m_framebuffer.get() == *other.m_framebuffer.get());
     else result &= ((m_framebuffer==nullptr) && (other.m_framebuffer==nullptr));
+    
     result &= (m_numThreads == other.m_numThreads);
-    result &= (*m_swapchain.get() == *other.m_swapchain.get());
-    result &= (*m_sync.get() == *other.m_sync.get());
+
+    if ((m_swapchain!=nullptr) && (other.m_swapchain!=nullptr))
+        result &= (*m_swapchain.get() == *other.m_swapchain.get());
+    else result &= ((m_swapchain==nullptr) && (other.m_swapchain==nullptr));
+
+    if ((m_sync!=nullptr) && (other.m_sync!=nullptr))
+        result &= (*m_sync.get() == *other.m_sync.get());
+    else result &= ((m_sync==nullptr) && (other.m_sync==nullptr));
+
     return result;
+}
+
+Device::Device(Device&& other) noexcept
+{
+    *this=std::move(other);
+}
+
+Device& Device::operator=(Device&& other) noexcept
+{
+    if (*this == other) return *this;
+    m_device = std::move(other.m_device);
+    m_commands = std::move(other.m_commands);
+    m_framebuffer = std::move(other.m_framebuffer);
+    m_numThreads = other.m_numThreads;
+    other.m_numThreads=1;
+    m_swapchain = std::move(other.m_swapchain);
+    m_sync = std::move(other.m_sync);
+    m_threadPool = std::move(other.m_threadPool);
+    return *this;
 }
 
 Device::_Device::_Device(

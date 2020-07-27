@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     auto device = std::move(device1);
     device1 = std::move(device);
     device = std::move(device1);
-    // device = std::move(device);
+    device = std::move(device);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
