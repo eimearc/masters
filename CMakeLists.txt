@@ -56,3 +56,6 @@ install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
 # Build examples.
 add_subdirectory(examples)
+
+# Build tests.
+add_subdirectory(tests)
