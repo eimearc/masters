@@ -77,9 +77,9 @@ int main(int argc, char **argv)
     StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
-    Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
-    Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
-    std::vector<Shader> shaders = {vertexShader,fragmentShader};
+    Shader vertexShader(device, "shader_vert.spv", ShaderStage::VERTEX);
+    Shader fragmentShader(device, "shader_frag.spv", ShaderStage::FRAGMENT);
+    std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
     Pipeline pipeline(
         device,
@@ -118,5 +118,4 @@ int main(int argc, char **argv)
     indexBuffer.destroy();
     vertexBuffer.destroy();
     texture.destroy();
-    for (auto &s : shaders) s.destroy();
 }

@@ -10,19 +10,26 @@ class Shader
     public:
 
     Shader()=default;
-    Shader(const std::string &fileName, const ShaderStage &stage, const Device &device);
-    void destroy();
+    Shader(const Shader&)=delete;
+    Shader& operator=(const Shader&)=delete;
+    Shader(Shader&&) noexcept;
+    Shader& operator=(Shader&&) noexcept;
+    ~Shader() noexcept;
 
-    VkShaderModule m_module;
-    VkPipelineShaderStageCreateInfo m_createInfo;
+    bool operator==(const Shader&);
+
+    Shader(
+        const Device &device,
+        const std::string &fileName,
+        const ShaderStage &stage
+        );
+
+    VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
 
     private:
-    void createShaderModule1(
-        VkDevice device,
-        const std::vector<char>& code,
-        VkShaderModule *pShaderModule);
-
+    VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
+    VkShaderModule m_module=VK_NULL_HANDLE;
 };
 
 #endif

@@ -128,10 +128,9 @@ int main(int argc, char **argv)
     StaticBuffer indexBuffer(device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
 
-    std::vector<Shader> shaders0 = {
-        {"pass_0_vert.spv", ShaderStage::VERTEX, device},
-        {"pass_0_frag.spv", ShaderStage::FRAGMENT, device}
-    };
+    Shader vertexShader0(device, "pass_0_vert.spv", ShaderStage::VERTEX);
+    Shader fragmentShader0(device, "pass_0_frag.spv", ShaderStage::FRAGMENT);
+    std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
     Pipeline pipeline0(
         device,
         subpass0,
@@ -142,10 +141,9 @@ int main(int argc, char **argv)
         true
     );
 
-    std::vector<Shader> shaders1 = {
-        {"pass_1_vert.spv", ShaderStage::VERTEX, device},
-        {"pass_1_frag.spv", ShaderStage::FRAGMENT, device},
-    };
+    Shader vertexShader1(device, "pass_1_vert.spv", ShaderStage::VERTEX);
+    Shader fragmentShader1(device, "pass_1_frag.spv", ShaderStage::FRAGMENT);
+    std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
     Pipeline pipeline1(
         device,
         subpass1,
@@ -157,7 +155,7 @@ int main(int argc, char **argv)
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};
-    std::vector<Shader> shaders;
+    std::vector<Shader*> shaders;
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
 
@@ -192,7 +190,6 @@ int main(int argc, char **argv)
     ubo.destroy();
     indexBuffer.destroy();
     vertexBuffer.destroy();
-    for (auto &s : shaders) s.destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();

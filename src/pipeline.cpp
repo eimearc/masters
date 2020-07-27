@@ -6,7 +6,7 @@ Pipeline::Pipeline(
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
-    const std::vector<Shader> &shaders,
+    const std::vector<Shader*> &shaders,
     bool writeDepth
 )
 {
@@ -169,7 +169,7 @@ void Pipeline::setup(Device &device)
     }
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
-    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);
+    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s->createInfo());
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
