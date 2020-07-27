@@ -101,7 +101,7 @@ void Descriptor::addUniformBuffer(
 {
     auto shaderStage = shaderStageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
-    addWriteDescriptorSetBuffer(buffer.m_buffer, bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
+    addWriteDescriptorSetBuffer(buffer.buffer(), bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
 }
 
 void Descriptor::addInputAttachment(

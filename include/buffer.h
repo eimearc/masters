@@ -20,7 +20,19 @@ class Buffer
 
     bool operator==(const Buffer&) const;
 
-    // protected:
+    protected:
+    VkBuffer buffer() const { return m_buffer; };
+    size_t numElements() const { return m_numElements; };
+    void copyBuffer(
+        VkCommandPool commandPool,
+        VkQueue queue,
+        VkBuffer srcBuffer,
+        VkBuffer dstBuffer);
+    uint32_t findMemoryType(
+        uint32_t typeFilter,
+        VkMemoryPropertyFlags properties);
+    VkBufferUsageFlags typeToFlag(const Type &type);
+
     VkBuffer m_buffer=VK_NULL_HANDLE;
     VkDeviceMemory m_bufferMemory=VK_NULL_HANDLE;
     VkDeviceSize m_bufferSize;
@@ -32,25 +44,17 @@ class Buffer
     VkPhysicalDevice m_physicalDevice;
     VkQueue m_queue;
 
-    VkBufferUsageFlags typeToFlag(const Type &type);
-
-    void copyBuffer(
-        VkCommandPool commandPool,
-        VkQueue queue,
-        VkBuffer srcBuffer,
-        VkBuffer dstBuffer);
-
-    uint32_t findMemoryType(
-        uint32_t typeFilter,
-        VkMemoryPropertyFlags properties);
-        
+    friend class Descriptor;
+    friend class Device;
 };
 
 class DynamicBuffer : public Buffer
 {
     public:
-    DynamicBuffer()=default;
-    DynamicBuffer(const Device &device, const VkDeviceSize &bufferSize);
+    DynamicBuffer(
+        const Device &device,
+        const VkDeviceSize &bufferSize
+    );
     DynamicBuffer(
         Device &device,
         void *data,
@@ -65,12 +69,6 @@ class DynamicBuffer : public Buffer
 class StaticBuffer : public Buffer
 {
     public:
-    StaticBuffer()=default;
-    // StaticBuffer(const StaticBuffer&)=delete;
-    // StaticBuffer& operator=(const StaticBuffer&)=delete;
-    // StaticBuffer(StaticBuffer&&) noexcept;
-    // StaticBuffer& operator=(StaticBuffer&&) noexcept;
-
     StaticBuffer(
         Device &device,
         void *data,
@@ -79,8 +77,7 @@ class StaticBuffer : public Buffer
         const Type &type
     );
 
-    void finalize(Device &device, const Type &type);
-
+    private:
     void copyData(
         VkDevice device,
         VkPhysicalDevice physicalDevice,
@@ -92,6 +89,10 @@ class StaticBuffer : public Buffer
         const size_t num_elements,
         const VkDeviceSize element_size,
         const size_t element_offset
+    );
+    void finalize(
+        Device &device,
+        const Type &type
     );
 };
 

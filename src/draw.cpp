@@ -97,7 +97,7 @@ void Device::finalize(
     auto secondaryCommandBuffers = this->secondaryCommandBuffers();
     const auto &commandPools = this->commandPools();
     const auto numThreads = this->numThreads();
-    const size_t numIndicesEach=indexBuffer.m_numElements/this->numThreads();
+    const size_t numIndicesEach=indexBuffer.numElements()/this->numThreads();
     const auto &framebuffers = this->framebuffers();
     const auto &clearValues = renderpass->clearValues();
     
@@ -143,7 +143,7 @@ void Device::finalize(
 
                 size_t numIndices=numIndicesEach;
                 size_t indexOffset=numIndicesEach*i;
-                if (i==(numThreads-1)) numIndices = indexBuffer.m_numElements-(i*numIndicesEach);
+                if (i==(numThreads-1)) numIndices = indexBuffer.numElements()-(i*numIndicesEach);
 
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -175,8 +175,9 @@ void Device::finalize(
 
                 VkDeviceSize offsets[] = {0};
 
-                vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vertexBuffer.m_buffer, offsets);
-                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.m_buffer, 0, VK_INDEX_TYPE_UINT32);
+                auto vBuffer = vertexBuffer.buffer();
+                vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vBuffer, offsets);
+                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
                 vkCmdBindDescriptorSets(
                     secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                     0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);

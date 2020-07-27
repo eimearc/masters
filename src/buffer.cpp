@@ -204,7 +204,7 @@ void StaticBuffer::copyData(
 
 Buffer::~Buffer() noexcept
 {
-    // TODO: free pointer?
+    // TODO: free pointer? Use unique_ptr?
     if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
     if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
