@@ -717,10 +717,10 @@ FUNCTION {format.incoll.inproc.crossref}
 }
 
 FUNCTION {format.doi}
-{ doi empty$
-    { "" }
-    { new.block "(doi:" doi * ")" * }
-  if$
+{ %doi empty$
+   % { "" }
+   % { new.block "(doi:" doi * ")" * }
+  %if$
 }
 
 FUNCTION {article}				% For Royal Society Paper

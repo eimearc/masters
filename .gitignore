@@ -10,5 +10,4 @@ main
 *.fdb_latexmk
 *.toc
 *.log
-*.aux
 *.synctex*
