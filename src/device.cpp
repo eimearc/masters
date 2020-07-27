@@ -18,6 +18,20 @@ Device::Device(
     m_commands=std::make_unique<Commands>(m_device->m_device, m_device->m_physicalDevice, m_device->m_surface, swapchain_size, num_threads);
 }
 
+bool Device::operator==(const Device& other)
+{
+    bool result = true;
+    result &= (*m_commands.get() == *other.m_commands.get());
+    result &= (*m_device.get() == *other.m_device.get());
+    if ((m_framebuffer!=nullptr) && other.m_framebuffer!=nullptr)
+        result &= (*m_framebuffer.get() == *other.m_framebuffer.get());
+    else result &= ((m_framebuffer==nullptr) && (other.m_framebuffer==nullptr));
+    result &= (m_numThreads == other.m_numThreads);
+    result &= (*m_swapchain.get() == *other.m_swapchain.get());
+    result &= (*m_sync.get() == *other.m_sync.get());
+    return result;
+}
+
 Device::_Device::_Device(
     uint32_t num_threads,
     const std::vector<const char*> &validation_layers,
@@ -42,6 +56,7 @@ Device::_Device::_Device(_Device&& other) noexcept
 
 Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
 {
+    if (*this == other) return *this;
     m_debugMessenger=other.m_debugMessenger;
     other.m_debugMessenger=VK_NULL_HANDLE;
     m_depthFormat=other.m_depthFormat;
@@ -67,6 +82,21 @@ Device::_Device::~_Device() noexcept
     if (m_surface!=VK_NULL_HANDLE)
         vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     if (m_instance!=VK_NULL_HANDLE) vkDestroyInstance(m_instance, nullptr);
+}
+
+bool Device::_Device::operator==(const _Device &other)
+{
+    bool result = true;
+    result &= (m_debugMessenger==other.m_debugMessenger);
+    result &= (m_depthFormat==other.m_depthFormat);
+    result &= (m_device==other.m_device);
+    result &= (m_graphicsQueue==other.m_graphicsQueue);
+    result &= (m_instance==other.m_instance);
+    result &= (m_physicalDevice==other.m_physicalDevice);
+    result &= (m_presentQueue==other.m_presentQueue);
+    result &= (m_surface==other.m_surface);
+    result &= (m_window==other.m_window);
+    return result;
 }
 
 void Device::_Device::createInstance(const std::vector<const char*> &validation_layers)

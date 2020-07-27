@@ -28,6 +28,8 @@ class Device
         const bool &enable_validation
     );
 
+    bool operator==(const Device& other);
+
     // Device.
     GLFWwindow* window() const { return m_device->m_window; }
     VkInstance instance() const { return m_device->m_instance; }
@@ -88,15 +90,17 @@ class Device
             bool enable_validation
         );
 
-        VkInstance m_instance=VK_NULL_HANDLE;
-        VkSurfaceKHR m_surface=VK_NULL_HANDLE;
-        VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
-        VkDevice m_device=VK_NULL_HANDLE;
-        GLFWwindow *m_window=nullptr;
+        bool operator==(const _Device &other);
+
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
+        VkDevice m_device=VK_NULL_HANDLE;
         VkQueue m_graphicsQueue=VK_NULL_HANDLE;
+        VkInstance m_instance=VK_NULL_HANDLE;
+        VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
         VkQueue m_presentQueue=VK_NULL_HANDLE;
+        VkSurfaceKHR m_surface=VK_NULL_HANDLE;
+        GLFWwindow *m_window=nullptr;
 
         private:
         void createInstance(
@@ -140,12 +144,14 @@ class Device
             const uint32_t swapchainSize
         );
 
+        bool operator==(const Swapchain &other);
+
         VkDevice m_device;
-        VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
+        VkExtent2D m_extent;
+        VkFormat m_format;
         std::vector<VkImage> m_images;
         std::vector<VkImageView> m_imageViews;
-        VkFormat m_format;
-        VkExtent2D m_extent;
+        VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
     };
 
     class Commands
@@ -166,8 +172,10 @@ class Device
             const uint32_t &numThreads
         );
 
-        VkDevice m_device;
+        bool operator==(const Commands &other);
+
         std::vector<VkCommandPool> m_commandPools;
+        VkDevice m_device;
         std::vector<VkCommandBuffer> m_primaryCommandBuffers;
         std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
     };
@@ -184,11 +192,13 @@ class Device
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
 
+        bool operator==(const Sync &other);
+
         VkDevice m_device;
-        std::vector<VkSemaphore> m_imageAvailableSemaphores;
-        std::vector<VkSemaphore> m_renderFinishedSemaphores;
         std::vector<VkFence> m_fencesInFlight;
+        std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkFence> m_imagesInFlight;
+        std::vector<VkSemaphore> m_renderFinishedSemaphores;
     };
 
     class Framebuffer
@@ -200,6 +210,7 @@ class Device
         Framebuffer(Framebuffer&&) noexcept;
         Framebuffer& operator=(Framebuffer&&) noexcept;
         ~Framebuffer() noexcept;
+
         Framebuffer(
             const VkDevice &device,
             size_t swapchainSize,
@@ -208,17 +219,19 @@ class Device
             const Renderpass &renderpass
         );
 
+        bool operator==(const Framebuffer &other);
+
         VkDevice m_device;
         std::vector<VkFramebuffer> m_framebuffers;
     };
     
     std::unique_ptr<_Device> m_device;
-    std::unique_ptr<Swapchain> m_swapchain;
     std::unique_ptr<Commands> m_commands;
-    std::unique_ptr<Sync> m_sync;
-    std::unique_ptr<Framebuffer> m_framebuffer;
-    ThreadPool m_threadPool;
+    std::unique_ptr<Framebuffer> m_framebuffer=nullptr;
     size_t m_numThreads;
+    std::unique_ptr<Swapchain> m_swapchain;
+    std::unique_ptr<Sync> m_sync;
+    ThreadPool m_threadPool;
 };
 
 #endif

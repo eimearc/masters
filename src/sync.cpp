@@ -38,6 +38,7 @@ Device::Sync::Sync(Sync &&other) noexcept
 
 Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
 {
+    if (*this==other) return *this;
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
     m_imageAvailableSemaphores=other.m_imageAvailableSemaphores;
@@ -49,6 +50,29 @@ Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
     m_imagesInFlight=other.m_imagesInFlight;
     other.m_imagesInFlight.resize(0);
     return *this;
+}
+
+bool Device::Sync::operator==(const Sync &other)
+{
+    bool result = true;
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_fencesInFlight.begin(), m_fencesInFlight.end(),
+        other.m_fencesInFlight.begin()
+    );
+    result &= std::equal(
+        m_imageAvailableSemaphores.begin(), m_imageAvailableSemaphores.end(),
+        other.m_imageAvailableSemaphores.begin()
+    );
+    result &= std::equal(
+        m_imagesInFlight.begin(), m_imagesInFlight.end(),
+        other.m_imagesInFlight.begin()
+    );
+    result &= std::equal(
+        m_renderFinishedSemaphores.begin(), m_renderFinishedSemaphores.end(),
+        other.m_renderFinishedSemaphores.begin()
+    );
+    return result;
 }
 
 Device::Sync::~Sync() noexcept

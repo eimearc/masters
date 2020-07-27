@@ -84,6 +84,7 @@ Device::Swapchain::Swapchain(Swapchain &&other) noexcept
 
 Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
 {
+    if (*this == other) return *this;
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
     m_swapchain=other.m_swapchain;
@@ -95,6 +96,23 @@ Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
     m_format=other.m_format;
     m_extent=other.m_extent;
     return *this;
+}
+
+bool Device::Swapchain::operator==(const Swapchain &other)
+{
+    bool result = true;
+    result &= (m_device==other.m_device);
+    result &= (m_extent.width==other.m_extent.width);
+    result &= (m_extent.height==other.m_extent.height);
+    result &= (m_format==other.m_format);
+    result &= std::equal(
+        m_images.begin(), m_images.end(), other.m_images.begin()
+    );
+    result &= std::equal(
+        m_imageViews.begin(), m_imageViews.end(), other.m_imageViews.begin()
+    );
+    result &= (m_swapchain==other.m_swapchain);
+    return result;
 }
 
 Device::Swapchain::~Swapchain() noexcept

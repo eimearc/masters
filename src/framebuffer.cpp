@@ -48,11 +48,23 @@ Device::Framebuffer::Framebuffer(Framebuffer &&other) noexcept
 
 Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other) noexcept
 {
+    if (*this==other) return *this;
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
     m_framebuffers=other.m_framebuffers;
     other.m_framebuffers.resize(0);
     return *this;
+}
+
+bool Device::Framebuffer::operator==(const Framebuffer &other)
+{
+    bool result = true;
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_framebuffers.begin(), m_framebuffers.end(),
+        other.m_framebuffers.begin()
+    );
+    return result;
 }
 
 Device::Framebuffer::~Framebuffer() noexcept

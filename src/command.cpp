@@ -41,6 +41,7 @@ Device::Commands::Commands(Commands &&other) noexcept
 
 Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
 {
+    if (*this==other) return *this;
     m_device = other.m_device;
     other.m_device=VK_NULL_HANDLE;
     m_commandPools = other.m_commandPools;
@@ -50,6 +51,24 @@ Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
     m_secondaryCommandBuffers = other.m_secondaryCommandBuffers;
     other.m_secondaryCommandBuffers.resize(0);
     return *this;
+}
+
+bool Device::Commands::operator==(const Commands &other)
+{
+    bool result = true;
+    result &= std::equal(
+        m_commandPools.begin(), m_commandPools.end(), other.m_commandPools.begin()
+    );
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_primaryCommandBuffers.begin(), m_primaryCommandBuffers.end(),
+        other.m_primaryCommandBuffers.begin()
+    );
+    result &= std::equal(
+        m_secondaryCommandBuffers.begin(), m_secondaryCommandBuffers.end(),
+        other.m_secondaryCommandBuffers.begin()
+    );
+    return result;
 }
 
 Device::Commands::~Commands() noexcept
