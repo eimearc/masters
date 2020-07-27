@@ -67,7 +67,10 @@ int main(int argc, char **argv)
     std::vector<uint32_t> indices;
     createGrid(FLAGS_num_cubes, vertices, indices);
 
-    Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    Device device1(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    auto device = std::move(device1);
+    device1 = std::move(device);
+    device = std::move(device1);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);

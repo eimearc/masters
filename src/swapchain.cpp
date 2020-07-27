@@ -77,7 +77,7 @@ Device::Swapchain::Swapchain(
     }
 }
 
-Device::Swapchain::Swapchain(Swapchain &&other)
+Device::Swapchain::Swapchain(Swapchain &&other) noexcept
 {
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
@@ -91,7 +91,7 @@ Device::Swapchain::Swapchain(Swapchain &&other)
     m_extent=other.m_extent;
 }
 
-Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other)
+Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
 {
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;

@@ -34,7 +34,7 @@ Device::Commands::Commands(
     m_secondaryCommandBuffers.resize(numThreads);
 }
 
-Device::Commands::Commands(Commands &&other)
+Device::Commands::Commands(Commands &&other) noexcept
 {
     m_device = other.m_device;
     other.m_device=VK_NULL_HANDLE;
@@ -46,7 +46,7 @@ Device::Commands::Commands(Commands &&other)
     other.m_secondaryCommandBuffers.resize(0);
 }
 
-Device::Commands& Device::Commands::operator=(Commands &&other)
+Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
 {
     m_device = other.m_device;
     other.m_device=VK_NULL_HANDLE;

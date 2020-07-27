@@ -31,7 +31,7 @@ Device::Sync::Sync(
     }
 }
 
-Device::Sync::Sync(Sync &&other)
+Device::Sync::Sync(Sync &&other) noexcept
 {
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
@@ -45,7 +45,7 @@ Device::Sync::Sync(Sync &&other)
     other.m_imagesInFlight.resize(0);
 }
 
-Device::Sync& Device::Sync::operator=(Sync &&other)
+Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
 {
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;

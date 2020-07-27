@@ -76,8 +76,8 @@ class Device
         _Device()=default;
         _Device(const _Device&)=delete;
         _Device& operator=(const _Device&)=delete;
-        _Device(_Device&&);
-        _Device& operator=(_Device&&);
+        _Device(_Device&&) noexcept;
+        _Device& operator=(_Device&&) noexcept;
         ~_Device() noexcept;
 
         _Device(
@@ -128,8 +128,8 @@ class Device
         Swapchain()=default;
         Swapchain(const Swapchain&)=delete;
         Swapchain& operator=(const Swapchain&)=delete;
-        Swapchain(Swapchain&&);
-        Swapchain& operator=(Swapchain&&);
+        Swapchain(Swapchain&&) noexcept;
+        Swapchain& operator=(Swapchain&&) noexcept;
         ~Swapchain() noexcept;
 
         Swapchain(
@@ -154,8 +154,8 @@ class Device
         Commands()=default;
         Commands(const Commands&)=delete;
         Commands& operator=(const Commands&)=delete;
-        Commands(Commands&&);
-        Commands& operator=(Commands&&);
+        Commands(Commands&&) noexcept;
+        Commands& operator=(Commands&&) noexcept;
         ~Commands() noexcept;
 
         Commands(
@@ -178,8 +178,8 @@ class Device
         Sync()=default;
         Sync(const Sync&)=delete;
         Sync& operator=(const Sync&)=delete;
-        Sync(Sync&&);
-        Sync& operator=(Sync&&);
+        Sync(Sync&&) noexcept;
+        Sync& operator=(Sync&&) noexcept;
         ~Sync() noexcept;
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
@@ -197,8 +197,8 @@ class Device
         Framebuffer()=default;
         Framebuffer(const Framebuffer&)=delete;
         Framebuffer& operator=(const Framebuffer&)=delete;
-        Framebuffer(Framebuffer&&);
-        Framebuffer& operator=(Framebuffer&&);
+        Framebuffer(Framebuffer&&) noexcept;
+        Framebuffer& operator=(Framebuffer&&) noexcept;
         ~Framebuffer() noexcept;
         Framebuffer(
             const VkDevice &device,

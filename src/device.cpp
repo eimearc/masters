@@ -34,7 +34,7 @@ Device::_Device::_Device(
     createDevice(enable_validation, device_extensions, validation_layers);
 }
 
-Device::_Device::_Device(_Device&& other)
+Device::_Device::_Device(_Device&& other) noexcept
 {
     m_debugMessenger=other.m_debugMessenger;
     other.m_debugMessenger=VK_NULL_HANDLE;
@@ -51,7 +51,7 @@ Device::_Device::_Device(_Device&& other)
     m_window=other.m_window;
 }
 
-Device::_Device& Device::_Device::operator=(_Device&& other)
+Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
 {
     m_debugMessenger=other.m_debugMessenger;
     other.m_debugMessenger=VK_NULL_HANDLE;
