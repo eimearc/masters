@@ -41,6 +41,23 @@ Device::Framebuffer::Framebuffer(
     }
 }
 
+Device::Framebuffer::Framebuffer(Framebuffer &&other)
+{
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_framebuffers=other.m_framebuffers;
+    other.m_framebuffers.resize(0);
+}
+
+Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other)
+{
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_framebuffers=other.m_framebuffers;
+    other.m_framebuffers.resize(0);
+    return *this;
+}
+
 Device::Framebuffer::~Framebuffer() noexcept
 {
     for (auto framebuffer : m_framebuffers)

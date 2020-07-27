@@ -15,8 +15,8 @@ class Device
     Device()=default;
     Device(const Device&)=delete;
     Device& operator=(const Device&)=delete;
-    Device(Device&&)=delete;
-    Device& operator=(Device&&)=delete;
+    Device(Device&&)=default;
+    Device& operator=(Device&&)=default;
     ~Device()=default;
 
     Device(
@@ -76,8 +76,8 @@ class Device
         _Device()=default;
         _Device(const _Device&)=delete;
         _Device& operator=(const _Device&)=delete;
-        _Device(_Device&&)=delete;
-        _Device& operator=(_Device&&)=delete;
+        _Device(_Device&&);
+        _Device& operator=(_Device&&);
         ~_Device() noexcept;
 
         _Device(
@@ -88,15 +88,15 @@ class Device
             bool enable_validation
         );
 
-        VkInstance m_instance;
-        VkSurfaceKHR m_surface;
-        VkPhysicalDevice m_physicalDevice;
-        VkDevice m_device;
-        GLFWwindow *m_window;
-        VkDebugUtilsMessengerEXT m_debugMessenger;
+        VkInstance m_instance=VK_NULL_HANDLE;
+        VkSurfaceKHR m_surface=VK_NULL_HANDLE;
+        VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
+        VkDevice m_device=VK_NULL_HANDLE;
+        GLFWwindow *m_window=nullptr;
+        VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
-        VkQueue m_graphicsQueue;
-        VkQueue m_presentQueue;
+        VkQueue m_graphicsQueue=VK_NULL_HANDLE;
+        VkQueue m_presentQueue=VK_NULL_HANDLE;
 
         private:
         void createInstance(
@@ -128,8 +128,8 @@ class Device
         Swapchain()=default;
         Swapchain(const Swapchain&)=delete;
         Swapchain& operator=(const Swapchain&)=delete;
-        Swapchain(Swapchain&&)=delete;
-        Swapchain& operator=(Swapchain&&)=delete;
+        Swapchain(Swapchain&&);
+        Swapchain& operator=(Swapchain&&);
         ~Swapchain() noexcept;
 
         Swapchain(
@@ -141,7 +141,7 @@ class Device
         );
 
         VkDevice m_device;
-        VkSwapchainKHR m_swapchain;
+        VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
         std::vector<VkImage> m_images;
         std::vector<VkImageView> m_imageViews;
         VkFormat m_format;
@@ -154,8 +154,8 @@ class Device
         Commands()=default;
         Commands(const Commands&)=delete;
         Commands& operator=(const Commands&)=delete;
-        Commands(Commands&&)=delete;
-        Commands& operator=(Commands&&)=delete;
+        Commands(Commands&&);
+        Commands& operator=(Commands&&);
         ~Commands() noexcept;
 
         Commands(
@@ -178,8 +178,8 @@ class Device
         Sync()=default;
         Sync(const Sync&)=delete;
         Sync& operator=(const Sync&)=delete;
-        Sync(Sync&&)=delete;
-        Sync& operator=(Sync&&)=delete;
+        Sync(Sync&&);
+        Sync& operator=(Sync&&);
         ~Sync() noexcept;
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
@@ -197,8 +197,8 @@ class Device
         Framebuffer()=default;
         Framebuffer(const Framebuffer&)=delete;
         Framebuffer& operator=(const Framebuffer&)=delete;
-        Framebuffer(Framebuffer&&)=delete;
-        Framebuffer& operator=(Framebuffer&&)=delete;
+        Framebuffer(Framebuffer&&);
+        Framebuffer& operator=(Framebuffer&&);
         ~Framebuffer() noexcept;
         Framebuffer(
             const VkDevice &device,

@@ -77,8 +77,38 @@ Device::Swapchain::Swapchain(
     }
 }
 
+Device::Swapchain::Swapchain(Swapchain &&other)
+{
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_swapchain=other.m_swapchain;
+    other.m_swapchain=VK_NULL_HANDLE;
+    m_images=other.m_images;
+    other.m_imageViews.resize(0);
+    m_imageViews=other.m_imageViews;
+    other.m_imageViews.resize(0);
+    m_format=other.m_format;
+    m_extent=other.m_extent;
+}
+
+Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other)
+{
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_swapchain=other.m_swapchain;
+    other.m_swapchain=VK_NULL_HANDLE;
+    m_images=other.m_images;
+    other.m_imageViews.resize(0);
+    m_imageViews=other.m_imageViews;
+    other.m_imageViews.resize(0);
+    m_format=other.m_format;
+    m_extent=other.m_extent;
+    return *this;
+}
+
 Device::Swapchain::~Swapchain() noexcept
 {
     for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
-    vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+    if (m_swapchain != VK_NULL_HANDLE)
+        vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 }

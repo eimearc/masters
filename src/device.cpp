@@ -34,13 +34,50 @@ Device::_Device::_Device(
     createDevice(enable_validation, device_extensions, validation_layers);
 }
 
+Device::_Device::_Device(_Device&& other)
+{
+    m_debugMessenger=other.m_debugMessenger;
+    other.m_debugMessenger=VK_NULL_HANDLE;
+    m_depthFormat=other.m_depthFormat;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_graphicsQueue=other.m_graphicsQueue;
+    m_instance=other.m_instance;
+    other.m_instance=VK_NULL_HANDLE;
+    m_physicalDevice=other.m_physicalDevice;
+    m_presentQueue=other.m_presentQueue;
+    m_surface=other.m_surface;
+    other.m_surface=VK_NULL_HANDLE;
+    m_window=other.m_window;
+}
+
+Device::_Device& Device::_Device::operator=(_Device&& other)
+{
+    m_debugMessenger=other.m_debugMessenger;
+    other.m_debugMessenger=VK_NULL_HANDLE;
+    m_depthFormat=other.m_depthFormat;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_graphicsQueue=other.m_graphicsQueue;
+    m_instance=other.m_instance;
+    other.m_instance=VK_NULL_HANDLE;
+    m_physicalDevice=other.m_physicalDevice;
+    m_presentQueue=other.m_presentQueue;
+    m_surface=other.m_surface;
+    other.m_surface=VK_NULL_HANDLE;
+    m_window=other.m_window;
+    return *this;
+}
+
 Device::_Device::~_Device() noexcept
 {
     // TODO: Should wait for idle?
-    vkDestroyDevice(m_device, nullptr);
-    DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr); // TODO: Only delete if used.
-    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    vkDestroyInstance(m_instance, nullptr);
+    if (m_device!=VK_NULL_HANDLE) vkDestroyDevice(m_device, nullptr);
+    if (m_debugMessenger!=VK_NULL_HANDLE)
+        DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+    if (m_surface!=VK_NULL_HANDLE)
+        vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    if (m_instance!=VK_NULL_HANDLE) vkDestroyInstance(m_instance, nullptr);
 }
 
 void Device::_Device::createInstance(const std::vector<const char*> &validation_layers)
