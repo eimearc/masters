@@ -1,5 +1,5 @@
-#ifndef EVK_ATTACHMENT
-#define EVK_ATTACHMENT
+#ifndef EVK_ATTACHMENT_H_
+#define EVK_ATTACHMENT_H_
 
 #include "device.h"
 #include <vulkan/vulkan.h>

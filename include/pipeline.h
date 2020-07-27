@@ -1,5 +1,5 @@
-#ifndef EVK_PIPELINE
-#define EVK_PIPELINE
+#ifndef EVK_PIPELINE_H_
+#define EVK_PIPELINE_H_
 
 #include "descriptor.h"
 #include "device.h"

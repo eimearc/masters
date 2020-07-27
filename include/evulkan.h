@@ -1,5 +1,5 @@
-#ifndef EVK_CORE
-#define EVK_CORE
+#ifndef EVK_CORE_H_
+#define EVK_CORE_H_
 
 #include <array>
 #include <fstream>

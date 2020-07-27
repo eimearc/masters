@@ -1,5 +1,5 @@
-#ifndef EVK_DEVICE
-#define EVK_DEVICE
+#ifndef EVK_DEVICE_H_
+#define EVK_DEVICE_H_
 
 #include "threadpool.h"
 #include "util.h"
@@ -13,8 +13,8 @@ class Device
 {
     public:
     Device()=default;
-    Device(const Device&)=delete;
-    Device& operator=(const Device&)=delete;
+    Device(const Device&)=delete; // Class Device is non-copyable.
+    Device& operator=(const Device&)=delete; // Class Device is non-copyable.
     Device(Device&&) noexcept;
     Device& operator=(Device&&) noexcept;
     ~Device()=default;
@@ -76,8 +76,8 @@ class Device
     {
         public:
         _Device()=default;
-        _Device(const _Device&)=delete;
-        _Device& operator=(const _Device&)=delete;
+        _Device(const _Device&)=delete; // Class _Device is non-copyable.
+        _Device& operator=(const _Device&)=delete; // Class _Device is non-copyable.
         _Device(_Device&&) noexcept;
         _Device& operator=(_Device&&) noexcept;
         ~_Device() noexcept;
@@ -130,8 +130,8 @@ class Device
     {
         public:
         Swapchain()=default;
-        Swapchain(const Swapchain&)=delete;
-        Swapchain& operator=(const Swapchain&)=delete;
+        Swapchain(const Swapchain&)=delete; // Class Swapchain is non-copyable.
+        Swapchain& operator=(const Swapchain&)=delete; // Class Swapchain is non-copyable.
         Swapchain(Swapchain&&) noexcept;
         Swapchain& operator=(Swapchain&&) noexcept;
         ~Swapchain() noexcept;
@@ -158,8 +158,8 @@ class Device
     {
         public:
         Commands()=default;
-        Commands(const Commands&)=delete;
-        Commands& operator=(const Commands&)=delete;
+        Commands(const Commands&)=delete; // Class Commands is non-copyable.
+        Commands& operator=(const Commands&)=delete; // Class Commands is non-copyable.
         Commands(Commands&&) noexcept;
         Commands& operator=(Commands&&) noexcept;
         ~Commands() noexcept;
@@ -184,8 +184,8 @@ class Device
     {
         public:
         Sync()=default;
-        Sync(const Sync&)=delete;
-        Sync& operator=(const Sync&)=delete;
+        Sync(const Sync&)=delete; // Class Sync is non-copyable.
+        Sync& operator=(const Sync&)=delete; // Class Sync is non-copyable.
         Sync(Sync&&) noexcept;
         Sync& operator=(Sync&&) noexcept;
         ~Sync() noexcept;
@@ -205,8 +205,8 @@ class Device
     {
         public:
         Framebuffer()=default;
-        Framebuffer(const Framebuffer&)=delete;
-        Framebuffer& operator=(const Framebuffer&)=delete;
+        Framebuffer(const Framebuffer&)=delete; // Class Framebuffer is non-copyable.
+        Framebuffer& operator=(const Framebuffer&)=delete; // Class Framebuffer is non-copyable.
         Framebuffer(Framebuffer&&) noexcept;
         Framebuffer& operator=(Framebuffer&&) noexcept;
         ~Framebuffer() noexcept;

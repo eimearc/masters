@@ -1,5 +1,5 @@
-#ifndef EVK_PASS
-#define EVK_PASS
+#ifndef EVK_PASS_H_
+#define EVK_PASS_H_
 
 #include "attachment.h"
 #include "util.h"

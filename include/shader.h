@@ -1,5 +1,5 @@
-#ifndef SHADER
-#define SHADER
+#ifndef EVK_SHADER_H_
+#define EVK_SHADER_H_
 
 #include "device.h"
 #include "util.h"

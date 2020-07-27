@@ -1,5 +1,5 @@
-#ifndef EVK_DESCRIPTOR
-#define EVK_DESCRIPTOR
+#ifndef EVK_DESCRIPTOR_H_
+#define EVK_DESCRIPTOR_H_
 
 #include "attachment.h"
 #include "buffer.h"

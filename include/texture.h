@@ -1,5 +1,5 @@
-#ifndef EVK_TEXTURE
-#define EVK_TEXTURE
+#ifndef EVK_TEXTURE_H_
+#define EVK_TEXTURE_H_
 
 #include "device.h"
 #include "util.h"

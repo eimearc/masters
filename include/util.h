@@ -1,5 +1,5 @@
-#ifndef EVK_UTIL
-#define EVK_UTIL
+#ifndef EVK_UTIL_H_
+#define EVK_UTIL_H_
 
 #include <fstream>
 #define GLFW_INCLUDE_VULKAN
