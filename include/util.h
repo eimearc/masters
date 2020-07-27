@@ -27,10 +27,6 @@ namespace evk
     void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
 }
 
-enum ShaderStage{VERTEX, FRAGMENT}; // TODO: Move. Add support for Geometry.
-
-VkShaderStageFlagBits shaderStageFlags(const ShaderStage &shaderStage);
-
 void createImage(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,

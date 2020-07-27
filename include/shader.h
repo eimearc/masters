@@ -8,7 +8,7 @@
 class Shader
 {
     public:
-    // enum class Stage{VERTEX,FRAGMENT};
+    enum class Stage{VERTEX,FRAGMENT}; // TODO: Add support for Geometry shader.
 
     Shader()=default;
     Shader(const Shader&)=delete;
@@ -22,12 +22,14 @@ class Shader
     Shader(
         const Device &device,
         const std::string &fileName,
-        const ShaderStage &stage
+        const Stage &stage
     );
 
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
+    static VkShaderStageFlagBits stageFlags(const Stage &stage);
 
     private:
+
     VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
     VkShaderModule m_module=VK_NULL_HANDLE;

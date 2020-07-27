@@ -96,10 +96,10 @@ void Descriptor::addDescriptorPoolSize(const VkDescriptorType type, const size_t
 void Descriptor::addUniformBuffer(
     const uint32_t binding,
     const Buffer &buffer,
-    const ShaderStage stage,
+    const Shader::Stage stage,
     const VkDeviceSize bufferSize)
 {
-    auto shaderStage = shaderStageFlags(stage);
+    auto shaderStage = Shader::stageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
     addWriteDescriptorSetBuffer(buffer.buffer(), bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
 }
@@ -107,9 +107,9 @@ void Descriptor::addUniformBuffer(
 void Descriptor::addInputAttachment(
     const uint32_t binding,
     const Attachment &attachment,
-    const ShaderStage stage)
+    const Shader::Stage stage)
 {
-    auto shaderStage = shaderStageFlags(stage);
+    auto shaderStage = Shader::stageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, shaderStage);
     addWriteDescriptorSetInputAttachment(attachment.m_imageView, binding, shaderStage);
 }
@@ -117,9 +117,9 @@ void Descriptor::addInputAttachment(
 void Descriptor::addTextureSampler(
     const uint32_t binding,
     const Texture &texture,
-    const ShaderStage stage)
+    const Shader::Stage stage)
 {
-    auto shaderStage = shaderStageFlags(stage);
+    auto shaderStage = Shader::stageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, shaderStage);
     addWriteDescriptorSetTextureSampler(texture, binding, shaderStage);
 }

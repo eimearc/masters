@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     evk::loadOBJ("viking_room.obj", v, in);
 
     Texture texture(device, "viking_room.png");
-    descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
+    descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     uboUpdate.proj[1][1] *= -1;
     DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
-    descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(uboUpdate));
+    descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -77,8 +77,8 @@ int main(int argc, char **argv)
     StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
-    Shader vertexShader(device, "shader_vert.spv", ShaderStage::VERTEX);
-    Shader fragmentShader(device, "shader_frag.spv", ShaderStage::FRAGMENT);
+    Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
     Pipeline pipeline(

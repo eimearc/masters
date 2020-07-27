@@ -111,12 +111,12 @@ int main(int argc, char **argv)
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
     Descriptor descriptor0(device, swapchainSize, 1);
-    descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, swapchainSize, 3);
-    descriptor1.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
-    descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
-    descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
+    descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
+    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
 
     VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -128,8 +128,8 @@ int main(int argc, char **argv)
     StaticBuffer indexBuffer(device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
 
-    Shader vertexShader0(device, "pass_0_vert.spv", ShaderStage::VERTEX);
-    Shader fragmentShader0(device, "pass_0_frag.spv", ShaderStage::FRAGMENT);
+    Shader vertexShader0(device, "pass_0_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader0(device, "pass_0_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
     Pipeline pipeline0(
         device,
@@ -141,8 +141,8 @@ int main(int argc, char **argv)
         true
     );
 
-    Shader vertexShader1(device, "pass_1_vert.spv", ShaderStage::VERTEX);
-    Shader fragmentShader1(device, "pass_1_frag.spv", ShaderStage::FRAGMENT);
+    Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader1(device, "pass_1_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
     Pipeline pipeline1(
         device,

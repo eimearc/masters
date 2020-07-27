@@ -4,6 +4,7 @@
 #include "attachment.h"
 #include "buffer.h"
 #include <iostream>
+#include "shader.h"
 #include <vector>
 #include <vulkan/vulkan.h>
 #include "texture.h"
@@ -27,20 +28,20 @@ class Descriptor
     void addUniformBuffer(
         const uint32_t binding,
         const Buffer &buffer,
-        const ShaderStage shaderStage,
+        const Shader::Stage shaderStage,
         const VkDeviceSize bufferSize
     );
 
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
-        const ShaderStage shaderStage
+        const Shader::Stage shaderStage
     );
 
     void addTextureSampler(
         const uint32_t binding,
         const Texture &texture,
-        const ShaderStage shaderStage
+        const Shader::Stage shaderStage
     );
 
     void allocateDescriptorPool();

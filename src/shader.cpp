@@ -3,10 +3,10 @@
 Shader::Shader(
     const Device &device,
     const std::string &fileName,
-    const ShaderStage &stage)
+    const Stage &stage)
 {   
     m_device=device.device();
-    auto stageFlags = shaderStageFlags(stage);
+    auto flags = stageFlags(stage);
 
     auto shaderCode = readFile(fileName);
     VkShaderModuleCreateInfo createInfo = {};
@@ -19,7 +19,7 @@ Shader::Shader(
     }
 
     m_createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    m_createInfo.stage = stageFlags;
+    m_createInfo.stage = flags;
     m_createInfo.module = m_module;
     m_createInfo.pName = "main";
     m_createInfo.pNext = nullptr;
@@ -59,4 +59,15 @@ Shader::~Shader() noexcept
 {
     if (m_module!=VK_NULL_HANDLE)
         vkDestroyShaderModule(m_device, m_module, nullptr);
+}
+
+VkShaderStageFlagBits Shader::stageFlags(const Stage &shaderStage)
+{
+    switch (shaderStage)
+    {
+    case Stage::VERTEX:
+        return VK_SHADER_STAGE_VERTEX_BIT;
+    case Stage::FRAGMENT:
+        return VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
 }

@@ -402,17 +402,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
-VkShaderStageFlagBits shaderStageFlags(const ShaderStage &shaderStage)
-{
-    switch (shaderStage)
-    {
-    case ShaderStage::VERTEX:
-        return VK_SHADER_STAGE_VERTEX_BIT;
-    case ShaderStage::FRAGMENT:
-        return VK_SHADER_STAGE_FRAGMENT_BIT;
-    }
-}
-
 std::vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
