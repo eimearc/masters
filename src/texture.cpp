@@ -3,9 +3,54 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+Texture::Texture(Texture &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Texture& Texture::operator=(Texture &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_device=std::move(other.m_device);
+    other.m_device=VK_NULL_HANDLE;
+    m_image=std::move(other.m_image);
+    other.m_image=VK_NULL_HANDLE;
+    m_imageSampler=std::move(other.m_imageSampler);
+    other.m_imageSampler=VK_NULL_HANDLE;
+    m_imageView=std::move(other.m_imageView);
+    other.m_imageView=VK_NULL_HANDLE;
+    m_memory=std::move(other.m_memory);
+    other.m_memory=VK_NULL_HANDLE;
+    return *this;
+}
+
+Texture::~Texture() noexcept
+{
+    if (m_imageSampler!=VK_NULL_HANDLE)
+        vkDestroySampler(m_device, m_imageSampler, nullptr);
+    if (m_imageView!=VK_NULL_HANDLE)
+        vkDestroyImageView(m_device, m_imageView, nullptr);
+    if (m_image!=VK_NULL_HANDLE)
+        vkDestroyImage(m_device, m_image, nullptr);
+    if (m_memory!=VK_NULL_HANDLE)
+        vkFreeMemory(m_device, m_memory, nullptr);
+}
+
+bool Texture::operator==(const Texture &other) const noexcept
+{
+    bool result=true;
+    result &= (m_device==other.m_device);
+    result &= (m_image==other.m_image);
+    result &= (m_imageSampler==other.m_imageSampler);
+    result &= (m_imageView==other.m_imageView);
+    result &= (m_memory==other.m_memory);
+    return result;
+}
+
 Texture::Texture(
-    const std::string &fileName,
-    const Device &device)
+    const Device &device,
+    const std::string &fileName
+)
 {
     m_device = device.device();
     const auto &commandPools = device.commandPools();
@@ -67,19 +112,6 @@ Texture::Texture(
     samplerInfo.maxLod = 0.0f;
     if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
         throw std::runtime_error("failed to create texture sampler.");
-
-    m_allocated=true;
-}
-
-void Texture::destroy()
-{
-    if (m_allocated)
-    {
-        vkDestroySampler(m_device, m_imageSampler, nullptr);
-        vkDestroyImageView(m_device, m_imageView, nullptr);
-        vkDestroyImage(m_device, m_image, nullptr);
-        vkFreeMemory(m_device, m_memory, nullptr);
-    }
 }
 
 void Texture::transitionImageLayout(

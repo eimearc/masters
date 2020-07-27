@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    Texture texture("viking_room.png", device);
+    Texture texture(device, "viking_room.png");
     descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
@@ -112,7 +112,4 @@ int main(int argc, char **argv)
 
         counter++;
     }
-
-    // Tidy.
-    texture.destroy();
 }
