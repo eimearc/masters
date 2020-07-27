@@ -27,19 +27,6 @@ Shader::Shader(
     m_createInfo.pSpecializationInfo = nullptr;
 }
 
-// Shader::Shader(const Shader &other) noexcept
-// {
-//     *this=other;
-// }
-
-// Shader& Shader::operator=(const Shader &other) noexcept
-// {
-//     if (*this==other) return *this;
-//     m_createInfo=other.m_createInfo;
-//     m_device=other.m_device;
-//     m_module=other.m_module;
-// }
-
 Shader::Shader(Shader &&other) noexcept
 {
     *this=std::move(other);
@@ -69,5 +56,6 @@ bool Shader::operator==(const Shader &other)
 
 Shader::~Shader()
 {
-    if (m_module!=VK_NULL_HANDLE) vkDestroyShaderModule(m_device, m_module, nullptr);
+    if (m_module!=VK_NULL_HANDLE)
+        vkDestroyShaderModule(m_device, m_module, nullptr);
 }

@@ -187,10 +187,6 @@ int main(int argc, char **argv)
     }
 
     // Tidy up.
-    ubo.destroy();
-    indexBuffer.destroy();
-    vertexBuffer.destroy();
-
     glfwDestroyWindow(window);
     glfwTerminate();
 }

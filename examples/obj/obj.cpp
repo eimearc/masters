@@ -114,8 +114,5 @@ int main(int argc, char **argv)
     }
 
     // Tidy.
-    ubo.destroy();
-    indexBuffer.destroy();
-    vertexBuffer.destroy();
     texture.destroy();
 }

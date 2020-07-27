@@ -11,20 +11,26 @@ class Buffer
     public:
     enum Type{INDEX,VERTEX,UBO};
 
-    void destroy();
+    Buffer()=default;
+    Buffer(const Buffer&)=delete;
+    Buffer& operator=(const Buffer&)=delete;
+    Buffer(Buffer&&) noexcept;
+    Buffer& operator=(Buffer&&) noexcept;
+    ~Buffer() noexcept;
 
-    VkBuffer m_buffer;
-    VkDeviceMemory m_bufferMemory;
-    size_t m_numElements;
+    bool operator==(const Buffer&) const;
 
-    VkDevice m_device;
-    VkPhysicalDevice m_physicalDevice;
+    // protected:
+    VkBuffer m_buffer=VK_NULL_HANDLE;
+    VkDeviceMemory m_bufferMemory=VK_NULL_HANDLE;
     VkDeviceSize m_bufferSize;
-    VkQueue m_queue;
-    size_t m_numThreads;
-
     void *m_data;
+    VkDevice m_device;
     VkDeviceSize m_elementSize;
+    size_t m_numElements;
+    size_t m_numThreads;
+    VkPhysicalDevice m_physicalDevice;
+    VkQueue m_queue;
 
     VkBufferUsageFlags typeToFlag(const Type &type);
 
@@ -60,6 +66,11 @@ class StaticBuffer : public Buffer
 {
     public:
     StaticBuffer()=default;
+    // StaticBuffer(const StaticBuffer&)=delete;
+    // StaticBuffer& operator=(const StaticBuffer&)=delete;
+    // StaticBuffer(StaticBuffer&&) noexcept;
+    // StaticBuffer& operator=(StaticBuffer&&) noexcept;
+
     StaticBuffer(
         Device &device,
         void *data,

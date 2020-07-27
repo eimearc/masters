@@ -20,6 +20,53 @@ StaticBuffer::StaticBuffer(
     finalize(device, type);
 }
 
+bool Buffer::operator==(const Buffer &other) const // TODO: Mark all as const.
+{
+    bool result=true;
+    result &= (m_buffer==other.m_buffer);
+    result &= (m_bufferMemory==other.m_bufferMemory);
+    result &= (m_numElements==other.m_numElements);
+    result &= (m_device==other.m_device);
+    result &= (m_physicalDevice==other.m_physicalDevice);
+    result &= (m_bufferSize==other.m_bufferSize);
+    result &= (m_queue==other.m_queue);
+    result &= (m_numThreads==other.m_numThreads);
+    result &= (m_data==other.m_data); // TODO: Is this right? Must point to same.
+    result &= (m_elementSize==other.m_elementSize);
+    return result;
+}
+
+Buffer::Buffer(Buffer &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Buffer& Buffer::operator=(Buffer &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_buffer=other.m_buffer;
+    other.m_buffer=VK_NULL_HANDLE;
+    m_bufferMemory=other.m_bufferMemory;
+    other.m_bufferMemory=VK_NULL_HANDLE;
+    m_numElements=other.m_numElements;
+    other.m_numElements=0;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_physicalDevice=other.m_physicalDevice;
+    other.m_physicalDevice=VK_NULL_HANDLE;
+    m_bufferSize=other.m_bufferSize;
+    other.m_bufferSize=0;
+    m_queue=other.m_queue;
+    other.m_queue=VK_NULL_HANDLE;
+    m_numThreads=other.m_numThreads;
+    other.m_numThreads=1;
+    m_data=other.m_data;
+    other.m_data=nullptr;
+    m_elementSize=other.m_elementSize;
+    other.m_elementSize=0;
+    return *this;
+}
+
 VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
 {
     switch(type)
@@ -155,10 +202,11 @@ void StaticBuffer::copyData(
     vkEndCommandBuffer(command_buffer);
 }
 
-void Buffer::destroy()
+Buffer::~Buffer() noexcept
 {
-    vkDestroyBuffer(m_device, m_buffer, nullptr);
-    vkFreeMemory(m_device, m_bufferMemory, nullptr);
+    // TODO: free pointer?
+    if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
+    if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
 
 DynamicBuffer::DynamicBuffer(
