@@ -67,7 +67,7 @@ Buffer& Buffer::operator=(Buffer &&other) noexcept
     return *this;
 }
 
-VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
+VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const
 {
     switch(type)
     {
@@ -155,7 +155,7 @@ void StaticBuffer::copyData(
     const size_t num_elements,
     const VkDeviceSize element_size,
     const size_t element_offset
-)
+) const
 {
     const size_t buffer_offset = element_offset*element_size;
     const size_t buffer_size = num_elements*element_size;
@@ -204,7 +204,6 @@ void StaticBuffer::copyData(
 
 Buffer::~Buffer() noexcept
 {
-    // TODO: free pointer? Use unique_ptr?
     if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
     if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
@@ -259,7 +258,7 @@ void Buffer::copyBuffer(
     VkCommandPool commandPool,
     VkQueue queue,
     VkBuffer srcBuffer,
-    VkBuffer dstBuffer)
+    VkBuffer dstBuffer) const
 {
     VkCommandBuffer commandBuffer;
     beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
@@ -271,7 +270,10 @@ void Buffer::copyBuffer(
     endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
 }
 
-uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t Buffer::findMemoryType(
+    uint32_t typeFilter,
+    VkMemoryPropertyFlags properties
+) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);

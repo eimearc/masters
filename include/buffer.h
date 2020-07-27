@@ -27,11 +27,11 @@ class Buffer
         VkCommandPool commandPool,
         VkQueue queue,
         VkBuffer srcBuffer,
-        VkBuffer dstBuffer);
+        VkBuffer dstBuffer) const;
     uint32_t findMemoryType(
         uint32_t typeFilter,
-        VkMemoryPropertyFlags properties);
-    VkBufferUsageFlags typeToFlag(const Type &type);
+        VkMemoryPropertyFlags properties) const;
+    VkBufferUsageFlags typeToFlag(const Type &type) const;
 
     VkBuffer m_buffer=VK_NULL_HANDLE;
     VkDeviceMemory m_bufferMemory=VK_NULL_HANDLE;
@@ -89,7 +89,7 @@ class StaticBuffer : public Buffer
         const size_t num_elements,
         const VkDeviceSize element_size,
         const size_t element_offset
-    );
+    ) const;
     void finalize(
         Device &device,
         const Type &type
