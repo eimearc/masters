@@ -34,21 +34,10 @@ Device::_Device::_Device(
     createDevice(enable_validation, device_extensions, validation_layers);
 }
 
+// TODO: Check is this needed.
 Device::_Device::_Device(_Device&& other) noexcept
 {
-    m_debugMessenger=other.m_debugMessenger;
-    other.m_debugMessenger=VK_NULL_HANDLE;
-    m_depthFormat=other.m_depthFormat;
-    m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
-    m_graphicsQueue=other.m_graphicsQueue;
-    m_instance=other.m_instance;
-    other.m_instance=VK_NULL_HANDLE;
-    m_physicalDevice=other.m_physicalDevice;
-    m_presentQueue=other.m_presentQueue;
-    m_surface=other.m_surface;
-    other.m_surface=VK_NULL_HANDLE;
-    m_window=other.m_window;
+    *this=std::move(other);
 }
 
 Device::_Device& Device::_Device::operator=(_Device&& other) noexcept

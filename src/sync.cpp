@@ -33,16 +33,7 @@ Device::Sync::Sync(
 
 Device::Sync::Sync(Sync &&other) noexcept
 {
-    m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
-    m_imageAvailableSemaphores=other.m_imageAvailableSemaphores;
-    other.m_imageAvailableSemaphores.resize(0);
-    m_renderFinishedSemaphores=other.m_renderFinishedSemaphores;
-    other.m_renderFinishedSemaphores.resize(0);
-    m_fencesInFlight=other.m_fencesInFlight;
-    other.m_fencesInFlight.resize(0);
-    m_imagesInFlight=other.m_imagesInFlight;
-    other.m_imagesInFlight.resize(0);
+    *this=std::move(other);
 }
 
 Device::Sync& Device::Sync::operator=(Sync &&other) noexcept

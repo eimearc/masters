@@ -36,14 +36,7 @@ Device::Commands::Commands(
 
 Device::Commands::Commands(Commands &&other) noexcept
 {
-    m_device = other.m_device;
-    other.m_device=VK_NULL_HANDLE;
-    m_commandPools = other.m_commandPools;
-    other.m_commandPools.resize(0);
-    m_primaryCommandBuffers = other.m_primaryCommandBuffers;
-    other.m_primaryCommandBuffers.resize(0);
-    m_secondaryCommandBuffers = other.m_secondaryCommandBuffers;
-    other.m_secondaryCommandBuffers.resize(0);
+    *this=std::move(other);
 }
 
 Device::Commands& Device::Commands::operator=(Commands &&other) noexcept

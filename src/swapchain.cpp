@@ -79,16 +79,7 @@ Device::Swapchain::Swapchain(
 
 Device::Swapchain::Swapchain(Swapchain &&other) noexcept
 {
-    m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
-    m_swapchain=other.m_swapchain;
-    other.m_swapchain=VK_NULL_HANDLE;
-    m_images=other.m_images;
-    other.m_imageViews.resize(0);
-    m_imageViews=other.m_imageViews;
-    other.m_imageViews.resize(0);
-    m_format=other.m_format;
-    m_extent=other.m_extent;
+    *this=std::move(other);
 }
 
 Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept

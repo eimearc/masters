@@ -43,10 +43,7 @@ Device::Framebuffer::Framebuffer(
 
 Device::Framebuffer::Framebuffer(Framebuffer &&other) noexcept
 {
-    m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
-    m_framebuffers=other.m_framebuffers;
-    other.m_framebuffers.resize(0);
+    *this=std::move(other);
 }
 
 Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other) noexcept
