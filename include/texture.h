@@ -22,11 +22,8 @@ class Texture
         const std::string &fileName
     );
 
-    VkDevice m_device=VK_NULL_HANDLE;
-    VkImage m_image=VK_NULL_HANDLE;
-    VkSampler m_imageSampler=VK_NULL_HANDLE;
-    VkImageView m_imageView=VK_NULL_HANDLE;
-    VkDeviceMemory m_memory=VK_NULL_HANDLE;
+    VkSampler sampler() const { return m_imageSampler; };
+    VkImageView view() const { return m_imageView; };
 
     private:
     void transitionImageLayout(
@@ -44,6 +41,12 @@ class Texture
         VkImage image,
         VkExtent2D extent
     );
+
+    VkDevice m_device=VK_NULL_HANDLE;
+    VkImage m_image=VK_NULL_HANDLE;
+    VkSampler m_imageSampler=VK_NULL_HANDLE;
+    VkImageView m_imageView=VK_NULL_HANDLE;
+    VkDeviceMemory m_memory=VK_NULL_HANDLE;
 };
 
 #endif

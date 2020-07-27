@@ -178,8 +178,8 @@ void Descriptor::addWriteDescriptorSetTextureSampler(const Texture &texture, uin
 {
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texture.m_imageView;
-    imageInfo.sampler = texture.m_imageSampler;
+    imageInfo.imageView = texture.view();
+    imageInfo.sampler = texture.sampler();
     m_descriptorTextureSamplerInfo = imageInfo;
     VkWriteDescriptorSet descriptor;
     descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -189,7 +189,7 @@ void Descriptor::addWriteDescriptorSetTextureSampler(const Texture &texture, uin
     descriptor.descriptorCount = 1;
     descriptor.pImageInfo = &m_descriptorTextureSamplerInfo;
     descriptor.pNext=nullptr;
-    if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) m_writeDescriptorSetFragment.push_back(descriptor);
+    if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) m_writeDescriptorSetFragment.push_back(descriptor); // TODO: Support for geo shader?
     else m_writeDescriptorSetVertex.push_back(descriptor);
 }
 

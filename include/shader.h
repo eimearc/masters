@@ -8,6 +8,7 @@
 class Shader
 {
     public:
+    // enum class Stage{VERTEX,FRAGMENT};
 
     Shader()=default;
     Shader(const Shader&)=delete;
@@ -22,7 +23,7 @@ class Shader
         const Device &device,
         const std::string &fileName,
         const ShaderStage &stage
-        );
+    );
 
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
 

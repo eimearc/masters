@@ -41,6 +41,7 @@ Shader& Shader::operator=(Shader &&other) noexcept
     other.m_device=VK_NULL_HANDLE;
     m_module=other.m_module;
     other.m_module=VK_NULL_HANDLE;
+    return *this;
 }
 
 bool Shader::operator==(const Shader &other)
@@ -54,7 +55,7 @@ bool Shader::operator==(const Shader &other)
     return result;
 }
 
-Shader::~Shader()
+Shader::~Shader() noexcept
 {
     if (m_module!=VK_NULL_HANDLE)
         vkDestroyShaderModule(m_device, m_module, nullptr);
