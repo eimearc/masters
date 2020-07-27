@@ -1,0 +1,96 @@
+\documentclass[12pt]{report}
+
+\usepackage{geometry}
+\usepackage{tabu}
+\usepackage{dirtytalk}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{subcaption}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{wrapfig}
+\usepackage{color}
+
+\usepackage{amsthm}
+\usepackage{verbatimbox}
+\usepackage{multicol}
+\usepackage[titletoc,title]{appendix}
+\usepackage{amsfonts}
+\usepackage[font={it}]{caption}
+
+% For citing and referencing.
+\usepackage{natbib}
+\newcommand{\citebu}[1]{\citeauthor{#1} (\citeyear{#1})}
+
+\geometry{
+  a4paper,
+  total={170mm,257mm},
+  left=30mm,
+  right=30mm,
+  top=20mm,
+  bottom=30mm,
+}
+
+\pagenumbering{roman}
+
+\newcommand*{\SignatureAndDate}[1]{%
+    \par\noindent\makebox[2.5in]{\hrulefill} \hfill\makebox[2.0in]{\hrulefill}%
+    \par\noindent\makebox[2.5in][l]{Signed}      \hfill\makebox[2.0in][l]{Date}%
+}%
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\begin{document}
+
+  \begin{titlepage}
+    \centering
+    % \includegraphics[width=0.5\textwidth]{images/ucc.png}\par\vspace{1cm}
+    {\scshape\LARGE University College Cork\par}
+    \vspace{.2cm}
+    {\scshape Department of Computer Science\par}
+    \vspace{.7cm}
+    {\scshape\Large Final-Year Project\\BSc in Computer Science\par}
+    \vspace{1.5cm}
+    {\huge\bfseries Implementing and Augmenting New Distributed and Parallel Algorithms\par}
+    \vspace{2cm}
+    {\Large Eimear Crotty\par}
+    \vfill
+    Supervisors\par
+    Prof.~Michel \textsc{Schellekens}, UCC\\
+    Prof.~Muriel \textsc{M\'{e}dard}, MIT
+    \vfill
+    Completed in collaboration with MIT\\
+    \vfill
+    % \includegraphics[width=0.15\textwidth]{images/MIT.png}\par\vspace{1cm}
+
+    \vfill
+
+  % Bottom of the page
+    {\large April 2017}
+  \end{titlepage}
+
+  \chapter*{Abstract}
+    Large scale distributed storage systems can emulate fault-tolerant atomic storage in a variety of ways. The ABD algorithm uses a replication-based approach to this problem, incurring high storage costs to ensure resiliency, while the SODA\textsubscript{w} algorithm implements erasure codes to drastically lower this storage cost. This paper will present these two algorithms and will use new experimental data to compare their performances and subsequent costs.
+
+  \chapter*{Acknowledgements}
+
+    \vspace{1cm}
+
+    I would like to thank Prof. Michel Schellekens, UCC, and Prof. Muriel M\'{e}dard, MIT, for their support during the course of this project. I would also like to thank Kishori M. Konwar, MIT, and Prakash N., MIT, for answering my questions and supporting this research. Thank you to Prof. Cormac Sreenan, UCC, for facilitating the collaboration between UCC and MIT. Thanks also to my family for supporting me during my studies, allowing me to complete this project.
+
+  \tableofcontents
+
+  \chapter{Introduction}
+    \pagenumbering{arabic}
+    Testing123. \citebu{attiya1995sharing}.
+
+  \bibliographystyle{harvardnat}
+  \bibliography{thesis.bib}
+  
+\end{document}

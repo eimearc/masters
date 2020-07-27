@@ -2,3 +2,13 @@ build/
 *.swp
 main
 *.spv
+
+# Thesis temporary files.
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.toc
+*.log
+*.aux
+*.synctex*
