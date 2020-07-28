@@ -9,13 +9,21 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
 {
     if (*this==other) return *this;
     m_descriptor=other.m_descriptor;
+    other.m_descriptor=nullptr;
     m_device=other.m_device;
+    other.m_device=nullptr;
     m_layout=other.m_layout;
+    other.m_layout=VK_NULL_HANDLE;
     m_pipeline=other.m_pipeline;
+    other.m_pipeline=VK_NULL_HANDLE;
     m_renderpass=other.m_renderpass;
+    other.m_renderpass=nullptr;
     m_shaders=other.m_shaders;
+    other.m_shaders.resize(0);
     m_subpass=other.m_subpass;
+    other.m_subpass=0;
     m_vertexInput=other.m_vertexInput;
+    other.m_vertexInput={};
     m_writeDepth=other.m_writeDepth;
     return *this;
 }

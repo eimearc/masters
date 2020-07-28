@@ -47,7 +47,7 @@ class Pipeline
     VkPipeline m_pipeline=VK_NULL_HANDLE;
     Renderpass *m_renderpass;
     std::vector<Shader*> m_shaders;
-    uint32_t m_subpass;
+    uint32_t m_subpass; // TODO: Subpass object?
     VertexInput m_vertexInput;
     bool m_writeDepth; // TODO: Remove.
 };
