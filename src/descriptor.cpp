@@ -46,6 +46,8 @@ Descriptor::Descriptor(
     const size_t swapchainSize,
     const size_t numAttachments)
 {
+    assert(numAttachments>0); // TODO: remove?
+
     m_device = device.device();
     m_swapchainSize = swapchainSize;
     m_numAttachments = numAttachments;
@@ -77,73 +79,90 @@ bool Descriptor::operator==(const Descriptor &other) const
 void Descriptor::allocateDescriptorPool()
 {
     m_poolSizes.resize(0);
-    if (m_numInputAttachments>0) addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, m_swapchainSize*m_numInputAttachments*2);
-    if (m_numUniformBuffers>0) addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_swapchainSize*m_numUniformBuffers*2);
-    if (m_numImageSamplers>0) addDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_swapchainSize*m_numImageSamplers*2);
 
-    VkDescriptorPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(m_poolSizes.size());
-    poolInfo.pPoolSizes = m_poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(m_swapchainSize*2);
+    if (m_numInputAttachments>0)
+        addDescriptorPoolSize(
+            VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
+            m_swapchainSize*m_numInputAttachments*2);
+    if (m_numUniformBuffers>0)
+        addDescriptorPoolSize(
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            m_swapchainSize*m_numUniformBuffers*2);
+    if (m_numImageSamplers>0)
+        addDescriptorPoolSize(
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            m_swapchainSize*m_numImageSamplers*2);
 
-    if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_pool) != VK_SUCCESS)
+    if (m_poolSizes.size()>0)
     {
-        throw std::runtime_error("failed to create descriptor pool.");
+        VkDescriptorPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolInfo.poolSizeCount = static_cast<uint32_t>(m_poolSizes.size());
+        poolInfo.pPoolSizes = m_poolSizes.data();
+        poolInfo.maxSets = static_cast<uint32_t>(m_swapchainSize*2);
+
+        if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_pool) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor pool.");
+        }
     }
 }
 
+// TODO: Handle case where no descriptors have been added.
 void Descriptor::allocateDescriptorSets()
 {
-    m_setLayouts.resize(2);
-
-    std::vector<VkDescriptorSetLayoutBinding> vertexBindings;
-    std::vector<VkDescriptorSetLayoutBinding> fragmentBindings;
-
-    for (const auto &b : m_setBindings)
+    if (m_numAttachments>0)
     {
-        if (b.stageFlags == VK_SHADER_STAGE_FRAGMENT_BIT) fragmentBindings.push_back(b);
-        else vertexBindings.push_back(b);
+        m_setLayouts.resize(2);
+
+        std::vector<VkDescriptorSetLayoutBinding> vertexBindings;
+        std::vector<VkDescriptorSetLayoutBinding> fragmentBindings;
+
+        for (const auto &b : m_setBindings)
+        {
+            if (b.stageFlags == VK_SHADER_STAGE_FRAGMENT_BIT) fragmentBindings.push_back(b); // TODO: Change.
+            else vertexBindings.push_back(b);
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(vertexBindings.size());
+        layoutInfo.pBindings = vertexBindings.data();
+        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_setLayouts[0]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
+
+        layoutInfo.bindingCount = static_cast<uint32_t>(fragmentBindings.size());
+        layoutInfo.pBindings = fragmentBindings.data();
+        if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_setLayouts[1]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
+
+        // Create descriptor sets.
+        m_sets.resize(2);
+        VkDescriptorSetAllocateInfo allocInfo = {};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = m_pool;
+        allocInfo.descriptorSetCount = m_setLayouts.size();
+        allocInfo.pSetLayouts = m_setLayouts.data();
+        if(vkAllocateDescriptorSets(m_device, &allocInfo, m_sets.data())!=VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to allocate descriptor sets.");
+        } 
+
+        for (auto &ds : m_writeSetVertex) ds.dstSet=m_sets[0];
+        for (auto &ds : m_writeSetFragment) ds.dstSet=m_sets[1];
+
+        std::vector<VkWriteDescriptorSet> writes;
+        for (auto &ds : m_writeSetVertex) writes.push_back(ds);
+        for (auto &ds : m_writeSetFragment) writes.push_back(ds);
+
+        vkUpdateDescriptorSets(m_device,
+            static_cast<uint32_t>(writes.size()),
+            writes.data(), 0, nullptr);
     }
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(vertexBindings.size());
-    layoutInfo.pBindings = vertexBindings.data();
-    if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_setLayouts[0]) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout.");
-    }
-
-    layoutInfo.bindingCount = static_cast<uint32_t>(fragmentBindings.size());
-    layoutInfo.pBindings = fragmentBindings.data();
-    if (vkCreateDescriptorSetLayout(m_device, &layoutInfo, nullptr, &m_setLayouts[1]) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout.");
-    }
-
-    // Create descriptor sets.
-    m_sets.resize(2);
-    VkDescriptorSetAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = m_pool;
-    allocInfo.descriptorSetCount = m_setLayouts.size();
-    allocInfo.pSetLayouts = m_setLayouts.data();
-    if(vkAllocateDescriptorSets(m_device, &allocInfo, m_sets.data())!=VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate descriptor sets.");
-    } 
-
-    for (auto &ds : m_writeSetVertex) ds.dstSet=m_sets[0];
-    for (auto &ds : m_writeSetFragment) ds.dstSet=m_sets[1];
-
-    std::vector<VkWriteDescriptorSet> writes;
-    for (auto &ds : m_writeSetVertex) writes.push_back(ds);
-    for (auto &ds : m_writeSetFragment) writes.push_back(ds);
-
-    vkUpdateDescriptorSets(m_device,
-        static_cast<uint32_t>(writes.size()),
-        writes.data(), 0, nullptr);
 }
 
 void Descriptor::addDescriptorPoolSize(const VkDescriptorType type, const size_t count)

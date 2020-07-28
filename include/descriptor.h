@@ -58,7 +58,7 @@ class Descriptor
     size_t m_numInputAttachments=0;
     size_t m_numImageSamplers=0;
     size_t m_numUniformBuffers=0;
-    VkDescriptorPool m_pool;
+    VkDescriptorPool m_pool=VK_NULL_HANDLE;
     std::vector<VkDescriptorPoolSize> m_poolSizes;
     std::vector<VkDescriptorSetLayout> m_setLayouts;
     std::vector<VkDescriptorSetLayoutBinding> m_setBindings;

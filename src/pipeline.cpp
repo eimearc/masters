@@ -51,7 +51,9 @@ Pipeline::Pipeline(
 bool Pipeline::operator==(const Pipeline &other) const
 {
     bool result=true;
-    result &= (*m_descriptor==*other.m_descriptor);
+    if (m_descriptor!=nullptr && other.m_descriptor!=nullptr)
+        result &= (*m_descriptor==*other.m_descriptor);
+    else result &= ((m_descriptor==nullptr)&&(other.m_descriptor==nullptr));
     result &= (m_device==other.m_device);
     result &= (m_layout==other.m_layout);
     result &= (m_pipeline==other.m_pipeline);
@@ -70,8 +72,11 @@ void Pipeline::setup(Device &device)
 {
     m_device = device.device();
 
-    m_descriptor->allocateDescriptorPool();
-    m_descriptor->allocateDescriptorSets();
+    if (m_descriptor!=nullptr)
+    {
+        m_descriptor->allocateDescriptorPool();
+        m_descriptor->allocateDescriptorSets();
+    }
 
     const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
@@ -163,7 +168,9 @@ void Pipeline::setup(Device &device)
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
-    const auto &setLayouts = m_descriptor->setLayouts();
+    std::vector<VkDescriptorSetLayout> setLayouts;
+    if (m_descriptor!=nullptr)
+        setLayouts = m_descriptor->setLayouts();
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

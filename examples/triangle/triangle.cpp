@@ -45,7 +45,6 @@ int main()
     
     std::vector<Vertex> v=setupVerts();
     std::vector<uint32_t> in={0,1,2};
-    Descriptor descriptor(device, swapchainSize, 1);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
@@ -67,13 +66,6 @@ int main()
     std::vector<Subpass*> subpasses = {&subpass};
     Renderpass renderpass(device,attachments,subpasses);
 
-    // UniformBufferObject uboUpdate = {};
-    // uboUpdate.model=glm::mat4(1.0f);
-    // uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    // uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
-    // StaticBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
-    // descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
-
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
@@ -88,7 +80,7 @@ int main()
     Pipeline pipeline(
         device,
         subpass,
-        &descriptor,
+        nullptr,
         vertexInput,
         &renderpass,
         shaders,
