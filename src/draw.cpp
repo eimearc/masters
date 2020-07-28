@@ -88,7 +88,7 @@ void Device::finalize(
     const Buffer &vertexBuffer,
     const std::vector<Pipeline*> &pipelines)
 {
-    auto renderpass=pipelines[0]->m_renderpass; // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
+    auto renderpass=pipelines[0]->renderpass(); // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
     m_framebuffer = std::make_unique<Framebuffer>(
         device(), swapchainSize(), swapchainImageViews(), extent(), *renderpass
     );
@@ -123,9 +123,9 @@ void Device::finalize(
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
-            const auto &descriptorSets = pipelines[pass]->m_descriptor->sets();
-            auto &pipeline = pipelines[pass]->m_pipeline;
-            auto &pipelineLayout = pipelines[pass]->m_layout;
+            const auto &descriptorSets = pipelines[pass]->descriptor()->sets();
+            const auto &pipeline = pipelines[pass]->pipeline();
+            const auto &pipelineLayout = pipelines[pass]->layout();
 
             if (pass == 0 )
                 vkCmdBeginRenderPass(

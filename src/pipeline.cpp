@@ -1,5 +1,25 @@
 #include "pipeline.h"
 
+Pipeline::Pipeline(Pipeline &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_descriptor=other.m_descriptor;
+    m_device=other.m_device;
+    m_layout=other.m_layout;
+    m_pipeline=other.m_pipeline;
+    m_renderpass=other.m_renderpass;
+    m_shaders=other.m_shaders;
+    m_subpass=other.m_subpass;
+    m_vertexInput=other.m_vertexInput;
+    m_writeDepth=other.m_writeDepth;
+    return *this;
+}
+
 Pipeline::Pipeline(
     Device &device,
     const Subpass &subpass,
@@ -18,6 +38,24 @@ Pipeline::Pipeline(
     m_writeDepth=writeDepth;
 
     setup(device);
+}
+
+bool Pipeline::operator==(const Pipeline &other) const
+{
+    bool result=true;
+    result &= (*m_descriptor==*other.m_descriptor);
+    result &= (m_device==other.m_device);
+    result &= (m_layout==other.m_layout);
+    result &= (m_pipeline==other.m_pipeline);
+    result &= (*m_renderpass==*other.m_renderpass);
+    result &= std::equal(
+        m_shaders.begin(), m_shaders.end(),
+        other.m_shaders.begin()
+    );
+    result &= (m_subpass==other.m_subpass);
+    // result &= (m_vertexInput==other.m_vertexInput); // TODO
+    result &= (m_writeDepth==other.m_writeDepth);
+    return result;
 }
 
 void Pipeline::setup(Device &device)
@@ -198,6 +236,8 @@ void Pipeline::setup(Device &device)
 
 Pipeline::~Pipeline() noexcept
 {   
-    vkDestroyPipelineLayout(m_device, m_layout, nullptr);
-    vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    if (m_layout!=VK_NULL_HANDLE)
+        vkDestroyPipelineLayout(m_device, m_layout, nullptr);
+    if (m_pipeline!=VK_NULL_HANDLE)
+        vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }

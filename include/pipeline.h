@@ -16,9 +16,10 @@ class Pipeline
     Pipeline()=default;
     Pipeline(const Pipeline&)=delete;
     Pipeline& operator=(const Pipeline&)=delete;
-    Pipeline(Pipeline&&)=delete;
-    Pipeline& operator=(Pipeline&&)=delete;
+    Pipeline(Pipeline&&) noexcept;
+    Pipeline& operator=(Pipeline&&) noexcept;
     ~Pipeline() noexcept;
+
     Pipeline(
         Device &device,
         const Subpass &subpass,
@@ -29,21 +30,26 @@ class Pipeline
         bool writeDepth
     );
 
-    VkDevice m_device;
-    VkPipeline m_pipeline;
-    VkPipelineLayout m_layout;
-    Descriptor* m_descriptor;
-    VertexInput m_vertexInput;
-    uint32_t m_subpass;
-    std::vector<Shader*> m_shaders;
-    Renderpass *m_renderpass;
+    Descriptor* const descriptor() const { return m_descriptor; };
+    VkPipelineLayout layout() const { return m_layout; };
+    bool operator==(const Pipeline&) const;
+    VkPipeline pipeline() const { return m_pipeline; };
+    Renderpass* const renderpass() const { return m_renderpass; };
 
     private:
-    bool m_writeDepth;
-
     void setup(
         Device &device
     );
+
+    Descriptor* m_descriptor;
+    VkDevice m_device;
+    VkPipelineLayout m_layout=VK_NULL_HANDLE;
+    VkPipeline m_pipeline=VK_NULL_HANDLE;
+    Renderpass *m_renderpass;
+    std::vector<Shader*> m_shaders;
+    uint32_t m_subpass;
+    VertexInput m_vertexInput;
+    bool m_writeDepth; // TODO: Remove.
 };
 
 #endif
