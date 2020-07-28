@@ -30,9 +30,10 @@ class Pipeline
         bool writeDepth
     );
 
+    bool operator==(const Pipeline&) const;
+
     Descriptor* const descriptor() const { return m_descriptor; };
     VkPipelineLayout layout() const { return m_layout; };
-    bool operator==(const Pipeline&) const;
     VkPipeline pipeline() const { return m_pipeline; };
     Renderpass* const renderpass() const { return m_renderpass; };
 

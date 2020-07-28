@@ -43,6 +43,7 @@ class Descriptor
         const Texture &texture,
         const Shader::Stage shaderStage
     );
+    
     void allocateDescriptorPool();
     void allocateDescriptorSets();
 

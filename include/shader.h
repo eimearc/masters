@@ -17,19 +17,18 @@ class Shader
     Shader& operator=(Shader&&) noexcept;
     ~Shader() noexcept;
 
-    bool operator==(const Shader&);
-
     Shader(
         const Device &device,
         const std::string &fileName,
         const Stage &stage
     );
 
+    bool operator==(const Shader&);
+
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
     static VkShaderStageFlagBits stageFlags(const Stage &stage);
 
     private:
-
     VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
     VkShaderModule m_module=VK_NULL_HANDLE;

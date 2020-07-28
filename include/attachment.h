@@ -24,8 +24,9 @@ class Attachment
     );
 
     bool operator==(const Attachment&) const;
-    VkAttachmentReference colorReference() const { return m_colorReference; };
+
     VkClearValue clearValue() const { return m_clearValue; };
+    VkAttachmentReference colorReference() const { return m_colorReference; };
     VkAttachmentReference depthReference() const { return m_depthReference; };
     VkAttachmentDescription description() const { return m_description; };
     uint32_t index() const { return m_index; };
@@ -33,6 +34,15 @@ class Attachment
     VkImageView view() const { return m_imageView; };
 
     private:
+    void createFramebuffer();
+    void setFramebufferAttachment();
+    void setColorAttachment(
+        const Device &device
+    );
+    void setDepthAttachment(
+        const Device &device
+    );
+
     VkClearValue m_clearValue;
     VkAttachmentReference m_colorReference;
     VkAttachmentReference m_depthReference;
@@ -44,15 +54,6 @@ class Attachment
     uint32_t m_index;
     VkAttachmentReference m_inputReference;
     Type m_type;
-
-    void createFramebuffer();
-    void setFramebufferAttachment();
-    void setColorAttachment(
-        const Device &device
-    );
-    void setDepthAttachment(
-        const Device &device
-    );
 };
 
 #endif

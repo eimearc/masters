@@ -15,12 +15,12 @@ class Texture
     Texture& operator=(Texture&&) noexcept;
     ~Texture() noexcept;
 
-    bool operator==(const Texture&) const noexcept;
-
     Texture(
         const Device &device,
         const std::string &fileName
     );
+
+    bool operator==(const Texture&) const noexcept;
 
     VkSampler sampler() const { return m_imageSampler; };
     VkImageView view() const { return m_imageView; };

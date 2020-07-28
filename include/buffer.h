@@ -23,14 +23,17 @@ class Buffer
     protected:
     VkBuffer buffer() const { return m_buffer; };
     size_t numElements() const { return m_numElements; };
+
     void copyBuffer(
         VkCommandPool commandPool,
         VkQueue queue,
         VkBuffer srcBuffer,
-        VkBuffer dstBuffer) const;
+        VkBuffer dstBuffer
+    ) const;
     uint32_t findMemoryType(
         uint32_t typeFilter,
-        VkMemoryPropertyFlags properties) const;
+        VkMemoryPropertyFlags properties
+    ) const;
     VkBufferUsageFlags typeToFlag(const Type &type) const;
 
     VkBuffer m_buffer=VK_NULL_HANDLE;
