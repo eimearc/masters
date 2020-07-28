@@ -47,6 +47,9 @@ class Pipeline
     Renderpass* const renderpass() const { return m_renderpass; };
 
     private:
+    void createSetLayout(
+        const std::vector<VkDescriptorSetLayout> &setLayouts
+    );
     void setup(
         Device &device
     );

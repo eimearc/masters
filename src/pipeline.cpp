@@ -50,6 +50,9 @@ Pipeline::Pipeline(
     m_descriptor->allocateDescriptorPool();
     m_descriptor->allocateDescriptorSets();
 
+    auto setLayouts = m_descriptor->setLayouts();
+    createSetLayout(setLayouts);
+
     setup(device);
 }
 
@@ -69,7 +72,25 @@ Pipeline::Pipeline(
     m_renderpass = pRenderpass;
     m_writeDepth=writeDepth;
 
+    std::vector<VkDescriptorSetLayout> setLayouts;
+    createSetLayout(setLayouts);
+
     setup(device);
+}
+
+void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayouts)
+{
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = setLayouts.size();
+    pipelineLayoutInfo.pSetLayouts = setLayouts.data();
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create pipeline layout.");
+    }
 }
 
 bool Pipeline::operator==(const Pipeline &other) const
@@ -183,22 +204,6 @@ void Pipeline::setup(Device &device)
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
-
-    std::vector<VkDescriptorSetLayout> setLayouts;
-    if (m_descriptor!=nullptr)
-        setLayouts = m_descriptor->setLayouts();
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = setLayouts.size();
-    pipelineLayoutInfo.pSetLayouts = setLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    if (vkCreatePipelineLayout(device.device(), &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create pipeline layout.");
-    }
 
     // Set up depth testing.
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
