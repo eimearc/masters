@@ -58,17 +58,21 @@ class Renderpass
 
     bool operator==(const Renderpass&) const;
 
+    private:
     const std::vector<Attachment*>& attachments() const { return m_attachments; };
     std::vector<VkClearValue> clearValues() const { return m_clearValues; };
     VkRenderPass renderpass() const { return m_renderPass; };
     std::vector<Subpass*> subpasses() const { return m_subpasses; };
 
-    private:
     std::vector<Attachment*> m_attachments;
     std::vector<VkClearValue> m_clearValues;
     VkDevice m_device;
     VkRenderPass m_renderPass=VK_NULL_HANDLE;
     std::vector<Subpass*> m_subpasses;
+
+    friend class Device;
+    friend class Framebuffer;
+    friend class Pipeline;
 };
 
 #endif
