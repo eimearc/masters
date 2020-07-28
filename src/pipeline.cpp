@@ -11,7 +11,7 @@ Pipeline::Pipeline(
 )
 {
     m_vertexInput = vertexInput;
-    m_subpass = subpass.m_index;
+    m_subpass = subpass.index();
     m_descriptor = pDescriptor;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
