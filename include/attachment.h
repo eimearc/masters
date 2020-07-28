@@ -13,8 +13,8 @@ class Attachment
     Attachment()=default;
     Attachment(const Attachment&)=delete;
     Attachment& operator=(const Attachment&)=delete;
-    Attachment(Attachment&&)=delete;
-    Attachment& operator=(Attachment&&)=delete;
+    Attachment(Attachment&&) noexcept;
+    Attachment& operator=(Attachment&&) noexcept;
     ~Attachment() noexcept;
 
     Attachment(
@@ -23,21 +23,27 @@ class Attachment
         const Type &type
     );
 
-    uint32_t m_index;
-    VkAttachmentDescription m_description;
-
-    VkAttachmentReference m_inputReference;
-    VkAttachmentReference m_colorReference;
-    VkAttachmentReference m_depthReference;
-
-    VkImage m_image=VK_NULL_HANDLE;
-    VkImageView m_imageView=VK_NULL_HANDLE;
-    VkDeviceMemory m_imageMemory=VK_NULL_HANDLE;
-
-    VkClearValue m_clearValue;
+    bool operator==(const Attachment&) const;
+    VkAttachmentReference colorReference() const { return m_colorReference; };
+    VkClearValue clearValue() const { return m_clearValue; };
+    VkAttachmentReference depthReference() const { return m_depthReference; };
+    VkAttachmentDescription description() const { return m_description; };
+    uint32_t index() const { return m_index; };
+    VkAttachmentReference inputReference() const { return m_inputReference; };
+    VkImageView view() const { return m_imageView; };
 
     private:
+    VkClearValue m_clearValue;
+    VkAttachmentReference m_colorReference;
+    VkAttachmentReference m_depthReference;
+    VkAttachmentDescription m_description;
     VkDevice m_device;
+    VkImage m_image=VK_NULL_HANDLE;
+    VkDeviceMemory m_imageMemory=VK_NULL_HANDLE;
+    VkImageView m_imageView=VK_NULL_HANDLE;
+    uint32_t m_index;
+    VkAttachmentReference m_inputReference;
+    Type m_type;
 
     void createFramebuffer();
     void setFramebufferAttachment();

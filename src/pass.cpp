@@ -13,9 +13,9 @@ Subpass::Subpass(
     m_depthAttachments=depthAttachments;
     m_inputAttachments=inputAttachments;
 
-    for (const auto &c : m_colorAttachments) m_colorReferences.push_back(c->m_colorReference);
-    for (const auto &d : m_depthAttachments) m_depthReferences.push_back(d->m_depthReference);
-    for (const auto &i : m_inputAttachments) m_inputReferences.push_back(i->m_inputReference);
+    for (const auto &c : m_colorAttachments) m_colorReferences.push_back(c->colorReference());
+    for (const auto &d : m_depthAttachments) m_depthReferences.push_back(d->depthReference());
+    for (const auto &i : m_inputAttachments) m_inputReferences.push_back(i->inputReference());
 
     m_description = {};
     m_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -56,8 +56,8 @@ Renderpass::Renderpass(
     m_clearValues.resize(attachments.size());
     for (const auto &a : attachments)
     {
-        attachmentDescriptions[a->m_index] = a->m_description;
-        m_clearValues[a->m_index] = a->m_clearValue;
+        attachmentDescriptions[a->index()] = a->description();
+        m_clearValues[a->index()] = a->clearValue();
     }
 
     for (const auto &sp : subpasses) subpassDescriptions.push_back(sp->m_description); 

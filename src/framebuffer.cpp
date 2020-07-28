@@ -29,8 +29,8 @@ Device::Framebuffer::Framebuffer(
         for (size_t j = 1; j < numAttachments; j++)
         {
             const auto &attachment = attachments[j];
-            const uint32_t &index = attachment->m_index;
-            imageViews[index]=attachment->m_imageView;
+            const uint32_t &index = attachment->index();
+            imageViews[index]=attachment->view();
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];

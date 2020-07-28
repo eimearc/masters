@@ -111,7 +111,7 @@ void Descriptor::addInputAttachment(
 {
     auto shaderStage = Shader::stageFlags(stage);
     addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, shaderStage);
-    addWriteDescriptorSetInputAttachment(attachment.m_imageView, binding, shaderStage);
+    addWriteDescriptorSetInputAttachment(attachment.view(), binding, shaderStage);
 }
 
 void Descriptor::addTextureSampler(
