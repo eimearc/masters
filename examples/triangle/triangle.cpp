@@ -19,11 +19,14 @@ std::vector<Vertex> setupVerts()
 {
     std::vector<Vertex> verts;
     Vertex v;
-    v.pos={0,1,0};
+    v.pos={0,-0.5,0};
+    v.color={1,0,0};
     verts.push_back(v);
-    v.pos={1,0,0};
+    v.pos={-0.5,0.5,0};
+    v.color={0,0,1};
     verts.push_back(v);
-    v.pos={-1,0,0};
+    v.pos={0.5,0.5,0};
+    v.color={0,1,0};
     verts.push_back(v);
     return verts;
 }
@@ -64,15 +67,16 @@ int main()
     std::vector<Subpass*> subpasses = {&subpass};
     Renderpass renderpass(device,attachments,subpasses);
 
-    UniformBufferObject uboUpdate = {};
-    uboUpdate.model=glm::mat4(1.0f);
-    uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
-    StaticBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
-    descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
+    // UniformBufferObject uboUpdate = {};
+    // uboUpdate.model=glm::mat4(1.0f);
+    // uboUpdate.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+    // StaticBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+    // descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
 
     StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
