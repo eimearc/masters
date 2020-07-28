@@ -61,7 +61,7 @@ bool Pipeline::operator==(const Pipeline &other) const
         other.m_shaders.begin()
     );
     result &= (m_subpass==other.m_subpass);
-    // result &= (m_vertexInput==other.m_vertexInput); // TODO
+    result &= (m_vertexInput==other.m_vertexInput);
     result &= (m_writeDepth==other.m_writeDepth);
     return result;
 }
