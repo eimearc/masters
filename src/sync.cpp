@@ -1,13 +1,13 @@
-#include "sync.h"
-
 #include "device.h"
+
 #include <iostream>
 
-Sync::Sync(const Device &device, const Swapchain &swapchain)
+Device::Sync::Sync(
+    const VkDevice &device,
+    const uint32_t &swapchainSize)
 {
-    const size_t swapchainSize = swapchain.m_images.size();
-    size_t maxFramesInFlight=swapchain.m_images.size();
-    m_device = device.device();
+    m_device = device;
+    size_t maxFramesInFlight = swapchainSize; // TODO: Is this correct?
     m_imageAvailableSemaphores.resize(maxFramesInFlight);
     m_renderFinishedSemaphores.resize(maxFramesInFlight);
     m_fencesInFlight.resize(maxFramesInFlight);
@@ -31,7 +31,51 @@ Sync::Sync(const Device &device, const Swapchain &swapchain)
     }
 }
 
-void Sync::destroy()
+Device::Sync::Sync(Sync &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_imageAvailableSemaphores=other.m_imageAvailableSemaphores;
+    other.m_imageAvailableSemaphores.resize(0);
+    m_renderFinishedSemaphores=other.m_renderFinishedSemaphores;
+    other.m_renderFinishedSemaphores.resize(0);
+    m_fencesInFlight=other.m_fencesInFlight;
+    other.m_fencesInFlight.resize(0);
+    m_imagesInFlight=other.m_imagesInFlight;
+    other.m_imagesInFlight.resize(0);
+    return *this;
+}
+
+bool Device::Sync::operator==(const Sync &other)
+{
+    bool result = true;
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_fencesInFlight.begin(), m_fencesInFlight.end(),
+        other.m_fencesInFlight.begin()
+    );
+    result &= std::equal(
+        m_imageAvailableSemaphores.begin(), m_imageAvailableSemaphores.end(),
+        other.m_imageAvailableSemaphores.begin()
+    );
+    result &= std::equal(
+        m_imagesInFlight.begin(), m_imagesInFlight.end(),
+        other.m_imagesInFlight.begin()
+    );
+    result &= std::equal(
+        m_renderFinishedSemaphores.begin(), m_renderFinishedSemaphores.end(),
+        other.m_renderFinishedSemaphores.begin()
+    );
+    return result;
+}
+
+Device::Sync::~Sync() noexcept
 {
     for (auto &s : m_renderFinishedSemaphores) vkDestroySemaphore(m_device, s, nullptr);
     for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);

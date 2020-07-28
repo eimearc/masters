@@ -3,9 +3,9 @@
 Subpass::Subpass(
     const uint32_t index,
     const std::vector<evk::SubpassDependency> &dependencies,
-    const std::vector<Attachment> &colorAttachments,
-    const std::vector<Attachment> &depthAttachments,
-    const std::vector<Attachment> &inputAttachments)
+    const std::vector<Attachment*> &colorAttachments,
+    const std::vector<Attachment*> &depthAttachments,
+    const std::vector<Attachment*> &inputAttachments)
 {
     m_index = index;
     for (const auto &d : dependencies) addDependency(d.srcSubpass, d.dstSubpass);
@@ -13,9 +13,9 @@ Subpass::Subpass(
     m_depthAttachments=depthAttachments;
     m_inputAttachments=inputAttachments;
 
-    for (const auto &c : m_colorAttachments) m_colorReferences.push_back(c.m_colorReference);
-    for (const auto &d : m_depthAttachments) m_depthReferences.push_back(d.m_depthReference);
-    for (const auto &i : m_inputAttachments) m_inputReferences.push_back(i.m_inputReference);
+    for (const auto &c : m_colorAttachments) m_colorReferences.push_back(c->colorReference());
+    for (const auto &d : m_depthAttachments) m_depthReferences.push_back(d->depthReference());
+    for (const auto &i : m_inputAttachments) m_inputReferences.push_back(i->inputReference());
 
     m_description = {};
     m_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -24,6 +24,25 @@ Subpass::Subpass(
     m_description.pDepthStencilAttachment=m_depthReferences.data();
     m_description.inputAttachmentCount=m_inputReferences.size();
     m_description.pInputAttachments=m_inputReferences.data();
+}
+
+bool Subpass::operator==(const Subpass &other) const
+{
+    bool result=true;
+    result &= std::equal(
+        m_colorAttachments.begin(), m_colorAttachments.end(),
+        other.m_colorAttachments.begin()
+    );
+    result &= std::equal(
+        m_depthAttachments.begin(), m_depthAttachments.end(),
+        other.m_depthAttachments.begin()
+    );
+    result &= (m_index==other.m_index);
+    result &= std::equal(
+        m_inputAttachments.begin(), m_inputAttachments.end(),
+        other.m_inputAttachments.begin()
+    );
+    return result;
 }
 
 void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
@@ -39,10 +58,31 @@ void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
     m_dependencies.push_back(dependency);
 }
 
+Renderpass::Renderpass(Renderpass &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Renderpass& Renderpass::operator=(Renderpass &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_attachments=other.m_attachments;
+    other.m_attachments.resize(0);
+    m_clearValues=other.m_clearValues;
+    other.m_clearValues.resize(0);
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_renderPass=other.m_renderPass;
+    other.m_renderPass=VK_NULL_HANDLE;
+    m_subpasses=other.m_subpasses;
+    other.m_subpasses.resize(0);
+    return *this;
+}
+
 Renderpass::Renderpass(
     const Device &device,
-    const std::vector<Attachment> &attachments,
-    const std::vector<Subpass> &subpasses)
+    const std::vector<Attachment*> &attachments,
+    std::vector<Subpass*> &subpasses)
 {
     m_device = device.device();
     m_subpasses = subpasses;
@@ -56,11 +96,11 @@ Renderpass::Renderpass(
     m_clearValues.resize(attachments.size());
     for (const auto &a : attachments)
     {
-        attachmentDescriptions[a.m_index] = a.m_description;
-        m_clearValues[a.m_index] = a.m_clearValue;
+        attachmentDescriptions[a->index()] = a->description();
+        m_clearValues[a->index()] = a->clearValue();
     }
 
-    for (const auto &sp : subpasses) subpassDescriptions.push_back(sp.m_description); 
+    for (const auto &sp : subpasses) subpassDescriptions.push_back(sp->description()); 
 
     VkSubpassDependency dependency;
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -74,7 +114,7 @@ Renderpass::Renderpass(
 
     for (const auto &sp : subpasses)
     {
-        for (const auto &d : sp.m_dependencies) dependencies.push_back(d);
+        for (const auto &d : sp->dependencies()) dependencies.push_back(d);
     }
 
     // Create Render Pass
@@ -92,7 +132,26 @@ Renderpass::Renderpass(
     }
 }
 
-void Renderpass::destroy()
+
+bool Renderpass::operator==(const Renderpass &other) const
 {
-    vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+    bool result=true;
+    result &= std::equal(
+        m_attachments.begin(), m_attachments.end(),
+        other.m_attachments.begin()
+    );
+    result &= (m_device==other.m_device);
+    result &= (m_renderPass==other.m_renderPass);
+    result &= std::equal(
+        m_subpasses.begin(), m_subpasses.end(),
+        other.m_subpasses.begin()
+    );
+    return result;
+}
+
+
+Renderpass::~Renderpass() noexcept
+{
+    if (m_renderPass!=VK_NULL_HANDLE)
+        vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 }

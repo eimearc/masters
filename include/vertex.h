@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVK_VERTEX_H_
+#define EVK_VERTEX_H_
 
 #include <vulkan/vulkan.h>
 
@@ -13,3 +14,5 @@ struct Vertex {
     glm::vec2 texCoord;
     glm::vec3 normal;
 };
+
+#endif

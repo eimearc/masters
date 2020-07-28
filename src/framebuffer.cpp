@@ -1,45 +1,73 @@
-#include "framebuffer.h"
+#include "device.h"
 
-#include "swapchain.h"
+#include "pass.h"
 
-Framebuffer::Framebuffer(
-    const Device &device,
-    const Renderpass &renderpass,
-    const Swapchain &swapchain) // This should be part of attachment creation.
+Device::Framebuffer::Framebuffer(
+    const VkDevice &device,
+    size_t swapchainSize,
+    const std::vector<VkImageView> &swapchainImageViews,
+    VkExtent2D extent,
+    const Renderpass &renderpass) // This should be part of attachment creation.
 {
-    m_device = device.device();
-    const size_t swapchainSize = swapchain.m_images.size();
+    m_device = device;
+    const auto &attachments = renderpass.attachments();
+    const auto &numAttachments = attachments.size();
     m_framebuffers.resize(swapchainSize);
 
-    // For each image in the swapchain.
-    for (size_t i = 0; i < swapchainSize; i++)
+    std::vector<VkImageView> imageViews(numAttachments);
+    VkFramebufferCreateInfo framebufferInfo = {};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.renderPass = renderpass.renderpass();
+    framebufferInfo.attachmentCount = numAttachments;
+    framebufferInfo.width = extent.width;
+    framebufferInfo.height = extent.height;
+    framebufferInfo.layers = 1;
+
+    for (size_t i = 0; i < swapchainSize; ++i)
     {
-        std::vector<VkImageView> imageViews(renderpass.m_attachments.size());
-        imageViews[0] = swapchain.m_imageViews[i];
-        for (size_t j = 1; j < renderpass.m_attachments.size(); j++)
+        imageViews[0] = swapchainImageViews[i];
+        for (size_t j = 1; j < numAttachments; j++)
         {
-            auto attachment = renderpass.m_attachments[j];
-            const uint32_t &index = attachment.m_index;
-            imageViews[index]=attachment.m_imageView;
+            const auto &attachment = attachments[j];
+            const uint32_t &index = attachment->index();
+            imageViews[index]=attachment->view();
         }
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderpass.m_renderPass;
-        framebufferInfo.attachmentCount = imageViews.size();
         framebufferInfo.pAttachments = imageViews.data();
-        framebufferInfo.width = swapchain.m_extent.width;
-        framebufferInfo.height = swapchain.m_extent.height;
-        framebufferInfo.layers = 1;
-
-        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &(m_framebuffers)[i]) != VK_SUCCESS)
+        auto &framebuffer = m_framebuffers[i];
+        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create framebuffer.");
         }
     }
 }
 
-void Framebuffer::destroy()
+Device::Framebuffer::Framebuffer(Framebuffer &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_framebuffers=other.m_framebuffers;
+    other.m_framebuffers.resize(0);
+    return *this;
+}
+
+bool Device::Framebuffer::operator==(const Framebuffer &other)
+{
+    bool result = true;
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_framebuffers.begin(), m_framebuffers.end(),
+        other.m_framebuffers.begin()
+    );
+    return result;
+}
+
+Device::Framebuffer::~Framebuffer() noexcept
 {
     for (auto framebuffer : m_framebuffers)
     {

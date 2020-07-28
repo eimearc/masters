@@ -1,5 +1,5 @@
-#ifndef SHADER
-#define SHADER
+#ifndef EVK_SHADER_H_
+#define EVK_SHADER_H_
 
 #include "device.h"
 #include "util.h"
@@ -8,21 +8,30 @@
 class Shader
 {
     public:
+    enum class Stage{VERTEX,FRAGMENT}; // TODO: Add support for Geometry shader.
 
     Shader()=default;
-    Shader(const std::string &fileName, const ShaderStage &stage, const Device &device);
-    void destroy();
+    Shader(const Shader&)=delete;
+    Shader& operator=(const Shader&)=delete;
+    Shader(Shader&&) noexcept;
+    Shader& operator=(Shader&&) noexcept;
+    ~Shader() noexcept;
 
-    VkShaderModule m_module;
-    VkPipelineShaderStageCreateInfo m_createInfo;
+    Shader(
+        const Device &device,
+        const std::string &fileName,
+        const Stage &stage
+    );
+
+    bool operator==(const Shader&);
+
+    VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
+    static VkShaderStageFlagBits stageFlags(const Stage &stage);
 
     private:
-    void createShaderModule1(
-        VkDevice device,
-        const std::vector<char>& code,
-        VkShaderModule *pShaderModule);
-
+    VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
+    VkShaderModule m_module=VK_NULL_HANDLE;
 };
 
 #endif

@@ -36,15 +36,15 @@ int main(int argc, char **argv)
     Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
-    Texture texture("viking_room.png", device);
-    descriptor.addTextureSampler(1, texture, ShaderStage::FRAGMENT);
+    Texture texture(device, "viking_room.png");
+    descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
 
-    std::vector<Attachment> colorAttachments = {framebufferAttachment};
-    std::vector<Attachment> depthAttachments = {depthAttachment};
-    std::vector<Attachment> inputAttachments;
+    std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
+    std::vector<Attachment*> depthAttachments = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
     
     Subpass subpass(
@@ -55,8 +55,8 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebufferAttachment, depthAttachment};
-    std::vector<Subpass> subpasses = {subpass};
+    std::vector<Attachment*> attachments = {&framebufferAttachment, &depthAttachment};
+    std::vector<Subpass*> subpasses = {&subpass};
     Renderpass renderpass(device,attachments,subpasses);
 
     UniformBufferObject uboUpdate = {};
@@ -66,34 +66,33 @@ int main(int argc, char **argv)
     uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     uboUpdate.proj[1][1] *= -1;
     DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
-    descriptor.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(uboUpdate));
+    descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
+    // device.indexBuffer(...)?
     StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
 
-    Shader vertexShader("shader_vert.spv", ShaderStage::VERTEX, device);
-    Shader fragmentShader("shader_frag.spv", ShaderStage::FRAGMENT, device);
-    std::vector<Shader> shaders = {vertexShader,fragmentShader};
+    Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
+    std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
     Pipeline pipeline(
+        device,
         subpass,
         &descriptor,
         vertexInput,
-        renderpass,
+        &renderpass,
         shaders,
         true
     );
 
-    std::vector<Pipeline> pipelines = {pipeline};
-    Framebuffer framebuffers;
-    recordDrawCommands(
-        device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers);
+    std::vector<Pipeline*> pipelines = {&pipeline};
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     // Main loop.
     size_t counter=0;
@@ -109,20 +108,8 @@ int main(int argc, char **argv)
         uboUpdate.proj[1][1] *= -1;
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines);
+        device.draw();
 
         counter++;
     }
-
-    // Tidy.
-    ubo.destroy();
-    indexBuffer.destroy();
-    vertexBuffer.destroy();
-    texture.destroy();
-    for (auto &a : attachments) a.destroy();
-    framebuffers.destroy();
-    descriptor.destroy();
-    for (auto &p : pipelines) p.destroy();
-    for (auto &s : shaders) s.destroy();
-    renderpass.destroy();
 }

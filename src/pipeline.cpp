@@ -1,43 +1,91 @@
 #include "pipeline.h"
 
+Pipeline::Pipeline(Pipeline &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_descriptor=other.m_descriptor;
+    other.m_descriptor=nullptr;
+    m_device=other.m_device;
+    other.m_device=nullptr;
+    m_layout=other.m_layout;
+    other.m_layout=VK_NULL_HANDLE;
+    m_pipeline=other.m_pipeline;
+    other.m_pipeline=VK_NULL_HANDLE;
+    m_renderpass=other.m_renderpass;
+    other.m_renderpass=nullptr;
+    m_shaders=other.m_shaders;
+    other.m_shaders.resize(0);
+    m_subpass=other.m_subpass;
+    other.m_subpass=0;
+    m_vertexInput=other.m_vertexInput;
+    other.m_vertexInput={};
+    m_writeDepth=other.m_writeDepth;
+    return *this;
+}
+
 Pipeline::Pipeline(
+    Device &device,
     const Subpass &subpass,
     Descriptor *pDescriptor,
     const VertexInput &vertexInput,
-    const Renderpass &renderpass,
-    const std::vector<Shader> &shaders,
+    Renderpass *pRenderpass,
+    const std::vector<Shader*> &shaders,
     bool writeDepth
 )
 {
     m_vertexInput = vertexInput;
-    m_subpass = subpass.m_index;
+    m_subpass = subpass.index();
     m_descriptor = pDescriptor;
     m_shaders = shaders;
-    m_renderpass = renderpass;
+    m_renderpass = pRenderpass;
     m_writeDepth=writeDepth;
+
+    setup(device);
 }
 
-void Pipeline::setup(
-    Device &device,
-    Swapchain &swapchain
-)
+bool Pipeline::operator==(const Pipeline &other) const
+{
+    bool result=true;
+    result &= (*m_descriptor==*other.m_descriptor);
+    result &= (m_device==other.m_device);
+    result &= (m_layout==other.m_layout);
+    result &= (m_pipeline==other.m_pipeline);
+    result &= (*m_renderpass==*other.m_renderpass);
+    result &= std::equal(
+        m_shaders.begin(), m_shaders.end(),
+        other.m_shaders.begin()
+    );
+    result &= (m_subpass==other.m_subpass);
+    result &= (m_vertexInput==other.m_vertexInput);
+    result &= (m_writeDepth==other.m_writeDepth);
+    return result;
+}
+
+void Pipeline::setup(Device &device)
 {
     m_device = device.device();
-    m_swapchain = swapchain;
 
     m_descriptor->allocateDescriptorPool();
     m_descriptor->allocateDescriptorSets();
 
+    const auto &bindingDescription = m_vertexInput.bindingDescription();
+    const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (m_vertexInput.m_bindingDescription.stride>0) // TODO: remove this?
-    {
+    // if (m_vertexInput.bindingDescription().stride>0) // TODO: remove this?
+    // {
         // Set up input to vertex shader.
         vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &m_vertexInput.m_bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertexInput.m_attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = m_vertexInput.m_attributeDescriptions.data();
-    }
+        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    // }
 
     // Set up input assembly.
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -45,19 +93,21 @@ void Pipeline::setup(
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+    const auto &extent = device.extent(); 
+
     // Set up the viewport.
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) swapchain.m_extent.width;
-    viewport.height = (float) swapchain.m_extent.height;
+    viewport.width = extent.width;
+    viewport.height = extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     // Set up scissor.
     VkRect2D scissor = {};
     scissor.offset = {0,0};
-    scissor.extent = swapchain.m_extent;
+    scissor.extent = extent;
 
     // Combine viewport and scissor.
     VkPipelineViewportStateCreateInfo viewportState = {};
@@ -113,10 +163,12 @@ void Pipeline::setup(
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
+    const auto &setLayouts = m_descriptor->setLayouts();
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = m_descriptor->m_descriptorSetLayouts.size();
-    pipelineLayoutInfo.pSetLayouts = m_descriptor->m_descriptorSetLayouts.data();
+    pipelineLayoutInfo.setLayoutCount = setLayouts.size();
+    pipelineLayoutInfo.pSetLayouts = setLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
@@ -161,10 +213,9 @@ void Pipeline::setup(
         depthStencil.front.reference = 1;
         depthStencil.back = depthStencil.front;
     }
-    
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
-    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s.m_createInfo);
+    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s->createInfo());
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -179,7 +230,7 @@ void Pipeline::setup(
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = m_layout;
-    pipelineInfo.renderPass = m_renderpass.m_renderPass;
+    pipelineInfo.renderPass = m_renderpass->renderpass();
     pipelineInfo.subpass = m_subpass;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
@@ -191,8 +242,10 @@ void Pipeline::setup(
     }
 }
 
-void Pipeline::destroy()
+Pipeline::~Pipeline() noexcept
 {   
-    vkDestroyPipelineLayout(m_device, m_layout, nullptr);
-    vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    if (m_layout!=VK_NULL_HANDLE)
+        vkDestroyPipelineLayout(m_device, m_layout, nullptr);
+    if (m_pipeline!=VK_NULL_HANDLE)
+        vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }

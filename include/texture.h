@@ -1,7 +1,6 @@
-#ifndef EVK_TEXTURE
-#define EVK_TEXTURE
+#ifndef EVK_TEXTURE_H_
+#define EVK_TEXTURE_H_
 
-#include "command.h"
 #include "device.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -10,21 +9,21 @@ class Texture
 {
     public:
     Texture()=default;
+    Texture(const Texture&)=delete;
+    Texture& operator=(const Texture&)=delete;
+    Texture(Texture&&) noexcept;
+    Texture& operator=(Texture&&) noexcept;
+    ~Texture() noexcept;
+
     Texture(
-        const std::string &fileName,
-        const Device &device
+        const Device &device,
+        const std::string &fileName
     );
 
-    void destroy();
+    bool operator==(const Texture&) const noexcept;
 
-    VkDevice m_device;
-    VkImage m_image;
-    VkImageView m_imageView;
-    VkDeviceMemory m_memory;
-    VkSampler m_imageSampler;
-    VkDescriptorImageInfo m_imageDescriptor;
-
-    bool m_allocated=false;
+    VkSampler sampler() const { return m_imageSampler; };
+    VkImageView view() const { return m_imageView; };
 
     private:
     void transitionImageLayout(
@@ -42,6 +41,12 @@ class Texture
         VkImage image,
         VkExtent2D extent
     );
+
+    VkDevice m_device=VK_NULL_HANDLE;
+    VkImage m_image=VK_NULL_HANDLE;
+    VkSampler m_imageSampler=VK_NULL_HANDLE;
+    VkImageView m_imageView=VK_NULL_HANDLE;
+    VkDeviceMemory m_memory=VK_NULL_HANDLE;
 };
 
 #endif

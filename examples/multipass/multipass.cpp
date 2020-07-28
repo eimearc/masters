@@ -17,6 +17,8 @@ std::vector<const char*> deviceExtensions =
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
+GLFWwindow *window;
+
 void createGrid(
     uint32_t numCubes,
     std::vector<Vertex> &vertices,
@@ -59,21 +61,25 @@ int main(int argc, char **argv)
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    auto window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     createGrid(FLAGS_num_cubes, vertices, indices);
 
-    Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    Device device1(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    auto device = std::move(device1);
+    device1 = std::move(device);
+    device = std::move(device1);
+    device = std::move(device);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
     Attachment depthAttachment(device, 2, Attachment::Type::DEPTH);
 
-    std::vector<Attachment> colorAttachments = {colorAttachment};
-    std::vector<Attachment> depthAttachments = {depthAttachment};
-    std::vector<Attachment> inputAttachments;
+    std::vector<Attachment*> colorAttachments = {&colorAttachment};
+    std::vector<Attachment*> depthAttachments = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
     std::vector<evk::SubpassDependency> dependencies;
 
     Subpass subpass0(
@@ -84,9 +90,9 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    colorAttachments = {framebufferAttachment};
+    colorAttachments = {&framebufferAttachment};
     depthAttachments.resize(0);
-    inputAttachments = {colorAttachment, depthAttachment};
+    inputAttachments = {&colorAttachment, &depthAttachment};
     dependencies = {{0,1}};
 
     Subpass subpass1(
@@ -97,20 +103,20 @@ int main(int argc, char **argv)
         inputAttachments
     );
 
-    std::vector<Attachment> attachments = {framebufferAttachment, colorAttachment, depthAttachment};
-    std::vector<Subpass> subpasses = {subpass0, subpass1};
+    std::vector<Attachment*> attachments = {&framebufferAttachment, &colorAttachment, &depthAttachment};
+    std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
     Renderpass renderpass(device,attachments,subpasses);
 
     // Set up UBO.
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
     Descriptor descriptor0(device, swapchainSize, 1);
-    descriptor0.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
 
     Descriptor descriptor1(device, swapchainSize, 3);
-    descriptor1.addUniformBuffer(0, ubo, ShaderStage::VERTEX, sizeof(UniformBufferObject));
-    descriptor1.addInputAttachment(0, colorAttachment, ShaderStage::FRAGMENT);
-    descriptor1.addInputAttachment(1, depthAttachment, ShaderStage::FRAGMENT);
+    descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
+    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
 
     VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -122,41 +128,38 @@ int main(int argc, char **argv)
     StaticBuffer indexBuffer(device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
     StaticBuffer vertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
 
-    std::vector<Shader> shaders0 = {
-        {"pass_0_vert.spv", ShaderStage::VERTEX, device},
-        {"pass_0_frag.spv", ShaderStage::FRAGMENT, device}
-    };
+    Shader vertexShader0(device, "pass_0_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader0(device, "pass_0_frag.spv", Shader::Stage::FRAGMENT);
+    std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
     Pipeline pipeline0(
+        device,
         subpass0,
         &descriptor0,
         vertexInput0,
-        renderpass,
+        &renderpass,
         shaders0,
         true
     );
 
-    std::vector<Shader> shaders1 = {
-        {"pass_1_vert.spv", ShaderStage::VERTEX, device},
-        {"pass_1_frag.spv", ShaderStage::FRAGMENT, device},
-    };
+    Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader1(device, "pass_1_frag.spv", Shader::Stage::FRAGMENT);
+    std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
     Pipeline pipeline1(
+        device,
         subpass1,
         &descriptor1,
         vertexInput1,
-        renderpass,
+        &renderpass,
         shaders1,
         false
     );
 
-    std::vector<Pipeline> pipelines = {pipeline0, pipeline1};
-    std::vector<Shader> shaders;
+    std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};
+    std::vector<Shader*> shaders;
     for (const auto &s : shaders0) shaders.push_back(s);
     for (const auto &s : shaders1) shaders.push_back(s);
-    
-    Framebuffer framebuffers;
-    recordDrawCommands(
-        device, indexBuffer, vertexBuffer,
-        pipelines, renderpass, framebuffers);
+
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     // Main loop.
     size_t counter=0;
@@ -178,21 +181,12 @@ int main(int argc, char **argv)
 
         ubo.update(&uboUpdate);
 
-        executeDrawCommands(device, pipelines);
+        device.draw();
 
         counter++;
     }
 
     // Tidy up.
-    ubo.destroy();
-    indexBuffer.destroy();
-    vertexBuffer.destroy();
-    for (auto &a : attachments) a.destroy();
-    framebuffers.destroy();
-    descriptor0.destroy();
-    descriptor1.destroy();
-    for (auto &p : pipelines) p.destroy();
-    for (auto &s : shaders) s.destroy();
-    renderpass.destroy();
-    // device.~Device(); called
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }

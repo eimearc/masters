@@ -1,6 +1,6 @@
-#include "command.h"
+#include "device.h"
 
-Commands::Commands(
+Device::Commands::Commands(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
     const VkSurfaceKHR &surface,
@@ -34,7 +34,44 @@ Commands::Commands(
     m_secondaryCommandBuffers.resize(numThreads);
 }
 
-void Commands::destroy()
+Device::Commands::Commands(Commands &&other) noexcept
+{
+    *this=std::move(other);
+}
+
+Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_device = other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_commandPools = other.m_commandPools;
+    other.m_commandPools.resize(0);
+    m_primaryCommandBuffers = other.m_primaryCommandBuffers;
+    other.m_primaryCommandBuffers.resize(0);
+    m_secondaryCommandBuffers = other.m_secondaryCommandBuffers;
+    other.m_secondaryCommandBuffers.resize(0);
+    return *this;
+}
+
+bool Device::Commands::operator==(const Commands &other)
+{
+    bool result = true;
+    result &= std::equal(
+        m_commandPools.begin(), m_commandPools.end(), other.m_commandPools.begin()
+    );
+    result &= (m_device==other.m_device);
+    result &= std::equal(
+        m_primaryCommandBuffers.begin(), m_primaryCommandBuffers.end(),
+        other.m_primaryCommandBuffers.begin()
+    );
+    result &= std::equal(
+        m_secondaryCommandBuffers.begin(), m_secondaryCommandBuffers.end(),
+        other.m_secondaryCommandBuffers.begin()
+    );
+    return result;
+}
+
+Device::Commands::~Commands() noexcept
 {
     for (int i = 0; i < m_commandPools.size(); ++i)
     {

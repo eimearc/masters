@@ -1,0 +1,98 @@
+\documentclass[12pt]{report}
+
+\usepackage{geometry}
+\usepackage{tabu}
+\usepackage{dirtytalk}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{subcaption}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{wrapfig}
+\usepackage{color}
+
+\usepackage{amsthm}
+\usepackage{verbatimbox}
+\usepackage{multicol}
+\usepackage[titletoc,title]{appendix}
+\usepackage{amsfonts}
+\usepackage[font={it}]{caption}
+
+\usepackage{lmodern}
+
+% For citing and referencing.
+\usepackage{natbib}
+\newcommand{\citebu}[1]{\citeauthor{#1} (\citeyear{#1})}
+
+\geometry{
+  a4paper,
+  total={170mm,257mm},
+  left=30mm,
+  right=30mm,
+  top=20mm,
+  bottom=30mm,
+}
+
+\pagenumbering{roman}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\begin{document}
+
+  \renewcommand{\familydefault}{\sfdefault}
+  \fontfamily{lmss}\selectfont
+
+  \begin{titlepage}
+    \centering
+    {\Huge Bournemouth University\par}
+    \vspace{1cm}
+    {\Large National Centre for Computer Animation\par}
+    \vspace{1cm}
+    {\Large MSc in Computer Animation and Visual Effects\par}
+    \vspace{4cm}
+    {\huge\bfseries A Vulkan Library\par}
+    \vspace{1.5cm}
+    {\Large Eimear Crotty\par}
+    % \includegraphics[width=0.15\textwidth]{images/MIT.png}\par\vspace{1cm}
+    \vfill
+    {\Large August 2020}
+  \end{titlepage}
+
+  \chapter*{Abstract}
+    Vulkan is a graphics API which aims to provide users with faster draw speeds.
+    The user is expected to explicitly provide the details previously given by
+    the driver, as in the case of OpenGL. The resulting extra code can be
+    difficult to understand and write at first, leading to the need for a 
+    wrapper library.
+
+  \chapter*{Acknowledgements}
+
+    \vspace{1cm}
+    % TODO.
+
+  \tableofcontents
+
+  \chapter{Introduction}
+    \pagenumbering{arabic}
+    Testing123. \citebu{attiya1995sharing}. Another. \citebu{beyer2016site}
+
+  \chapter{Previous Work}
+
+  \chapter{Technical Background}
+
+  \chapter{Solution}
+
+  \chapter{Conclusion}
+
+  \bibliographystyle{harvardnat}
+  \bibliography{thesis.bib}
+
+  \chapter*{Appendices}
+  
+\end{document}

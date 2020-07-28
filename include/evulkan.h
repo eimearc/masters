@@ -1,5 +1,5 @@
-#ifndef EVK_CORE
-#define EVK_CORE
+#ifndef EVK_CORE_H_
+#define EVK_CORE_H_
 
 #include <array>
 #include <fstream>
@@ -11,16 +11,14 @@
 
 #include "attachment.h"
 #include "buffer.h"
-#include "command.h"
 #include "descriptor.h"
 #include "device.h"
-#include "draw.h"
-#include "framebuffer.h"
 #include "pass.h"
 #include "pipeline.h"
 #include "shader.h"
 #include "texture.h"
 #include "threadpool.h"
+#include "vertexinput.h"
 
 #define GLFW_INCLUDE_VULKAN
 

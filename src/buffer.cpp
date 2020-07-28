@@ -1,26 +1,59 @@
 #include "buffer.h"
 
-StaticBuffer::StaticBuffer(
-    Device &device,
-    void *data,
-    const VkDeviceSize &elementSize,
-    const size_t numElements,
-    const Type &type)
+Buffer::Buffer(Buffer &&other) noexcept
 {
-    m_device = device.device();
-    m_physicalDevice = device.physicalDevice();
-    m_queue = device.m_graphicsQueue;
-    m_numThreads = device.m_numThreads;
-
-    m_data=data;
-    m_elementSize=elementSize;
-    m_numElements=numElements;
-    m_bufferSize = m_numElements * m_elementSize;
-
-    finalize(device, type);
+    *this=std::move(other);
 }
 
-VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
+Buffer::~Buffer() noexcept
+{
+    if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
+    if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
+}
+
+Buffer& Buffer::operator=(Buffer &&other) noexcept
+{
+    if (*this==other) return *this;
+    m_buffer=other.m_buffer;
+    other.m_buffer=VK_NULL_HANDLE;
+    m_bufferMemory=other.m_bufferMemory;
+    other.m_bufferMemory=VK_NULL_HANDLE;
+    m_numElements=other.m_numElements;
+    other.m_numElements=0;
+    m_device=other.m_device;
+    other.m_device=VK_NULL_HANDLE;
+    m_physicalDevice=other.m_physicalDevice;
+    other.m_physicalDevice=VK_NULL_HANDLE;
+    m_bufferSize=other.m_bufferSize;
+    other.m_bufferSize=0;
+    m_queue=other.m_queue;
+    other.m_queue=VK_NULL_HANDLE;
+    m_numThreads=other.m_numThreads;
+    other.m_numThreads=1;
+    m_data=other.m_data;
+    other.m_data=nullptr;
+    m_elementSize=other.m_elementSize;
+    other.m_elementSize=0;
+    return *this;
+}
+
+bool Buffer::operator==(const Buffer &other) const // TODO: Mark all as const.
+{
+    bool result=true;
+    result &= (m_buffer==other.m_buffer);
+    result &= (m_bufferMemory==other.m_bufferMemory);
+    result &= (m_numElements==other.m_numElements);
+    result &= (m_device==other.m_device);
+    result &= (m_physicalDevice==other.m_physicalDevice);
+    result &= (m_bufferSize==other.m_bufferSize);
+    result &= (m_queue==other.m_queue);
+    result &= (m_numThreads==other.m_numThreads);
+    result &= (m_data==other.m_data); // TODO: Is this right? Must point to same.
+    result &= (m_elementSize==other.m_elementSize);
+    return result;
+}
+
+VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const
 {
     switch(type)
     {
@@ -30,13 +63,32 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type)
             return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         case UBO:
             return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        // TODO: Default case.
     }
+}
+
+StaticBuffer::StaticBuffer(
+    Device &device,
+    void *data,
+    const VkDeviceSize &elementSize,
+    const size_t numElements,
+    const Type &type)
+{
+    m_device = device.device();
+    m_physicalDevice = device.physicalDevice();
+    m_queue = device.graphicsQueue();
+    m_numThreads = device.numThreads();
+
+    m_data=data;
+    m_elementSize=elementSize;
+    m_numElements=numElements;
+    m_bufferSize = m_numElements * m_elementSize;
+
+    finalize(device, type);
 }
 
 void StaticBuffer::finalize(Device &device, const Type &type)
 {
-    std::vector<VkCommandPool> &commandPools = device.m_commands.m_commandPools;
+    const std::vector<VkCommandPool> &commandPools = device.commandPools();
     const int num_elements_each = m_numElements/m_numThreads;
     m_bufferSize = m_elementSize*m_numElements;
 
@@ -75,11 +127,11 @@ void StaticBuffer::finalize(Device &device, const Type &type)
     };
 
     int counter = 0;
-    for (auto &t: device.m_threadPool.threads)
+    for (auto &t: device.threads())
     {
         t->addJob(std::bind(setupCopyFunction,counter++));
     }
-    device.m_threadPool.wait();
+    device.wait();
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -108,7 +160,7 @@ void StaticBuffer::copyData(
     const size_t num_elements,
     const VkDeviceSize element_size,
     const size_t element_offset
-)
+) const
 {
     const size_t buffer_offset = element_offset*element_size;
     const size_t buffer_size = num_elements*element_size;
@@ -153,12 +205,6 @@ void StaticBuffer::copyData(
     vkCmdCopyBuffer(command_buffer, staging_buffer, device_buffer, 1, &copyRegion);
 
     vkEndCommandBuffer(command_buffer);
-}
-
-void Buffer::destroy()
-{
-    vkDestroyBuffer(m_device, m_buffer, nullptr);
-    vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
 
 DynamicBuffer::DynamicBuffer(
@@ -211,7 +257,7 @@ void Buffer::copyBuffer(
     VkCommandPool commandPool,
     VkQueue queue,
     VkBuffer srcBuffer,
-    VkBuffer dstBuffer)
+    VkBuffer dstBuffer) const
 {
     VkCommandBuffer commandBuffer;
     beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
@@ -223,7 +269,10 @@ void Buffer::copyBuffer(
     endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
 }
 
-uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t Buffer::findMemoryType(
+    uint32_t typeFilter,
+    VkMemoryPropertyFlags properties
+) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
