@@ -83,12 +83,11 @@ int main(int argc, char **argv)
 
     Pipeline pipeline(
         device,
-        subpass,
+        &subpass,
         &descriptor,
         vertexInput,
         &renderpass,
-        shaders,
-        true
+        shaders
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};

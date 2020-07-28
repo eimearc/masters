@@ -138,7 +138,6 @@ int main(int argc, char **argv)
         vertexInput0,
         &renderpass,
         shaders0
-        // true
     );
 
     Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
@@ -151,7 +150,6 @@ int main(int argc, char **argv)
         vertexInput1,
         &renderpass,
         shaders1
-        // false
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};

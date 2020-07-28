@@ -24,18 +24,16 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
     other.m_subpass=0;
     m_vertexInput=other.m_vertexInput;
     other.m_vertexInput={};
-    // m_writeDepth=other.m_writeDepth;
     return *this;
 }
 
 Pipeline::Pipeline(
     Device &device,
     Subpass *pSubpass,
-    gsl::not_null<Descriptor*> pDescriptor, // Not null?
+    gsl::not_null<Descriptor*> pDescriptor,
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
     const std::vector<Shader*> &shaders
-    // bool writeDepth
 )
 {
     m_device=device.device();
@@ -44,7 +42,6 @@ Pipeline::Pipeline(
     m_descriptor = pDescriptor;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
-    // m_writeDepth=writeDepth;
 
     // Finalize descriptor sets.
     m_descriptor->finalize();
@@ -61,7 +58,6 @@ Pipeline::Pipeline(
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
     const std::vector<Shader*> &shaders
-    // bool writeDepth
 )
 {
     m_device=device.device();
@@ -69,7 +65,6 @@ Pipeline::Pipeline(
     m_subpass = pSubpass;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
-    // m_writeDepth=writeDepth;
 
     std::vector<VkDescriptorSetLayout> setLayouts;
     createSetLayout(setLayouts);
@@ -108,7 +103,6 @@ bool Pipeline::operator==(const Pipeline &other) const
     );
     result &= (m_subpass==other.m_subpass);
     result &= (m_vertexInput==other.m_vertexInput);
-    // result &= (m_writeDepth==other.m_writeDepth);
     return result;
 }
 
@@ -209,9 +203,7 @@ void Pipeline::setup(Device &device)
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 
     // If the subpass has a depth attachment, write depth.
-    bool writeDepth=m_subpass->hasDepthAttachment();
-
-    if (writeDepth) // G-Buffer
+    if (m_subpass->hasDepthAttachment()) // G-Buffer
     {
         depthStencil.depthTestEnable = true;
         depthStencil.depthWriteEnable = true;
@@ -245,7 +237,8 @@ void Pipeline::setup(Device &device)
     }
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
-    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s->createInfo());
+    for (const auto &s : m_shaders)
+        shadersCreateInfo.push_back(s->createInfo());
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

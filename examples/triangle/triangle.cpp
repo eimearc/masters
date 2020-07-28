@@ -77,7 +77,6 @@ int main()
         vertexInput,
         &renderpass,
         shaders
-        // true
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};
