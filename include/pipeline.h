@@ -28,7 +28,6 @@ class Pipeline
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
         const std::vector<Shader*> &shaders
-        // bool writeDepth
     );
     Pipeline(
         Device &device,
@@ -36,15 +35,9 @@ class Pipeline
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
         const std::vector<Shader*> &shaders
-        // bool writeDepth
     );
 
     bool operator==(const Pipeline&) const;
-
-    Descriptor* const descriptor() const { return m_descriptor; };
-    VkPipelineLayout layout() const { return m_layout; };
-    VkPipeline pipeline() const { return m_pipeline; };
-    Renderpass* const renderpass() const { return m_renderpass; };
 
     private:
     void createSetLayout(
@@ -54,6 +47,11 @@ class Pipeline
         Device &device
     );
 
+    Descriptor* const descriptor() const { return m_descriptor; };
+    VkPipelineLayout layout() const { return m_layout; };
+    VkPipeline pipeline() const { return m_pipeline; };
+    Renderpass* const renderpass() const { return m_renderpass; };
+
     Descriptor* m_descriptor;
     VkDevice m_device;
     VkPipelineLayout m_layout=VK_NULL_HANDLE;
@@ -62,6 +60,8 @@ class Pipeline
     std::vector<Shader*> m_shaders;
     Subpass *m_subpass;
     VertexInput m_vertexInput;
+
+    friend class Device;
 };
 
 #endif

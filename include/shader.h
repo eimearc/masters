@@ -25,13 +25,16 @@ class Shader
 
     bool operator==(const Shader&);
 
+    private:
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
     static VkShaderStageFlagBits stageFlags(const Stage &stage);
 
-    private:
     VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
     VkShaderModule m_module=VK_NULL_HANDLE;
+
+    friend class Descriptor;
+    friend class Pipeline;
 };
 
 #endif

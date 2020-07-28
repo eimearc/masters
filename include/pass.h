@@ -19,13 +19,13 @@ class Subpass
 
     bool operator==(const Subpass&) const;
 
-    bool hasDepthAttachment() const { return !m_depthAttachments.empty(); };
-    std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
-    VkSubpassDescription description() const { return m_description; };
-    uint32_t index() const { return m_index; };
-
     private:
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
+
+    std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
+    VkSubpassDescription description() const { return m_description; };
+    bool hasDepthAttachment() const { return !m_depthAttachments.empty(); };
+    uint32_t index() const { return m_index; };
 
     std::vector<Attachment*> m_colorAttachments;
     std::vector<VkAttachmentReference> m_colorReferences;
@@ -38,6 +38,7 @@ class Subpass
     std::vector<VkAttachmentReference> m_inputReferences;
 
     friend class Pipeline;
+    friend class Renderpass;
 };
 
 class Renderpass

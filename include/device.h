@@ -30,6 +30,14 @@ class Device
 
     bool operator==(const Device& other);
 
+    void finalize(
+        const Buffer &indexBuffer,
+        const Buffer &vertexBuffer,
+        const std::vector<Pipeline*> &pipelines
+    );
+    void draw();
+
+    private:
     // Device.
     GLFWwindow* window() const { return m_device->m_window; }
     VkInstance instance() const { return m_device->m_instance; }
@@ -63,15 +71,6 @@ class Device
     // Framebuffers.
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
 
-    // Draw.
-    void finalize(
-        const Buffer &indexBuffer,
-        const Buffer &vertexBuffer,
-        const std::vector<Pipeline*> &pipelines
-    );
-    void draw();
-
-    private:
     class _Device
     {
         public:
@@ -232,6 +231,16 @@ class Device
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
+
+    friend class Attachment;
+    friend class Buffer;
+    friend class Descriptor;
+    friend class DynamicBuffer;
+    friend class Pipeline;
+    friend class Renderpass;
+    friend class Shader;
+    friend class StaticBuffer;
+    friend class Texture;
 };
 
 #endif

@@ -22,9 +22,6 @@ class Texture
 
     bool operator==(const Texture&) const noexcept;
 
-    VkSampler sampler() const { return m_imageSampler; };
-    VkImageView view() const { return m_imageView; };
-
     private:
     void transitionImageLayout(
         const Device &device,
@@ -42,11 +39,16 @@ class Texture
         VkExtent2D extent
     );
 
+    VkSampler sampler() const { return m_imageSampler; };
+    VkImageView view() const { return m_imageView; };
+
     VkDevice m_device=VK_NULL_HANDLE;
     VkImage m_image=VK_NULL_HANDLE;
     VkSampler m_imageSampler=VK_NULL_HANDLE;
     VkImageView m_imageView=VK_NULL_HANDLE;
     VkDeviceMemory m_memory=VK_NULL_HANDLE;
+
+    friend class Descriptor;
 };
 
 #endif
