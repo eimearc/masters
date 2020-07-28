@@ -3,6 +3,7 @@
 
 #include "descriptor.h"
 #include "device.h"
+#include <gsl/gsl>
 #include "shader.h"
 #include "pass.h"
 #include "util.h"
@@ -23,7 +24,15 @@ class Pipeline
     Pipeline(
         Device &device,
         const Subpass &subpass,
-        Descriptor *pDescriptor,
+        gsl::not_null<Descriptor*> pDescriptor,
+        const VertexInput &vertexInput,
+        Renderpass *pRenderpass,
+        const std::vector<Shader*> &shaders,
+        bool writeDepth
+    );
+    Pipeline(
+        Device &device,
+        const Subpass &subpass,
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
         const std::vector<Shader*> &shaders,

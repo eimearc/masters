@@ -80,7 +80,6 @@ int main()
     Pipeline pipeline(
         device,
         subpass,
-        nullptr,
         vertexInput,
         &renderpass,
         shaders,

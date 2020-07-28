@@ -31,16 +31,40 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
 Pipeline::Pipeline(
     Device &device,
     const Subpass &subpass,
-    Descriptor *pDescriptor,
+    gsl::not_null<Descriptor*> pDescriptor, // Not null?
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
     const std::vector<Shader*> &shaders,
     bool writeDepth
 )
 {
+    m_device=device.device();
     m_vertexInput = vertexInput;
     m_subpass = subpass.index();
     m_descriptor = pDescriptor;
+    m_shaders = shaders;
+    m_renderpass = pRenderpass;
+    m_writeDepth=writeDepth;
+
+    // Finalize descriptor sets.
+    m_descriptor->allocateDescriptorPool();
+    m_descriptor->allocateDescriptorSets();
+
+    setup(device);
+}
+
+Pipeline::Pipeline(
+    Device &device,
+    const Subpass &subpass,
+    const VertexInput &vertexInput,
+    Renderpass *pRenderpass,
+    const std::vector<Shader*> &shaders,
+    bool writeDepth
+)
+{
+    m_device=device.device();
+    m_vertexInput = vertexInput;
+    m_subpass = subpass.index();
     m_shaders = shaders;
     m_renderpass = pRenderpass;
     m_writeDepth=writeDepth;
@@ -70,14 +94,6 @@ bool Pipeline::operator==(const Pipeline &other) const
 
 void Pipeline::setup(Device &device)
 {
-    m_device = device.device();
-
-    if (m_descriptor!=nullptr)
-    {
-        m_descriptor->allocateDescriptorPool();
-        m_descriptor->allocateDescriptorSets();
-    }
-
     const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
 

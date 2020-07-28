@@ -51,8 +51,8 @@ Descriptor::Descriptor(
     m_device = device.device();
     m_swapchainSize = swapchainSize;
     m_numAttachments = numAttachments;
-    m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // One per attachment?.
-    m_writeSetFragment = std::vector<VkWriteDescriptorSet>(); // One per attachment?.
+    m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
+    m_writeSetFragment = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
     m_inputAttachmentInfo.resize(m_numAttachments);
 }
 
