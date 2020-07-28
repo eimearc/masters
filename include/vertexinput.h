@@ -10,17 +10,23 @@ class VertexInput
     VertexInput()=default;
     VertexInput(uint32_t stride);
 
-    void addVertexAttributeVec3(uint32_t location, uint32_t offset);
+    bool operator==(const VertexInput&) const;
+
     void addVertexAttributeVec2(uint32_t location, uint32_t offset);
+    void addVertexAttributeVec3(uint32_t location, uint32_t offset);
 
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const { return m_attributeDescriptions; };
     VkVertexInputBindingDescription bindingDescription() const {return m_bindingDescription; };    
 
     private:
+    static bool pred(
+        const VkVertexInputAttributeDescription &a,
+        const VkVertexInputAttributeDescription &b
+    );
+    void setBindingDescription(uint32_t stride);
+    
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
-
-    void setBindingDescription(uint32_t stride);
 };
 
 #endif
