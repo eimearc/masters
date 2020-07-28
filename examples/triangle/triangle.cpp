@@ -1,11 +1,5 @@
 #include "evulkan.h"
 
-struct UniformBufferObject
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-};
 std::vector<const char*> validationLayers =
 {
     "VK_LAYER_LUNARG_standard_validation"

@@ -47,8 +47,7 @@ Pipeline::Pipeline(
     m_writeDepth=writeDepth;
 
     // Finalize descriptor sets.
-    m_descriptor->allocateDescriptorPool();
-    m_descriptor->allocateDescriptorSets();
+    m_descriptor->finalize();
 
     auto setLayouts = m_descriptor->setLayouts();
     createSetLayout(setLayouts);

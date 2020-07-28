@@ -44,29 +44,9 @@ class Descriptor
         const Shader::Stage shaderStage
     );
     
-    void allocateDescriptorPool();
-    void allocateDescriptorSets();
-
+    private:
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
-
-    private:
-    VkDescriptorBufferInfo m_bufferInfo;
-    VkDevice m_device;
-    std::vector<VkDescriptorImageInfo> m_inputAttachmentInfo;
-    size_t m_numAttachments;
-    size_t m_numInputAttachments=0;
-    size_t m_numImageSamplers=0;
-    size_t m_numUniformBuffers=0;
-    VkDescriptorPool m_pool=VK_NULL_HANDLE;
-    std::vector<VkDescriptorPoolSize> m_poolSizes;
-    std::vector<VkDescriptorSetLayout> m_setLayouts;
-    std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
-    std::vector<VkDescriptorSet> m_sets;
-    size_t m_swapchainSize;
-    VkDescriptorImageInfo m_textureSamplerInfo;
-    std::vector<VkWriteDescriptorSet> m_writeSetFragment;
-    std::vector<VkWriteDescriptorSet> m_writeSetVertex;
 
     void addDescriptorPoolSize(
         const VkDescriptorType type,
@@ -94,6 +74,29 @@ class Descriptor
         uint32_t binding,
         VkShaderStageFlagBits stage
     );
+    void allocateDescriptorPool();
+    void allocateDescriptorSets();
+    void finalize();
+
+    VkDescriptorBufferInfo m_bufferInfo;
+    VkDevice m_device;
+    std::vector<VkDescriptorImageInfo> m_inputAttachmentInfo;
+    size_t m_numAttachments;
+    size_t m_numInputAttachments=0;
+    size_t m_numImageSamplers=0;
+    size_t m_numUniformBuffers=0;
+    VkDescriptorPool m_pool=VK_NULL_HANDLE;
+    std::vector<VkDescriptorPoolSize> m_poolSizes;
+    std::vector<VkDescriptorSetLayout> m_setLayouts;
+    std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
+    std::vector<VkDescriptorSet> m_sets;
+    size_t m_swapchainSize;
+    VkDescriptorImageInfo m_textureSamplerInfo;
+    std::vector<VkWriteDescriptorSet> m_writeSetFragment;
+    std::vector<VkWriteDescriptorSet> m_writeSetVertex;
+
+    friend class Pipeline;
+    friend class Device;
 };
 
 #endif
