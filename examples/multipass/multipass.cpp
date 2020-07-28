@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     Descriptor descriptor1(device, swapchainSize, 3);
     descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
     descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
-    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
+    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT); // TODO: If depth input attachment.
 
     VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
@@ -133,12 +133,12 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
     Pipeline pipeline0(
         device,
-        subpass0,
+        &subpass0,
         &descriptor0,
         vertexInput0,
         &renderpass,
-        shaders0,
-        true
+        shaders0
+        // true
     );
 
     Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
@@ -146,12 +146,12 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
     Pipeline pipeline1(
         device,
-        subpass1,
+        &subpass1,
         &descriptor1,
         vertexInput1,
         &renderpass,
-        shaders1,
-        false
+        shaders1
+        // false
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};

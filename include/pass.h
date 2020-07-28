@@ -19,6 +19,7 @@ class Subpass
 
     bool operator==(const Subpass&) const;
 
+    bool hasDepthAttachment() const { return !m_depthAttachments.empty(); };
     std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
     VkSubpassDescription description() const { return m_description; };
     uint32_t index() const { return m_index; };
@@ -35,6 +36,8 @@ class Subpass
     uint32_t m_index;
     std::vector<Attachment*> m_inputAttachments;
     std::vector<VkAttachmentReference> m_inputReferences;
+
+    friend class Pipeline;
 };
 
 class Renderpass

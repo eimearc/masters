@@ -23,20 +23,20 @@ class Pipeline
 
     Pipeline(
         Device &device,
-        const Subpass &subpass,
+        Subpass *pSubpass, // TODO: For everything: reference or pointer?
         gsl::not_null<Descriptor*> pDescriptor,
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
-        const std::vector<Shader*> &shaders,
-        bool writeDepth
+        const std::vector<Shader*> &shaders
+        // bool writeDepth
     );
     Pipeline(
         Device &device,
-        const Subpass &subpass,
+        Subpass *pSubpass,
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
-        const std::vector<Shader*> &shaders,
-        bool writeDepth
+        const std::vector<Shader*> &shaders
+        // bool writeDepth
     );
 
     bool operator==(const Pipeline&) const;
@@ -60,9 +60,9 @@ class Pipeline
     VkPipeline m_pipeline=VK_NULL_HANDLE;
     Renderpass *m_renderpass;
     std::vector<Shader*> m_shaders;
-    uint32_t m_subpass; // TODO: Subpass object?
+    Subpass *m_subpass; // TODO: Subpass object?
     VertexInput m_vertexInput;
-    bool m_writeDepth; // TODO: Remove.
+    // bool m_writeDepth; // TODO: Remove.
 };
 
 #endif

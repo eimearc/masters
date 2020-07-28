@@ -73,11 +73,11 @@ int main()
 
     Pipeline pipeline(
         device,
-        subpass,
+        &subpass,
         vertexInput,
         &renderpass,
-        shaders,
-        true
+        shaders
+        // true
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};

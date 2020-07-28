@@ -24,27 +24,27 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
     other.m_subpass=0;
     m_vertexInput=other.m_vertexInput;
     other.m_vertexInput={};
-    m_writeDepth=other.m_writeDepth;
+    // m_writeDepth=other.m_writeDepth;
     return *this;
 }
 
 Pipeline::Pipeline(
     Device &device,
-    const Subpass &subpass,
+    Subpass *pSubpass,
     gsl::not_null<Descriptor*> pDescriptor, // Not null?
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
-    const std::vector<Shader*> &shaders,
-    bool writeDepth
+    const std::vector<Shader*> &shaders
+    // bool writeDepth
 )
 {
     m_device=device.device();
     m_vertexInput = vertexInput;
-    m_subpass = subpass.index();
+    m_subpass = pSubpass;
     m_descriptor = pDescriptor;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
-    m_writeDepth=writeDepth;
+    // m_writeDepth=writeDepth;
 
     // Finalize descriptor sets.
     m_descriptor->finalize();
@@ -57,19 +57,19 @@ Pipeline::Pipeline(
 
 Pipeline::Pipeline(
     Device &device,
-    const Subpass &subpass,
+    Subpass *pSubpass,
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
-    const std::vector<Shader*> &shaders,
-    bool writeDepth
+    const std::vector<Shader*> &shaders
+    // bool writeDepth
 )
 {
     m_device=device.device();
     m_vertexInput = vertexInput;
-    m_subpass = subpass.index();
+    m_subpass = pSubpass;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
-    m_writeDepth=writeDepth;
+    // m_writeDepth=writeDepth;
 
     std::vector<VkDescriptorSetLayout> setLayouts;
     createSetLayout(setLayouts);
@@ -108,7 +108,7 @@ bool Pipeline::operator==(const Pipeline &other) const
     );
     result &= (m_subpass==other.m_subpass);
     result &= (m_vertexInput==other.m_vertexInput);
-    result &= (m_writeDepth==other.m_writeDepth);
+    // result &= (m_writeDepth==other.m_writeDepth);
     return result;
 }
 
@@ -208,7 +208,10 @@ void Pipeline::setup(Device &device)
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 
-    if (m_writeDepth) // G-Buffer
+    // If the subpass has a depth attachment, write depth.
+    bool writeDepth=m_subpass->hasDepthAttachment();
+
+    if (writeDepth) // G-Buffer
     {
         depthStencil.depthTestEnable = true;
         depthStencil.depthWriteEnable = true;
@@ -258,7 +261,7 @@ void Pipeline::setup(Device &device)
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = m_layout;
     pipelineInfo.renderPass = m_renderpass->renderpass();
-    pipelineInfo.subpass = m_subpass;
+    pipelineInfo.subpass = m_subpass->index();
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.pDepthStencilState = &depthStencil;
