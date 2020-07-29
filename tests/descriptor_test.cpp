@@ -61,5 +61,5 @@ TEST_F(DescriptorTest, multipleUniformBuffers)
     descriptor.addUniformBuffer(0, uboA, Shader::Stage::VERTEX);
     descriptor.addUniformBuffer(1, uboB, Shader::Stage::VERTEX);
 
-    // ASSERT_EQ(descriptor.m_device, VK_NULL_HANDLE);
+    ASSERT_EQ(descriptor.m_bufferInfo.size(), 2);
 }

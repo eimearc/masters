@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
     Texture texture(device, "viking_room.png");
 
-    Descriptor descriptor(device, swapchainSize); //TODO: Should not need 1?
+    Descriptor descriptor(device, swapchainSize);
     descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);

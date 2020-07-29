@@ -37,8 +37,6 @@ Descriptor::Descriptor(
     const Device &device,
     const size_t swapchainSize)
 {
-    // assert(numInputAttachments>0); // TODO: remove?
-
     m_device = device.device();
     m_swapchainSize = swapchainSize;
     m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
@@ -304,7 +302,7 @@ void Descriptor::addWriteSetInputAttachment(
     descriptor.dstArrayElement = 0;
     descriptor.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     descriptor.descriptorCount = 1;
-    descriptor.pImageInfo = imageInfo.get(); // TODO: change
+    descriptor.pImageInfo = imageInfo.get();
     descriptor.pNext=nullptr;
 
     addWriteSet(descriptor,stage);
