@@ -65,7 +65,6 @@ Descriptor::Descriptor(
 void Descriptor::initializePoolSize(Type type)
 {
     uint32_t index = static_cast<uint32_t>(type);
-    std::cout << index << std::endl;
     m_poolSizes[index].descriptorCount=0;
     m_poolSizes[index].type=descriptorType(type);
 }

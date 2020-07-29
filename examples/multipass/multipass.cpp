@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     auto device = std::move(device1);
     device1 = std::move(device);
     device = std::move(device1);
-    device = std::move(device);
+    device = std::move(device); // TODO: Remove.
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     Descriptor descriptor1(device, swapchainSize, 3);
     descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
     descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
-    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT); // TODO: If depth input attachment.
+    descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
 
     VertexInput vertexInput0(sizeof(Vertex));
     vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
