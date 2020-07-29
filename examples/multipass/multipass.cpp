@@ -52,7 +52,9 @@ void createGrid(
 
 int main(int argc, char **argv)
 {
-    gflags::SetUsageMessage("A program for using multipass Vulkan over multiple threads.");
+    gflags::SetUsageMessage(
+        "A program for using multipass Vulkan over multiple threads."
+    );
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
@@ -85,11 +87,7 @@ int main(int argc, char **argv)
     std::vector<evk::SubpassDependency> dependencies;
 
     Subpass subpass0(
-        0,
-        dependencies,
-        colorAttachments,
-        depthAttachments,
-        inputAttachments
+        0, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
     colorAttachments = {&framebufferAttachment};
@@ -98,14 +96,12 @@ int main(int argc, char **argv)
     dependencies = {{0,1}};
 
     Subpass subpass1(
-        1,
-        dependencies,
-        colorAttachments,
-        depthAttachments,
-        inputAttachments
+        1, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {&framebufferAttachment, &colorAttachment, &depthAttachment};
+    std::vector<Attachment*> attachments = {
+        &framebufferAttachment, &colorAttachment, &depthAttachment
+    };
     std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
     Renderpass renderpass(device,attachments,subpasses);
 
@@ -127,37 +123,31 @@ int main(int argc, char **argv)
     VertexInput vertexInput1(sizeof(Vertex));
     vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
 
-    StaticBuffer indexBuffer(device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX);
-    StaticBuffer vertexBuffer(device, vertices.data(), sizeof(vertices[0]), vertices.size(), Buffer::VERTEX);
+    StaticBuffer indexBuffer(
+        device, indices.data(), sizeof(indices[0]), indices.size(),
+        Buffer::INDEX
+    );
+    StaticBuffer vertexBuffer(
+        device, vertices.data(), sizeof(vertices[0]), vertices.size(),
+        Buffer::VERTEX
+    );
 
     Shader vertexShader0(device, "pass_0_vert.spv", Shader::Stage::VERTEX);
     Shader fragmentShader0(device, "pass_0_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
+
     Pipeline pipeline0(
-        device,
-        &subpass0,
-        &descriptor0,
-        vertexInput0,
-        &renderpass,
-        shaders0
+        device, &subpass0, &descriptor0, vertexInput0, &renderpass, shaders0
     );
 
     Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
     Shader fragmentShader1(device, "pass_1_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
-    Pipeline pipeline1(
-        device,
-        &subpass1,
-        &descriptor1,
-        vertexInput1,
-        &renderpass,
-        shaders1
-    );
 
+    Pipeline pipeline1(
+        device, &subpass1, &descriptor1, vertexInput1, &renderpass, shaders1
+    );
     std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};
-    std::vector<Shader*> shaders;
-    for (const auto &s : shaders0) shaders.push_back(s);
-    for (const auto &s : shaders1) shaders.push_back(s);
 
     device.finalize(indexBuffer,vertexBuffer,pipelines);
 
@@ -171,9 +161,17 @@ int main(int argc, char **argv)
         glfwPollEvents();
 
         UniformBufferObject uboUpdate = {};
-        model = glm::rotate(glm::mat4(1.0f), 0.005f * glm::radians(90.0f)*counter, glm::vec3(0.0f,0.0f,1.0f));
-        view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
+        model = glm::rotate(
+            glm::mat4(1.0f), 0.005f * glm::radians(90.0f)*counter,
+            glm::vec3(0.0f,0.0f,1.0f)
+        );
+        view = glm::lookAt(
+            glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+        proj = glm::perspective(
+            glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f
+        );
         proj[1][1] *= -1;
         uboUpdate.MV = view * model;
         uboUpdate.MVP_model = proj * view * model;

@@ -35,7 +35,9 @@ int main()
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
-    Device device(numThreads, window, deviceExtensions, swapchainSize, validationLayers);
+    Device device(
+        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+    );
     
     std::vector<Vertex> v=setupVerts();
     std::vector<uint32_t> in={0,1,2};
@@ -56,7 +58,9 @@ int main()
         inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {&framebufferAttachment, &depthAttachment};
+    std::vector<Attachment*> attachments = {
+        &framebufferAttachment, &depthAttachment
+    };
     std::vector<Subpass*> subpasses = {&subpass};
     Renderpass renderpass(device,attachments,subpasses);
 
@@ -64,22 +68,20 @@ int main()
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
 
-    StaticBuffer indexBuffer(device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX);
-    StaticBuffer vertexBuffer(device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX);
+    StaticBuffer indexBuffer(
+        device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX
+    );
+    StaticBuffer vertexBuffer(
+        device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX
+    );
 
     Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
     Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
-    Pipeline pipeline(
-        device,
-        &subpass,
-        vertexInput,
-        &renderpass,
-        shaders
-    );
-
+    Pipeline pipeline(device, &subpass, vertexInput, &renderpass, shaders);
     std::vector<Pipeline*> pipelines = {&pipeline};
+    
     device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     // Main loop.

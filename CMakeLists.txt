@@ -5,6 +5,9 @@ find_package(PkgConfig REQUIRED)
 find_package(Microsoft.GSL CONFIG) # Type safety.
 set (CMAKE_CXX_STANDARD 17)
 
+option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_TESTS "Build the tests" ON)
+
 set(VULKANROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(STB_INCLUDE_PATH /usr/local/include)
@@ -56,7 +59,11 @@ install(TARGETS evulkan DESTINATION lib)
 install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
 # Build examples.
-add_subdirectory(examples)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
 
 # Build tests.
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif(BUILD_TESTS)
