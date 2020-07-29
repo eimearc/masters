@@ -6,7 +6,7 @@ enable_testing()
 
 set(
     FILES
-    # descriptor_test.cpp
+    descriptor_test.cpp
     device_test.cpp
     main.cpp
 )
