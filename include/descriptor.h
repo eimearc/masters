@@ -48,31 +48,35 @@ class Descriptor
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
-    void addDescriptorPoolSize(
+    void addPoolSize(
         const VkDescriptorType type,
         const size_t count
     );
     void addDescriptorSetBinding(
         const VkDescriptorType type,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetTextureSampler(
+    void addWriteSetTextureSampler(
         const Texture &texture,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetBuffer(
+    void addWriteSetBuffer(
         VkBuffer buffer,
         VkDeviceSize range,
         uint32_t binding,
         VkDescriptorType type,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetInputAttachment(
+    void addWriteSetInputAttachment(
         VkImageView imageView,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
+    );
+    void addWriteSet(
+        VkWriteDescriptorSet writeSet,
+        Shader::Stage stage
     );
     void allocateDescriptorPool();
     void allocateDescriptorSets();

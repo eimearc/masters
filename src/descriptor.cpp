@@ -85,15 +85,15 @@ void Descriptor::finalize()
 void Descriptor::allocateDescriptorPool()
 {
     if (m_numInputAttachments>0)
-        addDescriptorPoolSize(
+        addPoolSize(
             VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
             m_swapchainSize*m_numInputAttachments*2);
     if (m_numUniformBuffers>0)
-        addDescriptorPoolSize(
+        addPoolSize(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             m_swapchainSize*m_numUniformBuffers*2);
     if (m_numImageSamplers>0)
-        addDescriptorPoolSize(
+        addPoolSize(
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             m_swapchainSize*m_numImageSamplers*2);
 
@@ -163,7 +163,9 @@ void Descriptor::allocateDescriptorSets()
         writes.data(), 0, nullptr);
 }
 
-void Descriptor::addDescriptorPoolSize(const VkDescriptorType type, const size_t count)
+void Descriptor::addPoolSize(
+    const VkDescriptorType type,
+    const size_t count)
 {
     VkDescriptorPoolSize poolSize = {};
     poolSize.type = type;
@@ -177,9 +179,10 @@ void Descriptor::addUniformBuffer(
     const Shader::Stage stage,
     const VkDeviceSize bufferSize)
 {
-    auto shaderStage = Shader::stageFlags(stage);
-    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, shaderStage);
-    addWriteDescriptorSetBuffer(buffer.buffer(), bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, shaderStage);
+    addDescriptorSetBinding(
+        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, stage
+    );
+    addWriteSetBuffer(buffer.buffer(), bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage);
 }
 
 void Descriptor::addInputAttachment(
@@ -187,9 +190,10 @@ void Descriptor::addInputAttachment(
     const Attachment &attachment,
     const Shader::Stage stage)
 {
-    auto shaderStage = Shader::stageFlags(stage);
-    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, shaderStage);
-    addWriteDescriptorSetInputAttachment(attachment.view(), binding, shaderStage);
+    addDescriptorSetBinding(
+        VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, binding, stage
+    );
+    addWriteSetInputAttachment(attachment.view(), binding, stage);
 }
 
 void Descriptor::addTextureSampler(
@@ -197,15 +201,16 @@ void Descriptor::addTextureSampler(
     const Texture &texture,
     const Shader::Stage stage)
 {
-    auto shaderStage = Shader::stageFlags(stage);
-    addDescriptorSetBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, shaderStage);
-    addWriteDescriptorSetTextureSampler(texture, binding, shaderStage);
+    addDescriptorSetBinding(
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, stage
+    );
+    addWriteSetTextureSampler(texture, binding, stage);
 }
 
 void Descriptor::addDescriptorSetBinding(
     const VkDescriptorType type,
     uint32_t binding,
-    VkShaderStageFlagBits stage)
+    Shader::Stage stage)
 {
     switch (type)
     {
@@ -226,20 +231,23 @@ void Descriptor::addDescriptorSetBinding(
     layoutBinding.binding = binding;
     layoutBinding.descriptorType = type;
     layoutBinding.descriptorCount = 1;
-    layoutBinding.stageFlags = stage;
+    layoutBinding.stageFlags = Shader::stageFlags(stage);
     layoutBinding.pImmutableSamplers = nullptr;
     m_setBindings.push_back(layoutBinding);   
 }
 
-void Descriptor::addWriteDescriptorSetBuffer(
-    VkBuffer buffer, VkDeviceSize range,
-    uint32_t binding, VkDescriptorType type, VkShaderStageFlagBits stage)
+void Descriptor::addWriteSetBuffer(
+    VkBuffer buffer,
+    VkDeviceSize range,
+    uint32_t binding,
+    VkDescriptorType type,
+    Shader::Stage stage)
 {
     VkDescriptorBufferInfo bufferInfo = {};
     bufferInfo.buffer = buffer;
     bufferInfo.offset = 0;
     bufferInfo.range = range;
-    m_bufferInfo = bufferInfo; // Overwriting?
+    m_bufferInfo = bufferInfo; // TODO: Overwriting?
     VkWriteDescriptorSet descriptor;
     descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptor.dstBinding = binding;
@@ -248,11 +256,14 @@ void Descriptor::addWriteDescriptorSetBuffer(
     descriptor.descriptorCount = 1;
     descriptor.pBufferInfo = &m_bufferInfo;
     descriptor.pNext=nullptr;
-    if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) m_writeSetFragment.push_back(descriptor);
-    else m_writeSetVertex.push_back(descriptor);
+
+    addWriteSet(descriptor,stage);
 }
 
-void Descriptor::addWriteDescriptorSetTextureSampler(const Texture &texture, uint32_t binding, VkShaderStageFlagBits stage)
+void Descriptor::addWriteSetTextureSampler(
+    const Texture &texture,
+    uint32_t binding,
+    Shader::Stage stage)
 {
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -267,11 +278,14 @@ void Descriptor::addWriteDescriptorSetTextureSampler(const Texture &texture, uin
     descriptor.descriptorCount = 1;
     descriptor.pImageInfo = &m_textureSamplerInfo;
     descriptor.pNext=nullptr;
-    if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) m_writeSetFragment.push_back(descriptor); // TODO: Support for geo shader?
-    else m_writeSetVertex.push_back(descriptor);
+
+    addWriteSet(descriptor,stage);
 }
 
-void Descriptor::addWriteDescriptorSetInputAttachment(VkImageView imageView, uint32_t binding, VkShaderStageFlagBits stage)
+void Descriptor::addWriteSetInputAttachment(
+    VkImageView imageView,
+    uint32_t binding,
+    Shader::Stage stage)
 {
     static size_t index=0;
 
@@ -285,12 +299,28 @@ void Descriptor::addWriteDescriptorSetInputAttachment(VkImageView imageView, uin
     descriptor.dstArrayElement = 0;
     descriptor.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     descriptor.descriptorCount = 1;
-    descriptor.pImageInfo = &m_inputAttachmentInfo[index]; //change
+    descriptor.pImageInfo = &m_inputAttachmentInfo[index]; // TODO: change
     descriptor.pNext=nullptr;
-    if (stage == VK_SHADER_STAGE_FRAGMENT_BIT) m_writeSetFragment.push_back(descriptor);
-    else m_writeSetVertex.push_back(descriptor);
+
+    addWriteSet(descriptor,stage);
 
     index++;
+}
+
+void Descriptor::addWriteSet(
+    VkWriteDescriptorSet writeSet,
+    Shader::Stage stage)
+{
+    switch(stage)
+    {
+        case Shader::Stage::FRAGMENT:
+            m_writeSetFragment.push_back(writeSet);
+            break;
+        case Shader::Stage::VERTEX:
+            m_writeSetVertex.push_back(writeSet);
+            break;
+        // TODO: Handle support for geometry shader.
+    }
 }
 
 Descriptor::~Descriptor() noexcept
