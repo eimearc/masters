@@ -27,12 +27,6 @@ class Descriptor
 
     bool operator==(const Descriptor&) const;
 
-    void addUniformBuffer(
-        const uint32_t binding,
-        const Buffer &buffer,
-        const Shader::Stage shaderStage,
-        const VkDeviceSize bufferSize
-    );
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
@@ -43,20 +37,29 @@ class Descriptor
         const Texture &texture,
         const Shader::Stage shaderStage
     );
+    void addUniformBuffer(
+        const uint32_t binding,
+        const Buffer &buffer,
+        const Shader::Stage shaderStage,
+        const VkDeviceSize bufferSize
+    );
     
     private:
+    enum class Type{
+        INPUT_ATTACHMENT,
+        TEXTURE_SAMPLER,
+        UNIFORM_BUFFER  
+    };
+
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
-    void addPoolSize(
-        const VkDescriptorType type,
-        const size_t count
-    );
     void addDescriptorSetBinding(
-        const VkDescriptorType type,
+        Type type,
         uint32_t binding,
         Shader::Stage stage
     );
+    void addPoolSize(Type type);
     void addWriteSetTextureSampler(
         const Texture &texture,
         uint32_t binding,
@@ -80,7 +83,10 @@ class Descriptor
     );
     void allocateDescriptorPool();
     void allocateDescriptorSets();
+    VkDescriptorType descriptorType(Type type);
     void finalize();
+    void initializePoolSize(Type type);
+    void removeEmptyPoolSizes();
 
     VkDescriptorBufferInfo m_bufferInfo;
     VkDevice m_device;
