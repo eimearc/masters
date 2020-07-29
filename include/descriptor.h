@@ -21,8 +21,7 @@ class Descriptor
 
     Descriptor(
         const Device &device,
-        const size_t swapchainSize,
-        const size_t numAttachments
+        const size_t swapchainSize
     );
 
     bool operator==(const Descriptor&) const;
@@ -87,25 +86,24 @@ class Descriptor
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
-    VkDescriptorBufferInfo m_bufferInfo;
+    std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
     VkDevice m_device;
-    std::vector<VkDescriptorImageInfo> m_inputAttachmentInfo;
-    size_t m_numAttachments;
-    size_t m_numInputAttachments=0;
-    size_t m_numImageSamplers=0;
-    size_t m_numUniformBuffers=0;
+    std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;
     VkDescriptorPool m_pool=VK_NULL_HANDLE;
     std::vector<VkDescriptorPoolSize> m_poolSizes;
     std::vector<VkDescriptorSetLayout> m_setLayouts;
     std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
     std::vector<VkDescriptorSet> m_sets;
     size_t m_swapchainSize;
-    VkDescriptorImageInfo m_textureSamplerInfo;
+    std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_textureSamplerInfo;
     std::vector<VkWriteDescriptorSet> m_writeSetFragment;
     std::vector<VkWriteDescriptorSet> m_writeSetVertex;
 
     friend class Pipeline;
     friend class Device;
+
+    // Testing.
+    friend class DescriptorTest_multipleUniformBuffers_Test;
 };
 
 #endif

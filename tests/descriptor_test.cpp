@@ -1,4 +1,4 @@
-#include "device.h"
+#include "evulkan.h"
 
 #include <gtest/gtest.h>
 
@@ -26,6 +26,8 @@ class DescriptorTest : public  ::testing::Test
             numThreads, window, deviceExtensions,
             swapchainSize, validationLayers
         };
+
+        descriptor = {device, swapchainSize};
     }
 
     virtual void TearDown() override
@@ -34,11 +36,30 @@ class DescriptorTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    GLFWwindow *window;
+    std::vector<uint32_t> indices;
+    Descriptor descriptor;
     Device device;
+    std::vector<Vertex> vertices;
+    GLFWwindow *window;
 };
 
 TEST_F(DescriptorTest, firstTest)
 {
     std::cout << "Hello from first test.\n";
+}
+
+TEST_F(DescriptorTest, multipleUniformBuffers)
+{
+    struct UniformBufferA {char a;};
+    struct UniformBufferB {double b;};
+    UniformBufferA a{'a'};
+    UniformBufferB b{3.94};
+
+    DynamicBuffer uboA(device, &a, sizeof(a), 1, Buffer::UBO);
+    DynamicBuffer uboB(device, &b, sizeof(b), 1, Buffer::UBO);
+
+    descriptor.addUniformBuffer(0, uboA, Shader::Stage::VERTEX);
+    descriptor.addUniformBuffer(1, uboB, Shader::Stage::VERTEX);
+
+    // ASSERT_EQ(descriptor.m_device, VK_NULL_HANDLE);
 }

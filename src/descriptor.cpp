@@ -8,20 +8,12 @@ Descriptor::Descriptor(Descriptor &&other) noexcept
 Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 {
     if (*this==other) return *this;
-    m_bufferInfo=other.m_bufferInfo;
-    other.m_bufferInfo={};
+    m_bufferInfo=std::move(other.m_bufferInfo);
+    other.m_bufferInfo.resize(0);
     m_device=other.m_device;
     other.m_device=VK_NULL_HANDLE;
-    m_inputAttachmentInfo=other.m_inputAttachmentInfo;
-    other.m_inputAttachmentInfo={};
-    m_numAttachments=other.m_numAttachments;
-    other.m_numAttachments=0;
-    m_numInputAttachments=other.m_numInputAttachments;
-    other.m_numInputAttachments=0;
-    m_numImageSamplers=other.m_numImageSamplers;
-    other.m_numImageSamplers=0;
-    m_numUniformBuffers=other.m_numUniformBuffers;
-    other.m_numUniformBuffers=0;
+    m_inputAttachmentInfo=std::move(other.m_inputAttachmentInfo);
+    other.m_inputAttachmentInfo.resize(0);
     m_pool=other.m_pool;
     other.m_pool=VK_NULL_HANDLE;
     m_poolSizes=other.m_poolSizes;
@@ -32,8 +24,8 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
     other.m_sets.resize(0);
     m_swapchainSize=other.m_swapchainSize;
     other.m_swapchainSize=0;
-    m_textureSamplerInfo=other.m_textureSamplerInfo;
-    other.m_textureSamplerInfo={};
+    m_textureSamplerInfo=std::move(other.m_textureSamplerInfo);
+    other.m_textureSamplerInfo.resize(0);
     m_writeSetFragment=other.m_writeSetFragment;
     other.m_writeSetFragment.resize(0);
     m_writeSetVertex=other.m_writeSetVertex;
@@ -43,17 +35,14 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 
 Descriptor::Descriptor(
     const Device &device,
-    const size_t swapchainSize,
-    const size_t numAttachments)
+    const size_t swapchainSize)
 {
-    assert(numAttachments>0); // TODO: remove?
+    // assert(numInputAttachments>0); // TODO: remove?
 
     m_device = device.device();
     m_swapchainSize = swapchainSize;
-    m_numAttachments = numAttachments;
     m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
     m_writeSetFragment = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
-    m_inputAttachmentInfo.resize(m_numAttachments);
 
     // TODO: Tidy below.
     m_poolSizes.resize(3);
@@ -73,10 +62,6 @@ bool Descriptor::operator==(const Descriptor &other) const
 {
     bool result = true;
     result &= (m_device==other.m_device);
-    result &= (m_numAttachments==other.m_numAttachments);
-    result &= (m_numInputAttachments==other.m_numInputAttachments);
-    result &= (m_numImageSamplers==other.m_numImageSamplers);
-    result &= (m_numUniformBuffers==other.m_numUniformBuffers);
     result &= (m_pool==other.m_pool);
     result &= std::equal(
         m_setLayouts.begin(), m_setLayouts.end(),
@@ -254,18 +239,22 @@ void Descriptor::addWriteSetBuffer(
     VkDescriptorType type,
     Shader::Stage stage)
 {
-    VkDescriptorBufferInfo bufferInfo = {};
-    bufferInfo.buffer = buffer;
-    bufferInfo.offset = 0;
-    bufferInfo.range = range;
-    m_bufferInfo = bufferInfo; // TODO: Overwriting?
+    m_bufferInfo.push_back(
+        std::make_unique<VkDescriptorBufferInfo>()
+    );
+
+    auto &bufferInfo = m_bufferInfo.back();
+    bufferInfo->buffer = buffer;
+    bufferInfo->offset = 0;
+    bufferInfo->range = range;
+
     VkWriteDescriptorSet descriptor;
     descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptor.dstBinding = binding;
     descriptor.dstArrayElement = 0;
     descriptor.descriptorType = type;
     descriptor.descriptorCount = 1;
-    descriptor.pBufferInfo = &m_bufferInfo;
+    descriptor.pBufferInfo = bufferInfo.get();
     descriptor.pNext=nullptr;
 
     addWriteSet(descriptor,stage);
@@ -276,18 +265,21 @@ void Descriptor::addWriteSetTextureSampler(
     uint32_t binding,
     Shader::Stage stage)
 {
-    VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texture.view();
-    imageInfo.sampler = texture.sampler();
-    m_textureSamplerInfo = imageInfo;
+    m_textureSamplerInfo.push_back(
+        std::make_unique<VkDescriptorImageInfo>()
+    );
+
+    auto &imageInfo = m_textureSamplerInfo.back();
+    imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo->imageView = texture.view();
+    imageInfo->sampler = texture.sampler();
     VkWriteDescriptorSet descriptor;
     descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptor.dstBinding = binding;
     descriptor.dstArrayElement = 0;
     descriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor.descriptorCount = 1;
-    descriptor.pImageInfo = &m_textureSamplerInfo;
+    descriptor.pImageInfo = imageInfo.get();
     descriptor.pNext=nullptr;
 
     addWriteSet(descriptor,stage);
@@ -298,24 +290,24 @@ void Descriptor::addWriteSetInputAttachment(
     uint32_t binding,
     Shader::Stage stage)
 {
-    static size_t index=0;
+    m_inputAttachmentInfo.push_back(
+        std::make_unique<VkDescriptorImageInfo>()
+    );
 
-    VkDescriptorImageInfo &imageInfo = m_inputAttachmentInfo[index];
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = imageView;
-    imageInfo.sampler = VK_NULL_HANDLE;
+    auto &imageInfo = m_inputAttachmentInfo.back();
+    imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo->imageView = imageView;
+    imageInfo->sampler = VK_NULL_HANDLE;
     VkWriteDescriptorSet descriptor;
     descriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptor.dstBinding = binding;
     descriptor.dstArrayElement = 0;
     descriptor.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     descriptor.descriptorCount = 1;
-    descriptor.pImageInfo = &m_inputAttachmentInfo[index]; // TODO: change
+    descriptor.pImageInfo = imageInfo.get(); // TODO: change
     descriptor.pNext=nullptr;
 
     addWriteSet(descriptor,stage);
-
-    index++;
 }
 
 void Descriptor::addWriteSet(
@@ -336,6 +328,8 @@ void Descriptor::addWriteSet(
 
 Descriptor::~Descriptor() noexcept
 {
-    for (auto &l: m_setLayouts) vkDestroyDescriptorSetLayout(m_device, l, nullptr);
-    vkDestroyDescriptorPool(m_device, m_pool, nullptr);
+    for (auto &l: m_setLayouts)
+        vkDestroyDescriptorSetLayout(m_device, l, nullptr);
+    if (m_pool!=VK_NULL_HANDLE)
+        vkDestroyDescriptorPool(m_device, m_pool, nullptr);
 }

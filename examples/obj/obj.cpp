@@ -37,10 +37,11 @@ int main(int argc, char **argv)
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
-    Descriptor descriptor(device, swapchainSize, 1);
     evk::loadOBJ("viking_room.obj", v, in);
 
     Texture texture(device, "viking_room.png");
+
+    Descriptor descriptor(device, swapchainSize); //TODO: Should not need 1?
     descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);

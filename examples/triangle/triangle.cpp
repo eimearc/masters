@@ -39,8 +39,8 @@ int main()
         numThreads, window, deviceExtensions, swapchainSize, validationLayers
     );
     
-    std::vector<Vertex> v=setupVerts();
-    std::vector<uint32_t> in={0,1,2};
+    std::vector<Vertex> vertices=setupVerts();
+    std::vector<uint32_t> indices={0,1,2};
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
@@ -69,10 +69,12 @@ int main()
     vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
 
     StaticBuffer indexBuffer(
-        device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX
+        device, indices.data(), sizeof(indices[0]), indices.size(),
+        Buffer::INDEX
     );
     StaticBuffer vertexBuffer(
-        device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX
+        device, vertices.data(), sizeof(vertices[0]), vertices.size(),
+        Buffer::VERTEX
     );
 
     Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);

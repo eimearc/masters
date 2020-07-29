@@ -104,10 +104,10 @@ int main(int argc, char **argv)
     // Set up UBO.
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
-    Descriptor descriptor0(device, swapchainSize, 1);
+    Descriptor descriptor0(device, swapchainSize);
     descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
-    Descriptor descriptor1(device, swapchainSize, 3);
+    Descriptor descriptor1(device, swapchainSize);
     descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
     descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
     descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
