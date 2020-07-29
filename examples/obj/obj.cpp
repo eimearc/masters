@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     uboUpdate.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f);
     uboUpdate.proj[1][1] *= -1;
     DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
-    descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(uboUpdate));
+    descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));

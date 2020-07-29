@@ -179,14 +179,13 @@ void Descriptor::allocateDescriptorSets()
 void Descriptor::addUniformBuffer(
     const uint32_t binding,
     const Buffer &buffer,
-    const Shader::Stage stage,
-    const VkDeviceSize bufferSize)
+    const Shader::Stage stage)
 {
     addDescriptorSetBinding(
         Type::UNIFORM_BUFFER, binding, stage
     );
     addWriteSetBuffer(
-        buffer.buffer(), bufferSize, binding,
+        buffer.buffer(), buffer.size(), binding,
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage
     );
 }

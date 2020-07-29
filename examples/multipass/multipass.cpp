@@ -111,10 +111,10 @@ int main(int argc, char **argv)
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
     Descriptor descriptor0(device, swapchainSize, 1);
-    descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
+    descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
     Descriptor descriptor1(device, swapchainSize, 3);
-    descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX, sizeof(UniformBufferObject));
+    descriptor1.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
     descriptor1.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
     descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT); // TODO: If depth input attachment.
 

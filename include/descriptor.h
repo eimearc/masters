@@ -40,8 +40,7 @@ class Descriptor
     void addUniformBuffer(
         const uint32_t binding,
         const Buffer &buffer,
-        const Shader::Stage shaderStage,
-        const VkDeviceSize bufferSize
+        const Shader::Stage shaderStage
     );
     
     private:
