@@ -1,21 +1,51 @@
 #include "device.h"
 
 Device::Device(
-    const uint32_t &num_threads,
-    const std::vector<const char*> &validation_layers,
+    uint32_t num_threads,
     GLFWwindow *window,
     const std::vector<const char *> &device_extensions,
-    const uint32_t &swapchain_size,
-    const bool &enable_validation
-    )
+    uint32_t swapchain_size)
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
 
-    m_device=std::make_unique<_Device>(num_threads, validation_layers, window, device_extensions, enable_validation);
-    m_swapchain=std::make_unique<Swapchain>(m_device->m_device, m_device->m_physicalDevice, m_device->m_surface, window, swapchain_size);
+    const std::vector<const char*> validationLayers; // TODO: Remove.
+    m_device=std::make_unique<_Device>(
+        num_threads, validationLayers, window, device_extensions
+    );
+    m_swapchain=std::make_unique<Swapchain>(
+        m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
+        window, swapchain_size
+    );
     m_sync=std::make_unique<Sync>(m_device->m_device, swapchain_size);
-    m_commands=std::make_unique<Commands>(m_device->m_device, m_device->m_physicalDevice, m_device->m_surface, swapchain_size, num_threads);
+    m_commands=std::make_unique<Commands>(m_device->m_device,
+        m_device->m_physicalDevice, m_device->m_surface, swapchain_size,
+        num_threads
+    );
+}
+
+Device::Device(
+    uint32_t num_threads,
+    GLFWwindow *window,
+    const std::vector<const char *> &device_extensions,
+    uint32_t swapchain_size,
+    const std::vector<const char*> &validation_layers)
+{
+    m_threadPool.setThreadCount(num_threads);
+    m_numThreads=num_threads;
+
+    m_device=std::make_unique<_Device>(
+        num_threads, validation_layers, window, device_extensions
+    );
+    m_swapchain=std::make_unique<Swapchain>(
+        m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
+        window, swapchain_size
+    );
+    m_sync=std::make_unique<Sync>(m_device->m_device, swapchain_size);
+    m_commands=std::make_unique<Commands>(m_device->m_device,
+        m_device->m_physicalDevice, m_device->m_surface, swapchain_size,
+        num_threads
+    );
 }
 
 bool Device::operator==(const Device& other)
@@ -69,8 +99,7 @@ Device::_Device::_Device(
     uint32_t num_threads,
     const std::vector<const char*> &validation_layers,
     GLFWwindow *window,
-    const std::vector<const char *> &device_extensions,
-    bool enable_validation
+    const std::vector<const char *> &device_extensions
 )
 {
     m_window=window;
@@ -78,7 +107,8 @@ Device::_Device::_Device(
     createSurface(window);
     pickPhysicalDevice(device_extensions);
     setDepthFormat();
-    createDevice(enable_validation, device_extensions, validation_layers);
+
+    createDevice(device_extensions, validation_layers);
 }
 
 // TODO: Check is this needed.
@@ -222,8 +252,7 @@ void Device::_Device::pickPhysicalDevice(const std::vector<const char *> &device
 }
 
 void Device::_Device::createDevice(
-    bool enableValidation,
-    const std::vector<const char *> &deviceExtensions,
+    const std::vector<const char*> &deviceExtensions,
     const std::vector<const char*> &validationLayers
 )
 {
@@ -254,7 +283,7 @@ void Device::_Device::createDevice(
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if (enableValidation) {
+    if (validationLayers.size()>0) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {

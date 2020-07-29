@@ -67,7 +67,9 @@ int main(int argc, char **argv)
     std::vector<uint32_t> indices;
     createGrid(FLAGS_num_cubes, vertices, indices);
 
-    Device device1(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    Device device1(
+        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+    );
     auto device = std::move(device1);
     device1 = std::move(device);
     device = std::move(device1);

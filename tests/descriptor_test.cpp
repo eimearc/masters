@@ -23,8 +23,8 @@ class DescriptorTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, validationLayers, window, deviceExtensions,
-            swapchainSize, true
+            numThreads, window, deviceExtensions,
+            swapchainSize, validationLayers
         };
     }
 

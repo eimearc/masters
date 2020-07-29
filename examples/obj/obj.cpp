@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     const uint32_t numThreads = static_cast<uint32_t>(FLAGS_num_threads);
     const uint32_t swapchainSize = 2;
 
-    Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    Device device(numThreads, window, deviceExtensions, swapchainSize, validationLayers);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;

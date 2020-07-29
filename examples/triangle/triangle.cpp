@@ -35,7 +35,7 @@ int main()
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
-    Device device(numThreads, validationLayers, window, deviceExtensions, swapchainSize, true);
+    Device device(numThreads, window, deviceExtensions, swapchainSize, validationLayers);
     
     std::vector<Vertex> v=setupVerts();
     std::vector<uint32_t> in={0,1,2};

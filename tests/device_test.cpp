@@ -43,8 +43,7 @@ TEST_F(DeviceTest, move)
     const uint32_t swapchainSize = 2;
 
     Device device1(
-        numThreads, validationLayers, window, deviceExtensions,
-        swapchainSize, true
+        numThreads, window, deviceExtensions, swapchainSize, validationLayers
     );
 
     auto device = std::move(device1);
