@@ -87,15 +87,15 @@ void Descriptor::allocateDescriptorPool()
     if (m_numInputAttachments>0)
         addPoolSize(
             VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
-            m_swapchainSize*m_numInputAttachments*2);
+            m_swapchainSize*m_numInputAttachments);
     if (m_numUniformBuffers>0)
         addPoolSize(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            m_swapchainSize*m_numUniformBuffers*2);
+            m_swapchainSize*m_numUniformBuffers);
     if (m_numImageSamplers>0)
         addPoolSize(
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            m_swapchainSize*m_numImageSamplers*2);
+            m_swapchainSize*m_numImageSamplers);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
