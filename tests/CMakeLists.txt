@@ -6,7 +6,9 @@ enable_testing()
 
 set(
     FILES
+    # descriptor_test.cpp
     device_test.cpp
+    main.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

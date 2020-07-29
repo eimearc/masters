@@ -51,9 +51,6 @@ class Descriptor
         UNIFORM_BUFFER  
     };
 
-    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
-    std::vector<VkDescriptorSet> sets() const { return m_sets; };
-
     void addDescriptorSetBinding(
         Type type,
         uint32_t binding,
@@ -87,6 +84,9 @@ class Descriptor
     void finalize();
     void initializePoolSize(Type type);
     void removeEmptyPoolSizes();
+
+    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
+    std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
     VkDescriptorBufferInfo m_bufferInfo;
     VkDevice m_device;

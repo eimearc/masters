@@ -98,19 +98,6 @@ void Descriptor::finalize()
 
 void Descriptor::allocateDescriptorPool()
 {
-    // if (m_numInputAttachments>0)
-    //     addPoolSize(
-    //         VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
-    //         m_swapchainSize*m_numInputAttachments);
-    // if (m_numUniformBuffers>0)
-    //     addPoolSize(
-    //         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    //         m_swapchainSize*m_numUniformBuffers);
-    // if (m_numImageSamplers>0)
-    //     addPoolSize(
-    //         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-    //         m_swapchainSize*m_numImageSamplers);
-
     removeEmptyPoolSizes();
 
     VkDescriptorPoolCreateInfo poolInfo = {};
@@ -198,7 +185,10 @@ void Descriptor::addUniformBuffer(
     addDescriptorSetBinding(
         Type::UNIFORM_BUFFER, binding, stage
     );
-    addWriteSetBuffer(buffer.buffer(), bufferSize, binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage);
+    addWriteSetBuffer(
+        buffer.buffer(), bufferSize, binding,
+        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage
+    );
 }
 
 void Descriptor::addInputAttachment(
@@ -228,20 +218,6 @@ void Descriptor::addDescriptorSetBinding(
     uint32_t binding,
     Shader::Stage stage)
 {
-    // switch (type)
-    // {
-    // case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-    //     m_numInputAttachments++;
-    //     break;
-    // case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-    //     m_numUniformBuffers++;
-    //     break;
-    // case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-    //     m_numImageSamplers++;
-    //     break;
-    // default:
-    //     break;
-    // }
     addPoolSize(type);
 
     VkDescriptorSetLayoutBinding layoutBinding = {};
