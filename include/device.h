@@ -227,7 +227,7 @@ class Device
 
         bool operator==(const Framebuffer &other);
 
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkFramebuffer> m_framebuffers;
     };
     
@@ -253,6 +253,7 @@ class Device
     friend class CommandTest_ctor_Test;
     friend class CommandTest_move_Test;
     friend class DeviceTest_ctor_Test;
+    friend class FramebufferTest_ctor_Test;
 };
 
 #endif

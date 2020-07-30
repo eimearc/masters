@@ -11,6 +11,7 @@ set(
     command_test.cpp
     descriptor_test.cpp
     device_test.cpp
+    framebuffer_test.cpp
     main.cpp
 )
 
