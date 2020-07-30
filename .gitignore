@@ -2,6 +2,7 @@ build/
 *.swp
 main
 *.spv
+!tests/*.spv
 
 # Thesis temporary files.
 *.bbl
