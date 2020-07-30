@@ -44,7 +44,16 @@ TEST_F(BufferTest, update)
 {
     struct Data{int a;};
     Data data{0};
-    DynamicBuffer ubo(device, &data, sizeof(data), 1, Buffer::UBO);
-    ASSERT_EQ(static_cast<Data*>(ubo.m_data)->a, data.a);
-    // ubo.update()
+    DynamicBuffer dynamic(device, &data, sizeof(data), 1, Buffer::UBO);
+    ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, data.a);
+    data.a=1;
+    ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 0);
+    dynamic.update(&data);
+    ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 1);
+
+    data.a=0;
+    StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::UBO);
+    ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, data.a);
+    data.a=1;
+    ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, 0);
 }

@@ -35,18 +35,19 @@ class Buffer
         uint32_t typeFilter,
         VkMemoryPropertyFlags properties
     ) const;
+    void reset() noexcept;
     VkBufferUsageFlags typeToFlag(const Type &type) const;
 
     VkBuffer m_buffer=VK_NULL_HANDLE;
+    void *m_bufferData=nullptr;
     VkDeviceMemory m_bufferMemory=VK_NULL_HANDLE;
-    VkDeviceSize m_bufferSize;
-    void *m_data;
-    VkDevice m_device;
-    VkDeviceSize m_elementSize;
-    size_t m_numElements;
-    size_t m_numThreads;
-    VkPhysicalDevice m_physicalDevice;
-    VkQueue m_queue;
+    VkDeviceSize m_bufferSize=0;
+    VkDevice m_device=VK_NULL_HANDLE;
+    VkDeviceSize m_elementSize=0;
+    size_t m_numElements=0;
+    size_t m_numThreads=1;
+    VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
+    VkQueue m_queue=VK_NULL_HANDLE;
 
     friend class Descriptor;
     friend class Device;
@@ -64,7 +65,7 @@ class DynamicBuffer : public Buffer
     );
     DynamicBuffer(
         Device &device,
-        void *data,
+        const void *data,
         const VkDeviceSize &element_size,
         const size_t num_elements,
         const Type &type
@@ -78,7 +79,7 @@ class StaticBuffer : public Buffer
     public:
     StaticBuffer(
         Device &device,
-        void *data,
+        const void *data,
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
