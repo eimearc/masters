@@ -3,6 +3,7 @@
 
 #include "descriptor.h"
 #include "device.h"
+#include <gsl/gsl>
 #include "shader.h"
 #include "pass.h"
 #include "util.h"
@@ -22,25 +23,34 @@ class Pipeline
 
     Pipeline(
         Device &device,
-        const Subpass &subpass,
-        Descriptor *pDescriptor,
+        Subpass *pSubpass, // TODO: For everything: reference or pointer?
+        gsl::not_null<Descriptor*> pDescriptor,
         const VertexInput &vertexInput,
         Renderpass *pRenderpass,
-        const std::vector<Shader*> &shaders,
-        bool writeDepth
+        const std::vector<Shader*> &shaders
+    );
+    Pipeline(
+        Device &device,
+        Subpass *pSubpass,
+        const VertexInput &vertexInput,
+        Renderpass *pRenderpass,
+        const std::vector<Shader*> &shaders
     );
 
     bool operator==(const Pipeline&) const;
+
+    private:
+    void createSetLayout(
+        const std::vector<VkDescriptorSetLayout> &setLayouts
+    );
+    void setup(
+        Device &device
+    );
 
     Descriptor* const descriptor() const { return m_descriptor; };
     VkPipelineLayout layout() const { return m_layout; };
     VkPipeline pipeline() const { return m_pipeline; };
     Renderpass* const renderpass() const { return m_renderpass; };
-
-    private:
-    void setup(
-        Device &device
-    );
 
     Descriptor* m_descriptor;
     VkDevice m_device;
@@ -48,9 +58,10 @@ class Pipeline
     VkPipeline m_pipeline=VK_NULL_HANDLE;
     Renderpass *m_renderpass;
     std::vector<Shader*> m_shaders;
-    uint32_t m_subpass; // TODO: Subpass object?
+    Subpass *m_subpass;
     VertexInput m_vertexInput;
-    bool m_writeDepth; // TODO: Remove.
+
+    friend class Device;
 };
 
 #endif

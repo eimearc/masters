@@ -92,12 +92,12 @@ Renderpass::Renderpass(
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subpassDescriptions;
 
-    attachmentDescriptions.resize(attachments.size()); // Use a set of all attachments from all subpasses?
+    attachmentDescriptions.resize(attachments.size()); // TODO: Use a set of all attachments from all subpasses?
     m_clearValues.resize(attachments.size());
     for (const auto &a : attachments)
     {
         attachmentDescriptions[a->index()] = a->description();
-        m_clearValues[a->index()] = a->clearValue();
+        m_clearValues[a->index()] = a->clearValue(); // TODO: Is this needed?
     }
 
     for (const auto &sp : subpasses) subpassDescriptions.push_back(sp->description()); 

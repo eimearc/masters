@@ -21,18 +21,11 @@ class Descriptor
 
     Descriptor(
         const Device &device,
-        const size_t swapchainSize,
-        const size_t numAttachments
+        const size_t swapchainSize
     );
 
     bool operator==(const Descriptor&) const;
 
-    void addUniformBuffer(
-        const uint32_t binding,
-        const Buffer &buffer,
-        const Shader::Stage shaderStage,
-        const VkDeviceSize bufferSize
-    );
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
@@ -43,57 +36,74 @@ class Descriptor
         const Texture &texture,
         const Shader::Stage shaderStage
     );
+    void addUniformBuffer(
+        const uint32_t binding,
+        const Buffer &buffer,
+        const Shader::Stage shaderStage
+    );
     
-    void allocateDescriptorPool();
-    void allocateDescriptorSets();
-
-    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
-    std::vector<VkDescriptorSet> sets() const { return m_sets; };
-
     private:
-    VkDescriptorBufferInfo m_bufferInfo;
-    VkDevice m_device;
-    std::vector<VkDescriptorImageInfo> m_inputAttachmentInfo;
-    size_t m_numAttachments;
-    size_t m_numInputAttachments=0;
-    size_t m_numImageSamplers=0;
-    size_t m_numUniformBuffers=0;
-    VkDescriptorPool m_pool;
-    std::vector<VkDescriptorPoolSize> m_poolSizes;
-    std::vector<VkDescriptorSetLayout> m_setLayouts;
-    std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
-    std::vector<VkDescriptorSet> m_sets;
-    size_t m_swapchainSize;
-    VkDescriptorImageInfo m_textureSamplerInfo;
-    std::vector<VkWriteDescriptorSet> m_writeSetFragment;
-    std::vector<VkWriteDescriptorSet> m_writeSetVertex;
+    enum class Type{
+        INPUT_ATTACHMENT,
+        TEXTURE_SAMPLER,
+        UNIFORM_BUFFER  
+    };
 
-    void addDescriptorPoolSize(
-        const VkDescriptorType type,
-        const size_t count
-    );
     void addDescriptorSetBinding(
-        const VkDescriptorType type,
+        Type type,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetTextureSampler(
+    void addPoolSize(Type type);
+    void addWriteSetTextureSampler(
         const Texture &texture,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetBuffer(
+    void addWriteSetBuffer(
         VkBuffer buffer,
         VkDeviceSize range,
         uint32_t binding,
         VkDescriptorType type,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
-    void addWriteDescriptorSetInputAttachment(
+    void addWriteSetInputAttachment(
         VkImageView imageView,
         uint32_t binding,
-        VkShaderStageFlagBits stage
+        Shader::Stage stage
     );
+    void addWriteSet(
+        VkWriteDescriptorSet writeSet,
+        Shader::Stage stage
+    );
+    void allocateDescriptorPool();
+    void allocateDescriptorSets();
+    VkDescriptorType descriptorType(Type type);
+    void finalize();
+    void initializePoolSize(Type type);
+    void removeEmptyPoolSizes();
+
+    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
+    std::vector<VkDescriptorSet> sets() const { return m_sets; };
+
+    std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
+    VkDevice m_device=VK_NULL_HANDLE;
+    std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;
+    VkDescriptorPool m_pool=VK_NULL_HANDLE;
+    std::vector<VkDescriptorPoolSize> m_poolSizes;
+    std::vector<VkDescriptorSetLayout> m_setLayouts;
+    std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
+    std::vector<VkDescriptorSet> m_sets;
+    size_t m_swapchainSize=0;
+    std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_textureSamplerInfo;
+    std::vector<VkWriteDescriptorSet> m_writeSetFragment;
+    std::vector<VkWriteDescriptorSet> m_writeSetVertex;
+
+    friend class Pipeline;
+    friend class Device;
+
+    // Testing.
+    friend class DescriptorTest_multipleUniformBuffers_Test;
 };
 
 #endif

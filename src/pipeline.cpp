@@ -24,34 +24,75 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
     other.m_subpass=0;
     m_vertexInput=other.m_vertexInput;
     other.m_vertexInput={};
-    m_writeDepth=other.m_writeDepth;
     return *this;
 }
 
 Pipeline::Pipeline(
     Device &device,
-    const Subpass &subpass,
-    Descriptor *pDescriptor,
+    Subpass *pSubpass,
+    gsl::not_null<Descriptor*> pDescriptor,
     const VertexInput &vertexInput,
     Renderpass *pRenderpass,
-    const std::vector<Shader*> &shaders,
-    bool writeDepth
+    const std::vector<Shader*> &shaders
 )
 {
+    m_device=device.device();
     m_vertexInput = vertexInput;
-    m_subpass = subpass.index();
+    m_subpass = pSubpass;
     m_descriptor = pDescriptor;
     m_shaders = shaders;
     m_renderpass = pRenderpass;
-    m_writeDepth=writeDepth;
+
+    // Finalize descriptor sets.
+    m_descriptor->finalize();
+
+    auto setLayouts = m_descriptor->setLayouts();
+    createSetLayout(setLayouts);
 
     setup(device);
+}
+
+Pipeline::Pipeline(
+    Device &device,
+    Subpass *pSubpass,
+    const VertexInput &vertexInput,
+    Renderpass *pRenderpass,
+    const std::vector<Shader*> &shaders
+)
+{
+    m_device=device.device();
+    m_vertexInput = vertexInput;
+    m_subpass = pSubpass;
+    m_shaders = shaders;
+    m_renderpass = pRenderpass;
+
+    std::vector<VkDescriptorSetLayout> setLayouts;
+    createSetLayout(setLayouts);
+
+    setup(device);
+}
+
+void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayouts)
+{
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = setLayouts.size();
+    pipelineLayoutInfo.pSetLayouts = setLayouts.data();
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create pipeline layout.");
+    }
 }
 
 bool Pipeline::operator==(const Pipeline &other) const
 {
     bool result=true;
-    result &= (*m_descriptor==*other.m_descriptor);
+    if (m_descriptor!=nullptr && other.m_descriptor!=nullptr)
+        result &= (*m_descriptor==*other.m_descriptor);
+    else result &= ((m_descriptor==nullptr)&&(other.m_descriptor==nullptr));
     result &= (m_device==other.m_device);
     result &= (m_layout==other.m_layout);
     result &= (m_pipeline==other.m_pipeline);
@@ -62,17 +103,11 @@ bool Pipeline::operator==(const Pipeline &other) const
     );
     result &= (m_subpass==other.m_subpass);
     result &= (m_vertexInput==other.m_vertexInput);
-    result &= (m_writeDepth==other.m_writeDepth);
     return result;
 }
 
 void Pipeline::setup(Device &device)
 {
-    m_device = device.device();
-
-    m_descriptor->allocateDescriptorPool();
-    m_descriptor->allocateDescriptorSets();
-
     const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
 
@@ -163,25 +198,12 @@ void Pipeline::setup(Device &device)
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
-    const auto &setLayouts = m_descriptor->setLayouts();
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = setLayouts.size();
-    pipelineLayoutInfo.pSetLayouts = setLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    if (vkCreatePipelineLayout(device.device(), &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create pipeline layout.");
-    }
-
     // Set up depth testing.
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 
-    if (m_writeDepth) // G-Buffer
+    // If the subpass has a depth attachment, write depth.
+    if (m_subpass->hasDepthAttachment()) // G-Buffer
     {
         depthStencil.depthTestEnable = true;
         depthStencil.depthWriteEnable = true;
@@ -215,7 +237,8 @@ void Pipeline::setup(Device &device)
     }
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;
-    for (const auto &s : m_shaders) shadersCreateInfo.push_back(s->createInfo());
+    for (const auto &s : m_shaders)
+        shadersCreateInfo.push_back(s->createInfo());
 
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -231,7 +254,7 @@ void Pipeline::setup(Device &device)
     pipelineInfo.pDynamicState = nullptr;
     pipelineInfo.layout = m_layout;
     pipelineInfo.renderPass = m_renderpass->renderpass();
-    pipelineInfo.subpass = m_subpass;
+    pipelineInfo.subpass = m_subpass->index();
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.pDepthStencilState = &depthStencil;

@@ -2,7 +2,11 @@ cmake_minimum_required (VERSION 3.1)
 project (evulkan)
 
 find_package(PkgConfig REQUIRED)
+find_package(Microsoft.GSL CONFIG) # Type safety.
 set (CMAKE_CXX_STANDARD 17)
+
+option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_TESTS "Build the tests" ON)
 
 set(VULKANROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
@@ -47,15 +51,19 @@ set (SOURCES
     ${VULKAN_INCLUDE}/vertex.h
 )
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib)
-set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib) # TODO: Remove
+set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install) # TODO: Remove
 add_library(evulkan SHARED ${SOURCES})
 
 install(TARGETS evulkan DESTINATION lib)
 install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
 
 # Build examples.
-add_subdirectory(examples)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
 
 # Build tests.
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif(BUILD_TESTS)

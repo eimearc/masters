@@ -19,17 +19,33 @@ class Device
     Device& operator=(Device&&) noexcept;
     ~Device()=default;
 
+    // Validation layers off.
     Device(
-        const uint32_t &num_threads,
-        const std::vector<const char*> &validation_layers,
+        uint32_t num_threads,
         GLFWwindow *window,
         const std::vector<const char *> &device_extensions,
-        const uint32_t &swapchain_size,
-        const bool &enable_validation
+        const uint32_t swapchain_size
+    );
+
+    // Validation layers on.
+    Device(
+        uint32_t num_threads,
+        GLFWwindow *window,
+        const std::vector<const char *> &device_extensions,
+        uint32_t swapchain_size,
+        const std::vector<const char*> &validation_layers
     );
 
     bool operator==(const Device& other);
 
+    void finalize(
+        const Buffer &indexBuffer,
+        const Buffer &vertexBuffer,
+        const std::vector<Pipeline*> &pipelines
+    );
+    void draw();
+
+    private:
     // Device.
     GLFWwindow* window() const { return m_device->m_window; }
     VkInstance instance() const { return m_device->m_instance; }
@@ -63,15 +79,6 @@ class Device
     // Framebuffers.
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
 
-    // Draw.
-    void finalize(
-        const Buffer &indexBuffer,
-        const Buffer &vertexBuffer,
-        const std::vector<Pipeline*> &pipelines
-    );
-    void draw();
-
-    private:
     class _Device
     {
         public:
@@ -86,8 +93,7 @@ class Device
             uint32_t num_threads,
             const std::vector<const char*> &validation_layers,
             GLFWwindow *window,
-            const std::vector<const char *> &device_extensions,
-            bool enable_validation
+            const std::vector<const char *> &device_extensions
         );
 
         bool operator==(const _Device &other);
@@ -113,7 +119,6 @@ class Device
             const std::vector<const char *> &deviceExtensions
         );
         void createDevice(
-            bool enableValidation,
             const std::vector<const char *> &device_extensions,
             const std::vector<const char*> &validation_layers
         );
@@ -232,6 +237,16 @@ class Device
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
+
+    friend class Attachment;
+    friend class Buffer;
+    friend class Descriptor;
+    friend class DynamicBuffer;
+    friend class Pipeline;
+    friend class Renderpass;
+    friend class Shader;
+    friend class StaticBuffer;
+    friend class Texture;
 };
 
 #endif

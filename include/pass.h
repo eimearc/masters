@@ -19,12 +19,13 @@ class Subpass
 
     bool operator==(const Subpass&) const;
 
-    std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
-    VkSubpassDescription description() const { return m_description; };
-    uint32_t index() const { return m_index; };
-
     private:
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
+
+    std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
+    VkSubpassDescription description() const { return m_description; };
+    bool hasDepthAttachment() const { return !m_depthAttachments.empty(); };
+    uint32_t index() const { return m_index; };
 
     std::vector<Attachment*> m_colorAttachments;
     std::vector<VkAttachmentReference> m_colorReferences;
@@ -35,6 +36,9 @@ class Subpass
     uint32_t m_index;
     std::vector<Attachment*> m_inputAttachments;
     std::vector<VkAttachmentReference> m_inputReferences;
+
+    friend class Pipeline;
+    friend class Renderpass;
 };
 
 class Renderpass
@@ -55,17 +59,21 @@ class Renderpass
 
     bool operator==(const Renderpass&) const;
 
+    private:
     const std::vector<Attachment*>& attachments() const { return m_attachments; };
     std::vector<VkClearValue> clearValues() const { return m_clearValues; };
     VkRenderPass renderpass() const { return m_renderPass; };
     std::vector<Subpass*> subpasses() const { return m_subpasses; };
 
-    private:
     std::vector<Attachment*> m_attachments;
     std::vector<VkClearValue> m_clearValues;
     VkDevice m_device;
     VkRenderPass m_renderPass=VK_NULL_HANDLE;
     std::vector<Subpass*> m_subpasses;
+
+    friend class Device;
+    friend class Framebuffer;
+    friend class Pipeline;
 };
 
 #endif

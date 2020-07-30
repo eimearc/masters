@@ -123,10 +123,8 @@ void Device::finalize(
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
-            const auto &descriptorSets = pipelines[pass]->descriptor()->sets();
             const auto &pipeline = pipelines[pass]->pipeline();
             const auto &pipelineLayout = pipelines[pass]->layout();
-
             if (pass == 0 )
                 vkCmdBeginRenderPass(
                     primaryCommandBuffer,
@@ -178,9 +176,13 @@ void Device::finalize(
                 auto vBuffer = vertexBuffer.buffer();
                 vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vBuffer, offsets);
                 vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-                vkCmdBindDescriptorSets(
-                    secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                    0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+                if (pipelines[pass]->descriptor()!=nullptr)
+                {
+                    const auto &descriptorSets = pipelines[pass]->descriptor()->sets();
+                    vkCmdBindDescriptorSets(
+                        secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                        0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
+                }
                 vkCmdDrawIndexed(secondaryCommandBuffer, numIndices, 1, indexOffset, 0, 0);
 
                 if (vkEndCommandBuffer(secondaryCommandBuffer) != VK_SUCCESS)

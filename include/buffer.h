@@ -23,6 +23,7 @@ class Buffer
     protected:
     VkBuffer buffer() const { return m_buffer; };
     size_t numElements() const { return m_numElements; };
+    VkDeviceSize size() const { return m_bufferSize; }; 
 
     void copyBuffer(
         VkCommandPool commandPool,
