@@ -13,6 +13,7 @@ set(
     device_test.cpp
     framebuffer_test.cpp
     main.cpp
+    obj_test.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -24,3 +25,4 @@ target_link_libraries(tests evulkan gtest)
 
 configure_file("shader_frag.spv" "." COPYONLY)
 configure_file("shader_vert.spv" "." COPYONLY)
+configure_file("tri.obj" "." COPYONLY)

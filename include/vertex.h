@@ -13,6 +13,16 @@ struct Vertex {
     glm::vec3 color;
     glm::vec2 texCoord;
     glm::vec3 normal;
+
+    bool operator==(const Vertex &other) const
+    {
+        bool result = true;
+        result &= (pos==other.pos);
+        result &= (color==other.color);
+        result &= (texCoord==other.texCoord);
+        result &= (normal==other.normal);
+        return result;
+    }
 };
 
 #endif
