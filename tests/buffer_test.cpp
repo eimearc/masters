@@ -34,9 +34,7 @@ class BufferTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    std::vector<uint32_t> indices;
     Device device;
-    std::vector<Vertex> vertices;
     GLFWwindow *window;
 };
 

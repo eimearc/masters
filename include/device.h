@@ -178,9 +178,10 @@ class Device
         );
 
         bool operator==(const Commands &other);
+        void reset() noexcept;
 
         std::vector<VkCommandPool> m_commandPools;
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> m_primaryCommandBuffers;
         std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
     };
@@ -247,6 +248,10 @@ class Device
     friend class Shader;
     friend class StaticBuffer;
     friend class Texture;
+
+    // Tests.
+    friend class CommandTest_ctor_Test;
+    friend class CommandTest_move_Test;
 };
 
 #endif

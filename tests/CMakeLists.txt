@@ -8,6 +8,7 @@ set(
     FILES
     attachment_test.cpp
     buffer_test.cpp
+    command_test.cpp
     descriptor_test.cpp
     device_test.cpp
     main.cpp
