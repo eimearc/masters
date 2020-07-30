@@ -252,6 +252,7 @@ class Device
     // Tests.
     friend class CommandTest_ctor_Test;
     friend class CommandTest_move_Test;
+    friend class DeviceTest_ctor_Test;
 };
 
 #endif

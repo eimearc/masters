@@ -2,15 +2,6 @@
 
 #include <gtest/gtest.h>
 
-std::vector<const char*> validationLayers =
-{
-    "VK_LAYER_LUNARG_standard_validation"
-};
-std::vector<const char*> deviceExtensions = 
-{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
 class DeviceTest : public  ::testing::Test
 {
     protected:
@@ -28,13 +19,33 @@ class DeviceTest : public  ::testing::Test
         glfwTerminate();
     }
 
+    std::vector<const char*> deviceExtensions = 
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+    std::vector<const char*> validationLayers =
+    {
+        "VK_LAYER_LUNARG_standard_validation"
+    };
     GLFWwindow *window;
 };
 
 
-TEST_F(DeviceTest, firstTest)
+TEST_F(DeviceTest, ctor)
 {
-    std::cout << "Hello from first test.\n";
+    const uint32_t numThreads = 2;
+    const uint32_t swapchainSize = 2;
+    Device device(
+        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+    );
+
+    ASSERT_NE(device.m_device.get(), nullptr);
+    ASSERT_NE(device.m_commands.get(), nullptr);
+    ASSERT_NE(device.m_swapchain.get(), nullptr);
+    ASSERT_NE(device.m_sync.get(), nullptr);
+
+    ASSERT_EQ(device.m_framebuffer.get(), nullptr);
+    ASSERT_EQ(device.m_numThreads, numThreads);
 }
 
 TEST_F(DeviceTest, move)
