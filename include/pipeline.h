@@ -43,6 +43,7 @@ class Pipeline
     void createSetLayout(
         const std::vector<VkDescriptorSetLayout> &setLayouts
     );
+    void reset();
     void setup(
         Device &device
     );
@@ -52,13 +53,13 @@ class Pipeline
     VkPipeline pipeline() const { return m_pipeline; };
     Renderpass* const renderpass() const { return m_renderpass; };
 
-    Descriptor* m_descriptor;
-    VkDevice m_device;
+    Descriptor* m_descriptor=nullptr;
+    VkDevice m_device=VK_NULL_HANDLE;
     VkPipelineLayout m_layout=VK_NULL_HANDLE;
     VkPipeline m_pipeline=VK_NULL_HANDLE;
-    Renderpass *m_renderpass;
+    Renderpass *m_renderpass=nullptr;
     std::vector<Shader*> m_shaders;
-    Subpass *m_subpass;
+    Subpass *m_subpass=nullptr;
     VertexInput m_vertexInput;
 
     friend class Device;

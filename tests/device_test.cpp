@@ -46,6 +46,18 @@ TEST_F(DeviceTest, ctor)
 
     ASSERT_EQ(device.m_framebuffer.get(), nullptr);
     ASSERT_EQ(device.m_numThreads, numThreads);
+
+    Device device1(
+        numThreads, window, deviceExtensions, swapchainSize
+    );
+
+    ASSERT_NE(device1.m_device.get(), nullptr);
+    ASSERT_NE(device1.m_commands.get(), nullptr);
+    ASSERT_NE(device1.m_swapchain.get(), nullptr);
+    ASSERT_NE(device1.m_sync.get(), nullptr);
+
+    ASSERT_EQ(device1.m_framebuffer.get(), nullptr);
+    ASSERT_EQ(device1.m_numThreads, numThreads);
 }
 
 TEST_F(DeviceTest, move)
@@ -65,4 +77,71 @@ TEST_F(DeviceTest, move)
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
     Attachment depthAttachment(device, 2, Attachment::Type::DEPTH);
+}
+
+TEST_F(DeviceTest, draw)
+{
+    const uint32_t numThreads = 1;
+    const uint32_t swapchainSize = 2;
+    Device device(
+        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+    );
+
+    std::vector<Vertex> vertices;
+    Vertex v;
+    v.pos={0,-0.5,0};
+    v.color={1,0,0};
+    vertices.push_back(v);
+    v.pos={-0.5,0.5,0};
+    v.color={0,0,1};
+    vertices.push_back(v);
+    v.pos={0.5,0.5,0};
+    v.color={0,1,0};
+    vertices.push_back(v);
+    std::vector<uint32_t> indices={0,1,2};
+
+    Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
+    Attachment depthAttachment(device, 1, Attachment::Type::DEPTH);
+
+    std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
+    std::vector<Attachment*> depthAttachments = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
+    std::vector<evk::SubpassDependency> dependencies;
+    
+    Subpass subpass(
+        0,
+        dependencies,
+        colorAttachments,
+        depthAttachments,
+        inputAttachments
+    );
+
+    std::vector<Attachment*> attachments = {
+        &framebufferAttachment, &depthAttachment
+    };
+    std::vector<Subpass*> subpasses = {&subpass};
+    Renderpass renderpass(device, attachments, subpasses);
+
+    VertexInput vertexInput(sizeof(Vertex));
+    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+
+    StaticBuffer indexBuffer(
+        device, indices.data(), sizeof(indices[0]), indices.size(),
+        Buffer::INDEX
+    );
+    StaticBuffer vertexBuffer(
+        device, vertices.data(), sizeof(vertices[0]), vertices.size(),
+        Buffer::VERTEX
+    );
+
+    Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
+    Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
+    std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
+
+    Pipeline pipeline(device, &subpass, vertexInput, &renderpass, shaders);
+    std::vector<Pipeline*> pipelines = {&pipeline};
+    
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
+    device.draw();
 }

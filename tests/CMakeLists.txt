@@ -20,3 +20,6 @@ endif()
 
 add_executable(tests ${FILES})
 target_link_libraries(tests evulkan gtest)
+
+configure_file("shader_frag.spv" "." COPYONLY)
+configure_file("shader_vert.spv" "." COPYONLY)
