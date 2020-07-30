@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-class AttachmentTest : public  ::testing::Test
+class BufferTest : public  ::testing::Test
 {
     protected:
     virtual void SetUp() override
@@ -34,28 +34,17 @@ class AttachmentTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    Attachment attachment;
+    std::vector<uint32_t> indices;
     Device device;
+    std::vector<Vertex> vertices;
     GLFWwindow *window;
 };
 
-TEST_F(AttachmentTest, move)
+TEST_F(BufferTest, update)
 {
-    Attachment a(device, 1, Attachment::Type::DEPTH);
-    a=std::move(a);
-    ASSERT_EQ(a.m_colorReference.attachment,1);
-
-    Attachment b(device, 2, Attachment::Type::COLOR);
-    a=std::move(b);
-    ASSERT_EQ(a.index(),2);
-    ASSERT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
-    VkClearColorValue got = a.clearValue().color;
-    VkClearColorValue want = {0.0f,0.0f,0.0f,1.0f};
-    ASSERT_EQ(*got.float32, *want.float32);
-    ASSERT_EQ(a.m_colorReference.attachment,2);
-    ASSERT_EQ(a.m_depthReference.attachment,2);
-    ASSERT_EQ(b.index(),0);
-    if (b.m_image!=VK_NULL_HANDLE) FAIL();
-    if (b.m_imageMemory!=VK_NULL_HANDLE) FAIL();
-    if (b.m_imageView!=VK_NULL_HANDLE) FAIL();
+    struct Data{int a;};
+    Data data{0};
+    DynamicBuffer ubo(device, &data, sizeof(data), 1, Buffer::UBO);
+    ASSERT_EQ(static_cast<Data*>(ubo.m_data)->a, data.a);
+    // ubo.update()
 }

@@ -7,6 +7,7 @@ enable_testing()
 set(
     FILES
     attachment_test.cpp
+    buffer_test.cpp
     descriptor_test.cpp
     device_test.cpp
     main.cpp

@@ -50,6 +50,9 @@ class Buffer
 
     friend class Descriptor;
     friend class Device;
+
+    // Tests.
+    friend class BufferTest_update_Test;
 };
 
 class DynamicBuffer : public Buffer
