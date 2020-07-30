@@ -87,14 +87,14 @@ class Descriptor
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
     std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
-    VkDevice m_device;
+    VkDevice m_device=VK_NULL_HANDLE;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;
     VkDescriptorPool m_pool=VK_NULL_HANDLE;
     std::vector<VkDescriptorPoolSize> m_poolSizes;
     std::vector<VkDescriptorSetLayout> m_setLayouts;
     std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
     std::vector<VkDescriptorSet> m_sets;
-    size_t m_swapchainSize;
+    size_t m_swapchainSize=0;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_textureSamplerInfo;
     std::vector<VkWriteDescriptorSet> m_writeSetFragment;
     std::vector<VkWriteDescriptorSet> m_writeSetVertex;

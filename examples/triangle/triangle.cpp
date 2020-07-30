@@ -48,7 +48,7 @@ int main()
     std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
     std::vector<Attachment*> depthAttachments = {&depthAttachment};
     std::vector<Attachment*> inputAttachments;
-    std::vector<evk::SubpassDependency> dependencies;
+    std::vector<evk::SubpassDependency> dependencies; // TODO: Change this.
     
     Subpass subpass(
         0,
@@ -62,7 +62,7 @@ int main()
         &framebufferAttachment, &depthAttachment
     };
     std::vector<Subpass*> subpasses = {&subpass};
-    Renderpass renderpass(device,attachments,subpasses);
+    Renderpass renderpass(device, attachments, subpasses); // TODO: This should be constructed in pipeline.
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));

@@ -34,6 +34,7 @@ class Attachment
     void setDepthAttachment(
         const Device &device
     );
+    void reset();
 
     VkClearValue clearValue() const { return m_clearValue; };
     VkAttachmentReference colorReference() const { return m_colorReference; };
@@ -59,6 +60,9 @@ class Attachment
     friend class Device;
     friend class Renderpass;
     friend class Subpass;
+
+    // Tests.
+    friend class AttachmentTest_move_Test;
 };
 
 #endif
