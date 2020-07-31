@@ -254,6 +254,7 @@ class Device
     friend class CommandTest_move_Test;
     friend class DeviceTest_ctor_Test;
     friend class FramebufferTest_ctor_Test;
+    friend class PassTest_ctor_Test;
 };
 
 #endif

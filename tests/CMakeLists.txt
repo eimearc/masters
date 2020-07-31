@@ -14,6 +14,7 @@ set(
     framebuffer_test.cpp
     main.cpp
     obj_test.cpp
+    pass_test.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

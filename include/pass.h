@@ -9,6 +9,7 @@
 class Subpass
 {
     public:
+    Subpass()=default;
     Subpass(
         const uint32_t index,
         const std::vector<evk::SubpassDependency> &dependencies,
@@ -21,6 +22,10 @@ class Subpass
 
     private:
     void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
+    static bool referenceEqual(
+        const VkAttachmentReference &a,
+        const VkAttachmentReference &b
+    );
 
     std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
     VkSubpassDescription description() const { return m_description; };
@@ -39,6 +44,9 @@ class Subpass
 
     friend class Pipeline;
     friend class Renderpass;
+
+    // Tests.
+    friend class PassTest_ctor_Test;
 };
 
 class Renderpass
@@ -63,17 +71,21 @@ class Renderpass
     const std::vector<Attachment*>& attachments() const { return m_attachments; };
     std::vector<VkClearValue> clearValues() const { return m_clearValues; };
     VkRenderPass renderpass() const { return m_renderPass; };
+    void reset();
     std::vector<Subpass*> subpasses() const { return m_subpasses; };
 
     std::vector<Attachment*> m_attachments;
     std::vector<VkClearValue> m_clearValues;
-    VkDevice m_device;
+    VkDevice m_device=VK_NULL_HANDLE;
     VkRenderPass m_renderPass=VK_NULL_HANDLE;
     std::vector<Subpass*> m_subpasses;
 
     friend class Device;
     friend class Framebuffer;
     friend class Pipeline;
+
+    // Tests.
+    friend class PassTest_ctor_Test;
 };
 
 #endif
