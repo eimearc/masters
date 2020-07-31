@@ -104,6 +104,10 @@ TEST_F(PassTest,ctor)
     EXPECT_EQ(subpass,subpass);
 
     // Renderpass ctor.
-    if (renderpass.m_device==VK_NULL_HANDLE) FAIL();
+    if (renderpass.m_renderPass==VK_NULL_HANDLE) FAIL();
     EXPECT_EQ(renderpass.m_device, device.m_device->m_device);
+    EXPECT_EQ(renderpass.m_attachments.size(),2);
+    EXPECT_EQ(renderpass.m_clearValues.size(),2);
+    EXPECT_EQ(renderpass.m_subpasses.size(),1);
+    EXPECT_EQ(renderpass, renderpass);
 }
