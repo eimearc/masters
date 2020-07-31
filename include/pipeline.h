@@ -60,9 +60,12 @@ class Pipeline
     Renderpass *m_renderpass=nullptr;
     std::vector<Shader*> m_shaders;
     Subpass *m_subpass=nullptr;
-    VertexInput m_vertexInput;
+    VertexInput m_vertexInput={};
 
     friend class Device;
+
+    // Tests.
+    friend class PipelineTest_ctor_Test;
 };
 
 #endif

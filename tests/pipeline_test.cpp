@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-class PassTest : public  ::testing::Test
+class PipelineTest : public  ::testing::Test
 {
     protected:
     virtual void SetUp() override
@@ -30,18 +30,39 @@ class PassTest : public  ::testing::Test
 
         colorAttachments = {&framebufferAttachment};
         depthAttachments = {&depthAttachment};
+        std::vector<evk::SubpassDependency> dependencies;
         
-        subpass = {
+        Subpass subpass(
             0, dependencies, colorAttachments, depthAttachments,
             inputAttachments
-        };
+        );
 
         std::vector<Attachment*> attachments = {
             &framebufferAttachment, &depthAttachment
         };
         std::vector<Subpass*> subpasses = {&subpass};
-        renderpass={device, attachments, subpasses};
+        renderpass = {device, attachments, subpasses};
 
+        VertexInput vertexInput(sizeof(Vertex));
+        vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+        vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+
+        StaticBuffer indexBuffer(
+            device, indices.data(), sizeof(indices[0]), indices.size(),
+            Buffer::INDEX
+        );
+        StaticBuffer vertexBuffer(
+            device, vertices.data(), sizeof(vertices[0]), vertices.size(),
+            Buffer::VERTEX
+        );
+
+        Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
+        Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
+        std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
+
+        pipeline = {
+            device, &subpass, vertexInput, &renderpass, shaders
+        };
     }
 
     virtual void TearDown() override
@@ -63,50 +84,12 @@ class PassTest : public  ::testing::Test
     Device device;
     std::vector<Attachment*> colorAttachments;
     std::vector<Attachment*> depthAttachments;
-    std::vector<evk::SubpassDependency> dependencies;
     std::vector<Attachment*> inputAttachments;
-    Subpass subpass;
+    Pipeline pipeline;
     Renderpass renderpass;
 };
 
-TEST_F(PassTest,ctor)
+TEST_F(PipelineTest,ctor)
 {
-    // Subpass ctor.
-    if (!std::equal(
-        subpass.m_colorReferences.begin(), subpass.m_colorReferences.end(),
-        subpass.m_colorReferences.begin(),Subpass::referenceEqual))
-    FAIL();
-
-    EXPECT_EQ(subpass.m_colorAttachments, colorAttachments);
-
-    std::vector<VkAttachmentReference> colorReferences = 
-    {
-        {0,VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
-    };
-    if (!std::equal(
-            subpass.m_colorReferences.begin(), subpass.m_colorReferences.end(),
-            colorReferences.begin(),Subpass::referenceEqual))
-        FAIL();
-    EXPECT_EQ(subpass.m_depthAttachments, depthAttachments);
-
-    std::vector<VkAttachmentReference> depthReferences = 
-    {
-        {1,VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL},
-    };
-    if (!std::equal(
-            subpass.m_depthReferences.begin(), subpass.m_depthReferences.end(),
-            depthReferences.begin(),Subpass::referenceEqual))
-        FAIL();
-    EXPECT_EQ(subpass.m_inputAttachments, inputAttachments);
-    EXPECT_EQ(subpass.m_dependencies.size(), 0);
-    EXPECT_EQ(subpass.m_index, 0);
-    EXPECT_EQ(subpass,subpass);
-
-    // Renderpass ctor.
-    if (renderpass.m_renderPass==VK_NULL_HANDLE) FAIL();
-    EXPECT_EQ(renderpass.m_device, device.m_device->m_device);
-    EXPECT_EQ(renderpass.m_attachments.size(),2);
-    EXPECT_EQ(renderpass.m_clearValues.size(),2);
-    EXPECT_EQ(renderpass.m_subpasses.size(),1);
-    if (!(renderpass==renderpass)) FAIL();
+    if (pipeline.m_pipeline==VK_NULL_HANDLE) FAIL();
 }

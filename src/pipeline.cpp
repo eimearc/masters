@@ -94,21 +94,31 @@ void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayo
 
 bool Pipeline::operator==(const Pipeline &other) const
 {
-    bool result=true;
     if (m_descriptor!=nullptr && other.m_descriptor!=nullptr)
-        result &= (*m_descriptor==*other.m_descriptor);
-    else result &= ((m_descriptor==nullptr)&&(other.m_descriptor==nullptr));
-    result &= (m_device==other.m_device);
-    result &= (m_layout==other.m_layout);
-    result &= (m_pipeline==other.m_pipeline);
-    result &= (*m_renderpass==*other.m_renderpass);
-    result &= std::equal(
-        m_shaders.begin(), m_shaders.end(),
-        other.m_shaders.begin()
-    );
-    result &= (m_subpass==other.m_subpass);
-    result &= (m_vertexInput==other.m_vertexInput);
-    return result;
+    {
+        if (!(*m_descriptor==*other.m_descriptor)) return false;
+    }
+    else if (m_descriptor!=other.m_descriptor) return false;
+    if (m_device!=other.m_device) return false;
+    if (m_layout!=other.m_layout) return false;
+    if (m_pipeline!=other.m_pipeline) return false;
+    if (m_renderpass!=nullptr && other.m_renderpass!=nullptr)
+    {
+        if (!(*m_renderpass==*other.m_renderpass)) return false;
+    }
+    else if (m_renderpass!=other.m_renderpass) return false;
+    if (m_shaders.size()!=other.m_shaders.size()) return false;
+    if (!std::equal(
+            m_shaders.begin(), m_shaders.end(),
+            other.m_shaders.begin()))
+        return false;
+    if (m_subpass!=nullptr && other.m_subpass!=nullptr)
+    {
+        if (!(*m_subpass==*other.m_subpass)) return false;
+    }
+    else if (m_subpass!=other.m_subpass) return false;
+    if (!(m_vertexInput==other.m_vertexInput)) return false;
+    return true;
 }
 
 void Pipeline::setup(Device &device)

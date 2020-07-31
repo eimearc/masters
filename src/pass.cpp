@@ -177,18 +177,19 @@ Renderpass::Renderpass(
 
 bool Renderpass::operator==(const Renderpass &other) const
 {
-    bool result=true;
-    result &= std::equal(
-        m_attachments.begin(), m_attachments.end(),
-        other.m_attachments.begin()
-    );
-    result &= (m_device==other.m_device);
-    result &= (m_renderPass==other.m_renderPass);
-    result &= std::equal(
-        m_subpasses.begin(), m_subpasses.end(),
-        other.m_subpasses.begin()
-    );
-    return result;
+    if (m_attachments.size()!=other.m_attachments.size())
+        return false;
+    if (!std::equal(
+            m_attachments.begin(), m_attachments.end(),
+            other.m_attachments.begin()))
+        return false;
+    if (m_device!=other.m_device) return false;
+    if (m_renderPass!=other.m_renderPass) return false;
+    if (!std::equal(
+            m_subpasses.begin(), m_subpasses.end(),
+            other.m_subpasses.begin()))
+        return false;
+    return true;
 }
 
 
