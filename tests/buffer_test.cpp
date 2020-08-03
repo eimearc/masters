@@ -38,6 +38,31 @@ class BufferTest : public  ::testing::Test
     GLFWwindow *window;
 };
 
+TEST_F(BufferTest, ctor)
+{
+    struct Data{int a;};
+    Data data{0};
+    DynamicBuffer dynamicBuffer(device, &data, sizeof(data), 1, Buffer::UBO);
+    EXPECT_TRUE(dynamicBuffer.buffer());
+    EXPECT_TRUE(dynamicBuffer.m_bufferMemory);
+    EXPECT_EQ(dynamicBuffer.m_bufferSize, sizeof(data));
+    EXPECT_TRUE(dynamicBuffer.m_device);
+    EXPECT_EQ(dynamicBuffer.m_numElements, 1);
+    EXPECT_EQ(dynamicBuffer.m_numThreads, 1);
+    EXPECT_TRUE(dynamicBuffer.m_physicalDevice);
+    EXPECT_TRUE(dynamicBuffer.m_queue);
+
+    StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::VERTEX);
+    EXPECT_TRUE(staticBuffer.buffer());
+    EXPECT_TRUE(staticBuffer.m_bufferMemory);
+    EXPECT_EQ(staticBuffer.m_bufferSize, sizeof(data));
+    EXPECT_TRUE(staticBuffer.m_device);
+    EXPECT_EQ(staticBuffer.m_numElements, 1);
+    EXPECT_EQ(staticBuffer.m_numThreads, 1);
+    EXPECT_TRUE(staticBuffer.m_physicalDevice);
+    EXPECT_TRUE(staticBuffer.m_queue);
+}
+
 TEST_F(BufferTest, update)
 {
     struct Data{int a;};

@@ -82,6 +82,7 @@ class Buffer
     friend class Device;
 
     // Tests.
+    friend class BufferTest_ctor_Test;
     friend class BufferTest_update_Test;
 };
 

@@ -222,6 +222,7 @@ DynamicBuffer::DynamicBuffer(
 {
     m_device = device.device();
     m_bufferSize=bufferSize;
+    m_numElements=1;
 
     createBuffer(
         m_device,
@@ -247,14 +248,18 @@ void DynamicBuffer::update(const void *srcBuffer)
 DynamicBuffer::DynamicBuffer(
     Device &device,
     const void *data,
-    const VkDeviceSize &element_size,
-    const size_t num_elements,
+    const VkDeviceSize &elementSize,
+    const size_t numElements,
     const Type &type)
 {
     m_device = device.device();
-    m_bufferSize=element_size*num_elements;
-
+    m_physicalDevice=device.physicalDevice();
+    m_queue=device.graphicsQueue();
+    
+    m_bufferSize=elementSize*numElements;
+    m_numElements=numElements;
     m_bufferData = malloc(m_bufferSize);
+    
     memcpy(m_bufferData,data,m_bufferSize);
 
     VkBufferUsageFlags usageFlags = typeToFlag(type);
