@@ -88,24 +88,48 @@ class Buffer
 class DynamicBuffer : public Buffer
 {
     public:
+    /**
+     * Creates a DynamicBuffer.
+     * @param[in] device the device used to construct the Buffer.
+     * @param[in] bufferSize the size of the Buffer in bytes.
+     **/
     DynamicBuffer(
         const Device &device,
         const VkDeviceSize &bufferSize
     );
+    /**
+     * Creates a DynamicBuffer.
+     * @param[in] device the device used to construct the Buffer.
+     * @param[in] data a pointer to the data that will fill the Buffer.
+     * @param[in] elementSize the size of each Buffer element in bytes.
+     * @param[in] numElements the number of elements in the Buffer.
+     * @param[in] type the Type of the Buffer.
+     **/
     DynamicBuffer(
         Device &device,
         const void *data,
-        const VkDeviceSize &element_size,
-        const size_t num_elements,
+        const VkDeviceSize &elementSize,
+        const size_t numElements,
         const Type &type
     );
-
-    void update(const void *srcBuffer);
+    /**
+     * Updates a DynamicBuffer.
+     * @param[in] data a pointer to the data which will fill the Buffer.
+     **/
+    void update(const void *data);
 };
 
 class StaticBuffer : public Buffer
 {
     public:
+    /**
+     * Creates a StaticBuffer.
+     * @param[in] device the device used to construct the Buffer.
+     * @param[in] data a pointer to the data that will fill the Buffer.
+     * @param[in] elementSize the size of each Buffer element in bytes.
+     * @param[in] numElements the number of elements in the Buffer.
+     * @param[in] type the Type of the Buffer.
+     **/
     StaticBuffer(
         Device &device,
         const void *data,

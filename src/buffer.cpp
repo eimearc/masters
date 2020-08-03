@@ -218,7 +218,7 @@ void StaticBuffer::copyData(
 
 DynamicBuffer::DynamicBuffer(
     const Device &device,
-    const VkDeviceSize &bufferSize)
+    const VkDeviceSize &bufferSize) // TODO: Add type!!
 {
     m_device = device.device();
     m_bufferSize=bufferSize;
@@ -227,7 +227,7 @@ DynamicBuffer::DynamicBuffer(
         m_device,
         device.physicalDevice(),
         bufferSize,
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, // TODO: Add type here!!
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &m_buffer, &m_bufferMemory);
 }
