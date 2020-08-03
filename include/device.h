@@ -201,8 +201,9 @@ class Device
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
 
         bool operator==(const Sync &other);
+        void reset() noexcept;
 
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkFence> m_fencesInFlight;
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkFence> m_imagesInFlight;
@@ -259,6 +260,8 @@ class Device
     friend class PassTest_ctor_Test;
     friend class SwapchainTest_ctor_Test;
     friend class SwapchainTest_move_Test;
+    friend class SyncTest_ctor_Test;
+    friend class SyncTest_move_Test;
 };
 
 #endif

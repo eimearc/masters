@@ -18,6 +18,7 @@ set(
     pipeline_test.cpp
     shader_test.cpp
     swapchain_test.cpp
+    sync_test.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
