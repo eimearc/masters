@@ -290,6 +290,7 @@ class Device
     friend class SwapchainTest_move_Test;
     friend class SyncTest_ctor_Test;
     friend class SyncTest_move_Test;
+    friend class UtilTest_createImage_Test;
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
