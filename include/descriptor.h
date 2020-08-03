@@ -9,6 +9,36 @@
 #include <vulkan/vulkan.h>
 #include "texture.h"
 
+/**
+ * @class Descriptor
+ * @brief A Descriptor describes a resource that will be accessed in a Shader.
+ * 
+ * A Descriptor is used to describe a resource that will be used in either the 
+ * vertex or fragment shader. Such resources include an InputAttachment, a 
+ * TextureSampler and a UniformBuffer. Each of these has an associated
+ * binding, which represents the order in which they are accessed and
+ * bound to the Shader. Each one also has a specified Stage which
+ * represents the Shader::Stage at which the resource will be
+ * bound and accessed.
+ * 
+ * InputAttachment: an Attachment as an input to the Shader.
+ * TextureSampler: used to sample a Texture object bound to the Shader.
+ * UniformBuffer: a Uniform Buffer object bound to the Shader.
+ * 
+ * The Descriptor is then bound to a Pipeline.
+ * 
+ * @example
+ * Descriptor descriptor(device, swapchainSize);
+ * descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
+ * descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
+ * descriptor.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
+ * 
+ * ...
+ * 
+ * Pipeline pipeline(
+ *  device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+ * );
+ **/ 
 class Descriptor
 {
     public:

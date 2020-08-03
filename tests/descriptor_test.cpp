@@ -44,10 +44,11 @@ class DescriptorTest : public  ::testing::Test
 TEST_F(DescriptorTest, ctor)
 {
     if (descriptor.m_device==VK_NULL_HANDLE) FAIL();
-    ASSERT_EQ(descriptor.m_swapchainSize,2);
-    ASSERT_EQ(descriptor.m_writeSetVertex.size(),0);
-    ASSERT_EQ(descriptor.m_writeSetFragment.size(),0);
-    ASSERT_EQ(descriptor.m_poolSizes.size(),3);
+    EXPECT_TRUE(descriptor.m_device);
+    EXPECT_EQ(descriptor.m_swapchainSize,2);
+    EXPECT_EQ(descriptor.m_writeSetVertex.size(),0);
+    EXPECT_EQ(descriptor.m_writeSetFragment.size(),0);
+    EXPECT_EQ(descriptor.m_poolSizes.size(),3);
     auto types = {
         Descriptor::Type::INPUT_ATTACHMENT,
         Descriptor::Type::TEXTURE_SAMPLER,
@@ -56,9 +57,7 @@ TEST_F(DescriptorTest, ctor)
     for (const auto &t : types)
     {
         auto index = static_cast<uint32_t>(t);
-        ASSERT_EQ(
-            descriptor.m_poolSizes[index].descriptorCount, 0
-        );
+        EXPECT_EQ(descriptor.m_poolSizes[index].descriptorCount, 0);
     }
 }
 
@@ -75,5 +74,5 @@ TEST_F(DescriptorTest, multipleUniformBuffers)
     descriptor.addUniformBuffer(0, uboA, Shader::Stage::VERTEX);
     descriptor.addUniformBuffer(1, uboB, Shader::Stage::VERTEX);
 
-    ASSERT_EQ(descriptor.m_bufferInfo.size(), 2);
+    EXPECT_EQ(descriptor.m_bufferInfo.size(), 2);
 }
