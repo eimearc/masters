@@ -58,6 +58,25 @@ TEST_F(DeviceTest, ctor)
 
     EXPECT_EQ(device1.m_framebuffer.get(), nullptr);
     EXPECT_EQ(device1.m_numThreads, numThreads);
+
+    Device::_Device d(2,validationLayers, window, deviceExtensions);
+    EXPECT_TRUE(d.m_device);
+    EXPECT_TRUE(d.m_debugMessenger);
+    EXPECT_TRUE(d.m_graphicsQueue);
+    EXPECT_TRUE(d.m_instance);
+    EXPECT_TRUE(d.m_physicalDevice);
+    EXPECT_TRUE(d.m_presentQueue);
+    EXPECT_TRUE(d.m_surface);
+
+    const std::vector<const char*> validationLayers1;
+    Device::_Device d1(3,validationLayers1, window, deviceExtensions);
+    EXPECT_TRUE(d1.m_device);
+    EXPECT_FALSE(d1.m_debugMessenger);
+    EXPECT_TRUE(d1.m_graphicsQueue);
+    EXPECT_TRUE(d1.m_instance);
+    EXPECT_TRUE(d1.m_physicalDevice);
+    EXPECT_TRUE(d1.m_presentQueue);
+    EXPECT_TRUE(d1.m_surface);
 }
 
 TEST_F(DeviceTest, move)
