@@ -91,5 +91,13 @@ class PipelineTest : public  ::testing::Test
 
 TEST_F(PipelineTest,ctor)
 {
+    EXPECT_EQ(pipeline.m_descriptor, nullptr);
+    if (pipeline.m_device==VK_NULL_HANDLE) FAIL();
+    if (pipeline.m_layout==VK_NULL_HANDLE) FAIL();
     if (pipeline.m_pipeline==VK_NULL_HANDLE) FAIL();
+    EXPECT_NE(pipeline.m_renderpass,nullptr);
+    EXPECT_EQ(pipeline.m_shaders.size(), 2);
+    EXPECT_NE(pipeline.m_subpass, nullptr);
+    VertexInput empty;
+    EXPECT_NE(pipeline.m_vertexInput, empty);
 }

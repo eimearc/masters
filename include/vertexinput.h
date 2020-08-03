@@ -11,6 +11,7 @@ class VertexInput
     VertexInput(uint32_t stride);
 
     bool operator==(const VertexInput&) const;
+    bool operator!=(const VertexInput&) const;
 
     void addVertexAttributeVec2(uint32_t location, uint32_t offset);
     void addVertexAttributeVec3(uint32_t location, uint32_t offset);

@@ -7,15 +7,24 @@ VertexInput::VertexInput(uint32_t stride)
 
 bool VertexInput::operator==(const VertexInput &other) const
 {
-    bool result=true;
-    result &= std::equal(
-        m_attributeDescriptions.begin(), m_attributeDescriptions.end(),
-        other.m_attributeDescriptions.begin(), VertexInput::pred
-    );
-    result &= (m_bindingDescription.binding==other.m_bindingDescription.binding);
-    result &= (m_bindingDescription.inputRate==other.m_bindingDescription.inputRate);
-    result &= (m_bindingDescription.stride==other.m_bindingDescription.stride);
-    return result;
+    if (m_attributeDescriptions.size()!=other.m_attributeDescriptions.size())
+        return false;
+    if (!std::equal(
+            m_attributeDescriptions.begin(), m_attributeDescriptions.end(),
+            other.m_attributeDescriptions.begin(), VertexInput::pred))
+        return false;
+    if (m_bindingDescription.binding!=other.m_bindingDescription.binding)
+        return false;
+    if (m_bindingDescription.inputRate!=other.m_bindingDescription.inputRate)
+        return false;
+    if (m_bindingDescription.stride!=other.m_bindingDescription.stride)
+        return false;
+    return true;
+}
+
+bool VertexInput::operator!=(const VertexInput &other) const
+{
+    return !(*this==other);
 }
 
 bool VertexInput::pred(
