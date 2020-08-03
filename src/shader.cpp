@@ -44,15 +44,19 @@ Shader& Shader::operator=(Shader &&other) noexcept
     return *this;
 }
 
-bool Shader::operator==(const Shader &other)
+bool Shader::operator==(const Shader &other) const
 {
-    bool result=true;
-    result &= (m_createInfo.sType==other.m_createInfo.sType);
-    result &= (m_createInfo.stage==other.m_createInfo.stage);
-    result &= (m_createInfo.module==other.m_createInfo.module);
-    result &= (*m_createInfo.pName==*other.m_createInfo.pName);
-    result &= (m_createInfo.flags==other.m_createInfo.flags);
-    return result;
+    if (m_createInfo.sType!=other.m_createInfo.sType) return false;
+    if (m_createInfo.stage!=other.m_createInfo.stage) return false;
+    if (m_createInfo.module!=other.m_createInfo.module) return false;
+    if (*m_createInfo.pName!=*other.m_createInfo.pName) return false;
+    if (m_createInfo.flags!=other.m_createInfo.flags) return false;
+    return true;
+}
+
+bool Shader::operator!=(const Shader &other) const
+{
+    return !(*this==other);
 }
 
 Shader::~Shader() noexcept
