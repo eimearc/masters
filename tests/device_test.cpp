@@ -39,25 +39,25 @@ TEST_F(DeviceTest, ctor)
         numThreads, window, deviceExtensions, swapchainSize, validationLayers
     );
 
-    ASSERT_NE(device.m_device.get(), nullptr);
-    ASSERT_NE(device.m_commands.get(), nullptr);
-    ASSERT_NE(device.m_swapchain.get(), nullptr);
-    ASSERT_NE(device.m_sync.get(), nullptr);
+    EXPECT_NE(device.m_device.get(), nullptr);
+    EXPECT_NE(device.m_commands.get(), nullptr);
+    EXPECT_NE(device.m_swapchain.get(), nullptr);
+    EXPECT_NE(device.m_sync.get(), nullptr);
 
-    ASSERT_EQ(device.m_framebuffer.get(), nullptr);
-    ASSERT_EQ(device.m_numThreads, numThreads);
+    EXPECT_EQ(device.m_framebuffer.get(), nullptr);
+    EXPECT_EQ(device.m_numThreads, numThreads);
 
     Device device1(
         numThreads, window, deviceExtensions, swapchainSize
     );
 
-    ASSERT_NE(device1.m_device.get(), nullptr);
-    ASSERT_NE(device1.m_commands.get(), nullptr);
-    ASSERT_NE(device1.m_swapchain.get(), nullptr);
-    ASSERT_NE(device1.m_sync.get(), nullptr);
+    EXPECT_NE(device1.m_device.get(), nullptr);
+    EXPECT_NE(device1.m_commands.get(), nullptr);
+    EXPECT_NE(device1.m_swapchain.get(), nullptr);
+    EXPECT_NE(device1.m_sync.get(), nullptr);
 
-    ASSERT_EQ(device1.m_framebuffer.get(), nullptr);
-    ASSERT_EQ(device1.m_numThreads, numThreads);
+    EXPECT_EQ(device1.m_framebuffer.get(), nullptr);
+    EXPECT_EQ(device1.m_numThreads, numThreads);
 }
 
 TEST_F(DeviceTest, move)

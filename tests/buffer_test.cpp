@@ -51,6 +51,7 @@ TEST_F(BufferTest, ctor)
     EXPECT_EQ(dynamicBuffer.m_numThreads, 1);
     EXPECT_TRUE(dynamicBuffer.m_physicalDevice);
     EXPECT_TRUE(dynamicBuffer.m_queue);
+    EXPECT_TRUE(dynamicBuffer==dynamicBuffer);
 
     StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::VERTEX);
     EXPECT_TRUE(staticBuffer.buffer());
@@ -61,6 +62,7 @@ TEST_F(BufferTest, ctor)
     EXPECT_EQ(staticBuffer.m_numThreads, 1);
     EXPECT_TRUE(staticBuffer.m_physicalDevice);
     EXPECT_TRUE(staticBuffer.m_queue);
+    EXPECT_TRUE(staticBuffer==staticBuffer);
 }
 
 TEST_F(BufferTest, update)

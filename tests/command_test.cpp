@@ -42,12 +42,12 @@ TEST_F(CommandTest, ctor)
 
     const auto &commands = device.m_commands;
 
-    ASSERT_EQ(commands->m_device, device.m_device->m_device);
-    ASSERT_EQ(commands->m_commandPools.size(), numThreads);
-    ASSERT_EQ(
+    EXPECT_EQ(commands->m_device, device.m_device->m_device);
+    EXPECT_EQ(commands->m_commandPools.size(), numThreads);
+    EXPECT_EQ(
         commands->m_primaryCommandBuffers.size(), swapchainSize
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         commands->m_secondaryCommandBuffers.size(), numThreads
     );
 }
@@ -64,12 +64,12 @@ TEST_F(CommandTest, move)
     device = std::move(device1);
 
     const auto &commands = device.m_commands;
-    ASSERT_EQ(commands->m_device, device.m_device->m_device);
-    ASSERT_EQ(commands->m_commandPools.size(), numThreads);
-    ASSERT_EQ(
+    EXPECT_EQ(commands->m_device, device.m_device->m_device);
+    EXPECT_EQ(commands->m_commandPools.size(), numThreads);
+    EXPECT_EQ(
         commands->m_primaryCommandBuffers.size(), swapchainSize
     );
-    ASSERT_EQ(
+    EXPECT_EQ(
         commands->m_secondaryCommandBuffers.size(), numThreads
     );
 }
