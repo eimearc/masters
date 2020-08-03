@@ -225,3 +225,82 @@ TEST_F(UtilTest, findQueueFamilies)
     );
     EXPECT_TRUE(presentSupport);
 }
+
+bool capabilitiesEqual(
+    const VkSurfaceCapabilitiesKHR &a,
+    const VkSurfaceCapabilitiesKHR &b
+)
+{
+    if (a.currentExtent.height!=b.currentExtent.height) return false;
+    if (a.currentExtent.width!=b.currentExtent.width) return false;
+    if (a.currentTransform!=b.currentTransform) return false;
+    if (a.maxImageArrayLayers!=b.maxImageArrayLayers) return false;
+    if (a.maxImageCount!=b.maxImageCount) return false;
+    if (a.maxImageExtent.height!=b.maxImageExtent.height) return false;
+    if (a.maxImageExtent.width!=b.maxImageExtent.width) return false;
+    if (a.minImageCount!=b.minImageCount) return false;
+    if (a.minImageExtent.height!=b.minImageExtent.height) return false;
+    if (a.supportedCompositeAlpha!=b.supportedCompositeAlpha) return false;
+    if (a.supportedTransforms!=b.supportedTransforms) return false;
+    if (a.supportedUsageFlags!=b.supportedUsageFlags) return false;
+    return true;
+}
+
+bool formatsEqual(
+    const VkSurfaceFormatKHR &a,
+    const VkSurfaceFormatKHR &b
+)
+{
+    if (a.colorSpace!=b.colorSpace) return false;
+    if (a.format!=b.format) return false;
+    return true;
+}
+
+TEST_F(UtilTest, querySwapChainSupport)
+{
+    const auto &physicalDevice = device.physicalDevice();
+    const auto &surface = device.surface();
+    auto got = querySwapChainSupport(physicalDevice, surface);
+
+    VkSurfaceCapabilitiesKHR capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+        physicalDevice, surface, &capabilities
+    );
+    EXPECT_PRED2(capabilitiesEqual, got.capabilities, capabilities);
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(
+        physicalDevice, surface, &formatCount, nullptr
+    );
+    std::vector<VkSurfaceFormatKHR> formats;
+    if (formatCount != 0)
+    {
+        formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(
+            physicalDevice, surface, &formatCount, formats.data()
+        );
+    }
+    EXPECT_TRUE(
+        std::equal(
+            formats.begin(), formats.end(), got.formats.begin(), formatsEqual
+        )
+    );
+
+    std::vector<VkPresentModeKHR> presentModes;
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(
+        physicalDevice, surface, &presentModeCount, nullptr
+    );
+    if (presentModeCount != 0)
+    {
+        presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(
+            physicalDevice, surface, &presentModeCount, presentModes.data()
+        );
+    }
+    EXPECT_TRUE(
+        std::equal(
+            presentModes.begin(), presentModes.end(), got.presentModes.begin()
+        )
+    );
+}
