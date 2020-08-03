@@ -146,6 +146,10 @@ class Device
         void debugMessengerCreateInfo(
             VkDebugUtilsMessengerCreateInfoEXT& createInfo
         );
+        QueueFamilyIndices getQueueFamilies(
+            VkPhysicalDevice device,
+            VkSurfaceKHR surface
+        );
     };
 
     class Swapchain
@@ -292,6 +296,7 @@ class Device
     friend class SyncTest_move_Test;
     friend class UtilTest_createImage_Test;
     friend class UtilTest_createImageView_Test;
+    friend class UtilTest_createBuffer_Test;
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

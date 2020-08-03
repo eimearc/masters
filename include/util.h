@@ -38,6 +38,7 @@ void createImage(
     VkImage *pImage,
     VkDeviceMemory *pImageMemory
 );
+
 void createImageView(
     const VkDevice &device,
     const VkImage &image,
@@ -71,34 +72,36 @@ void createBuffer(
     VkBufferUsageFlags usage,
     VkMemoryPropertyFlags properties,
     VkBuffer *pBuffer,
-    VkDeviceMemory *pBufferMemory);
+    VkDeviceMemory *pBufferMemory
+);
 
 uint32_t findMemoryType(
     VkPhysicalDevice physicalDevice,
     uint32_t typeFilter,
-    VkMemoryPropertyFlags properties);
+    VkMemoryPropertyFlags properties
+);
 
 void beginSingleTimeCommands(
     VkDevice device,
     VkCommandPool commandPool,
-    VkCommandBuffer *pCommandBuffer);
+    VkCommandBuffer *pCommandBuffer
+);
 
 void endSingleTimeCommands(
     VkDevice device,
     VkQueue queue,
     VkCommandPool commandPool,
-    VkCommandBuffer commandBuffer);
-
-QueueFamilyIndices getQueueFamilies(
-    VkPhysicalDevice device,
-    VkSurfaceKHR surface);
+    VkCommandBuffer commandBuffer
+);
 
 QueueFamilyIndices findQueueFamilies(
     VkPhysicalDevice device,
-    VkSurfaceKHR surface);
+    VkSurfaceKHR surface
+);
     
 SwapChainSupportDetails querySwapChainSupport(
     VkPhysicalDevice device,
-    VkSurfaceKHR surface);
+    VkSurfaceKHR surface
+);
 
 #endif

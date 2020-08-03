@@ -105,3 +105,36 @@ TEST_F(UtilTest, createImageView)
     vkDestroyImage(device.device(), image, nullptr);
     vkFreeMemory(device.device(), memory, nullptr);
 }
+
+TEST_F(UtilTest, createBuffer)
+{
+    VkBuffer buffer;
+    VkDeviceMemory memory;
+
+    VkBufferUsageFlags usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    createBuffer(
+        device.device(), device.physicalDevice(), 1, usage, properties, &buffer,
+        &memory 
+    );
+    EXPECT_TRUE(buffer);
+    EXPECT_TRUE(memory);
+    vkDestroyBuffer(device.device(),buffer,nullptr);
+    vkFreeMemory(device.device(), memory, nullptr);
+
+    usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    createBuffer(
+        device.device(), device.physicalDevice(), 1, usage, properties, &buffer,
+        &memory 
+    );
+    EXPECT_TRUE(buffer);
+    EXPECT_TRUE(memory);
+    vkDestroyBuffer(device.device(),buffer,nullptr);
+    vkFreeMemory(device.device(), memory, nullptr);
+}
+
+TEST_F(UtilTest, findMemoryType)
+{
+    
+}
