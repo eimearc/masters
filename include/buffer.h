@@ -6,14 +6,47 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+/**
+ * @class Buffer
+ * @brief A Buffer is used to make data available to the GPU.
+ * 
+ * Buffers take data from the user and make that data available to the GPU. This
+ * data can either be copied over to a device-local memory, allowing for slower
+ * setup speeds with faster acess speeds, or the data can be made available to
+ * the GPU with faster setup speeds with slower access speeds.
+ * 
+ * For data that will be updated during the program, it is recommended to use a
+ * DynamicBuffer. Otherwise, a StaticBuffer is optimal.
+ * 
+ * Common usages of the StaticBuffer include an index buffer, or vertex buffer.
+ * A common usage of the DynamicBuffer includes a Uniform Buffer Object (UBO)
+ * which is updated every frame.
+ * 
+ * The index buffer and vertex buffer must be attached to the Device, using the
+ * finalize() method. Other custom buffers must be attached to a Descriptor.
+ * 
+ * @example
+ * StaticBuffer indexBuffer(
+ *   device, indices.data(), sizeof(indices[0]), indices.size(), Buffer::INDEX
+ * );
+ * StaticBuffer vertexBuffer(
+ *   device, vertices.data(), sizeof(vertices[0]), vertices.size(),
+ *   Buffer::VERTEX
+ * );
+ * 
+ * DynamicBuffer ubo(device, &ubo, sizeof(ubo), 1, Buffer::UBO);
+ * descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
+ * 
+ * device.finalize(indexBuffer,vertexBuffer,pipelines);
+ **/
 class Buffer
 {
     public:
     enum Type{INDEX,VERTEX,UBO};
 
     Buffer()=default;
-    Buffer(const Buffer&)=delete;
-    Buffer& operator=(const Buffer&)=delete;
+    Buffer(const Buffer&)=delete; // Class Buffer is not copyable.
+    Buffer& operator=(const Buffer&)=delete; // Class Buffer is not copyable.
     Buffer(Buffer&&) noexcept;
     Buffer& operator=(Buffer&&) noexcept;
     ~Buffer() noexcept;
