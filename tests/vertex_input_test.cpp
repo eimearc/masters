@@ -58,4 +58,6 @@ TEST_F(VertexInputTest, ctor)
     EXPECT_EQ(attributeDescriptions[0].location,0);
     EXPECT_EQ(attributeDescriptions[0].format,VK_FORMAT_R32G32_SFLOAT);
     EXPECT_EQ(attributeDescriptions[0].offset,2);
+
+    EXPECT_TRUE(v==v);
 }
