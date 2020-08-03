@@ -12,16 +12,21 @@ Texture& Texture::operator=(Texture &&other) noexcept
 {
     if (*this==other) return *this;
     m_device=std::move(other.m_device);
-    other.m_device=VK_NULL_HANDLE;
     m_image=std::move(other.m_image);
-    other.m_image=VK_NULL_HANDLE;
     m_imageSampler=std::move(other.m_imageSampler);
-    other.m_imageSampler=VK_NULL_HANDLE;
     m_imageView=std::move(other.m_imageView);
-    other.m_imageView=VK_NULL_HANDLE;
     m_memory=std::move(other.m_memory);
-    other.m_memory=VK_NULL_HANDLE;
+    other.reset();
     return *this;
+}
+
+void Texture::reset() noexcept
+{
+    m_device=VK_NULL_HANDLE;
+    m_image=VK_NULL_HANDLE;
+    m_imageSampler=VK_NULL_HANDLE;
+    m_imageView=VK_NULL_HANDLE;
+    m_memory=VK_NULL_HANDLE;
 }
 
 Texture::~Texture() noexcept
@@ -38,13 +43,17 @@ Texture::~Texture() noexcept
 
 bool Texture::operator==(const Texture &other) const noexcept
 {
-    bool result=true;
-    result &= (m_device==other.m_device);
-    result &= (m_image==other.m_image);
-    result &= (m_imageSampler==other.m_imageSampler);
-    result &= (m_imageView==other.m_imageView);
-    result &= (m_memory==other.m_memory);
-    return result;
+    if (m_device!=other.m_device) return false;
+    if (m_image!=other.m_image) return false;
+    if (m_imageSampler!=other.m_imageSampler) return false;
+    if (m_imageView!=other.m_imageView) return false;
+    if (m_memory!=other.m_memory) return false;
+    return true;
+}
+
+bool Texture::operator!=(const Texture &other) const noexcept
+{
+    return !(*this==other);
 }
 
 Texture::Texture(

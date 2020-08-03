@@ -19,6 +19,7 @@ set(
     shader_test.cpp
     swapchain_test.cpp
     sync_test.cpp
+    texture_test.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -31,3 +32,4 @@ target_link_libraries(tests evulkan gtest)
 configure_file("shader_frag.spv" "." COPYONLY)
 configure_file("shader_vert.spv" "." COPYONLY)
 configure_file("tri.obj" "." COPYONLY)
+configure_file("viking_room.png" "." COPYONLY)

@@ -21,6 +21,9 @@ class Texture
     );
 
     bool operator==(const Texture&) const noexcept;
+    bool operator!=(const Texture&) const noexcept;
+
+    void reset() noexcept;
 
     private:
     void transitionImageLayout(
@@ -49,6 +52,11 @@ class Texture
     VkDeviceMemory m_memory=VK_NULL_HANDLE;
 
     friend class Descriptor;
+
+    // Tests.
+    friend class TextureTest_ctor_Test;
+    friend class TextureTest_get_Test;
+    friend class TextureTest_move_Test;
 };
 
 #endif
