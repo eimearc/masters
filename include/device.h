@@ -149,9 +149,11 @@ class Device
             const uint32_t swapchainSize
         );
 
-        bool operator==(const Swapchain &other);
+        bool operator==(const Swapchain &other) const;
+        bool operator!=(const Swapchain &other) const;
+        void reset() noexcept;
 
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         VkExtent2D m_extent;
         VkFormat m_format;
         std::vector<VkImage> m_images;
@@ -255,6 +257,8 @@ class Device
     friend class DeviceTest_ctor_Test;
     friend class FramebufferTest_ctor_Test;
     friend class PassTest_ctor_Test;
+    friend class SwapchainTest_ctor_Test;
+    friend class SwapchainTest_move_Test;
 };
 
 #endif
