@@ -299,6 +299,8 @@ class Device
     friend class UtilTest_createBuffer_Test;
     friend class UtilTest_findMemoryType_Test;
     friend class UtilTest_cmds_Test;
+    friend class UtilTest_findQueueFamilies_Test;
+    friend class UtilTest_querySwapChainSupport_Test;
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

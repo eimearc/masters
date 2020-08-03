@@ -196,3 +196,32 @@ TEST_F(UtilTest, cmds)
     EXPECT_TRUE(pool);
     EXPECT_TRUE(commandBuffer);
 }
+
+TEST_F(UtilTest, findQueueFamilies)
+{
+    auto families = findQueueFamilies(
+        device.physicalDevice(), device.surface()
+    );
+
+    uint32_t count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        device.physicalDevice(), &count, nullptr
+    );
+    std::vector<VkQueueFamilyProperties> expected(count);
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        device.physicalDevice(), &count, expected.data()
+    );
+
+    // Check graphics queue is correct.
+    VkQueueFamilyProperties selectedFamily =
+        expected[families.graphicsFamily.value()];
+    EXPECT_TRUE(selectedFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT);
+
+    // Check device queue is correct.
+    VkBool32 presentSupport = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(
+        device.physicalDevice(), families.presentFamily.value(),
+        device.surface(), &presentSupport
+    );
+    EXPECT_TRUE(presentSupport);
+}
