@@ -71,6 +71,7 @@ TEST_F(UtilTest, createImageView)
     VkImageView imageView;
     VkDeviceMemory memory;
 
+    // Test color attachment image view creation.
     createImage(
         device.device(),device.physicalDevice(), device.extent(),
         VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
@@ -82,9 +83,24 @@ TEST_F(UtilTest, createImageView)
         device.device(), image, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_ASPECT_COLOR_BIT, &imageView
     );
-
     EXPECT_TRUE(imageView);
+    vkDestroyImageView(device.device(), imageView, nullptr);
+    vkDestroyImage(device.device(), image, nullptr);
+    vkFreeMemory(device.device(), memory, nullptr);
 
+    // Test depth stencil attachment image view creation.
+    createImage(
+        device.device(),device.physicalDevice(), device.extent(),
+        device.depthFormat(), VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        &image, &memory
+    );
+    createImageView(
+        device.device(), image, device.depthFormat(),
+        VK_IMAGE_ASPECT_DEPTH_BIT, &imageView
+    );
+    EXPECT_TRUE(imageView);
     vkDestroyImageView(device.device(), imageView, nullptr);
     vkDestroyImage(device.device(), image, nullptr);
     vkFreeMemory(device.device(), memory, nullptr);
