@@ -64,3 +64,28 @@ TEST_F(UtilTest, createImage)
     vkDestroyImage(device.device(), image, nullptr);
     vkFreeMemory(device.device(), memory, nullptr);
 }
+
+TEST_F(UtilTest, createImageView)
+{
+    VkImage image;
+    VkImageView imageView;
+    VkDeviceMemory memory;
+
+    createImage(
+        device.device(),device.physicalDevice(), device.extent(),
+        VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        &image, &memory
+    );
+    createImageView(
+        device.device(), image, VK_FORMAT_R8G8B8A8_UNORM,
+        VK_IMAGE_ASPECT_COLOR_BIT, &imageView
+    );
+
+    EXPECT_TRUE(imageView);
+
+    vkDestroyImageView(device.device(), imageView, nullptr);
+    vkDestroyImage(device.device(), image, nullptr);
+    vkFreeMemory(device.device(), memory, nullptr);
+}
