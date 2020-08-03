@@ -89,11 +89,6 @@ void endSingleTimeCommands(
     VkCommandPool commandPool,
     VkCommandBuffer commandBuffer);
 
-void createShaderModule(
-    VkDevice device,
-    const std::vector<char>& code,
-    VkShaderModule *pShaderModule);
-
 QueueFamilyIndices getQueueFamilies(
     VkPhysicalDevice device,
     VkSurfaceKHR surface);
@@ -105,7 +100,5 @@ QueueFamilyIndices findQueueFamilies(
 SwapChainSupportDetails querySwapChainSupport(
     VkPhysicalDevice device,
     VkSurfaceKHR surface);
-
-std::vector<const char*> getRequiredExtensions();
 
 #endif

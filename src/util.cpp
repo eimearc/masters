@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include <stdexcept>
+#include <vulkan/vulkan.h> // TODO: Remove.
 
 void createImage(
     const VkDevice &device,
@@ -246,13 +247,4 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surfa
     }
 
     return indices;
-}
-
-std::vector<const char*> getRequiredExtensions()
-{
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    return extensions;
 }
