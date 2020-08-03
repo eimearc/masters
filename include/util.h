@@ -46,8 +46,6 @@ void createImageView(
     VkImageView *pImageView
 );
 
-std::vector<char> readFile(const std::string& filename);
-
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;
@@ -116,41 +114,6 @@ SwapChainSupportDetails querySwapChainSupport(
     VkPhysicalDevice device,
     VkSurfaceKHR surface);
 
-VkSurfaceFormatKHR chooseSwapSurfaceFormat(
-    const std::vector<VkSurfaceFormatKHR>& availableFormats);
-VkPresentModeKHR chooseSwapPresentMode(
-    const std::vector<VkPresentModeKHR>& availablePresentModes);
-VkExtent2D chooseSwapExtent(
-    GLFWwindow* window,
-    const VkSurfaceCapabilitiesKHR& capabilities);
-
-bool isDeviceSuitable(
-    VkPhysicalDevice device,
-    VkSurfaceKHR surface,
-    std::vector<const char *> deviceExtensions
-);
-bool checkDeviceExtensionSupport(
-    VkPhysicalDevice device,
-    std::vector<const char *> deviceExtensions
-);
-
-void DestroyDebugUtilsMessengerEXT(
-    VkInstance instance,
-    VkDebugUtilsMessengerEXT debugMessenger,
-    const VkAllocationCallbacks* pAllocator
-);
-
-void populateDebugMessengerCreateInfo(
-    VkDebugUtilsMessengerCreateInfoEXT& createInfo
-);
-
 std::vector<const char*> getRequiredExtensions();
-
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData
-);
 
 #endif

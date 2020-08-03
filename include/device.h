@@ -129,6 +129,23 @@ class Device
             VkDebugUtilsMessengerEXT* pDebugMessenger
         );
         void setDepthFormat();
+        bool isDeviceSuitable(
+            VkPhysicalDevice device,
+            VkSurfaceKHR surface,
+            std::vector<const char *> deviceExtensions
+        );
+        bool checkDeviceExtensionSupport(
+            VkPhysicalDevice device,
+            std::vector<const char *> deviceExtensions
+        );
+        void destroyDebugUtilsMessengerEXT(
+            VkInstance instance,
+            VkDebugUtilsMessengerEXT debugMessenger,
+            const VkAllocationCallbacks* pAllocator
+        );
+        void debugMessengerCreateInfo(
+            VkDebugUtilsMessengerCreateInfoEXT& createInfo
+        );
     };
 
     class Swapchain
@@ -152,6 +169,17 @@ class Device
         bool operator==(const Swapchain &other) const;
         bool operator!=(const Swapchain &other) const;
         void reset() noexcept;
+
+        VkExtent2D chooseSwapExtent(
+            GLFWwindow* window,
+            const VkSurfaceCapabilitiesKHR& capabilities
+        ) const;
+        VkPresentModeKHR chooseSwapPresentMode(
+            const std::vector<VkPresentModeKHR>& availablePresentModes
+        ) const;
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+            const std::vector<VkSurfaceFormatKHR>& availableFormats
+        ) const;
 
         VkDevice m_device=VK_NULL_HANDLE;
         VkExtent2D m_extent;
@@ -263,5 +291,12 @@ class Device
     friend class SyncTest_ctor_Test;
     friend class SyncTest_move_Test;
 };
+
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData
+);
 
 #endif

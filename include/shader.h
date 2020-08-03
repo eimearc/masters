@@ -29,6 +29,7 @@ class Shader
     private:
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
     static VkShaderStageFlagBits stageFlags(const Stage &stage);
+    std::vector<char> readFile(const std::string& filename) const;
 
     VkPipelineShaderStageCreateInfo m_createInfo;
     VkDevice m_device;
