@@ -41,6 +41,19 @@ class AttachmentTest : public  ::testing::Test
     GLFWwindow *window;
 };
 
+TEST_F(AttachmentTest, ctor)
+{
+    b=Attachment(device, 1, Attachment::Type::COLOR);
+    EXPECT_TRUE(b.m_image);
+    EXPECT_TRUE(b.m_imageView);
+    EXPECT_TRUE(b.m_imageMemory);
+
+    c=Attachment(device, 2, Attachment::Type::DEPTH);
+    EXPECT_TRUE(c.m_image);
+    EXPECT_TRUE(c.m_imageView);
+    EXPECT_TRUE(c.m_imageMemory);
+}
+
 TEST_F(AttachmentTest, move)
 {
     a=Attachment(device, 1, Attachment::Type::DEPTH);
