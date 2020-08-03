@@ -31,10 +31,6 @@ class Buffer
         VkBuffer srcBuffer,
         VkBuffer dstBuffer
     ) const;
-    uint32_t findMemoryType(
-        uint32_t typeFilter,
-        VkMemoryPropertyFlags properties
-    ) const;
     void reset() noexcept;
     VkBufferUsageFlags typeToFlag(const Type &type) const;
 

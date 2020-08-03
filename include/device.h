@@ -297,6 +297,7 @@ class Device
     friend class UtilTest_createImage_Test;
     friend class UtilTest_createImageView_Test;
     friend class UtilTest_createBuffer_Test;
+    friend class UtilTest_findMemoryType_Test;
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

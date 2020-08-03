@@ -136,5 +136,42 @@ TEST_F(UtilTest, createBuffer)
 
 TEST_F(UtilTest, findMemoryType)
 {
-    
+    VkImage image;
+    VkImageCreateInfo imageInfo = {};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width = 100;
+    imageInfo.extent.height = 100;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.flags = 0;
+
+    vkCreateImage(device.device(), &imageInfo, nullptr, &image);
+    ASSERT_TRUE(image);
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device.device(), image, &memRequirements);
+
+    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    auto index = findMemoryType(
+        device.physicalDevice(), memRequirements.memoryTypeBits, properties
+    );
+
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(
+        device.physicalDevice(), &memProperties
+    );
+
+    VkMemoryPropertyFlags expectedProperties =
+        memProperties.memoryTypes[index].propertyFlags;
+    EXPECT_EQ(expectedProperties&properties,properties);
+
+    vkDestroyImage(device.device(), image, nullptr);
 }

@@ -109,17 +109,26 @@ void createBuffer(
     vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0);
 }
 
-uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t findMemoryType(
+    VkPhysicalDevice physicalDevice,
+    uint32_t typeFilter,
+    VkMemoryPropertyFlags requiredProperties
+)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    uint32_t currentTypeFilter;
+    VkMemoryPropertyFlags currentProperties;
+    bool propertiesMatch;
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
     {
-        if ((typeFilter & (1<<i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-        {
-            return i;
-        }
+        currentTypeFilter = typeFilter & (1<<i);
+        currentProperties = memProperties.memoryTypes[i].propertyFlags;
+        propertiesMatch = (currentProperties & requiredProperties) \
+            == requiredProperties;
+        if (currentTypeFilter && propertiesMatch) return i;
     }
 
     throw std::runtime_error("failed to find suitable memory type.");
