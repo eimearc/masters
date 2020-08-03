@@ -175,3 +175,24 @@ TEST_F(UtilTest, findMemoryType)
 
     vkDestroyImage(device.device(), image, nullptr);
 }
+
+TEST_F(UtilTest, cmds)
+{
+    auto pools = device.commandPools();
+    auto &pool = pools[0];
+    auto commandBuffers = device.primaryCommandBuffers();
+    auto &commandBuffer = commandBuffers[0];
+
+    ASSERT_TRUE(pool);
+    ASSERT_TRUE(commandBuffer);
+
+    beginSingleTimeCommands(device.device(), pool, &commandBuffer);
+    EXPECT_TRUE(pool);
+    EXPECT_TRUE(commandBuffer);
+
+    endSingleTimeCommands(
+        device.device(), device.graphicsQueue(), pool, commandBuffer
+    );
+    EXPECT_TRUE(pool);
+    EXPECT_TRUE(commandBuffer);
+}
