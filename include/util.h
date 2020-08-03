@@ -73,14 +73,6 @@ void createBuffer(
     VkBuffer *pBuffer,
     VkDeviceMemory *pBufferMemory);
 
-void copyBuffer(
-    VkDevice device,
-    VkCommandPool commandPool,
-    VkQueue queue,
-    VkBuffer srcBuffer,
-    VkBuffer dstBuffer,
-    VkDeviceSize size);
-
 uint32_t findMemoryType(
     VkPhysicalDevice physicalDevice,
     uint32_t typeFilter,

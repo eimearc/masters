@@ -109,24 +109,6 @@ void createBuffer(
     vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0);
 }
 
-void copyBuffer(
-    VkDevice device,
-    VkCommandPool commandPool,
-    VkQueue queue,
-    VkBuffer srcBuffer,
-    VkBuffer dstBuffer,
-    VkDeviceSize size)
-{
-    VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(device, commandPool, &commandBuffer);
-
-    VkBufferCopy copyRegion = {};
-    copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    endSingleTimeCommands(device, queue, commandPool, commandBuffer);
-}
-
 uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
