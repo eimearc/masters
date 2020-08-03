@@ -6,6 +6,24 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+/**
+ * @class Subpass
+ * @brief A Subpass is a sequence of rendering operations.
+ * 
+ * A Subpass is a sequence of rendering operations which may preceed or follow
+ * another Subpass. One or more Subpasses make up a Renderpass. A Subpass
+ * contains a series of Attachments - color Attachments, depth
+ * Attachments and input Attachments.
+ * 
+ * A Subpass also has an index, which specifies the order in which subsequent
+ * Subpasses are executed. Each Subpass must have a unique index, and the
+ * indices must begin from 0 and increase with no gaps.
+ * 
+ * A Subpass may also depend on the completion of other Subpasses. If a
+ * Subpass depends on another Subpass, it waits for the fragment Shader
+ * stage of that previous Subpass to complete before starting. This 
+ * allows multipass rendering.
+ **/
 class Subpass
 {
     public:
@@ -49,6 +67,10 @@ class Subpass
     friend class PassTest_ctor_Test;
 };
 
+/**
+ * @class Renderpass
+ * @brief A Renderpass is a collection of Subpasses.
+ **/
 class Renderpass
 {
     public:
@@ -59,9 +81,15 @@ class Renderpass
     Renderpass& operator=(Renderpass&&) noexcept;
     ~Renderpass() noexcept;
 
+    /**
+     * Constructs a Renderpass.
+     * 
+     * @param[in] device the Device to use when creating the Renderpass.
+     * @param[in] subpasses the Subpasses that make up this Renderpass.
+     **/
     Renderpass(
         const Device &device,
-        const std::vector<Attachment*> &attachments,
+        const std::vector<Attachment*> &attachments, // TODO: Remove.
         std::vector<Subpass*> &subpasses
     );
 
