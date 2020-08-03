@@ -56,22 +56,41 @@ class Descriptor
 
     bool operator==(const Descriptor&) const;
 
+    /**
+     * Adds an input attachment binding to the descriptor.
+     * @param[in] binding where the Attachment will be bound.
+     * @param[in] attachment the Attachment to bind.
+     * @param[in] shaderStage the stage to bind the Attachment to.
+     **/
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
         const Shader::Stage shaderStage
     );
+
+    /**
+     * Adds a texture sampler binding to the descriptor.
+     * @param[in] binding where the Texture will be bound.
+     * @param[in] texture the Texture to bind.
+     * @param[in] shaderStage the stage to bind the Texture to.
+     **/
     void addTextureSampler(
         const uint32_t binding,
         const Texture &texture,
         const Shader::Stage shaderStage
     );
+
+    /**
+     * Adds a uniform buffer object (UBO) binding to the descriptor.
+     * @param[in] binding where the UBO will be bound.
+     * @param[in] buffer the UBO to bind.
+     * @param[in] shaderStage the stage to bind the UBO to.
+     **/
     void addUniformBuffer(
         const uint32_t binding,
         const Buffer &buffer,
         const Shader::Stage shaderStage
     );
-    void reset();
     
     private:
     enum class Type{
@@ -113,6 +132,7 @@ class Descriptor
     void finalize();
     void initializePoolSize(Type type);
     void removeEmptyPoolSizes();
+    void reset();
 
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
