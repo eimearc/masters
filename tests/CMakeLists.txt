@@ -21,6 +21,7 @@ set(
     sync_test.cpp
     texture_test.cpp
     util_test.cpp
+    vertex_input_test.cpp
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

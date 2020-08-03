@@ -21,6 +21,10 @@ class VertexInput
         const VkVertexInputAttributeDescription &a,
         const VkVertexInputAttributeDescription &b
     );
+    void setAttributeDescription(
+        uint32_t location,
+        VkVertexInputAttributeDescription desc
+    );
     void setBindingDescription(uint32_t stride);
 
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const { return m_attributeDescriptions; };
@@ -30,6 +34,9 @@ class VertexInput
     VkVertexInputBindingDescription m_bindingDescription;
 
     friend class Pipeline;
+
+    // Tests.
+    friend class VertexInputTest_ctor_Test;
 };
 
 #endif

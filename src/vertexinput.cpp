@@ -40,6 +40,8 @@ bool VertexInput::pred(
     return result;
 }
 
+
+// TODO: Rename to setVert... (overwrites previous).
 void VertexInput::addVertexAttributeVec3(uint32_t location, uint32_t offset)
 {
     VkVertexInputAttributeDescription desc;
@@ -47,7 +49,7 @@ void VertexInput::addVertexAttributeVec3(uint32_t location, uint32_t offset)
     desc.location=location;
     desc.format=VK_FORMAT_R32G32B32_SFLOAT;
     desc.offset=offset;
-    m_attributeDescriptions.push_back(desc);
+    setAttributeDescription(location, desc);
 }
 
 void VertexInput::addVertexAttributeVec2(uint32_t location, uint32_t offset)
@@ -57,7 +59,17 @@ void VertexInput::addVertexAttributeVec2(uint32_t location, uint32_t offset)
     desc.location=location;
     desc.format=VK_FORMAT_R32G32_SFLOAT;
     desc.offset=offset;
-    m_attributeDescriptions.push_back(desc);
+    setAttributeDescription(location, desc);
+}
+
+void VertexInput::setAttributeDescription(
+    uint32_t location,
+    VkVertexInputAttributeDescription desc
+)
+{
+    if (m_attributeDescriptions.size()<=location)
+        m_attributeDescriptions.resize(location+1);
+    m_attributeDescriptions[location]=desc;
 }
 
 void VertexInput::setBindingDescription(uint32_t stride)
