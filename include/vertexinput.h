@@ -13,8 +13,8 @@ class VertexInput
     bool operator==(const VertexInput&) const;
     bool operator!=(const VertexInput&) const;
 
-    void addVertexAttributeVec2(uint32_t location, uint32_t offset);
-    void addVertexAttributeVec3(uint32_t location, uint32_t offset);
+    void setVertexAttributeVec2(uint32_t location, uint32_t offset);
+    void setVertexAttributeVec3(uint32_t location, uint32_t offset);
 
     private:
     static bool pred(

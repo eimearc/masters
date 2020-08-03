@@ -113,11 +113,11 @@ int main(int argc, char **argv)
     descriptor1.addInputAttachment(1, depthAttachment, Shader::Stage::FRAGMENT);
 
     VertexInput vertexInput0(sizeof(Vertex));
-    vertexInput0.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput0.addVertexAttributeVec3(1,offsetof(Vertex,normal));
+    vertexInput0.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput0.setVertexAttributeVec3(1,offsetof(Vertex,normal));
 
     VertexInput vertexInput1(sizeof(Vertex));
-    vertexInput1.addVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput1.setVertexAttributeVec3(0,offsetof(Vertex,pos));
 
     StaticBuffer indexBuffer(
         device, indices.data(), sizeof(indices[0]), indices.size(),

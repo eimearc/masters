@@ -44,8 +44,8 @@ class PipelineTest : public  ::testing::Test
         renderpass = {device, attachments, subpasses};
 
         VertexInput vertexInput(sizeof(Vertex));
-        vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-        vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+        vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+        vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
 
         StaticBuffer indexBuffer(
             device, indices.data(), sizeof(indices[0]), indices.size(),

@@ -80,9 +80,9 @@ int main(int argc, char **argv)
     descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
     VertexInput vertexInput(sizeof(Vertex));
-    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
-    vertexInput.addVertexAttributeVec2(2,offsetof(Vertex,texCoord));
+    vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.setVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
     // device.indexBuffer(...)?
     StaticBuffer indexBuffer(

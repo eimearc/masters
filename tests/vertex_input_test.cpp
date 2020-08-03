@@ -41,19 +41,19 @@ TEST_F(VertexInputTest, ctor)
     auto &attributeDescriptions = v.m_attributeDescriptions;
     auto &bindingDescription = v.m_bindingDescription;
 
-    v.addVertexAttributeVec2(0,0);
+    v.setVertexAttributeVec2(0,0);
     EXPECT_EQ(attributeDescriptions.size(),1);
     EXPECT_EQ(attributeDescriptions[0].location,0);
     EXPECT_EQ(attributeDescriptions[0].format,VK_FORMAT_R32G32_SFLOAT);
     EXPECT_EQ(attributeDescriptions[0].offset,0);
 
-    v.addVertexAttributeVec3(1,5);
+    v.setVertexAttributeVec3(1,5);
     EXPECT_EQ(attributeDescriptions.size(),2);
     EXPECT_EQ(attributeDescriptions[1].location,1);
     EXPECT_EQ(attributeDescriptions[1].format,VK_FORMAT_R32G32B32_SFLOAT);
     EXPECT_EQ(attributeDescriptions[1].offset,5);
 
-    v.addVertexAttributeVec2(0,2); // Check that location 0 overwrites old one.
+    v.setVertexAttributeVec2(0,2); // Check that location 0 overwrites old one.
     EXPECT_EQ(attributeDescriptions.size(),2);
     EXPECT_EQ(attributeDescriptions[0].location,0);
     EXPECT_EQ(attributeDescriptions[0].format,VK_FORMAT_R32G32_SFLOAT);

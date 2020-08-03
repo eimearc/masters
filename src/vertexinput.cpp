@@ -40,9 +40,7 @@ bool VertexInput::pred(
     return result;
 }
 
-
-// TODO: Rename to setVert... (overwrites previous).
-void VertexInput::addVertexAttributeVec3(uint32_t location, uint32_t offset)
+void VertexInput::setVertexAttributeVec3(uint32_t location, uint32_t offset)
 {
     VkVertexInputAttributeDescription desc;
     desc.binding=0;
@@ -52,7 +50,7 @@ void VertexInput::addVertexAttributeVec3(uint32_t location, uint32_t offset)
     setAttributeDescription(location, desc);
 }
 
-void VertexInput::addVertexAttributeVec2(uint32_t location, uint32_t offset)
+void VertexInput::setVertexAttributeVec2(uint32_t location, uint32_t offset)
 {
     VkVertexInputAttributeDescription desc;
     desc.binding=0;
