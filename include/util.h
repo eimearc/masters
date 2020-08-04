@@ -23,14 +23,6 @@ namespace evk
         uint32_t srcSubpass;
         uint32_t dstSubpass;
     };
-
-    /**
-     * Loads and OBJ file into a vector of vertices and indices.
-     * @param[in] fileName the file where the OBJ is contained.
-     * @param[out] vertices the vertices of the OBJ.
-     * @param[out] indices the indices of the OBJ.
-     **/
-    void loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
 }
 
 namespace internal

@@ -1,11 +1,11 @@
-#include "evulkan.h"
+#include "obj.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 namespace evk {
 
-void evk::loadOBJ(
+void loadOBJ(
     const std::string &fileName,
     std::vector<Vertex> &vertices,
     std::vector<uint32_t> &indices)
