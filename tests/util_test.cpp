@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+using namespace internal;
+
 class UtilTest : public  ::testing::Test
 {
     protected:

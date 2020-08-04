@@ -110,12 +110,12 @@ void Attachment::setColorAttachment(const Device &device)
     VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-    createImage(
+    internal::createImage(
         device.device(), device.physicalDevice(),
         device.extent(), format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
-    createImageView(
+    internal::createImageView(
         device.device(), m_image, format,
         aspectMask, &m_imageView);
 
@@ -140,12 +140,12 @@ void Attachment::setDepthAttachment(const Device &device)
     VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-    createImage(
+    internal::createImage(
         device.device(), device.physicalDevice(),
         device.extent(), format, tiling, usage, properties,
         &m_image, &m_imageMemory);
 
-    createImageView(
+    internal::createImageView(
         device.device(), m_image, format,
         aspectMask, &m_imageView);
 

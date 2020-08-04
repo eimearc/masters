@@ -9,7 +9,9 @@ Device::Swapchain::Swapchain(
 {
     m_device = device;
 
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+    auto swapChainSupport = internal::querySwapChainSupport(
+        physicalDevice, surface
+    );
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(window, swapChainSupport.capabilities);
@@ -30,7 +32,7 @@ Device::Swapchain::Swapchain(
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+    auto indices = internal::findQueueFamilies(physicalDevice, surface);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily)
     {
@@ -67,7 +69,7 @@ Device::Swapchain::Swapchain(
     m_imageViews.resize(imageCount);
     for (uint32_t i = 0; i < imageCount; i++)
     {
-        createImageView(
+        internal::createImageView(
             device,
             m_images[i],
             format,

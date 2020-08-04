@@ -1,5 +1,7 @@
 #include "device.h"
 
+#include <set>
+
 Device::Device(
     uint32_t num_threads,
     GLFWwindow *window,
@@ -256,7 +258,7 @@ void Device::_Device::createDevice(
     const std::vector<const char*> &validationLayers
 )
 {
-    QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
+    internal::QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -340,15 +342,21 @@ bool Device::_Device::isDeviceSuitable(
     std::vector<const char *> deviceExtensions
 )
 {
-    QueueFamilyIndices indices = findQueueFamilies(device, surface);
+    internal::QueueFamilyIndices indices = internal::findQueueFamilies(
+        device, surface
+    );
 
-    bool extensionsSupported = checkDeviceExtensionSupport(device, deviceExtensions);
+    bool extensionsSupported = checkDeviceExtensionSupport(
+        device, deviceExtensions
+    );
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
     {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, surface);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        internal::SwapChainSupportDetails swapChainSupport =
+            internal::querySwapChainSupport(device, surface);
+        swapChainAdequate = !swapChainSupport.formats.empty()
+            && !swapChainSupport.presentModes.empty();
     }
 
     VkPhysicalDeviceFeatures supportedFeatures;
@@ -401,12 +409,12 @@ void Device::_Device::debugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEX
     createInfo.pUserData = nullptr;
 }
 
-QueueFamilyIndices Device::_Device::getQueueFamilies(
+internal::QueueFamilyIndices Device::_Device::getQueueFamilies(
     VkPhysicalDevice device,
     VkSurfaceKHR surface
 )
 {
-    QueueFamilyIndices indices;
+    internal::QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr); //Crashes here.

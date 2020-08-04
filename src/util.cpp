@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <vulkan/vulkan.h> // TODO: Remove.
 
+namespace internal
+{
+
 void createImage(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
@@ -232,3 +235,5 @@ QueueFamilyIndices findQueueFamilies(
     }
     return indices;
 }
+
+} // namespace internal

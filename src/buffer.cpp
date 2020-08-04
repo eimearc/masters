@@ -108,7 +108,7 @@ void StaticBuffer::finalize(
     usageFlags |= typeToFlag(type);
 
     // Create the device-local buffer.
-    createBuffer(
+    internal::createBuffer(
         m_device,
         m_physicalDevice,
         m_bufferSize,
@@ -175,7 +175,7 @@ void StaticBuffer::copyData(
     const size_t buffer_size = num_elements*element_size;
 
     // Use a host visible buffer as a staging buffer.
-    createBuffer(
+    internal::createBuffer(
         device,
         physicalDevice,
         buffer_size,
@@ -224,7 +224,7 @@ DynamicBuffer::DynamicBuffer(
     m_bufferSize=bufferSize;
     m_numElements=1;
 
-    createBuffer(
+    internal::createBuffer(
         m_device,
         device.physicalDevice(),
         bufferSize,
@@ -264,7 +264,7 @@ DynamicBuffer::DynamicBuffer(
 
     VkBufferUsageFlags usageFlags = typeToFlag(type);
 
-    createBuffer(
+    internal::createBuffer(
         m_device,
         device.physicalDevice(),
         m_bufferSize,
@@ -282,11 +282,11 @@ void Buffer::copyBuffer(
     VkBuffer dstBuffer) const
 {
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
+    internal::beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
 
     VkBufferCopy copyRegion = {};
     copyRegion.size = m_bufferSize;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-    endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
+    internal::endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
 }

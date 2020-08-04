@@ -12,7 +12,9 @@ Device::Commands::Commands(
     m_commandPools.resize(numThreads);
     for (auto &commandPool : m_commandPools)
     {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, surface);
+        auto queueFamilyIndices = internal::findQueueFamilies(
+            physicalDevice, surface
+        );
         VkCommandPoolCreateInfo poolInfo = {};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();

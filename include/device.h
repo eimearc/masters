@@ -197,7 +197,7 @@ class Device
         void debugMessengerCreateInfo(
             VkDebugUtilsMessengerCreateInfoEXT& createInfo
         );
-        QueueFamilyIndices getQueueFamilies(
+        internal::QueueFamilyIndices getQueueFamilies(
             VkPhysicalDevice device,
             VkSurfaceKHR surface
         );
