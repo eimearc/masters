@@ -7,7 +7,6 @@
 #include <vulkan/vulkan.h>
 
 namespace evk {
-
 /**
  * @class Subpass
  * @brief A Subpass is a sequence of rendering operations.
@@ -29,10 +28,12 @@ namespace evk {
 class Subpass
 {
     public:
+    typedef uint32_t Dependency;
+
     Subpass()=default;
     Subpass(
         const uint32_t index,
-        const std::vector<evk::SubpassDependency> &dependencies,
+        const std::vector<Dependency> &dependencies,
         const std::vector<Attachment*> &colorAttachments,
         const std::vector<Attachment*> &depthAttachments,
         const std::vector<Attachment*> &inputAttachments
@@ -41,7 +42,7 @@ class Subpass
     bool operator==(const Subpass&) const;
 
     private:
-    void addDependency(uint32_t srcSubpass, uint32_t dstSubpass);
+    void addDependency(Dependency dependency);
     static bool referenceEqual(
         const VkAttachmentReference &a,
         const VkAttachmentReference &b

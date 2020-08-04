@@ -50,7 +50,7 @@ int main()
     std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
     std::vector<Attachment*> depthAttachments = {&depthAttachment};
     std::vector<Attachment*> inputAttachments;
-    std::vector<evk::SubpassDependency> dependencies; // TODO: Change this.
+    std::vector<Subpass::Dependency> dependencies;
     
     Subpass subpass(
         0,

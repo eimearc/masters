@@ -127,7 +127,7 @@ TEST_F(DeviceTest, draw)
     std::vector<Attachment*> colorAttachments = {&framebufferAttachment};
     std::vector<Attachment*> depthAttachments = {&depthAttachment};
     std::vector<Attachment*> inputAttachments;
-    std::vector<evk::SubpassDependency> dependencies;
+    std::vector<Subpass::Dependency> dependencies;
     
     Subpass subpass(
         0,

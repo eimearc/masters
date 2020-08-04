@@ -65,7 +65,7 @@ class PassTest : public  ::testing::Test
     Device device;
     std::vector<Attachment*> colorAttachments;
     std::vector<Attachment*> depthAttachments;
-    std::vector<evk::SubpassDependency> dependencies;
+    std::vector<Subpass::Dependency> dependencies;
     std::vector<Attachment*> inputAttachments;
     Subpass subpass;
     Renderpass renderpass;

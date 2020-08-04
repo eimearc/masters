@@ -32,7 +32,7 @@ class PipelineTest : public  ::testing::Test
 
         colorAttachments = {&framebufferAttachment};
         depthAttachments = {&depthAttachment};
-        std::vector<evk::SubpassDependency> dependencies;
+        std::vector<Subpass::Dependency> dependencies;
         
         subpass = {
             0, dependencies, colorAttachments, depthAttachments,

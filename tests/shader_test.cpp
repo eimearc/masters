@@ -32,7 +32,7 @@ class ShaderTest : public  ::testing::Test
 
         colorAttachments = {&framebufferAttachment};
         depthAttachments = {&depthAttachment};
-        std::vector<evk::SubpassDependency> dependencies;
+        std::vector<Subpass::Dependency> dependencies;
         
         Subpass subpass(
             0, dependencies, colorAttachments, depthAttachments,

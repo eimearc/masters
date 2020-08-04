@@ -4,20 +4,23 @@ namespace evk {
 
 Subpass::Subpass(
     const uint32_t index,
-    const std::vector<evk::SubpassDependency> &dependencies,
+    const std::vector<Dependency> &dependencies,
     const std::vector<Attachment*> &colorAttachments,
     const std::vector<Attachment*> &depthAttachments,
     const std::vector<Attachment*> &inputAttachments)
 {
     m_index = index;
-    for (const auto &d : dependencies) addDependency(d.srcSubpass, d.dstSubpass);
+    for (const auto &d : dependencies) addDependency(d);
     m_colorAttachments=colorAttachments;
     m_depthAttachments=depthAttachments;
     m_inputAttachments=inputAttachments;
 
-    for (const auto &c : m_colorAttachments) m_colorReferences.push_back(c->colorReference());
-    for (const auto &d : m_depthAttachments) m_depthReferences.push_back(d->depthReference());
-    for (const auto &i : m_inputAttachments) m_inputReferences.push_back(i->inputReference());
+    for (const auto &c : m_colorAttachments)
+        m_colorReferences.push_back(c->colorReference());
+    for (const auto &d : m_depthAttachments)
+        m_depthReferences.push_back(d->depthReference());
+    for (const auto &i : m_inputAttachments)
+        m_inputReferences.push_back(i->inputReference());
 
     m_description = {};
     m_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -74,11 +77,11 @@ bool Subpass::operator==(const Subpass &other) const
     return true;
 }
 
-void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
+void Subpass::addDependency(Dependency dep)
 {
     VkSubpassDependency dependency;
-    dependency.srcSubpass = srcSubpass;
-    dependency.dstSubpass = dstSubpass;
+    dependency.srcSubpass = dep;
+    dependency.dstSubpass = m_index;
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;

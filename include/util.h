@@ -15,16 +15,6 @@
 #include "vertex.h"
 #include <vulkan/vulkan.h>
 
-namespace evk
-{
-    // TODO: Move.
-    struct SubpassDependency
-    {
-        uint32_t srcSubpass;
-        uint32_t dstSubpass;
-    };
-}
-
 namespace internal
 {
 

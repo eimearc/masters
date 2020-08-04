@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     std::vector<Attachment*> colorAttachments = {&colorAttachment};
     std::vector<Attachment*> depthAttachments = {&depthAttachment};
     std::vector<Attachment*> inputAttachments;
-    std::vector<evk::SubpassDependency> dependencies;
+    std::vector<Subpass::Dependency> dependencies;
 
     Subpass subpass0(
         0, dependencies, colorAttachments, depthAttachments, inputAttachments
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     colorAttachments = {&framebufferAttachment};
     depthAttachments.resize(0);
     inputAttachments = {&colorAttachment, &depthAttachment};
-    dependencies = {{0,1}};
+    dependencies = {0}; // Require previous subpass to complete before this one.
 
     Subpass subpass1(
         1, dependencies, colorAttachments, depthAttachments, inputAttachments
