@@ -76,7 +76,7 @@ class Attachment
     VkAttachmentReference inputReference() const { return m_inputReference; };
     VkImageView view() const { return m_imageView; };
 
-    VkClearValue m_clearValue;
+    VkClearValue m_clearValue={};
     VkAttachmentReference m_colorReference;
     VkAttachmentReference m_depthReference;
     VkAttachmentDescription m_description;
@@ -96,6 +96,7 @@ class Attachment
     // Tests.
     friend class AttachmentTest_ctor_Test;
     friend class AttachmentTest_move_Test;
+    friend class PassTest_constructDescriptions_Test;
 };
 
 } // namespace evk

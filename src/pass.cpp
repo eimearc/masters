@@ -1,5 +1,7 @@
 #include "pass.h"
 
+#include <set>
+
 namespace evk {
 
 Subpass::Subpass(
@@ -124,6 +126,36 @@ void Renderpass::reset()
     m_device=VK_NULL_HANDLE;
     m_renderPass=VK_NULL_HANDLE;
     m_subpasses.resize(0);
+}
+
+void Renderpass::setAttachmentInfo(
+    AttachmentInfo &info, const Attachment *pAttachment
+)
+{
+    const uint32_t index = pAttachment->index();
+    if (info.descriptions.size()<=index)
+        info.descriptions.resize(index+1);
+    info.descriptions[index] = pAttachment->description();
+    if (info.clearValues.size()<=index)
+        info.clearValues.resize(index+1);
+    info.clearValues[index] = pAttachment->clearValue();
+}
+
+Renderpass::AttachmentInfo Renderpass::attachmentInfo(
+    const std::vector<Subpass*> &subpasses
+)
+{
+    AttachmentInfo info;
+    for (const auto &s : subpasses)
+    {
+        for (const auto &a : s->m_colorAttachments)
+            setAttachmentInfo(info, a);
+        for (const auto &a : s->m_depthAttachments)
+            setAttachmentInfo(info, a);
+        for (const auto &a : s->m_inputAttachments)
+            setAttachmentInfo(info, a);
+    }
+    return info;
 }
 
 Renderpass::Renderpass(

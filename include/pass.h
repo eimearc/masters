@@ -99,6 +99,18 @@ class Renderpass
     bool operator==(const Renderpass&) const;
 
     private:
+    struct AttachmentInfo
+    {
+        std::vector<VkAttachmentDescription> descriptions;
+        std::vector<VkClearValue> clearValues;
+    };
+    static AttachmentInfo attachmentInfo(
+        const std::vector<Subpass*> &subpasses
+    );
+    static void setAttachmentInfo(
+        AttachmentInfo &info, const Attachment *pAttachment
+    );
+
     const std::vector<Attachment*>& attachments() const { return m_attachments; };
     std::vector<VkClearValue> clearValues() const { return m_clearValues; };
     VkRenderPass renderpass() const { return m_renderPass; };
@@ -116,6 +128,7 @@ class Renderpass
     friend class Pipeline;
 
     // Tests.
+    friend class PassTest_constructDescriptions_Test;
     friend class PassTest_ctor_Test;
 };
 
