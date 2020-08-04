@@ -29,6 +29,11 @@
 class Shader
 {
     public:
+    /**
+     * The stage at which the Shader runs.
+     * VERTEX: A vertex Shader.
+     * FRAGMENT: A fragments Shader.
+     **/
     enum class Stage{VERTEX,FRAGMENT}; // TODO: Add support for Geometry shader.
 
     Shader()=default;

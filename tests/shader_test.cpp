@@ -104,6 +104,8 @@ TEST_F(ShaderTest,ctor)
     EXPECT_EQ(vertexShader.m_createInfo.flags, 0);
     EXPECT_EQ(vertexShader.m_createInfo.pSpecializationInfo, nullptr);
     if (vertexShader!=vertexShader) FAIL();
+    EXPECT_TRUE(vertexShader.m_device);
+    EXPECT_TRUE(vertexShader.m_module);
 
     if (fragmentShader.m_device==VK_NULL_HANDLE) FAIL();
     if (fragmentShader.m_module==VK_NULL_HANDLE) FAIL();
@@ -118,5 +120,7 @@ TEST_F(ShaderTest,ctor)
     EXPECT_EQ(fragmentShader.m_createInfo.pNext, nullptr);
     EXPECT_EQ(fragmentShader.m_createInfo.flags, 0);
     EXPECT_EQ(fragmentShader.m_createInfo.pSpecializationInfo, nullptr);
-    if (fragmentShader!=fragmentShader) FAIL();    
+    if (fragmentShader!=fragmentShader) FAIL();  
+    EXPECT_TRUE(fragmentShader.m_device);
+    EXPECT_TRUE(fragmentShader.m_module);  
 }
