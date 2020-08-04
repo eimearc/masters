@@ -60,11 +60,8 @@ int main()
         inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {
-        &framebufferAttachment, &depthAttachment
-    };
     std::vector<Subpass*> subpasses = {&subpass};
-    Renderpass renderpass(device, attachments, subpasses); // TODO: This should be constructed in pipeline.
+    Renderpass renderpass(device, subpasses); // TODO: This should be constructed in pipeline.
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));

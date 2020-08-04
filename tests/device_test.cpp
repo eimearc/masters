@@ -137,11 +137,8 @@ TEST_F(DeviceTest, draw)
         inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {
-        &framebufferAttachment, &depthAttachment
-    };
     std::vector<Subpass*> subpasses = {&subpass};
-    Renderpass renderpass(device, attachments, subpasses);
+    Renderpass renderpass(device, subpasses);
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));

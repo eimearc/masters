@@ -92,7 +92,6 @@ class Renderpass
      **/
     Renderpass(
         const Device &device,
-        const std::vector<Attachment*> &attachments, // TODO: Remove.
         std::vector<Subpass*> &subpasses
     );
 
@@ -101,6 +100,7 @@ class Renderpass
     private:
     struct AttachmentInfo
     {
+        std::vector<Attachment*> attachments;
         std::vector<VkAttachmentDescription> descriptions;
         std::vector<VkClearValue> clearValues;
     };
@@ -108,7 +108,7 @@ class Renderpass
         const std::vector<Subpass*> &subpasses
     );
     static void setAttachmentInfo(
-        AttachmentInfo &info, const Attachment *pAttachment
+        AttachmentInfo &info, Attachment *pAttachment
     );
 
     const std::vector<Attachment*>& attachments() const { return m_attachments; };

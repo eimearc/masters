@@ -129,10 +129,13 @@ void Renderpass::reset()
 }
 
 void Renderpass::setAttachmentInfo(
-    AttachmentInfo &info, const Attachment *pAttachment
+    AttachmentInfo &info, Attachment *pAttachment
 )
 {
     const uint32_t index = pAttachment->index();
+    if (info.attachments.size()<=index)
+        info.attachments.resize(index+1);
+    info.attachments[index] = pAttachment;
     if (info.descriptions.size()<=index)
         info.descriptions.resize(index+1);
     info.descriptions[index] = pAttachment->description();
@@ -160,24 +163,19 @@ Renderpass::AttachmentInfo Renderpass::attachmentInfo(
 
 Renderpass::Renderpass(
     const Device &device,
-    const std::vector<Attachment*> &attachments,
     std::vector<Subpass*> &subpasses)
 {
     m_device = device.device();
     m_subpasses = subpasses;
-    m_attachments = attachments;
 
     std::vector<VkAttachmentDescription> attachmentDescriptions;
     std::vector<VkSubpassDependency> dependencies;
     std::vector<VkSubpassDescription> subpassDescriptions;
 
-    attachmentDescriptions.resize(attachments.size()); // TODO: Use a set of all attachments from all subpasses?
-    m_clearValues.resize(attachments.size());
-    for (const auto &a : attachments)
-    {
-        attachmentDescriptions[a->index()] = a->description();
-        m_clearValues[a->index()] = a->clearValue(); // TODO: Is this needed?
-    }
+    auto info = attachmentInfo(subpasses);
+    m_attachments = info.attachments;
+    attachmentDescriptions = info.descriptions;
+    m_clearValues = info.clearValues;
 
     for (const auto &sp : subpasses) subpassDescriptions.push_back(sp->description()); 
 

@@ -39,11 +39,8 @@ class ShaderTest : public  ::testing::Test
             inputAttachments
         );
 
-        std::vector<Attachment*> attachments = {
-            &framebufferAttachment, &depthAttachment
-        };
         std::vector<Subpass*> subpasses = {&subpass};
-        renderpass = {device, attachments, subpasses};
+        renderpass = {device, subpasses};
 
         VertexInput vertexInput(sizeof(Vertex));
         vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));

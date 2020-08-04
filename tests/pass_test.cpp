@@ -38,12 +38,8 @@ class PassTest : public  ::testing::Test
             inputAttachments
         };
 
-        std::vector<Attachment*> attachments = {
-            &framebufferAttachment, &depthAttachment
-        };
         std::vector<Subpass*> subpasses = {&subpass};
-        renderpass={device, attachments, subpasses};
-
+        renderpass={device, subpasses};
     }
 
     virtual void TearDown() override
@@ -179,6 +175,17 @@ TEST_F(PassTest, constructDescriptions)
             expectedClear.begin(), clearValueEqual
         )
     );
+
+    std::vector<Attachment*> expectedAttachments = {
+        &a0, &a1, &a2
+    };
+    EXPECT_EQ(got.attachments.size(), expectedAttachments.size());
+    EXPECT_TRUE(
+        std::equal(
+            got.attachments.begin(), got.attachments.end(),
+            expectedAttachments.begin()
+        )
+    ); 
 }
 
 } // namespace evk

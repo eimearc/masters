@@ -97,11 +97,8 @@ int main(int argc, char **argv)
         1, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {
-        &framebufferAttachment, &colorAttachment, &depthAttachment
-    };
     std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
-    Renderpass renderpass(device,attachments,subpasses);
+    Renderpass renderpass(device,subpasses);
 
     // Set up UBO.
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));

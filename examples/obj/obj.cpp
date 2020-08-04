@@ -58,11 +58,8 @@ int main(int argc, char **argv)
         0, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
-    std::vector<Attachment*> attachments = {
-        &framebufferAttachment, &depthAttachment
-    };
     std::vector<Subpass*> subpasses = {&subpass};
-    Renderpass renderpass(device,attachments,subpasses);
+    Renderpass renderpass(device,subpasses);
 
     UniformBufferObject uboUpdate = {};
     uboUpdate.model=glm::mat4(1.0f);
