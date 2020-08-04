@@ -1,5 +1,7 @@
 #include "device.h"
 
+namespace evk {
+
 Device::Swapchain::Swapchain(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
@@ -9,7 +11,9 @@ Device::Swapchain::Swapchain(
 {
     m_device = device;
 
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+    auto swapChainSupport = internal::querySwapChainSupport(
+        physicalDevice, surface
+    );
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(window, swapChainSupport.capabilities);
@@ -30,7 +34,7 @@ Device::Swapchain::Swapchain(
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+    auto indices = internal::findQueueFamilies(physicalDevice, surface);
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
     if (indices.graphicsFamily != indices.presentFamily)
     {
@@ -67,7 +71,7 @@ Device::Swapchain::Swapchain(
     m_imageViews.resize(imageCount);
     for (uint32_t i = 0; i < imageCount; i++)
     {
-        createImageView(
+        internal::createImageView(
             device,
             m_images[i],
             format,
@@ -86,33 +90,106 @@ Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
 {
     if (*this == other) return *this;
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_swapchain=other.m_swapchain;
-    other.m_swapchain=VK_NULL_HANDLE;
     m_images=other.m_images;
-    other.m_imageViews.resize(0);
     m_imageViews=other.m_imageViews;
-    other.m_imageViews.resize(0);
     m_format=other.m_format;
     m_extent=other.m_extent;
+    other.reset();
     return *this;
 }
 
-bool Device::Swapchain::operator==(const Swapchain &other)
+void Device::Swapchain::reset() noexcept
 {
-    bool result = true;
-    result &= (m_device==other.m_device);
-    result &= (m_extent.width==other.m_extent.width);
-    result &= (m_extent.height==other.m_extent.height);
-    result &= (m_format==other.m_format);
-    result &= std::equal(
-        m_images.begin(), m_images.end(), other.m_images.begin()
-    );
-    result &= std::equal(
-        m_imageViews.begin(), m_imageViews.end(), other.m_imageViews.begin()
-    );
-    result &= (m_swapchain==other.m_swapchain);
-    return result;
+    m_device=VK_NULL_HANDLE;
+    m_swapchain=VK_NULL_HANDLE;
+    m_imageViews.resize(0);
+    m_imageViews.resize(0);
+    m_format={};
+    m_extent={};
+}
+
+bool Device::Swapchain::operator==(const Swapchain &other) const
+{
+    if (m_device!=other.m_device) return false;
+    if (m_extent.width!=other.m_extent.width) return false;
+    if (m_extent.height!=other.m_extent.height) return false;
+    if (m_format!=other.m_format) return false;
+    if (!std::equal(
+            m_images.begin(), m_images.end(), other.m_images.begin()
+        ))
+        return false;
+    if (!std::equal(
+            m_imageViews.begin(), m_imageViews.end(), other.m_imageViews.begin()
+        ))
+        return false;
+    if (m_swapchain!=other.m_swapchain) return false;
+    return true;
+}
+
+bool Device::Swapchain::operator!=(const Swapchain &other) const
+{
+    return !(*this==other);
+}
+
+VkExtent2D Device::Swapchain::chooseSwapExtent(
+    GLFWwindow* window,
+    const VkSurfaceCapabilitiesKHR& capabilities
+) const
+{
+    if (capabilities.currentExtent.width != UINT32_MAX)
+    {
+        return capabilities.currentExtent;
+    }
+    else
+    {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+
+        VkExtent2D actualExtent =
+        {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        actualExtent.width = std::max(capabilities.minImageExtent.width,
+            std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height,
+            std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+        return actualExtent;
+    }   
+}
+
+VkPresentModeKHR Device::Swapchain::chooseSwapPresentMode(
+    const std::vector<VkPresentModeKHR>& availablePresentModes
+) const
+{
+    for (const auto& availablePresentMode : availablePresentModes)
+    {
+        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+        {
+            return availablePresentMode;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
+    const std::vector<VkSurfaceFormatKHR>& availableFormats
+) const
+{
+    for (const auto& availableFormat : availableFormats)
+    {
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB
+            && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        {
+            return availableFormat;
+        }
+    }
+
+    throw std::runtime_error("no suitable format found in available formats.");
 }
 
 Device::Swapchain::~Swapchain() noexcept
@@ -121,3 +198,5 @@ Device::Swapchain::~Swapchain() noexcept
     if (m_swapchain != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 }
+
+} // namespace evk

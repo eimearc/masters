@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+using namespace evk; // TODO: Remove.
+
 std::vector<const char*> validationLayers =
 {
     "VK_LAYER_LUNARG_standard_validation"
@@ -65,8 +67,8 @@ int main()
     Renderpass renderpass(device, attachments, subpasses); // TODO: This should be constructed in pipeline.
 
     VertexInput vertexInput(sizeof(Vertex));
-    vertexInput.addVertexAttributeVec3(0,offsetof(Vertex,pos));
-    vertexInput.addVertexAttributeVec3(1,offsetof(Vertex,color));
+    vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
 
     StaticBuffer indexBuffer(
         device, indices.data(), sizeof(indices[0]), indices.size(),

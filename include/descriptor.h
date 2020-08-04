@@ -9,6 +9,38 @@
 #include <vulkan/vulkan.h>
 #include "texture.h"
 
+namespace evk {
+
+/**
+ * @class Descriptor
+ * @brief A Descriptor describes a resource that will be accessed in a Shader.
+ * 
+ * A Descriptor is used to describe a resource that will be used in either the 
+ * vertex or fragment shader. Such resources include an InputAttachment, a 
+ * TextureSampler and a UniformBuffer. Each of these has an associated
+ * binding, which represents the order in which they are accessed and
+ * bound to the Shader. Each one also has a specified Stage which
+ * represents the Shader::Stage at which the resource will be
+ * bound and accessed.
+ * 
+ * InputAttachment: an Attachment as an input to the Shader.
+ * TextureSampler: used to sample a Texture object bound to the Shader.
+ * UniformBuffer: a Uniform Buffer object bound to the Shader.
+ * 
+ * The Descriptor is then bound to a Pipeline.
+ * 
+ * @example
+ * Descriptor descriptor(device, swapchainSize);
+ * descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
+ * descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
+ * descriptor.addInputAttachment(0, colorAttachment, Shader::Stage::FRAGMENT);
+ * 
+ * ...
+ * 
+ * Pipeline pipeline(
+ *  device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+ * );
+ **/ 
 class Descriptor
 {
     public:
@@ -26,16 +58,36 @@ class Descriptor
 
     bool operator==(const Descriptor&) const;
 
+    /**
+     * Adds an input attachment binding to the descriptor.
+     * @param[in] binding where the Attachment will be bound.
+     * @param[in] attachment the Attachment to bind.
+     * @param[in] shaderStage the stage to bind the Attachment to.
+     **/
     void addInputAttachment(
         const uint32_t binding,
         const Attachment &attachment,
         const Shader::Stage shaderStage
     );
+
+    /**
+     * Adds a texture sampler binding to the descriptor.
+     * @param[in] binding where the Texture will be bound.
+     * @param[in] texture the Texture to bind.
+     * @param[in] shaderStage the stage to bind the Texture to.
+     **/
     void addTextureSampler(
         const uint32_t binding,
         const Texture &texture,
         const Shader::Stage shaderStage
     );
+
+    /**
+     * Adds a uniform buffer object (UBO) binding to the descriptor.
+     * @param[in] binding where the UBO will be bound.
+     * @param[in] buffer the UBO to bind.
+     * @param[in] shaderStage the stage to bind the UBO to.
+     **/
     void addUniformBuffer(
         const uint32_t binding,
         const Buffer &buffer,
@@ -82,6 +134,7 @@ class Descriptor
     void finalize();
     void initializePoolSize(Type type);
     void removeEmptyPoolSizes();
+    void reset();
 
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
@@ -103,7 +156,10 @@ class Descriptor
     friend class Device;
 
     // Testing.
+    friend class DescriptorTest_ctor_Test;
     friend class DescriptorTest_multipleUniformBuffers_Test;
 };
+
+} // namespace evk
 
 #endif

@@ -5,10 +5,36 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+namespace evk {
+    
 class Buffer;
 class Pipeline;
 class Renderpass;
 
+/**
+ * @class Device
+ * @brief A Device is the basic component used to generate other components.
+ * 
+ * A Device encaspluates basic Vulkan objects, including a VkInstance,
+ * VkDevice, VkCommandBuffers, VkFences, VkSemaphores, VkFramebuffer,
+ * and VkSwapchain. Is is the first Vulkan object that is created in
+ * the program and is used in the generation of most other objects.
+ * It contains the following objects:
+ * 
+ * Commands: represents the VkCommandBuffers that are used to record and submit
+ *  items of work to the GPU.
+ * Swapchain: holds all the VkImages required by the program and the VkImages
+ *  used to blit images to the screen.
+ * Sync: generates the synchronization objects needed by the Vulkan program,
+ *  including the VkFences and VkSemaphores, ensuring that host-device
+ *  synchronization is properly set up.
+ * Framebuffer: holds the VkFramebuffer required to blit images to the screen.
+ * 
+ * @example
+ * Device device(
+ *  1, window, extensions, 2, layers
+ * );
+ **/ 
 class Device
 {
     public:
@@ -19,30 +45,57 @@ class Device
     Device& operator=(Device&&) noexcept;
     ~Device()=default;
 
-    // Validation layers off.
+    /**
+     * Constructs a Device without validation layers.
+     * @param[in] numThreads the number of threads the Device should use.
+     * @param[in] window a pointer to the window used to display images.
+     * @param[in] deviceExtensions the extensions required to create the device.
+     * @param[in] swapchainSize the number of images used by the swapchain,
+     *  generally between two and three.
+     */
     Device(
-        uint32_t num_threads,
+        uint32_t numThreads,
         GLFWwindow *window,
-        const std::vector<const char *> &device_extensions,
-        const uint32_t swapchain_size
+        const std::vector<const char *> &deviceExtensions,
+        const uint32_t swapchainSize
     );
 
-    // Validation layers on.
+    /**
+     * Constructs a Device with validation layers turned on. This is useful for
+     *  developing programs.
+     * @param[in] numThreads the number of threads the Device should use.
+     * @param[in] window a pointer to the window used to display images.
+     * @param[in] deviceExtensions the extensions required to create the device.
+     * @param[in] swapchainSize the number of images used by the swapchain,
+     *  generally between two and three.
+     * @param[in] validationLayers the layers to use for validation.
+     */
     Device(
-        uint32_t num_threads,
+        uint32_t numThreads,
         GLFWwindow *window,
-        const std::vector<const char *> &device_extensions,
-        uint32_t swapchain_size,
-        const std::vector<const char*> &validation_layers
+        const std::vector<const char *> &deviceExtensions,
+        uint32_t swapchainSize,
+        const std::vector<const char*> &validationLayers
     );
 
     bool operator==(const Device& other);
 
+    /**
+     * Finalize the device. This is the last function that is called before
+     * draw().
+     * @param[in] indexBuffer the index buffer.
+     * @param[in] vertexBuffer the vertex buffer.
+     * @param[in] pipelines the set of pipelines used for drawing.
+     **/
     void finalize(
         const Buffer &indexBuffer,
         const Buffer &vertexBuffer,
         const std::vector<Pipeline*> &pipelines
     );
+
+    /**
+     * Draw.
+     **/
     void draw();
 
     private:
@@ -129,6 +182,27 @@ class Device
             VkDebugUtilsMessengerEXT* pDebugMessenger
         );
         void setDepthFormat();
+        bool isDeviceSuitable(
+            VkPhysicalDevice device,
+            VkSurfaceKHR surface,
+            std::vector<const char *> deviceExtensions
+        );
+        bool checkDeviceExtensionSupport(
+            VkPhysicalDevice device,
+            std::vector<const char *> deviceExtensions
+        );
+        void destroyDebugUtilsMessengerEXT(
+            VkInstance instance,
+            VkDebugUtilsMessengerEXT debugMessenger,
+            const VkAllocationCallbacks* pAllocator
+        );
+        void debugMessengerCreateInfo(
+            VkDebugUtilsMessengerCreateInfoEXT& createInfo
+        );
+        internal::QueueFamilyIndices getQueueFamilies(
+            VkPhysicalDevice device,
+            VkSurfaceKHR surface
+        );
     };
 
     class Swapchain
@@ -149,9 +223,22 @@ class Device
             const uint32_t swapchainSize
         );
 
-        bool operator==(const Swapchain &other);
+        bool operator==(const Swapchain &other) const;
+        bool operator!=(const Swapchain &other) const;
+        void reset() noexcept;
 
-        VkDevice m_device;
+        VkExtent2D chooseSwapExtent(
+            GLFWwindow* window,
+            const VkSurfaceCapabilitiesKHR& capabilities
+        ) const;
+        VkPresentModeKHR chooseSwapPresentMode(
+            const std::vector<VkPresentModeKHR>& availablePresentModes
+        ) const;
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+            const std::vector<VkSurfaceFormatKHR>& availableFormats
+        ) const;
+
+        VkDevice m_device=VK_NULL_HANDLE;
         VkExtent2D m_extent;
         VkFormat m_format;
         std::vector<VkImage> m_images;
@@ -178,9 +265,10 @@ class Device
         );
 
         bool operator==(const Commands &other);
+        void reset() noexcept;
 
         std::vector<VkCommandPool> m_commandPools;
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> m_primaryCommandBuffers;
         std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
     };
@@ -198,8 +286,9 @@ class Device
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
 
         bool operator==(const Sync &other);
+        void reset() noexcept;
 
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkFence> m_fencesInFlight;
         std::vector<VkSemaphore> m_imageAvailableSemaphores;
         std::vector<VkFence> m_imagesInFlight;
@@ -226,7 +315,7 @@ class Device
 
         bool operator==(const Framebuffer &other);
 
-        VkDevice m_device;
+        VkDevice m_device=VK_NULL_HANDLE;
         std::vector<VkFramebuffer> m_framebuffers;
     };
     
@@ -247,6 +336,33 @@ class Device
     friend class Shader;
     friend class StaticBuffer;
     friend class Texture;
+
+    // Tests.
+    friend class CommandTest_ctor_Test;
+    friend class CommandTest_move_Test;
+    friend class DeviceTest_ctor_Test;
+    friend class FramebufferTest_ctor_Test;
+    friend class PassTest_ctor_Test;
+    friend class SwapchainTest_ctor_Test;
+    friend class SwapchainTest_move_Test;
+    friend class SyncTest_ctor_Test;
+    friend class SyncTest_move_Test;
+    friend class UtilTest_createImage_Test;
+    friend class UtilTest_createImageView_Test;
+    friend class UtilTest_createBuffer_Test;
+    friend class UtilTest_findMemoryType_Test;
+    friend class UtilTest_cmds_Test;
+    friend class UtilTest_findQueueFamilies_Test;
+    friend class UtilTest_querySwapChainSupport_Test;
 };
+
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData
+);
+
+} // namespace evk
 
 #endif

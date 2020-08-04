@@ -2,6 +2,8 @@
 
 #include "pass.h"
 
+namespace evk {
+
 Device::Framebuffer::Framebuffer(
     const VkDevice &device,
     size_t swapchainSize,
@@ -74,3 +76,5 @@ Device::Framebuffer::~Framebuffer() noexcept
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 }
+
+} // namespace evk

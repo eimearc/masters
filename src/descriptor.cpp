@@ -1,5 +1,7 @@
 #include "descriptor.h"
 
+namespace evk {
+
 Descriptor::Descriptor(Descriptor &&other) noexcept
 {
     *this=std::move(other);
@@ -9,28 +11,33 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 {
     if (*this==other) return *this;
     m_bufferInfo=std::move(other.m_bufferInfo);
-    other.m_bufferInfo.resize(0);
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_inputAttachmentInfo=std::move(other.m_inputAttachmentInfo);
-    other.m_inputAttachmentInfo.resize(0);
     m_pool=other.m_pool;
-    other.m_pool=VK_NULL_HANDLE;
     m_poolSizes=other.m_poolSizes;
-    other.m_poolSizes.resize(0);
     m_setLayouts=other.m_setLayouts;
-    other.m_setLayouts.resize(0);
     m_sets=other.m_sets;
-    other.m_sets.resize(0);
     m_swapchainSize=other.m_swapchainSize;
-    other.m_swapchainSize=0;
     m_textureSamplerInfo=std::move(other.m_textureSamplerInfo);
-    other.m_textureSamplerInfo.resize(0);
     m_writeSetFragment=other.m_writeSetFragment;
-    other.m_writeSetFragment.resize(0);
     m_writeSetVertex=other.m_writeSetVertex;
-    other.m_writeSetVertex.resize(0);
+    other.reset();
     return *this;
+}
+
+void Descriptor::reset()
+{
+    m_bufferInfo.resize(0);
+    m_device=VK_NULL_HANDLE;
+    m_inputAttachmentInfo.resize(0);
+    m_pool=VK_NULL_HANDLE;
+    m_poolSizes.resize(0);
+    m_setLayouts.resize(0);
+    m_sets.resize(0);
+    m_swapchainSize=0;
+    m_textureSamplerInfo.resize(0);
+    m_writeSetFragment.resize(0);
+    m_writeSetVertex.resize(0);
 }
 
 Descriptor::Descriptor(
@@ -331,3 +338,5 @@ Descriptor::~Descriptor() noexcept
     if (m_pool!=VK_NULL_HANDLE)
         vkDestroyDescriptorPool(m_device, m_pool, nullptr);
 }
+
+} // namespace evk

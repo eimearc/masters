@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class DescriptorTest : public  ::testing::Test
 {
     protected:
@@ -36,16 +38,29 @@ class DescriptorTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    std::vector<uint32_t> indices;
     Descriptor descriptor;
     Device device;
-    std::vector<Vertex> vertices;
     GLFWwindow *window;
 };
 
-TEST_F(DescriptorTest, firstTest)
+TEST_F(DescriptorTest, ctor)
 {
-    std::cout << "Hello from first test.\n";
+    if (descriptor.m_device==VK_NULL_HANDLE) FAIL();
+    EXPECT_TRUE(descriptor.m_device);
+    EXPECT_EQ(descriptor.m_swapchainSize,2);
+    EXPECT_EQ(descriptor.m_writeSetVertex.size(),0);
+    EXPECT_EQ(descriptor.m_writeSetFragment.size(),0);
+    EXPECT_EQ(descriptor.m_poolSizes.size(),3);
+    auto types = {
+        Descriptor::Type::INPUT_ATTACHMENT,
+        Descriptor::Type::TEXTURE_SAMPLER,
+        Descriptor::Type::UNIFORM_BUFFER
+    };
+    for (const auto &t : types)
+    {
+        auto index = static_cast<uint32_t>(t);
+        EXPECT_EQ(descriptor.m_poolSizes[index].descriptorCount, 0);
+    }
 }
 
 TEST_F(DescriptorTest, multipleUniformBuffers)
@@ -61,5 +76,7 @@ TEST_F(DescriptorTest, multipleUniformBuffers)
     descriptor.addUniformBuffer(0, uboA, Shader::Stage::VERTEX);
     descriptor.addUniformBuffer(1, uboB, Shader::Stage::VERTEX);
 
-    ASSERT_EQ(descriptor.m_bufferInfo.size(), 2);
+    EXPECT_EQ(descriptor.m_bufferInfo.size(), 2);
 }
+
+} // namespace evk

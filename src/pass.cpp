@@ -1,5 +1,7 @@
 #include "pass.h"
 
+namespace evk {
+
 Subpass::Subpass(
     const uint32_t index,
     const std::vector<evk::SubpassDependency> &dependencies,
@@ -28,21 +30,48 @@ Subpass::Subpass(
 
 bool Subpass::operator==(const Subpass &other) const
 {
-    bool result=true;
-    result &= std::equal(
-        m_colorAttachments.begin(), m_colorAttachments.end(),
-        other.m_colorAttachments.begin()
-    );
-    result &= std::equal(
-        m_depthAttachments.begin(), m_depthAttachments.end(),
-        other.m_depthAttachments.begin()
-    );
-    result &= (m_index==other.m_index);
-    result &= std::equal(
-        m_inputAttachments.begin(), m_inputAttachments.end(),
-        other.m_inputAttachments.begin()
-    );
-    return result;
+    if (m_colorAttachments.size()!=other.m_colorAttachments.size())
+        return false;
+    if (!std::equal(
+            m_colorAttachments.begin(),m_colorAttachments.end(),
+            other.m_colorAttachments.begin()))
+        return false;
+    if (m_colorReferences.size()!=other.m_colorReferences.size())
+        return false;
+    if (!std::equal(
+            m_colorReferences.begin(), m_colorReferences.end(),
+            other.m_colorReferences.begin(), referenceEqual))
+        return false;
+
+    if (m_depthAttachments.size()!=other.m_depthAttachments.size())
+        return false;
+    if (!std::equal(
+            m_depthAttachments.begin(),m_depthAttachments.end(),
+            other.m_depthAttachments.begin()))
+        return false;
+    if (m_depthReferences.size()!=other.m_depthReferences.size())
+        return false;
+    if (!std::equal(
+            m_depthReferences.begin(), m_depthReferences.end(),
+            other.m_depthReferences.begin(), referenceEqual))
+        return false;
+
+    if (m_inputAttachments.size()!=other.m_inputAttachments.size())
+        return false;
+    if (!std::equal(
+            m_inputAttachments.begin(),m_inputAttachments.end(),
+            other.m_inputAttachments.begin()))
+        return false;
+    if (m_inputReferences.size()!=other.m_inputReferences.size())
+        return false;
+    if (!std::equal(
+            m_inputReferences.begin(), m_inputReferences.end(),
+            other.m_inputReferences.begin(), referenceEqual))
+        return false;
+
+    if (m_index!=other.m_index) return false;
+
+    return true;
 }
 
 void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
@@ -58,6 +87,16 @@ void Subpass::addDependency(uint32_t srcSubpass, uint32_t dstSubpass)
     m_dependencies.push_back(dependency);
 }
 
+bool Subpass::referenceEqual(
+    const VkAttachmentReference &a,
+    const VkAttachmentReference &b)
+{
+    bool result=true;
+    result &= (a.attachment == b.attachment);
+    result &= (a.layout == b.layout);
+    return result;
+}
+
 Renderpass::Renderpass(Renderpass &&other) noexcept
 {
     *this=std::move(other);
@@ -67,16 +106,21 @@ Renderpass& Renderpass::operator=(Renderpass &&other) noexcept
 {
     if (*this==other) return *this;
     m_attachments=other.m_attachments;
-    other.m_attachments.resize(0);
     m_clearValues=other.m_clearValues;
-    other.m_clearValues.resize(0);
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_renderPass=other.m_renderPass;
-    other.m_renderPass=VK_NULL_HANDLE;
     m_subpasses=other.m_subpasses;
-    other.m_subpasses.resize(0);
+    other.reset();
     return *this;
+}
+
+void Renderpass::reset()
+{
+    m_attachments.resize(0);
+    m_clearValues.resize(0);
+    m_device=VK_NULL_HANDLE;
+    m_renderPass=VK_NULL_HANDLE;
+    m_subpasses.resize(0);
 }
 
 Renderpass::Renderpass(
@@ -135,18 +179,19 @@ Renderpass::Renderpass(
 
 bool Renderpass::operator==(const Renderpass &other) const
 {
-    bool result=true;
-    result &= std::equal(
-        m_attachments.begin(), m_attachments.end(),
-        other.m_attachments.begin()
-    );
-    result &= (m_device==other.m_device);
-    result &= (m_renderPass==other.m_renderPass);
-    result &= std::equal(
-        m_subpasses.begin(), m_subpasses.end(),
-        other.m_subpasses.begin()
-    );
-    return result;
+    if (m_attachments.size()!=other.m_attachments.size())
+        return false;
+    if (!std::equal(
+            m_attachments.begin(), m_attachments.end(),
+            other.m_attachments.begin()))
+        return false;
+    if (m_device!=other.m_device) return false;
+    if (m_renderPass!=other.m_renderPass) return false;
+    if (!std::equal(
+            m_subpasses.begin(), m_subpasses.end(),
+            other.m_subpasses.begin()))
+        return false;
+    return true;
 }
 
 
@@ -155,3 +200,5 @@ Renderpass::~Renderpass() noexcept
     if (m_renderPass!=VK_NULL_HANDLE)
         vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 }
+
+} // namespace evk

@@ -1,5 +1,7 @@
 #include "device.h"
 
+namespace evk {
+
 Device::Commands::Commands(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
@@ -12,7 +14,9 @@ Device::Commands::Commands(
     m_commandPools.resize(numThreads);
     for (auto &commandPool : m_commandPools)
     {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, surface);
+        auto queueFamilyIndices = internal::findQueueFamilies(
+            physicalDevice, surface
+        );
         VkCommandPoolCreateInfo poolInfo = {};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
@@ -43,14 +47,19 @@ Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
 {
     if (*this==other) return *this;
     m_device = other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_commandPools = other.m_commandPools;
-    other.m_commandPools.resize(0);
     m_primaryCommandBuffers = other.m_primaryCommandBuffers;
-    other.m_primaryCommandBuffers.resize(0);
     m_secondaryCommandBuffers = other.m_secondaryCommandBuffers;
-    other.m_secondaryCommandBuffers.resize(0);
+    other.reset();
     return *this;
+}
+
+void Device::Commands::reset() noexcept
+{
+    m_device=VK_NULL_HANDLE;
+    m_commandPools.resize(0);
+    m_primaryCommandBuffers.resize(0);
+    m_secondaryCommandBuffers.resize(0);  
 }
 
 bool Device::Commands::operator==(const Commands &other)
@@ -79,3 +88,5 @@ Device::Commands::~Commands() noexcept
         vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
     }
 }
+
+} // namespace evk

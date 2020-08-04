@@ -3,14 +3,21 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-void evk::loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices)
+namespace evk {
+
+void evk::loadOBJ(
+    const std::string &fileName,
+    std::vector<Vertex> &vertices,
+    std::vector<uint32_t> &indices)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, fileName.c_str())) {
+    if (!tinyobj::LoadObj(
+        &attrib, &shapes, &materials, &warn, &err, fileName.c_str()))
+    {
         throw std::runtime_error(warn + err);
     }
 
@@ -35,3 +42,5 @@ void evk::loadOBJ(const std::string &fileName, std::vector<Vertex> &vertices, st
         }
     }
 }
+
+} // namespace evk

@@ -1,5 +1,7 @@
 #include "pipeline.h"
 
+namespace evk {
+
 Pipeline::Pipeline(Pipeline &&other) noexcept
 {
     *this=std::move(other);
@@ -9,22 +11,27 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
 {
     if (*this==other) return *this;
     m_descriptor=other.m_descriptor;
-    other.m_descriptor=nullptr;
     m_device=other.m_device;
-    other.m_device=nullptr;
     m_layout=other.m_layout;
-    other.m_layout=VK_NULL_HANDLE;
     m_pipeline=other.m_pipeline;
-    other.m_pipeline=VK_NULL_HANDLE;
     m_renderpass=other.m_renderpass;
-    other.m_renderpass=nullptr;
     m_shaders=other.m_shaders;
-    other.m_shaders.resize(0);
     m_subpass=other.m_subpass;
-    other.m_subpass=0;
     m_vertexInput=other.m_vertexInput;
-    other.m_vertexInput={};
+    other.reset();
     return *this;
+}
+
+void Pipeline::reset()
+{
+    m_descriptor=nullptr;
+    m_device=nullptr;
+    m_layout=VK_NULL_HANDLE;
+    m_pipeline=VK_NULL_HANDLE;
+    m_renderpass=nullptr;
+    m_shaders.resize(0);
+    m_subpass=0;
+    m_vertexInput={};
 }
 
 Pipeline::Pipeline(
@@ -89,21 +96,31 @@ void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayo
 
 bool Pipeline::operator==(const Pipeline &other) const
 {
-    bool result=true;
     if (m_descriptor!=nullptr && other.m_descriptor!=nullptr)
-        result &= (*m_descriptor==*other.m_descriptor);
-    else result &= ((m_descriptor==nullptr)&&(other.m_descriptor==nullptr));
-    result &= (m_device==other.m_device);
-    result &= (m_layout==other.m_layout);
-    result &= (m_pipeline==other.m_pipeline);
-    result &= (*m_renderpass==*other.m_renderpass);
-    result &= std::equal(
-        m_shaders.begin(), m_shaders.end(),
-        other.m_shaders.begin()
-    );
-    result &= (m_subpass==other.m_subpass);
-    result &= (m_vertexInput==other.m_vertexInput);
-    return result;
+    {
+        if (!(*m_descriptor==*other.m_descriptor)) return false;
+    }
+    else if (m_descriptor!=other.m_descriptor) return false;
+    if (m_device!=other.m_device) return false;
+    if (m_layout!=other.m_layout) return false;
+    if (m_pipeline!=other.m_pipeline) return false;
+    if (m_renderpass!=nullptr && other.m_renderpass!=nullptr)
+    {
+        if (!(*m_renderpass==*other.m_renderpass)) return false;
+    }
+    else if (m_renderpass!=other.m_renderpass) return false;
+    if (m_shaders.size()!=other.m_shaders.size()) return false;
+    if (!std::equal(
+            m_shaders.begin(), m_shaders.end(),
+            other.m_shaders.begin()))
+        return false;
+    if (m_subpass!=nullptr && other.m_subpass!=nullptr)
+    {
+        if (!(*m_subpass==*other.m_subpass)) return false;
+    }
+    else if (m_subpass!=other.m_subpass) return false;
+    if (!(m_vertexInput==other.m_vertexInput)) return false;
+    return true;
 }
 
 void Pipeline::setup(Device &device)
@@ -272,3 +289,5 @@ Pipeline::~Pipeline() noexcept
     if (m_pipeline!=VK_NULL_HANDLE)
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }
+
+} // namespace evk

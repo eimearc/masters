@@ -1,5 +1,7 @@
 #include "buffer.h"
 
+namespace evk {
+
 Buffer::Buffer(Buffer &&other) noexcept
 {
     *this=std::move(other);
@@ -7,6 +9,7 @@ Buffer::Buffer(Buffer &&other) noexcept
 
 Buffer::~Buffer() noexcept
 {
+    if (m_bufferData!=nullptr) free(m_bufferData);
     if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
     if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
@@ -15,26 +18,30 @@ Buffer& Buffer::operator=(Buffer &&other) noexcept
 {
     if (*this==other) return *this;
     m_buffer=other.m_buffer;
-    other.m_buffer=VK_NULL_HANDLE;
     m_bufferMemory=other.m_bufferMemory;
-    other.m_bufferMemory=VK_NULL_HANDLE;
     m_numElements=other.m_numElements;
-    other.m_numElements=0;
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_physicalDevice=other.m_physicalDevice;
-    other.m_physicalDevice=VK_NULL_HANDLE;
     m_bufferSize=other.m_bufferSize;
-    other.m_bufferSize=0;
     m_queue=other.m_queue;
-    other.m_queue=VK_NULL_HANDLE;
     m_numThreads=other.m_numThreads;
-    other.m_numThreads=1;
-    m_data=other.m_data;
-    other.m_data=nullptr;
     m_elementSize=other.m_elementSize;
-    other.m_elementSize=0;
+    other.reset();
     return *this;
+}
+
+void Buffer::reset() noexcept
+{
+    m_buffer=VK_NULL_HANDLE;
+    m_bufferMemory=VK_NULL_HANDLE;
+    m_bufferData=nullptr;
+    m_numElements=0;
+    m_device=VK_NULL_HANDLE;
+    m_physicalDevice=VK_NULL_HANDLE;
+    m_bufferSize=0;
+    m_queue=VK_NULL_HANDLE;
+    m_numThreads=1;
+    m_elementSize=0;
 }
 
 bool Buffer::operator==(const Buffer &other) const // TODO: Mark all as const.
@@ -48,7 +55,6 @@ bool Buffer::operator==(const Buffer &other) const // TODO: Mark all as const.
     result &= (m_bufferSize==other.m_bufferSize);
     result &= (m_queue==other.m_queue);
     result &= (m_numThreads==other.m_numThreads);
-    result &= (m_data==other.m_data); // TODO: Is this right? Must point to same.
     result &= (m_elementSize==other.m_elementSize);
     return result;
 }
@@ -68,25 +74,29 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const
 
 StaticBuffer::StaticBuffer(
     Device &device,
-    void *data,
+    const void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
     const Type &type)
 {
-    m_device = device.device();
-    m_physicalDevice = device.physicalDevice();
-    m_queue = device.graphicsQueue();
-    m_numThreads = device.numThreads();
-
-    m_data=data;
     m_elementSize=elementSize;
     m_numElements=numElements;
+
     m_bufferSize = m_numElements * m_elementSize;
+    m_bufferData = malloc(m_bufferSize);
+    memcpy(m_bufferData,data,m_bufferSize);
+
+    m_device = device.device();
+    m_numThreads = device.numThreads();
+    m_physicalDevice = device.physicalDevice();
+    m_queue = device.graphicsQueue();
 
     finalize(device, type);
 }
 
-void StaticBuffer::finalize(Device &device, const Type &type)
+void StaticBuffer::finalize(
+    Device &device,
+    const Type &type)
 {
     const std::vector<VkCommandPool> &commandPools = device.commandPools();
     const int num_elements_each = m_numElements/m_numThreads;
@@ -100,7 +110,7 @@ void StaticBuffer::finalize(Device &device, const Type &type)
     usageFlags |= typeToFlag(type);
 
     // Create the device-local buffer.
-    createBuffer(
+    internal::createBuffer(
         m_device,
         m_physicalDevice,
         m_bufferSize,
@@ -120,9 +130,10 @@ void StaticBuffer::finalize(Device &device, const Type &type)
         auto &staging_buffer_memory = bufferMemory[thread];
 
         copyData(
-            m_device, m_physicalDevice, commandPools[thread], commandBuffers[thread], 
-            m_buffer, staging_buffer, staging_buffer_memory, num_elements,
-            m_elementSize, element_offset
+            m_device, m_physicalDevice, commandPools[thread],
+            commandBuffers[thread], m_buffer, staging_buffer,
+            staging_buffer_memory, num_elements, m_elementSize,
+            element_offset
         );
     };
 
@@ -166,7 +177,7 @@ void StaticBuffer::copyData(
     const size_t buffer_size = num_elements*element_size;
 
     // Use a host visible buffer as a staging buffer.
-    createBuffer(
+    internal::createBuffer(
         device,
         physicalDevice,
         buffer_size,
@@ -175,14 +186,14 @@ void StaticBuffer::copyData(
         &staging_buffer, &staging_buffer_memory);
 
     // TODO: Check if below is valid.
-    const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_data);
+    const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_bufferData);
     auto offset = element_offset*element_size;
 
     // Copy vertex data to the staging buffer by mapping the buffer memory into CPU
     // accessible memory.
-    void *data;
-    vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &data);
-    memcpy(data, bytePtr+offset, buffer_size); // Need to offset vertices.
+    void *mappedData;
+    vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &mappedData);
+    memcpy(mappedData, bytePtr+offset, buffer_size); // Need to offset vertices.
     vkUnmapMemory(device, staging_buffer_memory);
 
     // Copy the vertex data from the staging buffer to the device-local buffer.
@@ -209,21 +220,27 @@ void StaticBuffer::copyData(
 
 DynamicBuffer::DynamicBuffer(
     const Device &device,
-    const VkDeviceSize &bufferSize)
+    const VkDeviceSize &bufferSize) // TODO: Add type!!
 {
     m_device = device.device();
     m_bufferSize=bufferSize;
-    createBuffer(
+    m_numElements=1;
+
+    internal::createBuffer(
         m_device,
         device.physicalDevice(),
         bufferSize,
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, // TODO: Add type here!!
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &m_buffer, &m_bufferMemory);
 }
 
 void DynamicBuffer::update(const void *srcBuffer)
 {
+    if (m_bufferData!=nullptr) free(m_bufferData);
+    m_bufferData = malloc(m_bufferSize);
+    memcpy(m_bufferData,srcBuffer,m_bufferSize);
+
     void* dstBuffer;
     vkMapMemory(m_device, m_bufferMemory, 0, m_bufferSize, 0, &dstBuffer);
     memcpy(dstBuffer, srcBuffer, m_bufferSize);
@@ -232,17 +249,24 @@ void DynamicBuffer::update(const void *srcBuffer)
 
 DynamicBuffer::DynamicBuffer(
     Device &device,
-    void *data,
-    const VkDeviceSize &element_size,
-    const size_t num_elements,
+    const void *data,
+    const VkDeviceSize &elementSize,
+    const size_t numElements,
     const Type &type)
 {
     m_device = device.device();
-    m_bufferSize=element_size*num_elements;
+    m_physicalDevice=device.physicalDevice();
+    m_queue=device.graphicsQueue();
+    
+    m_bufferSize=elementSize*numElements;
+    m_numElements=numElements;
+    m_bufferData = malloc(m_bufferSize);
+    
+    memcpy(m_bufferData,data,m_bufferSize);
 
     VkBufferUsageFlags usageFlags = typeToFlag(type);
 
-    createBuffer(
+    internal::createBuffer(
         m_device,
         device.physicalDevice(),
         m_bufferSize,
@@ -260,30 +284,13 @@ void Buffer::copyBuffer(
     VkBuffer dstBuffer) const
 {
     VkCommandBuffer commandBuffer;
-    beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
+    internal::beginSingleTimeCommands(m_device, commandPool, &commandBuffer);
 
     VkBufferCopy copyRegion = {};
     copyRegion.size = m_bufferSize;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-    endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
+    internal::endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
 }
 
-uint32_t Buffer::findMemoryType(
-    uint32_t typeFilter,
-    VkMemoryPropertyFlags properties
-) const
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
-
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-    {
-        if ((typeFilter & (1<<i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-        {
-            return i;
-        }
-    }
-
-    throw std::runtime_error("failed to find suitable memory type.");
-}
+} // namespace evk

@@ -1,5 +1,7 @@
 #include "shader.h"
 
+namespace evk {
+
 Shader::Shader(
     const Device &device,
     const std::string &fileName,
@@ -44,15 +46,19 @@ Shader& Shader::operator=(Shader &&other) noexcept
     return *this;
 }
 
-bool Shader::operator==(const Shader &other)
+bool Shader::operator==(const Shader &other) const
 {
-    bool result=true;
-    result &= (m_createInfo.sType==other.m_createInfo.sType);
-    result &= (m_createInfo.stage==other.m_createInfo.stage);
-    result &= (m_createInfo.module==other.m_createInfo.module);
-    result &= (*m_createInfo.pName==*other.m_createInfo.pName);
-    result &= (m_createInfo.flags==other.m_createInfo.flags);
-    return result;
+    if (m_createInfo.sType!=other.m_createInfo.sType) return false;
+    if (m_createInfo.stage!=other.m_createInfo.stage) return false;
+    if (m_createInfo.module!=other.m_createInfo.module) return false;
+    if (*m_createInfo.pName!=*other.m_createInfo.pName) return false;
+    if (m_createInfo.flags!=other.m_createInfo.flags) return false;
+    return true;
+}
+
+bool Shader::operator!=(const Shader &other) const
+{
+    return !(*this==other);
 }
 
 Shader::~Shader() noexcept
@@ -71,3 +77,23 @@ VkShaderStageFlagBits Shader::stageFlags(const Stage &shaderStage)
         return VK_SHADER_STAGE_FRAGMENT_BIT;
     }
 }
+
+std::vector<char> Shader::readFile(const std::string& filename) const
+{
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error("failed to open file.");
+    }
+
+    size_t fileSize = static_cast<size_t>(file.tellg());
+    std::vector<char> buffer(fileSize);
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+    
+    return buffer;
+}
+
+} // namespace evk

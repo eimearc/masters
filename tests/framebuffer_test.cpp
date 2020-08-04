@@ -4,7 +4,7 @@
 
 namespace evk {
 
-class DeviceTest : public  ::testing::Test
+class FramebufferTest : public  ::testing::Test
 {
     protected:
     virtual void SetUp() override
@@ -13,6 +13,11 @@ class DeviceTest : public  ::testing::Test
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+
+        device = {
+            numThreads, window, deviceExtensions,
+            swapchainSize, validationLayers
+        };
     }
 
     virtual void TearDown() override
@@ -21,92 +26,23 @@ class DeviceTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    std::vector<const char*> deviceExtensions = 
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+    Device device;
+    GLFWwindow *window;
     std::vector<const char*> validationLayers =
     {
         "VK_LAYER_LUNARG_standard_validation"
     };
-    GLFWwindow *window;
+    std::vector<const char*> deviceExtensions = 
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+    const uint32_t numThreads = 1;
+    const uint32_t swapchainSize = 2;
 };
 
-
-TEST_F(DeviceTest, ctor)
+TEST_F(FramebufferTest, ctor)
 {
-    const uint32_t numThreads = 2;
-    const uint32_t swapchainSize = 2;
-    Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
-    );
-
-    EXPECT_NE(device.m_device.get(), nullptr);
-    EXPECT_NE(device.m_commands.get(), nullptr);
-    EXPECT_NE(device.m_swapchain.get(), nullptr);
-    EXPECT_NE(device.m_sync.get(), nullptr);
-
-    EXPECT_EQ(device.m_framebuffer.get(), nullptr);
-    EXPECT_EQ(device.m_numThreads, numThreads);
-
-    Device device1(
-        numThreads, window, deviceExtensions, swapchainSize
-    );
-
-    EXPECT_NE(device1.m_device.get(), nullptr);
-    EXPECT_NE(device1.m_commands.get(), nullptr);
-    EXPECT_NE(device1.m_swapchain.get(), nullptr);
-    EXPECT_NE(device1.m_sync.get(), nullptr);
-
-    EXPECT_EQ(device1.m_framebuffer.get(), nullptr);
-    EXPECT_EQ(device1.m_numThreads, numThreads);
-
-    Device::_Device d(2,validationLayers, window, deviceExtensions);
-    EXPECT_TRUE(d.m_device);
-    EXPECT_TRUE(d.m_debugMessenger);
-    EXPECT_TRUE(d.m_graphicsQueue);
-    EXPECT_TRUE(d.m_instance);
-    EXPECT_TRUE(d.m_physicalDevice);
-    EXPECT_TRUE(d.m_presentQueue);
-    EXPECT_TRUE(d.m_surface);
-
-    const std::vector<const char*> validationLayers1;
-    Device::_Device d1(3,validationLayers1, window, deviceExtensions);
-    EXPECT_TRUE(d1.m_device);
-    EXPECT_FALSE(d1.m_debugMessenger);
-    EXPECT_TRUE(d1.m_graphicsQueue);
-    EXPECT_TRUE(d1.m_instance);
-    EXPECT_TRUE(d1.m_physicalDevice);
-    EXPECT_TRUE(d1.m_presentQueue);
-    EXPECT_TRUE(d1.m_surface);
-}
-
-TEST_F(DeviceTest, move)
-{
-    const uint32_t numThreads = 1;
-    const uint32_t swapchainSize = 2;
-
-    Device device1(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
-    );
-
-    auto device = std::move(device1);
-    device1 = std::move(device);
-    device = std::move(device1);
-    device = std::move(device);
-
-    Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
-    Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
-    Attachment depthAttachment(device, 2, Attachment::Type::DEPTH);
-}
-
-TEST_F(DeviceTest, draw)
-{
-    const uint32_t numThreads = 1;
-    const uint32_t swapchainSize = 2;
-    Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
-    );
+    ASSERT_EQ(device.m_framebuffer,nullptr);
 
     std::vector<Vertex> vertices;
     Vertex v;
@@ -164,7 +100,11 @@ TEST_F(DeviceTest, draw)
     std::vector<Pipeline*> pipelines = {&pipeline};
     
     device.finalize(indexBuffer,vertexBuffer,pipelines);
-    device.draw();
+
+    const auto &framebuffer = device.m_framebuffer;
+    ASSERT_NE(framebuffer,nullptr);
+    ASSERT_EQ(framebuffer->m_device, device.m_device->m_device);
+    ASSERT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
 }
 
 } // namespace evk

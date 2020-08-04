@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class AttachmentTest : public  ::testing::Test
 {
     protected:
@@ -34,30 +36,48 @@ class AttachmentTest : public  ::testing::Test
         glfwTerminate();
     }
 
-    Attachment attachment;
-    std::vector<uint32_t> indices;
     Device device;
-    std::vector<Vertex> vertices;
+    Attachment a;
+    Attachment b;
+    Attachment c;
     GLFWwindow *window;
 };
 
+TEST_F(AttachmentTest, ctor)
+{
+    b=Attachment(device, 1, Attachment::Type::COLOR);
+    EXPECT_TRUE(b.m_image);
+    EXPECT_TRUE(b.m_imageView);
+    EXPECT_TRUE(b.m_imageMemory);
+
+    c=Attachment(device, 2, Attachment::Type::DEPTH);
+    EXPECT_TRUE(c.m_image);
+    EXPECT_TRUE(c.m_imageView);
+    EXPECT_TRUE(c.m_imageMemory);
+}
+
 TEST_F(AttachmentTest, move)
 {
-    Attachment a(device, 1, Attachment::Type::DEPTH);
+    a=Attachment(device, 1, Attachment::Type::DEPTH);
     a=std::move(a);
     ASSERT_EQ(a.m_colorReference.attachment,1);
 
-    Attachment b(device, 2, Attachment::Type::COLOR);
+    b=Attachment(device, 2, Attachment::Type::COLOR);
+    c=std::move(a);
     a=std::move(b);
     ASSERT_EQ(a.index(),2);
     ASSERT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
+
     VkClearColorValue got = a.clearValue().color;
     VkClearColorValue want = {0.0f,0.0f,0.0f,1.0f};
     ASSERT_EQ(*got.float32, *want.float32);
     ASSERT_EQ(a.m_colorReference.attachment,2);
     ASSERT_EQ(a.m_depthReference.attachment,2);
     ASSERT_EQ(b.index(),0);
+    
     if (b.m_image!=VK_NULL_HANDLE) FAIL();
     if (b.m_imageMemory!=VK_NULL_HANDLE) FAIL();
     if (b.m_imageView!=VK_NULL_HANDLE) FAIL();
 }
+
+} // namespace evk
