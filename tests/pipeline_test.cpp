@@ -32,10 +32,10 @@ class PipelineTest : public  ::testing::Test
         depthAttachments = {&depthAttachment};
         std::vector<evk::SubpassDependency> dependencies;
         
-        Subpass subpass(
+        subpass = {
             0, dependencies, colorAttachments, depthAttachments,
             inputAttachments
-        );
+        };
 
         std::vector<Attachment*> attachments = {
             &framebufferAttachment, &depthAttachment
@@ -43,7 +43,7 @@ class PipelineTest : public  ::testing::Test
         std::vector<Subpass*> subpasses = {&subpass};
         renderpass = {device, attachments, subpasses};
 
-        VertexInput vertexInput(sizeof(Vertex));
+        vertexInput = {sizeof(Vertex)};
         vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
         vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
 
@@ -56,13 +56,9 @@ class PipelineTest : public  ::testing::Test
             Buffer::VERTEX
         );
 
-        Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);
-        Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
-        std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
-
-        pipeline = {
-            device, &subpass, vertexInput, &renderpass, shaders
-        };
+        vertexShader = Shader(device, "shader_vert.spv", Shader::Stage::VERTEX);
+        fragmentShader = Shader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
+        shaders = {&vertexShader,&fragmentShader};
     }
 
     virtual void TearDown() override
@@ -85,19 +81,55 @@ class PipelineTest : public  ::testing::Test
     std::vector<Attachment*> colorAttachments;
     std::vector<Attachment*> depthAttachments;
     std::vector<Attachment*> inputAttachments;
-    Pipeline pipeline;
+    Pipeline pipeline0;
+    Pipeline pipeline1;
+    Subpass subpass;
+    Shader vertexShader;
+    Shader fragmentShader;
+    std::vector<Shader*> shaders;
+    VertexInput vertexInput;
     Renderpass renderpass;
 };
 
 TEST_F(PipelineTest,ctor)
 {
-    EXPECT_EQ(pipeline.m_descriptor, nullptr);
-    if (pipeline.m_device==VK_NULL_HANDLE) FAIL();
-    if (pipeline.m_layout==VK_NULL_HANDLE) FAIL();
-    if (pipeline.m_pipeline==VK_NULL_HANDLE) FAIL();
-    EXPECT_NE(pipeline.m_renderpass,nullptr);
-    EXPECT_EQ(pipeline.m_shaders.size(), 2);
-    EXPECT_NE(pipeline.m_subpass, nullptr);
+    pipeline0 = {
+        device, &subpass, vertexInput, &renderpass, shaders
+    };
+    EXPECT_EQ(pipeline0.m_descriptor, nullptr);
+    if (pipeline0.m_device==VK_NULL_HANDLE) FAIL();
+    if (pipeline0.m_layout==VK_NULL_HANDLE) FAIL();
+    if (pipeline0.m_pipeline==VK_NULL_HANDLE) FAIL();
+    EXPECT_NE(pipeline0.m_renderpass,nullptr);
+    EXPECT_EQ(pipeline0.m_shaders.size(), 2);
+    EXPECT_NE(pipeline0.m_subpass, nullptr);
+
+    EXPECT_FALSE(pipeline0.m_descriptor);
+    EXPECT_TRUE(pipeline0.m_device);
+    EXPECT_TRUE(pipeline0.m_layout);
+    EXPECT_TRUE(pipeline0.m_pipeline);
+
     VertexInput empty;
-    EXPECT_NE(pipeline.m_vertexInput, empty);
+    EXPECT_NE(pipeline0.m_vertexInput, empty);
+
+    DynamicBuffer buffer(device, 10);
+    Descriptor descriptor(device, 2);
+    descriptor.addUniformBuffer(0, buffer, Shader::Stage::VERTEX);
+
+    pipeline1 = {
+        device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+    };
+    EXPECT_NE(pipeline1.m_descriptor, nullptr);
+    if (pipeline1.m_device==VK_NULL_HANDLE) FAIL();
+    if (pipeline1.m_layout==VK_NULL_HANDLE) FAIL();
+    if (pipeline1.m_pipeline==VK_NULL_HANDLE) FAIL();
+    EXPECT_NE(pipeline1.m_renderpass,nullptr);
+    EXPECT_EQ(pipeline1.m_shaders.size(), 2);
+    EXPECT_NE(pipeline1.m_subpass, nullptr);
+
+    EXPECT_TRUE(pipeline1.m_descriptor);
+    EXPECT_TRUE(pipeline1.m_device);
+    EXPECT_TRUE(pipeline1.m_layout);
+    EXPECT_TRUE(pipeline1.m_pipeline);
+    EXPECT_NE(pipeline1.m_vertexInput, empty);
 }
