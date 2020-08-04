@@ -6,6 +6,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class Buffer
  * @brief A Buffer is used to make data available to the GPU.
@@ -157,5 +159,7 @@ class StaticBuffer : public Buffer
         const Type &type
     );
 };
+
+} // namespace evk
 
 #endif

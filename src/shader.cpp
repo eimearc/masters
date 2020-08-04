@@ -1,5 +1,7 @@
 #include "shader.h"
 
+namespace evk {
+
 Shader::Shader(
     const Device &device,
     const std::string &fileName,
@@ -93,3 +95,5 @@ std::vector<char> Shader::readFile(const std::string& filename) const
     
     return buffer;
 }
+
+} // namespace evk

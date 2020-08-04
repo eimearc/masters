@@ -1,5 +1,7 @@
 #include "attachment.h"
 
+namespace evk {
+
 Attachment::Attachment(Attachment &&other) noexcept
 {
     *this=std::move(other);
@@ -158,3 +160,5 @@ Attachment::~Attachment() noexcept
     if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr);
     if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
 }
+
+} // namespace evk

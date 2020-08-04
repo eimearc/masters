@@ -1,6 +1,8 @@
 #include "evulkan.h"
 #include "flags.h"
 
+using namespace evk; // TODO: Remove.
+
 struct UniformBufferObject
 {
     glm::mat4 model;

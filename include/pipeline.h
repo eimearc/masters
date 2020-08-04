@@ -10,6 +10,8 @@
 #include "vertexinput.h"
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class Pipeline
  * @brief A Pipeline is a sequence of operations which produces an image.
@@ -108,5 +110,7 @@ class Pipeline
     // Tests.
     friend class PipelineTest_ctor_Test;
 };
+
+} // end namespace evk
 
 #endif

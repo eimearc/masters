@@ -1,5 +1,7 @@
 #include "device.h"
 
+namespace evk {
+
 Device::Swapchain::Swapchain(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
@@ -196,3 +198,5 @@ Device::Swapchain::~Swapchain() noexcept
     if (m_swapchain != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
 }
+
+} // namespace evk

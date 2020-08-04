@@ -1,5 +1,7 @@
 #include "pass.h"
 
+namespace evk {
+
 Subpass::Subpass(
     const uint32_t index,
     const std::vector<evk::SubpassDependency> &dependencies,
@@ -198,3 +200,5 @@ Renderpass::~Renderpass() noexcept
     if (m_renderPass!=VK_NULL_HANDLE)
         vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 }
+
+} // namespace evk

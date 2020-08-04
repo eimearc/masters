@@ -1,5 +1,7 @@
 #include "device.h"
 
+namespace evk {
+
 Device::Commands::Commands(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
@@ -86,3 +88,5 @@ Device::Commands::~Commands() noexcept
         vkDestroyCommandPool(m_device, m_commandPools[i], nullptr);
     }
 }
+
+} // namespace evk

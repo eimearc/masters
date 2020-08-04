@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class VertexInputTest : public  ::testing::Test
 {
     protected:
@@ -62,3 +64,5 @@ TEST_F(VertexInputTest, ctor)
     EXPECT_TRUE(v==v);
     EXPECT_FALSE(v!=v);
 }
+
+} // namespace evk

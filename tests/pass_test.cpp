@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class PassTest : public  ::testing::Test
 {
     protected:
@@ -110,3 +112,5 @@ TEST_F(PassTest,ctor)
     EXPECT_EQ(renderpass.m_subpasses.size(),1);
     if (!(renderpass==renderpass)) FAIL();
 }
+
+} // namespace evk

@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+using namespace evk; // TODO: Remove.
+
 std::vector<const char*> validationLayers =
 {
     "VK_LAYER_LUNARG_standard_validation"

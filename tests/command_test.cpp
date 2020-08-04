@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class CommandTest : public  ::testing::Test
 {
     protected:
@@ -73,3 +75,5 @@ TEST_F(CommandTest, move)
         commands->m_secondaryCommandBuffers.size(), numThreads
     );
 }
+
+} // namespace evk

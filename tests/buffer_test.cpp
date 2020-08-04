@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class BufferTest : public  ::testing::Test
 {
     protected:
@@ -82,3 +84,5 @@ TEST_F(BufferTest, update)
     data.a=1;
     ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, 0);
 }
+
+} // namespace evk

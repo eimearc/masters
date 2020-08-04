@@ -1,5 +1,7 @@
 #include "buffer.h"
 
+namespace evk {
+
 Buffer::Buffer(Buffer &&other) noexcept
 {
     *this=std::move(other);
@@ -290,3 +292,5 @@ void Buffer::copyBuffer(
 
     internal::endSingleTimeCommands(m_device, queue, commandPool, commandBuffer);
 }
+
+} // namespace evk

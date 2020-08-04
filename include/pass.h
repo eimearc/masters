@@ -6,6 +6,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class Subpass
  * @brief A Subpass is a sequence of rendering operations.
@@ -115,5 +117,7 @@ class Renderpass
     // Tests.
     friend class PassTest_ctor_Test;
 };
+
+} // namespace evk
 
 #endif

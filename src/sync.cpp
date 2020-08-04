@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace evk {
+
 Device::Sync::Sync(
     const VkDevice &device,
     const uint32_t &swapchainSize)
@@ -99,3 +101,5 @@ Device::Sync::~Sync() noexcept
     for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);
     for (auto &f : m_fencesInFlight) vkDestroyFence(m_device, f, nullptr);
 }
+
+} // namespace evk

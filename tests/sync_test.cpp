@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class SyncTest : public  ::testing::Test
 {
     protected:
@@ -63,3 +65,5 @@ TEST_F(SyncTest,move)
 
     device1.m_sync = std::move(sync);    
 }
+
+} // namespace evk

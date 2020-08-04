@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class DescriptorTest : public  ::testing::Test
 {
     protected:
@@ -76,3 +78,5 @@ TEST_F(DescriptorTest, multipleUniformBuffers)
 
     EXPECT_EQ(descriptor.m_bufferInfo.size(), 2);
 }
+
+} // namespace evk

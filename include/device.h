@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+namespace evk {
+    
 class Buffer;
 class Pipeline;
 class Renderpass;
@@ -360,5 +362,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData
 );
+
+} // namespace evk
 
 #endif

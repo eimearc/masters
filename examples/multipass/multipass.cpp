@@ -2,6 +2,8 @@
 #include "flags.h"
 #include "grid.h"
 
+using namespace evk; // TODO: Remove.
+
 struct UniformBufferObject
 {
     glm::mat4 MVP_model;

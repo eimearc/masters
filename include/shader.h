@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class Shader
  * @brief A Shader processes vertices and fragments to produce images.
@@ -73,5 +75,7 @@ class Shader
     // Tests.
     friend class ShaderTest_ctor_Test;
 };
+
+} // namespace evk
 
 #endif

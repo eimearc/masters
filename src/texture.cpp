@@ -3,6 +3,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+namespace evk {
+
 Texture::Texture(Texture &&other) noexcept
 {
     *this=std::move(other);
@@ -227,3 +229,5 @@ void Texture::copyBufferToImage(
         device.device(), device.graphicsQueue(), commandPool, commandBuffer
     );
 }
+
+} // namespace evk

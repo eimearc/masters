@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class DeviceTest : public  ::testing::Test
 {
     protected:
@@ -164,3 +166,5 @@ TEST_F(DeviceTest, draw)
     device.finalize(indexBuffer,vertexBuffer,pipelines);
     device.draw();
 }
+
+} // namespace evk

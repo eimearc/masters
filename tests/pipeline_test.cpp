@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class PipelineTest : public  ::testing::Test
 {
     protected:
@@ -133,3 +135,5 @@ TEST_F(PipelineTest,ctor)
     EXPECT_TRUE(pipeline1.m_pipeline);
     EXPECT_NE(pipeline1.m_vertexInput, empty);
 }
+
+} // namespace evk

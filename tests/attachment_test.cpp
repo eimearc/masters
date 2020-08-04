@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class AttachmentTest : public  ::testing::Test
 {
     protected:
@@ -77,3 +79,5 @@ TEST_F(AttachmentTest, move)
     if (b.m_imageMemory!=VK_NULL_HANDLE) FAIL();
     if (b.m_imageView!=VK_NULL_HANDLE) FAIL();
 }
+
+} // namespace evk

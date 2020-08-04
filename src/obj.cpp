@@ -3,6 +3,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+namespace evk {
+
 void evk::loadOBJ(
     const std::string &fileName,
     std::vector<Vertex> &vertices,
@@ -40,3 +42,5 @@ void evk::loadOBJ(
         }
     }
 }
+
+} // namespace evk

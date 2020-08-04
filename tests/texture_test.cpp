@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class TextureTest : public  ::testing::Test
 {
     protected:
@@ -72,3 +74,5 @@ TEST_F(TextureTest,move)
     EXPECT_TRUE(texture.m_imageView);
     EXPECT_TRUE(texture.m_memory);
 }
+
+} // namespace evk

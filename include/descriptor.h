@@ -9,6 +9,8 @@
 #include <vulkan/vulkan.h>
 #include "texture.h"
 
+namespace evk {
+
 /**
  * @class Descriptor
  * @brief A Descriptor describes a resource that will be accessed in a Shader.
@@ -157,5 +159,7 @@ class Descriptor
     friend class DescriptorTest_ctor_Test;
     friend class DescriptorTest_multipleUniformBuffers_Test;
 };
+
+} // namespace evk
 
 #endif

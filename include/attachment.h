@@ -5,6 +5,8 @@
 #include <vulkan/vulkan.h>
 #include "util.h"
 
+namespace evk {
+
 /**
  * @class Attachment
  * @brief An Attachment is a resource bound to a Shader.
@@ -95,5 +97,7 @@ class Attachment
     friend class AttachmentTest_ctor_Test;
     friend class AttachmentTest_move_Test;
 };
+
+} // namespace evk
 
 #endif

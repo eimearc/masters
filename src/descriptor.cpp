@@ -1,5 +1,7 @@
 #include "descriptor.h"
 
+namespace evk {
+
 Descriptor::Descriptor(Descriptor &&other) noexcept
 {
     *this=std::move(other);
@@ -336,3 +338,5 @@ Descriptor::~Descriptor() noexcept
     if (m_pool!=VK_NULL_HANDLE)
         vkDestroyDescriptorPool(m_device, m_pool, nullptr);
 }
+
+} // namespace evk

@@ -4,6 +4,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class VertexInput
  * @brief VertexInput describes vertex input information.
@@ -78,5 +80,7 @@ class VertexInput
     // Tests.
     friend class VertexInputTest_ctor_Test;
 };
+
+} // namespace evk
 
 #endif

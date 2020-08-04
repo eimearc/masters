@@ -2,6 +2,8 @@
 
 #include <set>
 
+namespace evk {
+
 Device::Device(
     uint32_t num_threads,
     GLFWwindow *window,
@@ -455,3 +457,5 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
     return VK_FALSE;
 }
+
+} // namespace evk

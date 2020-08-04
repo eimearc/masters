@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 TEST(OBJ, loadOBJ)
 {
     std::vector<Vertex> vertices;
@@ -35,3 +37,5 @@ TEST(OBJ, loadOBJ)
     std::vector<uint32_t> expectIndices = {0,1,2};
     EXPECT_EQ(indices,expectIndices);
 }
+
+} // namespace evk

@@ -1,5 +1,7 @@
 #include "vertexinput.h"
 
+namespace evk {
+
 VertexInput::VertexInput(uint32_t stride)
 {
     setBindingDescription(stride);
@@ -78,3 +80,5 @@ void VertexInput::setBindingDescription(uint32_t stride)
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     m_bindingDescription=bindingDescription;
 }
+
+} // namespace evk

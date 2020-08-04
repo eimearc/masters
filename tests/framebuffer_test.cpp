@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class FramebufferTest : public  ::testing::Test
 {
     protected:
@@ -104,3 +106,5 @@ TEST_F(FramebufferTest, ctor)
     ASSERT_EQ(framebuffer->m_device, device.m_device->m_device);
     ASSERT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
 }
+
+} // namespace evk

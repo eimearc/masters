@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class SwapchainTest : public  ::testing::Test
 {
     protected:
@@ -61,3 +63,5 @@ TEST_F(SwapchainTest,move)
 
     device1.m_swapchain = std::move(swapchain);    
 }
+
+} // namespace evk

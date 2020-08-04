@@ -3,6 +3,8 @@
 #include "buffer.h"
 #include "pipeline.h"
 
+namespace evk {
+
 void Device::draw()
 {
     static size_t currentFrame=0;
@@ -208,3 +210,5 @@ void Device::finalize(
         }
     }
 }
+
+} // namespace evk

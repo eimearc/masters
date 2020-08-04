@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+namespace evk {
+
 /**
  * A Vertex contains position, color, texture coordinate and normal information.
  **/
@@ -31,5 +33,7 @@ struct Vertex {
         return !(*this==other);
     }
 };
+
+} // namespace evk
 
 #endif

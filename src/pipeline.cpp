@@ -1,5 +1,7 @@
 #include "pipeline.h"
 
+namespace evk {
+
 Pipeline::Pipeline(Pipeline &&other) noexcept
 {
     *this=std::move(other);
@@ -287,3 +289,5 @@ Pipeline::~Pipeline() noexcept
     if (m_pipeline!=VK_NULL_HANDLE)
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
 }
+
+} // namespace evk

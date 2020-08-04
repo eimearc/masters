@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+namespace evk {
+
 /**
  * @class Texture
  * @brief A Texture is used to pass data via an image to a Shader.
@@ -75,5 +77,7 @@ class Texture
     friend class TextureTest_get_Test;
     friend class TextureTest_move_Test;
 };
+
+} // namespace evk
 
 #endif

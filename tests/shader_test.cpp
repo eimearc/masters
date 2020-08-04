@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+namespace evk {
+
 class ShaderTest : public  ::testing::Test
 {
     protected:
@@ -124,3 +126,5 @@ TEST_F(ShaderTest,ctor)
     EXPECT_TRUE(fragmentShader.m_device);
     EXPECT_TRUE(fragmentShader.m_module);  
 }
+
+} // namespace evk

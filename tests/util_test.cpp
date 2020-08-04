@@ -4,6 +4,8 @@
 
 using namespace internal;
 
+namespace evk {
+
 class UtilTest : public  ::testing::Test
 {
     protected:
@@ -306,3 +308,5 @@ TEST_F(UtilTest, querySwapChainSupport)
         )
     );
 }
+
+} // namespace evk
