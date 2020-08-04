@@ -5,6 +5,19 @@
 #include "util.h"
 #include <vulkan/vulkan.h>
 
+/**
+ * @class Texture
+ * @brief A Texture is used to pass data via an image to a Shader.
+ * 
+ * Textures are used in shading. They can pass information such as color,
+ * normal and specularity.
+ * 
+ * A Texture is loaded from a file and is then attached to a descriptor.
+ * 
+ * @example
+ * Texture texture(device, "viking_room.png");
+ * descriptor.addTextureSampler(1, texture, Shader::Stage::FRAGMENT);
+ **/
 class Texture
 {
     public:
@@ -15,6 +28,11 @@ class Texture
     Texture& operator=(Texture&&) noexcept;
     ~Texture() noexcept;
 
+    /**
+     * Creates a Texture.
+     * @param[in] device the Device used to create the Texture.
+     * @param[in] fileName the file where the Texture is located.
+     **/
     Texture(
         const Device &device,
         const std::string &fileName
@@ -23,9 +41,14 @@ class Texture
     bool operator==(const Texture&) const noexcept;
     bool operator!=(const Texture&) const noexcept;
 
-    void reset() noexcept;
-
     private:
+    void copyBufferToImage(
+        const Device &device,
+        VkCommandPool commandPool,
+        VkBuffer buffer,
+        VkImage image,
+        VkExtent2D extent
+    );
     void transitionImageLayout(
         const Device &device,
         VkCommandPool commandPool,
@@ -34,13 +57,7 @@ class Texture
         VkImageLayout oldLayout,
         VkImageLayout newLayout
     );
-    void copyBufferToImage(
-        const Device &device,
-        VkCommandPool commandPool,
-        VkBuffer buffer,
-        VkImage image,
-        VkExtent2D extent
-    );
+    void reset() noexcept;
 
     VkSampler sampler() const { return m_imageSampler; };
     VkImageView view() const { return m_imageView; };
