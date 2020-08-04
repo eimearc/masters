@@ -8,6 +8,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+/**
+ * A Vertex contains position, color, texture coordinate and normal information.
+ **/
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
@@ -16,12 +19,16 @@ struct Vertex {
 
     bool operator==(const Vertex &other) const
     {
-        bool result = true;
-        result &= (pos==other.pos);
-        result &= (color==other.color);
-        result &= (texCoord==other.texCoord);
-        result &= (normal==other.normal);
-        return result;
+        if (pos!=other.pos) return false;
+        if (color!=other.color) return false;
+        if (texCoord!=other.texCoord) return false;
+        if (normal!=other.normal) return false;
+        return true;
+    }
+
+    bool operator!=(const Vertex &other) const
+    {
+        return !(*this==other);
     }
 };
 

@@ -60,4 +60,5 @@ TEST_F(VertexInputTest, ctor)
     EXPECT_EQ(attributeDescriptions[0].offset,2);
 
     EXPECT_TRUE(v==v);
+    EXPECT_FALSE(v!=v);
 }
