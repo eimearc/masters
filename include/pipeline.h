@@ -86,6 +86,7 @@ class Pipeline
     void createSetLayout(
         const std::vector<VkDescriptorSetLayout> &setLayouts
     );
+    void recreate(Device &device);
     void reset();
     void setup(
         Device &device

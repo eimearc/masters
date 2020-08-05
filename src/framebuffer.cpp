@@ -36,7 +36,7 @@ void Device::Framebuffer::setup(
     const std::vector<VkImageView> &swapchainImageViews
 )
 {
-    const auto &attachments = m_renderpass->attachments();
+    auto &attachments = m_renderpass->attachments();
     const auto &numAttachments = attachments.size();
 
     std::vector<VkImageView> imageViews(numAttachments);

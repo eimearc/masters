@@ -151,7 +151,7 @@ void Pipeline::setup(Device &device)
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = extent.width;
+    viewport.width = extent.width; // TODO must be upated.
     viewport.height = extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
@@ -280,6 +280,13 @@ void Pipeline::setup(Device &device)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     }
+}
+
+void Pipeline::recreate(Device &device)
+{
+    if (m_pipeline!=VK_NULL_HANDLE)
+        vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    setup(device);
 }
 
 Pipeline::~Pipeline() noexcept

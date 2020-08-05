@@ -27,8 +27,6 @@ void Device::Swapchain::setup() noexcept
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
 
-    std::cout << extent.height << " " << extent.width << std::endl;
-
     uint32_t imageCount = m_swapchainSize;
     if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
     {
@@ -92,7 +90,6 @@ void Device::Swapchain::setup() noexcept
             aspectMask,
             &m_imageViews[i]
         );
-        std::cout << "Created " << m_imageViews[i] << std::endl;
     }
 }
 
@@ -210,11 +207,11 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
 void Device::Swapchain::recreate()
 {
     vkDeviceWaitIdle(m_device);
-    std::cout << "Updating swapchain\n";
 
     for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
     if (m_swapchain != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+    m_swapchain=VK_NULL_HANDLE;
 
     setup();
 }

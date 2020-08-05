@@ -125,10 +125,10 @@ class Device
     std::vector<VkCommandBuffer> secondaryCommandBuffers() const { return m_commands->m_secondaryCommandBuffers; };
 
     // Sync.
-    std::vector<VkFence> frameFences() const { return m_sync->m_fencesInFlight; };
-    std::vector<VkFence> imageFences() const { return m_sync->m_imagesInFlight; };
-    std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
-    std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
+    std::vector<VkFence>& frameFences() const { return m_sync->m_fencesInFlight; };
+    std::vector<VkFence>& imageFences() const { return m_sync->m_imagesInFlight; };
+    std::vector<VkSemaphore>& imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
+    std::vector<VkSemaphore>& renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
 
     // Framebuffers.
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };

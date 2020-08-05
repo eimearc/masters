@@ -8,9 +8,10 @@ namespace evk {
 void Device::draw()
 {
     static size_t currentFrame=0;
+    static int previousImageIndex=-1;
     const auto &device = this->device();
-    auto frameFences = this->frameFences();
-    auto imageFences = this->imageFences();
+    auto &frameFences = this->frameFences();
+    auto &imageFences = this->imageFences();
     const auto &imageSemaphores = imageSempahores();
     const auto &renderSemaphores = renderSempahores();
     auto &frameFence = frameFences[currentFrame];
@@ -22,13 +23,14 @@ void Device::draw()
         device, swapchain(), UINT64_MAX, imageSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex
     );
-    
+
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        std::cout << "Recreating\n";
         m_swapchain->recreate();
+        for (auto &p: m_pipelines) p->recreate(*this);
         m_framebuffer->recreate(
             m_swapchain->m_extent, m_swapchain->m_imageViews
         );
-        std::cout << "Out of date\n";
         record();
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -37,8 +39,9 @@ void Device::draw()
 
     auto &imageFence = imageFences[imageIndex];
 
-    // if (currentFrame != imageIndex)
-    //     throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
+    if (currentFrame != imageIndex) std::cout << "DIFFERENT: " << imageIndex << std::endl;
+        // currentFrame = imageIndex;
+        // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
     // Check if a previous frame is using this image. If so, wait on its fence.
     if (imageFence != VK_NULL_HANDLE)
@@ -85,22 +88,23 @@ void Device::draw()
     const auto &presentQueue = this->presentQueue();
 
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    {
+        std::cout << "After present\n";
         m_swapchain->recreate();
         m_framebuffer->recreate(
             m_swapchain->m_extent, m_swapchain->m_imageViews
         );
-        std::cout << "Out of date\n";
         record();
-    } else if (result != VK_SUCCESS) {
-        // throw std::runtime_error("failed to present swap chain image!");
-        std::cout << "ERROR\n";
+    }
+    else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
     }
 
     vkQueueWaitIdle(presentQueue);
 
     currentFrame = ((currentFrame)+1) % swapchainSize();
+    previousImageIndex=imageIndex;
 }
 
 void Device::finalize(
