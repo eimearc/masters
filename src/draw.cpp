@@ -38,15 +38,10 @@ void Device::draw()
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
-    else
-    {
-        std::cout << "[" << imageIndex << "," << currentFrame << "] \n";
-    }
 
     auto &imageFence = imageFences[imageIndex];
 
-    // if (currentFrame != imageIndex) std::cout << "DIFFERENT: " << imageIndex << std::endl;
-        // currentFrame = imageIndex;
+    // if (currentFrame != imageIndex)
         // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
     // Check if a previous frame is using this image. If so, wait on its fence.

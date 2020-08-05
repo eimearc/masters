@@ -120,7 +120,7 @@ class Descriptor
         Shader::Stage stage
     );
     void addWriteSetInputAttachment(
-        VkImageView imageView,
+        const VkImageView &imageView,
         uint32_t binding,
         Shader::Stage stage
     );

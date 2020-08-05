@@ -141,6 +141,8 @@ void Descriptor::allocateDescriptorSets()
         throw std::runtime_error("failed to create descriptor set layout.");
     }
 
+    // TODO: Start here tomorrow: need a way of updating the input attachment.
+
     // Create descriptor sets.
     m_sets.resize(2);
     VkDescriptorSetAllocateInfo allocInfo = {};
@@ -291,7 +293,7 @@ void Descriptor::addWriteSetTextureSampler(
 }
 
 void Descriptor::addWriteSetInputAttachment(
-    VkImageView imageView,
+    const VkImageView &imageView,
     uint32_t binding,
     Shader::Stage stage)
 {
