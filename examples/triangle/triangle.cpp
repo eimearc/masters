@@ -53,15 +53,11 @@ int main()
     std::vector<Subpass::Dependency> dependencies;
     
     Subpass subpass(
-        0,
-        dependencies,
-        colorAttachments,
-        depthAttachments,
-        inputAttachments
+        0, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
     std::vector<Subpass*> subpasses = {&subpass};
-    Renderpass renderpass(device, subpasses); // TODO: This should be constructed in pipeline.
+    Renderpass renderpass(device, subpasses);
 
     VertexInput vertexInput(sizeof(Vertex));
     vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));

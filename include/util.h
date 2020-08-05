@@ -9,7 +9,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <optional>
 #include <string>
 #include <vector>
 #include "vertex.h"
@@ -65,12 +64,12 @@ void createImageView(
  **/
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+    int graphicsFamily=-1;
+    int presentFamily=-1;
 
     bool isComplete()
     {
-        return graphicsFamily.has_value() && presentFamily.has_value();
+        return graphicsFamily>=0 && presentFamily>=0;
     }
 };
 

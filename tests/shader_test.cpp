@@ -23,7 +23,7 @@ class ShaderTest : public  ::testing::Test
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        evk::loadOBJ("tri.obj",vertices,indices);
+        loadOBJ("tri.obj",vertices,indices);
 
         Attachment framebufferAttachment(
             device, 0, Attachment::Type::FRAMEBUFFER

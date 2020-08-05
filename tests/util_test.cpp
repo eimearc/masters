@@ -217,14 +217,13 @@ TEST_F(UtilTest, findQueueFamilies)
     );
 
     // Check graphics queue is correct.
-    VkQueueFamilyProperties selectedFamily =
-        expected[families.graphicsFamily.value()];
+    VkQueueFamilyProperties selectedFamily = expected[families.graphicsFamily];
     EXPECT_TRUE(selectedFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT);
 
     // Check device queue is correct.
     VkBool32 presentSupport = false;
     vkGetPhysicalDeviceSurfaceSupportKHR(
-        device.physicalDevice(), families.presentFamily.value(),
+        device.physicalDevice(), families.presentFamily,
         device.surface(), &presentSupport
     );
     EXPECT_TRUE(presentSupport);
