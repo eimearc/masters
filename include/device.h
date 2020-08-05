@@ -324,7 +324,7 @@ class Device
 
         bool operator==(const Framebuffer &other);
         void recreate(
-            VkExtent2D extent,
+            Device &device,
             const std::vector<VkImageView> &swapchainImageViews
         );
         void setup(

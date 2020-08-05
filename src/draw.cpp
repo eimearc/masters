@@ -29,7 +29,7 @@ void Device::draw()
         m_swapchain->recreate();
         for (auto &p: m_pipelines) p->recreate(*this);
         m_framebuffer->recreate(
-            m_swapchain->m_extent, m_swapchain->m_imageViews
+            *this, m_swapchain->m_imageViews
         );
         record();
         return;
@@ -93,7 +93,7 @@ void Device::draw()
         std::cout << "After present\n";
         m_swapchain->recreate();
         m_framebuffer->recreate(
-            m_swapchain->m_extent, m_swapchain->m_imageViews
+            *this, m_swapchain->m_imageViews
         );
         record();
     }

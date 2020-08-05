@@ -160,11 +160,16 @@ void Attachment::recreate(Device &device)
         return;
 
     default:
+        if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
         if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr); 
         internal::createImage(
             device.device(), device.physicalDevice(),
             device.extent(), m_format, m_tiling, m_usage, m_properties,
             &m_image, &m_imageMemory
+        );
+        internal::createImageView(
+            device.device(), m_image, m_format,
+            m_aspectMask, &m_imageView
         );
         break;
     }

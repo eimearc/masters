@@ -20,15 +20,18 @@ Device::Framebuffer::Framebuffer(
 }
 
 void Device::Framebuffer::recreate(
-    VkExtent2D extent,
+    Device &device,
     const std::vector<VkImageView> &swapchainImageViews
 )
 {
-    for (auto framebuffer : m_framebuffers)
+    for (auto &framebuffer : m_framebuffers)
     {
         vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+        framebuffer=VK_NULL_HANDLE;
     }
-    setup(extent, swapchainImageViews);
+    auto &attachments = m_renderpass->attachments();
+    for (auto &a : attachments) a->recreate(device);
+    setup(device.extent(), swapchainImageViews);
 }
 
 void Device::Framebuffer::setup(

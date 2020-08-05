@@ -146,12 +146,12 @@ void Pipeline::setup(Device &device)
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     const auto &extent = device.extent(); 
-
+    
     // Set up the viewport.
     VkViewport viewport = {};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = extent.width; // TODO must be upated.
+    viewport.width = extent.width;
     viewport.height = extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
