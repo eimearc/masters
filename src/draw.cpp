@@ -20,26 +20,32 @@ void Device::draw()
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device, swapchain(), UINT64_MAX, imageSemaphores[currentFrame],
+        device, m_swapchain->m_swapchain, UINT64_MAX, imageSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex
     );
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        std::cout << "Recreating\n";
+        std::cout << "\nRecreating\n\n";
+        vkDeviceWaitIdle(m_device->m_device);
         m_swapchain->recreate();
         for (auto &p: m_pipelines) p->recreate(*this);
         m_framebuffer->recreate(
             *this, m_swapchain->m_imageViews
         );
         record();
+        currentFrame = 0;
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
+    else
+    {
+        std::cout << "[" << imageIndex << "," << currentFrame << "] \n";
+    }
 
     auto &imageFence = imageFences[imageIndex];
 
-    if (currentFrame != imageIndex) std::cout << "DIFFERENT: " << imageIndex << std::endl;
+    // if (currentFrame != imageIndex) std::cout << "DIFFERENT: " << imageIndex << std::endl;
         // currentFrame = imageIndex;
         // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -86,12 +92,13 @@ void Device::draw()
     presentInfo.pResults = nullptr;
 
     const auto &presentQueue = this->presentQueue();
-
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        std::cout << "After present\n";
+        vkDeviceWaitIdle(m_device->m_device);
+        std::cout << "Recreating\n";
         m_swapchain->recreate();
+        for (auto &p: m_pipelines) p->recreate(*this);
         m_framebuffer->recreate(
             *this, m_swapchain->m_imageViews
         );

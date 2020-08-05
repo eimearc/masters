@@ -12,7 +12,7 @@ Device::Sync::Sync(
     size_t maxFramesInFlight = swapchainSize; // TODO: Is this correct?
     m_imageAvailableSemaphores.resize(maxFramesInFlight);
     m_renderFinishedSemaphores.resize(maxFramesInFlight);
-    m_fencesInFlight.resize(maxFramesInFlight);
+    m_fencesInFlight.resize(maxFramesInFlight, VK_NULL_HANDLE);
     m_imagesInFlight.resize(swapchainSize, VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
