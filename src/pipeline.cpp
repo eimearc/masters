@@ -43,7 +43,7 @@ Pipeline::Pipeline(
     const std::vector<Shader*> &shaders
 )
 {
-    m_device=device.device();
+    m_device = &device;
     m_vertexInput = vertexInput;
     m_subpass = pSubpass;
     m_descriptor = pDescriptor;
@@ -56,7 +56,7 @@ Pipeline::Pipeline(
     auto setLayouts = m_descriptor->setLayouts();
     createSetLayout(setLayouts);
 
-    setup(device);
+    setup();
 }
 
 Pipeline::Pipeline(
@@ -67,7 +67,7 @@ Pipeline::Pipeline(
     const std::vector<Shader*> &shaders
 )
 {
-    m_device=device.device();
+    m_device = &device;
     m_vertexInput = vertexInput;
     m_subpass = pSubpass;
     m_shaders = shaders;
@@ -76,7 +76,7 @@ Pipeline::Pipeline(
     std::vector<VkDescriptorSetLayout> setLayouts;
     createSetLayout(setLayouts);
 
-    setup(device);
+    setup();
 }
 
 void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayouts)
@@ -88,7 +88,7 @@ void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayo
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    if (vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(m_device->device(), &pipelineLayoutInfo, nullptr, &m_layout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline layout.");
     }
@@ -123,7 +123,7 @@ bool Pipeline::operator==(const Pipeline &other) const
     return true;
 }
 
-void Pipeline::setup(Device &device)
+void Pipeline::setup()
 {
     const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
@@ -145,7 +145,7 @@ void Pipeline::setup(Device &device)
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    const auto &extent = device.extent(); 
+    const auto &extent = m_device->extent(); 
 
     // Set up the viewport.
     VkViewport viewport = {};
@@ -276,26 +276,29 @@ void Pipeline::setup(Device &device)
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    if (vkCreateGraphicsPipelines(device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(m_device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline.");
     }
 }
 
-void Pipeline::recreate(Device &device)
+void Pipeline::recreate()
 {
     if (m_pipeline!=VK_NULL_HANDLE)
-        vkDestroyPipeline(m_device, m_pipeline, nullptr);
+        vkDestroyPipeline(m_device->device(), m_pipeline, nullptr);
+    m_pipeline=VK_NULL_HANDLE;
     if (m_descriptor!=nullptr) m_descriptor->recreate();
-    setup(device);
+    setup();
 }
 
 Pipeline::~Pipeline() noexcept
 {   
     if (m_layout!=VK_NULL_HANDLE)
-        vkDestroyPipelineLayout(m_device, m_layout, nullptr);
+        vkDestroyPipelineLayout(m_device->device(), m_layout, nullptr);
+    m_layout=VK_NULL_HANDLE;
     if (m_pipeline!=VK_NULL_HANDLE)
-        vkDestroyPipeline(m_device, m_pipeline, nullptr);
+        vkDestroyPipeline(m_device->device(), m_pipeline, nullptr);
+    m_pipeline=VK_NULL_HANDLE;
 }
 
 } // namespace evk

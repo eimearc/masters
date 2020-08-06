@@ -234,10 +234,10 @@ void Device::record()
 void Device::resizeWindow()
 {
     std::cout << "\nRecreating\n\n";
-    vkDeviceWaitIdle(m_device->m_device);
+    vkDeviceWaitIdle(device());
     m_swapchain->recreate();
     m_framebuffer->recreate();
-    for (auto &p: m_pipelines) p->recreate(*this);
+    for (auto &p: m_pipelines) p->recreate();
     record();
 }
 
