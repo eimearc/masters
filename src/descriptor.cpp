@@ -338,17 +338,9 @@ void Descriptor::recreate()
 {
     int i = 0;
     for (auto &info : m_inputAttachmentInfo)
-    {
-        std::cout << "Old image:" << info->imageView << " new: " << m_attachments[i]->view() << " ";
         info->imageView=m_attachments[i++]->view();
-    }
-    std::cout << std::endl;
 
-    for (auto &l: m_setLayouts)
-        vkDestroyDescriptorSetLayout(m_device, l, nullptr);
-    if (m_pool!=VK_NULL_HANDLE)
-        vkDestroyDescriptorPool(m_device, m_pool, nullptr);
-
+    destroy();
     finalize();
 }
 
@@ -373,12 +365,19 @@ void Descriptor::addWriteSet(
     }
 }
 
-Descriptor::~Descriptor() noexcept
+void Descriptor::destroy() noexcept
 {
     for (auto &l: m_setLayouts)
         vkDestroyDescriptorSetLayout(m_device, l, nullptr);
+    m_setLayouts.resize(0);
     if (m_pool!=VK_NULL_HANDLE)
         vkDestroyDescriptorPool(m_device, m_pool, nullptr);
+    m_pool=VK_NULL_HANDLE;
+}
+
+Descriptor::~Descriptor() noexcept
+{
+    destroy();
 }
 
 } // namespace evk

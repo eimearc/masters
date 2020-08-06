@@ -132,13 +132,13 @@ class Descriptor
     void allocateDescriptorPool();
     void allocateDescriptorSets();
     VkDescriptorType descriptorType(Type type);
+    void destroy() noexcept;
     void finalize();
     void initializePoolSize(Type type);
     void removeEmptyPoolSizes();
     void removeEmptyWriteSets();
-    void reset();
-
     void recreate();
+    void reset();
 
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
