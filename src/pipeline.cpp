@@ -146,7 +146,7 @@ void Pipeline::setup(Device &device)
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     const auto &extent = device.extent(); 
-    
+
     // Set up the viewport.
     VkViewport viewport = {};
     viewport.x = 0.0f;
@@ -286,6 +286,7 @@ void Pipeline::recreate(Device &device)
 {
     if (m_pipeline!=VK_NULL_HANDLE)
         vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    if (m_descriptor!=nullptr) m_descriptor->recreate();
     setup(device);
 }
 

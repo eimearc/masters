@@ -103,12 +103,27 @@ void Descriptor::allocateDescriptorPool()
 
 void Descriptor::removeEmptyPoolSizes()
 {
-    auto isEmpty = [](const VkDescriptorPoolSize &x){
+    auto isEmpty = [](const VkDescriptorPoolSize &x)
+    {
         return x.descriptorCount==0;
     };
     m_poolSizes.erase(std::remove_if(
         m_poolSizes.begin(), m_poolSizes.end(), isEmpty),
         m_poolSizes.end());
+}
+
+void Descriptor::removeEmptyWriteSets()
+{
+    auto isEmpty = [](const VkWriteDescriptorSet &x)
+    {
+        return x.descriptorCount==0;
+    };
+    m_writeSetFragment.erase(std::remove_if(
+        m_writeSetFragment.begin(), m_writeSetFragment.end(), isEmpty),
+        m_writeSetFragment.end());
+    m_writeSetVertex.erase(std::remove_if(
+        m_writeSetVertex.begin(), m_writeSetVertex.end(), isEmpty),
+        m_writeSetVertex.end());
 }
 
 // TODO: Handle case where no descriptors have been added.
@@ -155,6 +170,7 @@ void Descriptor::allocateDescriptorSets()
         throw std::runtime_error("failed to allocate descriptor sets.");
     } 
 
+    removeEmptyWriteSets();
     for (auto &ds : m_writeSetVertex) ds.dstSet=m_sets[0];
     for (auto &ds : m_writeSetFragment) ds.dstSet=m_sets[1];
 
@@ -183,12 +199,13 @@ void Descriptor::addUniformBuffer(
 
 void Descriptor::addInputAttachment(
     const uint32_t binding,
-    const Attachment &attachment,
+    Attachment &attachment,
     const Shader::Stage stage)
 {
     addDescriptorSetBinding(
         Type::INPUT_ATTACHMENT, binding, stage
     );
+    m_attachments.push_back(&attachment);
     addWriteSetInputAttachment(attachment.view(), binding, stage);
 }
 
@@ -264,7 +281,7 @@ void Descriptor::addWriteSetBuffer(
     descriptor.pBufferInfo = bufferInfo.get();
     descriptor.pNext=nullptr;
 
-    addWriteSet(descriptor,stage);
+    addWriteSet(descriptor,binding,stage);
 }
 
 void Descriptor::addWriteSetTextureSampler(
@@ -289,7 +306,7 @@ void Descriptor::addWriteSetTextureSampler(
     descriptor.pImageInfo = imageInfo.get();
     descriptor.pNext=nullptr;
 
-    addWriteSet(descriptor,stage);
+    addWriteSet(descriptor,binding,stage);
 }
 
 void Descriptor::addWriteSetInputAttachment(
@@ -314,20 +331,43 @@ void Descriptor::addWriteSetInputAttachment(
     descriptor.pImageInfo = imageInfo.get();
     descriptor.pNext=nullptr;
 
-    addWriteSet(descriptor,stage);
+    addWriteSet(descriptor,binding,stage);
+}
+
+void Descriptor::recreate()
+{
+    int i = 0;
+    for (auto &info : m_inputAttachmentInfo)
+    {
+        std::cout << "Old image:" << info->imageView << " new: " << m_attachments[i]->view() << " ";
+        info->imageView=m_attachments[i++]->view();
+    }
+    std::cout << std::endl;
+
+    for (auto &l: m_setLayouts)
+        vkDestroyDescriptorSetLayout(m_device, l, nullptr);
+    if (m_pool!=VK_NULL_HANDLE)
+        vkDestroyDescriptorPool(m_device, m_pool, nullptr);
+
+    finalize();
 }
 
 void Descriptor::addWriteSet(
     VkWriteDescriptorSet writeSet,
+    uint32_t binding,
     Shader::Stage stage)
 {
     switch(stage)
     {
         case Shader::Stage::FRAGMENT:
-            m_writeSetFragment.push_back(writeSet);
+            if (m_writeSetFragment.size()<=binding)
+                m_writeSetFragment.resize(binding+1);
+            m_writeSetFragment[binding]=writeSet;
             break;
         case Shader::Stage::VERTEX:
-            m_writeSetVertex.push_back(writeSet);
+            if (m_writeSetVertex.size()<=binding)
+                m_writeSetVertex.resize(binding+1);
+            m_writeSetVertex[binding]=writeSet;
             break;
         // TODO: Handle support for geometry shader.
     }

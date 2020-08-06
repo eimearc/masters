@@ -28,10 +28,10 @@ void Device::draw()
         std::cout << "\nRecreating\n\n";
         vkDeviceWaitIdle(m_device->m_device);
         m_swapchain->recreate();
-        for (auto &p: m_pipelines) p->recreate(*this);
         m_framebuffer->recreate(
             *this, m_swapchain->m_imageViews
         );
+        for (auto &p: m_pipelines) p->recreate(*this);
         record();
         currentFrame = 0;
         return;
