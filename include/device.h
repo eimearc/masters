@@ -78,7 +78,12 @@ class Device
     bool operator==(const Device& other);
 
     // TODO: Document.
-    void setWindowFunc(std::function<void()> windowFunc, uint32_t width, uint32_t height);
+    void setWindowFunc(
+        std::function<void()> windowFunc,
+        uint32_t width,
+        uint32_t height,
+        const std::vector<const char *> &windowExtensions
+    );
 
     /**
      * Finalize the device. This is the last function that is called before
@@ -111,7 +116,10 @@ class Device
     uint32_t numThreads() const { return m_numThreads; };
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
 
-    void finishSetup();
+    void finishSetup(
+        std::function<void()> windowFunc,
+        const std::vector<const char*> &windowExtensions
+    );
     void record();
     void resizeWindow();
     void wait() { m_threadPool.wait(); };
@@ -151,7 +159,10 @@ class Device
             const std::vector<const char *> &deviceExtensions
         );
 
-        void finishSetup();
+        void finishSetup(
+            std::function<void()> windowFunc,
+            const std::vector<const char *> &windowExtensions
+        );
         bool operator==(const _Device &other);
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
@@ -164,6 +175,7 @@ class Device
         VkQueue m_presentQueue=VK_NULL_HANDLE;
         VkSurfaceKHR m_surface=VK_NULL_HANDLE;
         std::vector<const char*> m_validationLayers;
+        std::vector<const char *> m_windowExtensions;
 
         private:
         void createInstance();

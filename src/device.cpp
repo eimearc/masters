@@ -34,9 +34,12 @@ Device::Device(
     );
 }
 
-void Device::finishSetup()
+void Device::finishSetup(
+    std::function<void()> windowFunc,
+    const std::vector<const char*> &windowExtensions
+)
 {
-    m_device->finishSetup();
+    m_device->finishSetup(windowFunc, windowExtensions);
     m_swapchain=std::make_unique<Swapchain>(
         m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
         m_windowExtent, m_swapchainSize
@@ -48,11 +51,16 @@ void Device::finishSetup()
     );
 }
 
-void Device::setWindowFunc(std::function<void()> windowFunc, uint32_t width, uint32_t height)
+void Device::setWindowFunc(
+    std::function<void()> windowFunc,
+    uint32_t width,
+    uint32_t height,
+    const std::vector<const char*> &windowExtensions
+)
 {
-    windowFunc();
+    // windowFunc();
     m_windowExtent = {width,height};
-    finishSetup();
+    finishSetup(windowFunc, windowExtensions);
 }
 
 bool Device::operator==(const Device& other)
@@ -109,12 +117,16 @@ Device::_Device::_Device(
 {
     m_deviceExtensions=deviceExtensions;
     m_validationLayers=validationLayers;
-
-    createInstance();
 }
 
-void Device::_Device::finishSetup()
+void Device::_Device::finishSetup(
+    std::function<void()> windowFunc,
+    const std::vector<const char *> &windowExtensions
+)
 {
+    m_windowExtensions=windowExtensions;
+    createInstance();
+    windowFunc();
     pickPhysicalDevice();
     setDepthFormat();
     createDevice();
@@ -184,10 +196,11 @@ void Device::_Device::createInstance()
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = 0;
 
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    // uint32_t glfwExtensionCount = 0;
+    // const char** glfwExtensions;
+    // glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    // std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    auto extensions=m_windowExtensions;
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
@@ -413,7 +426,7 @@ internal::QueueFamilyIndices Device::_Device::getQueueFamilies(
     internal::QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr); //Crashes here.
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 

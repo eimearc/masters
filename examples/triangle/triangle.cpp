@@ -1,5 +1,8 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 using namespace evk; // TODO: Remove.
 
 std::vector<const char*> validationLayers =
@@ -34,6 +37,15 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> extensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    // for (const auto &e : extensions)
+    //     deviceExtensions.push_back(e);
+
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
@@ -50,7 +62,7 @@ int main()
     // int width, height;
     // glfwGetFramebufferSize(window, &width, &height);
 
-    device.setWindowFunc(surfaceFunc,800,600);
+    device.setWindowFunc(surfaceFunc,800,600,extensions);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
