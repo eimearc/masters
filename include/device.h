@@ -77,18 +77,17 @@ class Device
 
     bool operator==(const Device& other);
 
-    // TODO: Document. Rename to surface.
     /**
-     * Set the function which creates a surface object.
-     * @param[in] windowFunc the function which will be called to generate
+     * Creates a surface object and finishes Device setup.
+     * @param[in] surfaceFunc the function which will be called to generate
      *  a surface object.
      * @param[in] width the window width in pixels.
      * @param[in] height the window height in pixels.
      * @param[in] windowExtensions the set of extentsions required for Vulkan
      *  to interface with the windowing system.
      **/
-    void setWindowFunc(
-        std::function<void()> windowFunc,
+    void createSurface(
+        std::function<void()> surfaceFunc,
         uint32_t width,
         uint32_t height,
         const std::vector<const char *> &windowExtensions

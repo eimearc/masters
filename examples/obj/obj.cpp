@@ -1,6 +1,9 @@
 #include "evulkan.h"
 #include "flags.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 using namespace evk; // TODO: Remove.
 
 struct UniformBufferObject
@@ -34,8 +37,20 @@ int main(int argc, char **argv)
     const uint32_t swapchainSize = 2;
 
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;

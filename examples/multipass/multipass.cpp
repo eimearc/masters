@@ -2,6 +2,9 @@
 #include "flags.h"
 #include "grid.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 using namespace evk; // TODO: Remove.
 
 struct UniformBufferObject
@@ -72,8 +75,20 @@ int main(int argc, char **argv)
     createGrid(FLAGS_num_cubes, vertices, indices);
 
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);

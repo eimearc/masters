@@ -37,14 +37,6 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
-    // TODO: Tidy.
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions(
-        glfwExtensions, glfwExtensions + glfwExtensionCount
-    );
-
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
@@ -52,13 +44,17 @@ int main()
         numThreads, deviceExtensions, swapchainSize, validationLayers
     );
 
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
     auto surfaceFunc = [&](){
         glfwCreateWindowSurface(
             device.instance(), window, nullptr, &device.surface()
         );
     };
-
-    device.setWindowFunc(surfaceFunc,800,600,extensions);
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};

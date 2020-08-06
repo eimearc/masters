@@ -51,16 +51,15 @@ void Device::finishSetup(
     );
 }
 
-void Device::setWindowFunc(
-    std::function<void()> windowFunc,
+void Device::createSurface(
+    std::function<void()> surfaceFunc,
     uint32_t width,
     uint32_t height,
     const std::vector<const char*> &windowExtensions
 )
 {
-    // windowFunc();
     m_windowExtent = {width,height};
-    finishSetup(windowFunc, windowExtensions);
+    finishSetup(surfaceFunc, windowExtensions);
 }
 
 bool Device::operator==(const Device& other)
@@ -197,9 +196,6 @@ void Device::_Device::createInstance()
     createInfo.enabledLayerCount = 0;
 
     auto extensions=m_windowExtensions;
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
     if(m_validationLayers.size() > 0)
@@ -208,12 +204,16 @@ void Device::_Device::createInstance()
         createInfo.ppEnabledLayerNames = m_validationLayers.data();
         debugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
     }
     else
     {
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
     }
+
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
 
     if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
     {
@@ -380,7 +380,7 @@ bool Device::_Device::checkDeviceExtensionSupport(VkPhysicalDevice device, std::
 
     std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-    for (const auto& extension : availableExtensions)
+    for (const auto &extension : availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
     }
