@@ -21,10 +21,6 @@ include_directories (./include)
 include_directories (${VULKAN_SDK}/include)
 include_directories (${STB_INCLUDE_PATH})
 
-# Add GLFW libraries. TODO: Remove
-find_package(glfw3 3.3 REQUIRED)
-link_libraries(glfw)
-
 # Add Vulkan libraries.
 find_package(Vulkan REQUIRED)
 link_libraries(Vulkan::Vulkan)
