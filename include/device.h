@@ -56,7 +56,7 @@ class Device
      */
     Device(
         uint32_t numThreads,
-        GLFWwindow *window,
+        // GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         const uint32_t swapchainSize
     );
@@ -73,7 +73,7 @@ class Device
      */
     Device(
         uint32_t numThreads,
-        GLFWwindow *window,
+        // GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         uint32_t swapchainSize,
         const std::vector<const char*> &validationLayers
@@ -81,7 +81,8 @@ class Device
 
     bool operator==(const Device& other);
 
-    void setWindowFunc(std::function<void()> windowFunc);
+    // TODO: Document.
+    void setWindowFunc(std::function<void()> windowFunc, uint32_t width, uint32_t height);
 
     /**
      * Finalize the device. This is the last function that is called before
@@ -106,7 +107,6 @@ class Device
 
     private:
     // Device.
-    GLFWwindow* window() const { return m_device->m_window; }
     VkPhysicalDevice physicalDevice() const { return m_device->m_physicalDevice; }
     VkDevice device() const { return m_device->m_device; }
     VkFormat depthFormat() const { return m_device->m_depthFormat; };
@@ -151,9 +151,8 @@ class Device
         ~_Device() noexcept;
 
         _Device(
-            // uint32_t num_threads,
             const std::vector<const char*> &validationLayers,
-            GLFWwindow *window,
+            // GLFWwindow *window,
             const std::vector<const char *> &deviceExtensions
         );
 
@@ -170,11 +169,10 @@ class Device
         VkQueue m_presentQueue=VK_NULL_HANDLE;
         VkSurfaceKHR m_surface=VK_NULL_HANDLE;
         std::vector<const char*> m_validationLayers;
-        GLFWwindow *m_window=nullptr;
+        // GLFWwindow *m_window=nullptr;
 
         private:
         void createInstance();
-        void createSurface();
         void pickPhysicalDevice();
         void createDevice();
         VkResult createDebugUtilsMessengerEXT(
@@ -221,7 +219,7 @@ class Device
             const VkDevice &device,
             const VkPhysicalDevice &physicalDevice,
             const VkSurfaceKHR &surface,
-            GLFWwindow *window,
+            VkExtent2D windowExtent,
             const uint32_t swapchainSize
         );
 
@@ -232,7 +230,6 @@ class Device
         void setup() noexcept;
 
         VkExtent2D chooseSwapExtent(
-            GLFWwindow* window,
             const VkSurfaceCapabilitiesKHR& capabilities
         ) const;
         VkPresentModeKHR chooseSwapPresentMode(
@@ -249,12 +246,10 @@ class Device
         std::vector<VkImage> m_images;
         std::vector<VkImageView> m_imageViews;
         VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
-
         uint32_t m_swapchainSize;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-
-        GLFWwindow *m_window;
+        VkExtent2D m_windowExtent;
     };
 
     class Commands
@@ -339,7 +334,7 @@ class Device
     uint32_t m_swapchainSize=1;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
-    GLFWwindow *m_window;
+    VkExtent2D m_windowExtent2D;
 
     Buffer *m_indexBuffer=nullptr;
     Buffer *m_vertexBuffer=nullptr;

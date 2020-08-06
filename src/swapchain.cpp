@@ -6,14 +6,14 @@ Device::Swapchain::Swapchain(
     const VkDevice &device,
     const VkPhysicalDevice &physicalDevice,
     const VkSurfaceKHR &surface,
-    GLFWwindow *window, //TODO: Make const.
+    VkExtent2D windowExtent,
     const uint32_t swapchainSize)
 {
     m_device = device;
     m_swapchainSize = swapchainSize;
     m_surface = surface;
     m_physicalDevice = physicalDevice;
-    m_window=window;
+    m_windowExtent=windowExtent;
 
     setup();
 }
@@ -25,7 +25,7 @@ void Device::Swapchain::setup() noexcept
     );
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
+    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = m_swapchainSize;
     // if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -142,7 +142,6 @@ bool Device::Swapchain::operator!=(const Swapchain &other) const
 }
 
 VkExtent2D Device::Swapchain::chooseSwapExtent(
-    GLFWwindow* window,
     const VkSurfaceCapabilitiesKHR& capabilities
 ) const
 {
@@ -152,14 +151,10 @@ VkExtent2D Device::Swapchain::chooseSwapExtent(
     }
     else
     {
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        // int width, height;
+        // glfwGetFramebufferSize(window, &width, &height);
 
-        VkExtent2D actualExtent =
-        {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)
-        };
+        VkExtent2D actualExtent = m_windowExtent;
 
         actualExtent.width = std::max(capabilities.minImageExtent.width,
             std::min(capabilities.maxImageExtent.width, actualExtent.width));

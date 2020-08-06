@@ -6,24 +6,23 @@ namespace evk {
 
 Device::Device(
     uint32_t num_threads,
-    GLFWwindow *window,
+    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize)
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
     m_swapchainSize=swapchainSize;
-    m_window=window;
 
     const std::vector<const char*> validationLayers; // TODO: Remove.
     m_device=std::make_unique<_Device>(
-        validationLayers, window, deviceExtensions
+        validationLayers, deviceExtensions
     );
 }
 
 Device::Device(
     uint32_t num_threads,
-    GLFWwindow *window,
+    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize,
     const std::vector<const char*> &validationLayers)
@@ -31,10 +30,9 @@ Device::Device(
     m_threadPool.setThreadCount(num_threads);
     m_numThreads = num_threads;
     m_swapchainSize = swapchainSize;
-    m_window=window;
 
     m_device=std::make_unique<_Device>(
-        validationLayers, window, deviceExtensions
+        validationLayers, deviceExtensions
     );
 }
 
@@ -43,7 +41,7 @@ void Device::finishSetup()
     m_device->finishSetup();
     m_swapchain=std::make_unique<Swapchain>(
         m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
-        m_window, m_swapchainSize
+        m_windowExtent2D, m_swapchainSize
     );
     m_sync=std::make_unique<Sync>(m_device->m_device, m_swapchainSize);
     m_commands=std::make_unique<Commands>(m_device->m_device,
@@ -52,9 +50,10 @@ void Device::finishSetup()
     );
 }
 
-void Device::setWindowFunc(std::function<void()> windowFunc)
+void Device::setWindowFunc(std::function<void()> windowFunc, uint32_t width, uint32_t height)
 {
     windowFunc();
+    m_windowExtent2D = {width,height};
     finishSetup();
 }
 
@@ -108,12 +107,12 @@ Device& Device::operator=(Device&& other) noexcept
 Device::_Device::_Device(
     // uint32_t num_threads,
     const std::vector<const char*> &validationLayers,
-    GLFWwindow *window,
+    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions
 )
 {
     m_deviceExtensions=deviceExtensions;
-    m_window=window;
+    // m_window=window;
     m_validationLayers=validationLayers;
 
     createInstance();
@@ -148,7 +147,7 @@ Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
     m_presentQueue=other.m_presentQueue;
     m_surface=other.m_surface;
     other.m_surface=VK_NULL_HANDLE;
-    m_window=other.m_window;
+    // m_window=other.m_window;
     return *this;
 }
 
@@ -174,7 +173,7 @@ bool Device::_Device::operator==(const _Device &other)
     result &= (m_physicalDevice==other.m_physicalDevice);
     result &= (m_presentQueue==other.m_presentQueue);
     result &= (m_surface==other.m_surface);
-    result &= (m_window==other.m_window);
+    // result &= (m_window==other.m_window);
     return result;
 }
 
@@ -234,13 +233,13 @@ void Device::_Device::createInstance()
     std::cout << "Created instance: " << m_instance << std::endl;
 }
 
-void Device::_Device::createSurface()
-{
-    if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create window instance->surface.");
-    }
-}
+// void Device::_Device::createSurface()
+// {
+//     if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
+//     {
+//         throw std::runtime_error("failed to create window instance->surface.");
+//     }
+// }
 
 void Device::_Device::pickPhysicalDevice()
 {

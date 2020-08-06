@@ -38,18 +38,19 @@ int main()
     const uint32_t swapchainSize = 2;
 
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
 
     auto surfaceFunc = [&](){
-        std::cout << "Hello world from surfaceFunc.\n";
-        std::cout << device.instance() << std::endl;
         glfwCreateWindowSurface(
             device.instance(), window, nullptr, &device.surface()
         );
     };
 
-    device.setWindowFunc(surfaceFunc);
+    // int width, height;
+    // glfwGetFramebufferSize(window, &width, &height);
+
+    device.setWindowFunc(surfaceFunc,800,600);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
