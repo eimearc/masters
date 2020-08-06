@@ -1,5 +1,9 @@
 include_directories(../include)
 
+# Add GLFW libraries.
+find_package(glfw3 3.3 REQUIRED)
+link_libraries(glfw)
+
 find_package(GTest REQUIRED)
 
 enable_testing()

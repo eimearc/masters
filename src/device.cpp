@@ -83,6 +83,8 @@ bool Device::operator==(const Device& other)
         result &= (*m_swapchain.get() == *other.m_swapchain.get());
     else result &= ((m_swapchain==nullptr) && (other.m_swapchain==nullptr));
 
+    result &= (m_swapchainSize == other.m_swapchainSize);
+
     if ((m_sync!=nullptr) && (other.m_sync!=nullptr))
         result &= (*m_sync.get() == *other.m_sync.get());
     else result &= ((m_sync==nullptr) && (other.m_sync==nullptr));
@@ -104,6 +106,7 @@ Device& Device::operator=(Device&& other) noexcept
     m_numThreads = other.m_numThreads;
     other.m_numThreads=1;
     m_swapchain = std::move(other.m_swapchain);
+    m_swapchainSize=other.m_swapchainSize;
     m_sync = std::move(other.m_sync);
     m_threadPool = std::move(other.m_threadPool);
     return *this;

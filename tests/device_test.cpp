@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -38,8 +40,19 @@ TEST_F(DeviceTest, ctor)
     const uint32_t numThreads = 2;
     const uint32_t swapchainSize = 2;
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     EXPECT_NE(device.m_device.get(), nullptr);
     EXPECT_NE(device.m_commands.get(), nullptr);
@@ -50,8 +63,14 @@ TEST_F(DeviceTest, ctor)
     EXPECT_EQ(device.m_numThreads, numThreads);
 
     Device device1(
-        numThreads, window, deviceExtensions, swapchainSize
+        numThreads, deviceExtensions, swapchainSize
     );
+    auto surfaceFunc1 = [&](){
+        glfwCreateWindowSurface(
+            device1.instance(), window, nullptr, &device1.surface()
+        );
+    };
+    device1.createSurface(surfaceFunc1,800,600,surfaceExtensions);
 
     EXPECT_NE(device1.m_device.get(), nullptr);
     EXPECT_NE(device1.m_commands.get(), nullptr);
@@ -61,7 +80,15 @@ TEST_F(DeviceTest, ctor)
     EXPECT_EQ(device1.m_framebuffer.get(), nullptr);
     EXPECT_EQ(device1.m_numThreads, numThreads);
 
-    Device::_Device d(2,validationLayers, window, deviceExtensions);
+    VkExtent2D extent = {800,600};
+
+    Device::_Device d(validationLayers, deviceExtensions);
+    auto sf = [&](){
+        glfwCreateWindowSurface(
+            d.m_instance, window, nullptr, &d.m_surface
+        );
+    };
+    d.finishSetup(sf,surfaceExtensions);
     EXPECT_TRUE(d.m_device);
     EXPECT_TRUE(d.m_debugMessenger);
     EXPECT_TRUE(d.m_graphicsQueue);
@@ -71,7 +98,13 @@ TEST_F(DeviceTest, ctor)
     EXPECT_TRUE(d.m_surface);
 
     const std::vector<const char*> validationLayers1;
-    Device::_Device d1(3,validationLayers1, window, deviceExtensions);
+    Device::_Device d1(validationLayers1, deviceExtensions);
+    auto sf1 = [&](){
+        glfwCreateWindowSurface(
+            d1.m_instance, window, nullptr, &d1.m_surface
+        );
+    };
+    d1.finishSetup(sf1,surfaceExtensions);
     EXPECT_TRUE(d1.m_device);
     EXPECT_FALSE(d1.m_debugMessenger);
     EXPECT_TRUE(d1.m_graphicsQueue);
@@ -87,8 +120,19 @@ TEST_F(DeviceTest, move)
     const uint32_t swapchainSize = 2;
 
     Device device1(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device1.instance(), window, nullptr, &device1.surface()
+        );
+    };
+    device1.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     auto device = std::move(device1);
     device1 = std::move(device);
@@ -105,8 +149,19 @@ TEST_F(DeviceTest, draw)
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     std::vector<Vertex> vertices;
     Vertex v;

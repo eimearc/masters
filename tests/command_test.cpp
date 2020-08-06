@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -38,9 +40,20 @@ TEST_F(CommandTest, ctor)
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
     device = {
-        numThreads, window, deviceExtensions,
+        numThreads, deviceExtensions,
         swapchainSize, validationLayers
     };
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     const auto &commands = device.m_commands;
 
@@ -59,9 +72,20 @@ TEST_F(CommandTest, move)
     const uint32_t numThreads = 2;
     const uint32_t swapchainSize = 2;
     Device device1 = {
-        numThreads, window, deviceExtensions,
+        numThreads, deviceExtensions,
         swapchainSize, validationLayers
     };
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc1 = [&](){
+        glfwCreateWindowSurface(
+            device1.instance(), window, nullptr, &device1.surface()
+        );
+    };
+    device1.createSurface(surfaceFunc1,800,600,surfaceExtensions);
 
     device = std::move(device1);
 

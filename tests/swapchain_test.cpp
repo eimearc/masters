@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -36,7 +38,18 @@ class SwapchainTest : public  ::testing::Test
 
 TEST_F(SwapchainTest,ctor)
 {
-    device = {1, window, deviceExtensions, 2, validationLayers};
+    device = {1, deviceExtensions, 2, validationLayers};
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
     auto &swapchain = device.m_swapchain;
     if (swapchain->m_device==VK_NULL_HANDLE) FAIL();
@@ -55,8 +68,26 @@ TEST_F(SwapchainTest,ctor)
 
 TEST_F(SwapchainTest,move)
 {
-    device = {1, window, deviceExtensions, 2, validationLayers};
-    Device device1 = {1, window, deviceExtensions, 2, validationLayers};
+    device = {1, deviceExtensions, 2, validationLayers};
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
+
+    Device device1 = {1, deviceExtensions, 2, validationLayers};
+    auto surfaceFunc1 = [&](){
+        glfwCreateWindowSurface(
+            device1.instance(), window, nullptr, &device1.surface()
+        );
+    };
+    device1.createSurface(surfaceFunc1,800,600,surfaceExtensions);
 
     auto &swapchain = device.m_swapchain;
     swapchain = std::move(device1.m_swapchain);
