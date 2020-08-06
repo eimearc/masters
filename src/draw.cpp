@@ -8,9 +8,10 @@ namespace evk {
 void Device::draw()
 {
     static size_t currentFrame=0;
+    static int previousImageIndex=-1;
     const auto &device = this->device();
-    auto frameFences = this->frameFences();
-    auto imageFences = this->imageFences();
+    auto &frameFences = this->frameFences();
+    auto &imageFences = this->imageFences();
     const auto &imageSemaphores = imageSempahores();
     const auto &renderSemaphores = renderSempahores();
     auto &frameFence = frameFences[currentFrame];
@@ -19,18 +20,22 @@ void Device::draw()
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device, swapchain(), UINT64_MAX,
-        imageSemaphores[currentFrame],
-        VK_NULL_HANDLE, &imageIndex);
+        device, m_swapchain->m_swapchain, UINT64_MAX, imageSemaphores[currentFrame],
+        VK_NULL_HANDLE, &imageIndex
+    );
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        resizeWindow();
+        currentFrame = 0;
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
 
     auto &imageFence = imageFences[imageIndex];
 
-    if (currentFrame != imageIndex) throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
-
-    if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to acquire swap chain image.");
-    }
+    // if (currentFrame != imageIndex)
+        // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
     // Check if a previous frame is using this image. If so, wait on its fence.
     if (imageFence != VK_NULL_HANDLE)
@@ -75,32 +80,47 @@ void Device::draw()
     presentInfo.pResults = nullptr;
 
     const auto &presentQueue = this->presentQueue();
-    if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS)
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        throw std::runtime_error("failed to present swap chain image.");
+        resizeWindow();
+    }
+    else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
     }
 
     vkQueueWaitIdle(presentQueue);
 
     currentFrame = ((currentFrame)+1) % swapchainSize();
+    previousImageIndex=imageIndex;
 }
 
 void Device::finalize(
-    const Buffer &indexBuffer,
-    const Buffer &vertexBuffer,
-    const std::vector<Pipeline*> &pipelines)
+    Buffer &indexBuffer,
+    Buffer &vertexBuffer,
+    std::vector<Pipeline*> &pipelines)
 {
-    auto renderpass=pipelines[0]->renderpass(); // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
+    auto renderpass=pipelines[0]->renderpass();
     m_framebuffer = std::make_unique<Framebuffer>(
-        device(), swapchainSize(), swapchainImageViews(), extent(), *renderpass
+        *this, *renderpass
     );
 
+    m_indexBuffer=&indexBuffer;
+    m_vertexBuffer=&vertexBuffer;
+    m_pipelines=pipelines;
+
+    record();
+}
+
+void Device::record()
+{
     const auto &primaryCommandBuffers = this->primaryCommandBuffers();
     auto secondaryCommandBuffers = this->secondaryCommandBuffers();
     const auto &commandPools = this->commandPools();
     const auto numThreads = this->numThreads();
-    const size_t numIndicesEach=indexBuffer.numElements()/this->numThreads();
+    const size_t numIndicesEach=m_indexBuffer->numElements()/this->numThreads();
     const auto &framebuffers = this->framebuffers();
+    auto renderpass=m_pipelines[0]->renderpass(); // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
     const auto &clearValues = renderpass->clearValues();
     
     VkRenderPassBeginInfo renderPassInfo = {};
@@ -125,8 +145,8 @@ void Device::finalize(
 
         for (size_t pass = 0; pass < numSubpasses; ++pass)
         {
-            const auto &pipeline = pipelines[pass]->pipeline();
-            const auto &pipelineLayout = pipelines[pass]->layout();
+            const auto &pipeline = m_pipelines[pass]->pipeline();
+            const auto &pipelineLayout = m_pipelines[pass]->layout();
             if (pass == 0 )
                 vkCmdBeginRenderPass(
                     primaryCommandBuffer,
@@ -143,7 +163,7 @@ void Device::finalize(
 
                 size_t numIndices=numIndicesEach;
                 size_t indexOffset=numIndicesEach*i;
-                if (i==(numThreads-1)) numIndices = indexBuffer.numElements()-(i*numIndicesEach);
+                if (i==(numThreads-1)) numIndices = m_indexBuffer->numElements()-(i*numIndicesEach);
 
                 VkCommandBufferAllocateInfo allocInfo = {};
                 allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -175,12 +195,12 @@ void Device::finalize(
 
                 VkDeviceSize offsets[] = {0};
 
-                auto vBuffer = vertexBuffer.buffer();
+                auto vBuffer = m_vertexBuffer->buffer();
                 vkCmdBindVertexBuffers(secondaryCommandBuffer, 0, 1, &vBuffer, offsets);
-                vkCmdBindIndexBuffer(secondaryCommandBuffer, indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-                if (pipelines[pass]->descriptor()!=nullptr)
+                vkCmdBindIndexBuffer(secondaryCommandBuffer, m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+                if (m_pipelines[pass]->descriptor()!=nullptr)
                 {
-                    const auto &descriptorSets = pipelines[pass]->descriptor()->sets();
+                    const auto &descriptorSets = m_pipelines[pass]->descriptor()->sets();
                     vkCmdBindDescriptorSets(
                         secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                         0, descriptorSets.size(), descriptorSets.data(), 0, nullptr);
@@ -209,6 +229,15 @@ void Device::finalize(
             throw std::runtime_error("Could not end primaryCommandBuffer.");   
         }
     }
+}
+
+void Device::resizeWindow()
+{
+    vkDeviceWaitIdle(device());
+    m_swapchain->recreate();
+    m_framebuffer->recreate();
+    for (auto &p: m_pipelines) p->recreate();
+    record();
 }
 
 } // namespace evk

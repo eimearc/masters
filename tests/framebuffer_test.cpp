@@ -100,7 +100,7 @@ TEST_F(FramebufferTest, ctor)
 
     const auto &framebuffer = device.m_framebuffer;
     ASSERT_NE(framebuffer,nullptr);
-    ASSERT_EQ(framebuffer->m_device, device.m_device->m_device);
+    ASSERT_EQ(framebuffer->m_device->device(), device.device());
     ASSERT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
 }
 

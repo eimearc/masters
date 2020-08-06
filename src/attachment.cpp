@@ -107,19 +107,18 @@ void Attachment::setColorAttachment(const Device &device)
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    VkImageUsageFlags usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    m_format = format;
+    m_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    m_aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
     internal::createImage(
         device.device(), device.physicalDevice(),
-        device.extent(), format, tiling, usage, properties,
+        device.extent(), format, m_tiling, m_usage, m_properties,
         &m_image, &m_imageMemory);
 
     internal::createImageView(
         device.device(), m_image, format,
-        aspectMask, &m_imageView);
+        m_aspectMask, &m_imageView);
 
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
@@ -136,22 +135,44 @@ void Attachment::setDepthAttachment(const Device &device)
     m_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    VkFormat format = device.depthFormat();
-    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    VkImageUsageFlags usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-    VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    m_format = device.depthFormat();
+    m_usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    m_aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
     internal::createImage(
         device.device(), device.physicalDevice(),
-        device.extent(), format, tiling, usage, properties,
+        device.extent(), m_format, m_tiling, m_usage, m_properties,
         &m_image, &m_imageMemory);
 
     internal::createImageView(
-        device.device(), m_image, format,
-        aspectMask, &m_imageView);
+        device.device(), m_image, m_format,
+        m_aspectMask, &m_imageView);
 
     m_clearValue.depthStencil = {1.0f,1};
+}
+
+void Attachment::recreate(Device &device)
+{
+    switch (m_type)
+    {
+    case Type::FRAMEBUFFER:
+        return;
+
+    default:
+        if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
+        if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr); 
+        if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
+        internal::createImage(
+            device.device(), device.physicalDevice(),
+            device.extent(), m_format, m_tiling, m_usage, m_properties,
+            &m_image, &m_imageMemory
+        );
+        internal::createImageView(
+            device.device(), m_image, m_format,
+            m_aspectMask, &m_imageView
+        );
+        break;
+    }
 }
 
 Attachment::~Attachment() noexcept

@@ -66,6 +66,7 @@ class Attachment
     void setDepthAttachment(
         const Device &device
     );
+    void recreate(Device &device);
     void reset();
 
     VkClearValue clearValue() const { return m_clearValue; };
@@ -88,8 +89,15 @@ class Attachment
     VkAttachmentReference m_inputReference;
     Type m_type;
 
+    VkFormat m_format;
+    VkImageTiling m_tiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageUsageFlags m_usage = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    VkMemoryPropertyFlags m_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    VkImageAspectFlags m_aspectMask;
+
     friend class Descriptor;
     friend class Device;
+    friend class Pipeline;
     friend class Renderpass;
     friend class Subpass;
 

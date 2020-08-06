@@ -86,10 +86,9 @@ class Pipeline
     void createSetLayout(
         const std::vector<VkDescriptorSetLayout> &setLayouts
     );
+    void recreate();
     void reset();
-    void setup(
-        Device &device
-    );
+    void setup();
 
     Descriptor* const descriptor() const { return m_descriptor; };
     VkPipelineLayout layout() const { return m_layout; };
@@ -97,7 +96,7 @@ class Pipeline
     Renderpass* const renderpass() const { return m_renderpass; };
 
     Descriptor* m_descriptor=nullptr;
-    VkDevice m_device=VK_NULL_HANDLE;
+    Device *m_device=nullptr;
     VkPipelineLayout m_layout=VK_NULL_HANDLE;
     VkPipeline m_pipeline=VK_NULL_HANDLE;
     Renderpass *m_renderpass=nullptr;

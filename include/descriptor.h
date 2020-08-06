@@ -66,7 +66,7 @@ class Descriptor
      **/
     void addInputAttachment(
         const uint32_t binding,
-        const Attachment &attachment,
+        Attachment &attachment,
         const Shader::Stage shaderStage
     );
 
@@ -120,25 +120,30 @@ class Descriptor
         Shader::Stage stage
     );
     void addWriteSetInputAttachment(
-        VkImageView imageView,
+        const VkImageView &imageView,
         uint32_t binding,
         Shader::Stage stage
     );
     void addWriteSet(
         VkWriteDescriptorSet writeSet,
+        uint32_t binding,
         Shader::Stage stage
     );
     void allocateDescriptorPool();
     void allocateDescriptorSets();
     VkDescriptorType descriptorType(Type type);
+    void destroy() noexcept;
     void finalize();
     void initializePoolSize(Type type);
     void removeEmptyPoolSizes();
+    void removeEmptyWriteSets();
+    void recreate();
     void reset();
 
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
+    std::vector<Attachment*> m_attachments; // TODO: Union?
     std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
     VkDevice m_device=VK_NULL_HANDLE;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;

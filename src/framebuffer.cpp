@@ -5,27 +5,46 @@
 namespace evk {
 
 Device::Framebuffer::Framebuffer(
-    const VkDevice &device,
-    size_t swapchainSize,
-    const std::vector<VkImageView> &swapchainImageViews,
-    VkExtent2D extent,
-    const Renderpass &renderpass) // This should be part of attachment creation.
+    Device &device,
+    Renderpass &renderpass) // This should be part of attachment creation.
 {
-    m_device = device;
-    const auto &attachments = renderpass.attachments();
+    m_device = &device;
+    m_framebuffers.resize(device.swapchainSize());
+    m_renderpass = &renderpass;
+    m_swapchainSize = device.swapchainSize();
+
+    setup();
+}
+
+void Device::Framebuffer::recreate()
+{
+    for (auto &framebuffer : m_framebuffers)
+    {
+        vkDestroyFramebuffer(m_device->m_device->m_device, framebuffer, nullptr); // TODO: Tidy
+        framebuffer=VK_NULL_HANDLE;
+    }
+    auto &attachments = m_renderpass->attachments();
+    for (auto &a : attachments) a->recreate(*m_device);
+    setup();
+}
+
+void Device::Framebuffer::setup()
+{
+    auto &attachments = m_renderpass->attachments();
+    const auto &extent = m_device->extent();
     const auto &numAttachments = attachments.size();
-    m_framebuffers.resize(swapchainSize);
+    const auto &swapchainImageViews = m_device->swapchainImageViews();
 
     std::vector<VkImageView> imageViews(numAttachments);
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = renderpass.renderpass();
+    framebufferInfo.renderPass = m_renderpass->renderpass();
     framebufferInfo.attachmentCount = numAttachments;
     framebufferInfo.width = extent.width;
     framebufferInfo.height = extent.height;
     framebufferInfo.layers = 1;
 
-    for (size_t i = 0; i < swapchainSize; ++i)
+    for (size_t i = 0; i < m_swapchainSize; ++i)
     {
         imageViews[0] = swapchainImageViews[i];
         for (size_t j = 1; j < numAttachments; j++)
@@ -36,7 +55,7 @@ Device::Framebuffer::Framebuffer(
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];
-        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS)
+        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) // TODO: Tidy.
         {
             throw std::runtime_error("failed to create framebuffer.");
         }
@@ -73,7 +92,7 @@ Device::Framebuffer::~Framebuffer() noexcept
 {
     for (auto framebuffer : m_framebuffers)
     {
-        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
     }
 }
 

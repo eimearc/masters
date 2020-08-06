@@ -88,9 +88,9 @@ class Device
      * @param[in] pipelines the set of pipelines used for drawing.
      **/
     void finalize(
-        const Buffer &indexBuffer,
-        const Buffer &vertexBuffer,
-        const std::vector<Pipeline*> &pipelines
+        Buffer &indexBuffer,
+        Buffer &vertexBuffer,
+        std::vector<Pipeline*> &pipelines
     );
 
     /**
@@ -110,6 +110,9 @@ class Device
     VkQueue presentQueue() const { return m_device->m_presentQueue; };
     uint32_t numThreads() const { return m_numThreads; };
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
+
+    void record();
+    void resizeWindow();
     void wait() { m_threadPool.wait(); };
 
     // Swapchain.
@@ -124,10 +127,10 @@ class Device
     std::vector<VkCommandBuffer> secondaryCommandBuffers() const { return m_commands->m_secondaryCommandBuffers; };
 
     // Sync.
-    std::vector<VkFence> frameFences() const { return m_sync->m_fencesInFlight; };
-    std::vector<VkFence> imageFences() const { return m_sync->m_imagesInFlight; };
-    std::vector<VkSemaphore> imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
-    std::vector<VkSemaphore> renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
+    std::vector<VkFence>& frameFences() const { return m_sync->m_fencesInFlight; };
+    std::vector<VkFence>& imageFences() const { return m_sync->m_imagesInFlight; };
+    std::vector<VkSemaphore>& imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
+    std::vector<VkSemaphore>& renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
 
     // Framebuffers.
     std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
@@ -226,6 +229,8 @@ class Device
         bool operator==(const Swapchain &other) const;
         bool operator!=(const Swapchain &other) const;
         void reset() noexcept;
+        void recreate();
+        void setup() noexcept;
 
         VkExtent2D chooseSwapExtent(
             GLFWwindow* window,
@@ -237,6 +242,7 @@ class Device
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
             const std::vector<VkSurfaceFormatKHR>& availableFormats
         ) const;
+        void destroy() noexcept;
 
         VkDevice m_device=VK_NULL_HANDLE;
         VkExtent2D m_extent;
@@ -244,6 +250,12 @@ class Device
         std::vector<VkImage> m_images;
         std::vector<VkImageView> m_imageViews;
         VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
+
+        uint32_t m_swapchainSize;
+        VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+        VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+        GLFWwindow *m_window;
     };
 
     class Commands
@@ -306,17 +318,18 @@ class Device
         ~Framebuffer() noexcept;
 
         Framebuffer(
-            const VkDevice &device,
-            size_t swapchainSize,
-            const std::vector<VkImageView> &swapchainImageViews,
-            VkExtent2D extent,
-            const Renderpass &renderpass
+            Device &device,
+            Renderpass &renderpass
         );
 
         bool operator==(const Framebuffer &other);
+        void recreate();
+        void setup();
 
-        VkDevice m_device=VK_NULL_HANDLE;
+        Device *m_device=nullptr;
         std::vector<VkFramebuffer> m_framebuffers;
+        Renderpass *m_renderpass=nullptr;
+        size_t m_swapchainSize;
     };
     
     std::unique_ptr<_Device> m_device=nullptr;
@@ -326,6 +339,10 @@ class Device
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
+
+    Buffer *m_indexBuffer=nullptr;
+    Buffer *m_vertexBuffer=nullptr;
+    std::vector<Pipeline*> m_pipelines;
 
     friend class Attachment;
     friend class Buffer;
