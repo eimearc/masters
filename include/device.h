@@ -112,7 +112,7 @@ class Device
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
 
     void record();
-    void resizeScreen();
+    void resizeWindow();
     void wait() { m_threadPool.wait(); };
 
     // Swapchain.
@@ -319,20 +319,13 @@ class Device
 
         Framebuffer(
             Device &device,
-            size_t swapchainSize,
-            const std::vector<VkImageView> &swapchainImageViews,
             Renderpass &renderpass
         );
 
         bool operator==(const Framebuffer &other);
-        void recreate(
-            const std::vector<VkImageView> &swapchainImageViews
-        );
-        void setup(
-            const std::vector<VkImageView> &swapchainImageViews
-        );
+        void recreate();
+        void setup();
 
-        // VkDevice m_device=VK_NULL_HANDLE;
         Device *m_device=nullptr;
         std::vector<VkFramebuffer> m_framebuffers;
         Renderpass *m_renderpass=nullptr;

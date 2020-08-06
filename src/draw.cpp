@@ -25,7 +25,7 @@ void Device::draw()
     );
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        resizeScreen();
+        resizeWindow();
         currentFrame = 0;
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -83,12 +83,7 @@ void Device::draw()
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        vkDeviceWaitIdle(m_device->m_device);
-        std::cout << "Recreating\n";
-        m_swapchain->recreate();
-        for (auto &p: m_pipelines) p->recreate(*this);
-        m_framebuffer->recreate(m_swapchain->m_imageViews);
-        record();
+        resizeWindow();
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -107,7 +102,7 @@ void Device::finalize(
 {
     auto renderpass=pipelines[0]->renderpass();
     m_framebuffer = std::make_unique<Framebuffer>(
-        *this, swapchainSize(), swapchainImageViews(), *renderpass
+        *this, *renderpass
     );
 
     m_indexBuffer=&indexBuffer;
@@ -236,12 +231,12 @@ void Device::record()
     }
 }
 
-void Device::resizeScreen()
+void Device::resizeWindow()
 {
     std::cout << "\nRecreating\n\n";
     vkDeviceWaitIdle(m_device->m_device);
     m_swapchain->recreate();
-    m_framebuffer->recreate(m_swapchain->m_imageViews);
+    m_framebuffer->recreate();
     for (auto &p: m_pipelines) p->recreate(*this);
     record();
 }

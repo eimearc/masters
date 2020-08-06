@@ -6,21 +6,17 @@ namespace evk {
 
 Device::Framebuffer::Framebuffer(
     Device &device,
-    size_t swapchainSize,
-    const std::vector<VkImageView> &swapchainImageViews,
     Renderpass &renderpass) // This should be part of attachment creation.
 {
     m_device = &device;
-    m_framebuffers.resize(swapchainSize);
+    m_framebuffers.resize(device.swapchainSize());
     m_renderpass = &renderpass;
-    m_swapchainSize = swapchainSize;
+    m_swapchainSize = device.swapchainSize();
 
-    setup(swapchainImageViews);
+    setup();
 }
 
-void Device::Framebuffer::recreate(
-    const std::vector<VkImageView> &swapchainImageViews
-)
+void Device::Framebuffer::recreate()
 {
     for (auto &framebuffer : m_framebuffers)
     {
@@ -29,16 +25,15 @@ void Device::Framebuffer::recreate(
     }
     auto &attachments = m_renderpass->attachments();
     for (auto &a : attachments) a->recreate(*m_device);
-    setup(swapchainImageViews);
+    setup();
 }
 
-void Device::Framebuffer::setup(
-    const std::vector<VkImageView> &swapchainImageViews
-)
+void Device::Framebuffer::setup()
 {
     auto &attachments = m_renderpass->attachments();
     const auto &extent = m_device->extent();
     const auto &numAttachments = attachments.size();
+    const auto &swapchainImageViews = m_device->swapchainImageViews();
 
     std::vector<VkImageView> imageViews(numAttachments);
     VkFramebufferCreateInfo framebufferInfo = {};
@@ -60,7 +55,7 @@ void Device::Framebuffer::setup(
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];
-        if (vkCreateFramebuffer(m_device->m_device->m_device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) // TODO: Tidy.
+        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) // TODO: Tidy.
         {
             throw std::runtime_error("failed to create framebuffer.");
         }
