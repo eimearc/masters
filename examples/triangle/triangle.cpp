@@ -40,6 +40,16 @@ int main()
     Device device(
         numThreads, window, deviceExtensions, swapchainSize, validationLayers
     );
+
+    auto surfaceFunc = [&](){
+        std::cout << "Hello world from surfaceFunc.\n";
+        std::cout << device.instance() << std::endl;
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+
+    device.setWindowFunc(surfaceFunc);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};

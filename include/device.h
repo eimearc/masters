@@ -1,6 +1,7 @@
 #ifndef EVK_DEVICE_H_
 #define EVK_DEVICE_H_
 
+#include <functional>
 #include "threadpool.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -80,6 +81,8 @@ class Device
 
     bool operator==(const Device& other);
 
+    void setWindowFunc(std::function<void()> windowFunc);
+
     /**
      * Finalize the device. This is the last function that is called before
      * draw().
@@ -98,11 +101,12 @@ class Device
      **/
     void draw();
 
+    VkInstance instance() const { return m_device->m_instance; }
+    VkSurfaceKHR& surface() const { return m_device->m_surface; }
+
     private:
     // Device.
     GLFWwindow* window() const { return m_device->m_window; }
-    VkInstance instance() const { return m_device->m_instance; }
-    VkSurfaceKHR surface() const { return m_device->m_surface; }
     VkPhysicalDevice physicalDevice() const { return m_device->m_physicalDevice; }
     VkDevice device() const { return m_device->m_device; }
     VkFormat depthFormat() const { return m_device->m_depthFormat; };
@@ -111,6 +115,7 @@ class Device
     uint32_t numThreads() const { return m_numThreads; };
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
 
+    void finishSetup();
     void record();
     void resizeWindow();
     void wait() { m_threadPool.wait(); };
@@ -146,38 +151,32 @@ class Device
         ~_Device() noexcept;
 
         _Device(
-            uint32_t num_threads,
-            const std::vector<const char*> &validation_layers,
+            // uint32_t num_threads,
+            const std::vector<const char*> &validationLayers,
             GLFWwindow *window,
-            const std::vector<const char *> &device_extensions
+            const std::vector<const char *> &deviceExtensions
         );
 
+        void finishSetup();
         bool operator==(const _Device &other);
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
         VkDevice m_device=VK_NULL_HANDLE;
+        std::vector<const char *> m_deviceExtensions;
         VkQueue m_graphicsQueue=VK_NULL_HANDLE;
         VkInstance m_instance=VK_NULL_HANDLE;
         VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
         VkQueue m_presentQueue=VK_NULL_HANDLE;
         VkSurfaceKHR m_surface=VK_NULL_HANDLE;
+        std::vector<const char*> m_validationLayers;
         GLFWwindow *m_window=nullptr;
 
         private:
-        void createInstance(
-            const std::vector<const char*> &validationLayers
-        );
-        void createSurface(
-            GLFWwindow *window
-        );
-        void pickPhysicalDevice(
-            const std::vector<const char *> &deviceExtensions
-        );
-        void createDevice(
-            const std::vector<const char *> &device_extensions,
-            const std::vector<const char*> &validation_layers
-        );
+        void createInstance();
+        void createSurface();
+        void pickPhysicalDevice();
+        void createDevice();
         VkResult createDebugUtilsMessengerEXT(
             VkInstance instance,
             const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -337,8 +336,10 @@ class Device
     std::unique_ptr<Framebuffer> m_framebuffer=nullptr;
     size_t m_numThreads=1;
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
+    uint32_t m_swapchainSize=1;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
+    GLFWwindow *m_window;
 
     Buffer *m_indexBuffer=nullptr;
     Buffer *m_vertexBuffer=nullptr;
