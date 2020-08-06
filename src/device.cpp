@@ -6,7 +6,6 @@ namespace evk {
 
 Device::Device(
     uint32_t num_threads,
-    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize)
 {
@@ -22,7 +21,6 @@ Device::Device(
 
 Device::Device(
     uint32_t num_threads,
-    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize,
     const std::vector<const char*> &validationLayers)
@@ -41,7 +39,7 @@ void Device::finishSetup()
     m_device->finishSetup();
     m_swapchain=std::make_unique<Swapchain>(
         m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
-        m_windowExtent2D, m_swapchainSize
+        m_windowExtent, m_swapchainSize
     );
     m_sync=std::make_unique<Sync>(m_device->m_device, m_swapchainSize);
     m_commands=std::make_unique<Commands>(m_device->m_device,
@@ -53,7 +51,7 @@ void Device::finishSetup()
 void Device::setWindowFunc(std::function<void()> windowFunc, uint32_t width, uint32_t height)
 {
     windowFunc();
-    m_windowExtent2D = {width,height};
+    m_windowExtent = {width,height};
     finishSetup();
 }
 
@@ -105,14 +103,11 @@ Device& Device::operator=(Device&& other) noexcept
 }
 
 Device::_Device::_Device(
-    // uint32_t num_threads,
     const std::vector<const char*> &validationLayers,
-    // GLFWwindow *window,
     const std::vector<const char *> &deviceExtensions
 )
 {
     m_deviceExtensions=deviceExtensions;
-    // m_window=window;
     m_validationLayers=validationLayers;
 
     createInstance();
@@ -120,7 +115,6 @@ Device::_Device::_Device(
 
 void Device::_Device::finishSetup()
 {
-    // createSurface(); // TODO: Needs to be windowing-system agnostic.
     pickPhysicalDevice();
     setDepthFormat();
     createDevice();
@@ -147,7 +141,6 @@ Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
     m_presentQueue=other.m_presentQueue;
     m_surface=other.m_surface;
     other.m_surface=VK_NULL_HANDLE;
-    // m_window=other.m_window;
     return *this;
 }
 
@@ -173,7 +166,6 @@ bool Device::_Device::operator==(const _Device &other)
     result &= (m_physicalDevice==other.m_physicalDevice);
     result &= (m_presentQueue==other.m_presentQueue);
     result &= (m_surface==other.m_surface);
-    // result &= (m_window==other.m_window);
     return result;
 }
 
@@ -229,17 +221,7 @@ void Device::_Device::createInstance()
             throw std::runtime_error("failed to set up debug messenger.");
         }
     }
-
-    std::cout << "Created instance: " << m_instance << std::endl;
 }
-
-// void Device::_Device::createSurface()
-// {
-//     if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-//     {
-//         throw std::runtime_error("failed to create window instance->surface.");
-//     }
-// }
 
 void Device::_Device::pickPhysicalDevice()
 {

@@ -33,7 +33,7 @@ class Renderpass;
  * 
  * @example
  * Device device(
- *  1, window, extensions, 2, layers
+ *  1, extensions, 2, layers
  * );
  **/ 
 class Device
@@ -49,14 +49,12 @@ class Device
     /**
      * Constructs a Device without validation layers.
      * @param[in] numThreads the number of threads the Device should use.
-     * @param[in] window a pointer to the window used to display images.
      * @param[in] deviceExtensions the extensions required to create the device.
      * @param[in] swapchainSize the number of images used by the swapchain,
      *  generally between two and three.
      */
     Device(
         uint32_t numThreads,
-        // GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         const uint32_t swapchainSize
     );
@@ -65,7 +63,6 @@ class Device
      * Constructs a Device with validation layers turned on. This is useful for
      *  developing programs.
      * @param[in] numThreads the number of threads the Device should use.
-     * @param[in] window a pointer to the window used to display images.
      * @param[in] deviceExtensions the extensions required to create the device.
      * @param[in] swapchainSize the number of images used by the swapchain,
      *  generally between two and three.
@@ -73,7 +70,6 @@ class Device
      */
     Device(
         uint32_t numThreads,
-        // GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         uint32_t swapchainSize,
         const std::vector<const char*> &validationLayers
@@ -152,7 +148,6 @@ class Device
 
         _Device(
             const std::vector<const char*> &validationLayers,
-            // GLFWwindow *window,
             const std::vector<const char *> &deviceExtensions
         );
 
@@ -169,7 +164,6 @@ class Device
         VkQueue m_presentQueue=VK_NULL_HANDLE;
         VkSurfaceKHR m_surface=VK_NULL_HANDLE;
         std::vector<const char*> m_validationLayers;
-        // GLFWwindow *m_window=nullptr;
 
         private:
         void createInstance();
@@ -334,7 +328,7 @@ class Device
     uint32_t m_swapchainSize=1;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
-    VkExtent2D m_windowExtent2D;
+    VkExtent2D m_windowExtent;
 
     Buffer *m_indexBuffer=nullptr;
     Buffer *m_vertexBuffer=nullptr;
