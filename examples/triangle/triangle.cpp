@@ -30,7 +30,15 @@ std::vector<Vertex> setupVerts()
     return verts;
 }
 
-int main()
+std::unique_ptr<Device> d=nullptr;
+
+static void resizeCallback(GLFWwindow* window, int width, int height)
+{
+    std::cout << "HERE\n";
+    d->framebufferOutofDate = true;
+}
+
+void run()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -40,9 +48,11 @@ int main()
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
-    Device device(
+    d = std::make_unique<Device>(
         numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+
+    Device &device = *d.get();
 
     uint32_t glfwExtensionCount = 0;
     auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -55,6 +65,7 @@ int main()
         );
     };
     device.createSurface(surfaceFunc,800,600,surfaceExtensions);
+    glfwSetFramebufferSizeCallback(window, resizeCallback);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
@@ -102,4 +113,10 @@ int main()
         glfwPollEvents();
         device.draw();
     }
+}
+
+int main()
+{
+    run();
+    d.reset();
 }

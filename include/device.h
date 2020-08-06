@@ -111,6 +111,9 @@ class Device
      **/
     void draw();
 
+    // TODO: Remove here.
+    bool framebufferOutofDate=false;
+
     VkInstance instance() const { return m_device->m_instance; }
     VkSurfaceKHR& surface() const { return m_device->m_surface; }
 

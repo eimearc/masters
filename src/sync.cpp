@@ -97,8 +97,10 @@ bool Device::Sync::operator==(const Sync &other)
 
 Device::Sync::~Sync() noexcept
 {
-    for (auto &s : m_renderFinishedSemaphores) vkDestroySemaphore(m_device, s, nullptr);
-    for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &s : m_renderFinishedSemaphores)
+        vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &s : m_imageAvailableSemaphores)
+        vkDestroySemaphore(m_device, s, nullptr);
     for (auto &f : m_fencesInFlight) vkDestroyFence(m_device, f, nullptr);
 }
 
