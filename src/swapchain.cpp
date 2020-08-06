@@ -151,17 +151,14 @@ VkExtent2D Device::Swapchain::chooseSwapExtent(
     }
     else
     {
-        // int width, height;
-        // glfwGetFramebufferSize(window, &width, &height);
+        VkExtent2D extent = m_windowExtent;
 
-        VkExtent2D actualExtent = m_windowExtent;
+        extent.width = std::max(capabilities.minImageExtent.width,
+            std::min(capabilities.maxImageExtent.width, extent.width));
+        extent.height = std::max(capabilities.minImageExtent.height,
+            std::min(capabilities.maxImageExtent.height, extent.height));
 
-        actualExtent.width = std::max(capabilities.minImageExtent.width,
-            std::min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(capabilities.minImageExtent.height,
-            std::min(capabilities.maxImageExtent.height, actualExtent.height));
-
-        return actualExtent;
+        return extent;
     }   
 }
 

@@ -196,12 +196,8 @@ void Device::_Device::createInstance()
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = 0;
 
-    // uint32_t glfwExtensionCount = 0;
-    // const char** glfwExtensions;
-    // glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    // std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
     auto extensions=m_windowExtensions;
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
