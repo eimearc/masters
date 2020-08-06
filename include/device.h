@@ -100,7 +100,6 @@ class Device
 
     private:
     // Device.
-    void record();
     GLFWwindow* window() const { return m_device->m_window; }
     VkInstance instance() const { return m_device->m_instance; }
     VkSurfaceKHR surface() const { return m_device->m_surface; }
@@ -111,6 +110,9 @@ class Device
     VkQueue presentQueue() const { return m_device->m_presentQueue; };
     uint32_t numThreads() const { return m_numThreads; };
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
+
+    void record();
+    void resizeScreen();
     void wait() { m_threadPool.wait(); };
 
     // Swapchain.
@@ -240,6 +242,7 @@ class Device
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
             const std::vector<VkSurfaceFormatKHR>& availableFormats
         ) const;
+        void destroy() noexcept;
 
         VkDevice m_device=VK_NULL_HANDLE;
         VkExtent2D m_extent;
@@ -315,24 +318,22 @@ class Device
         ~Framebuffer() noexcept;
 
         Framebuffer(
-            const VkDevice &device,
+            Device &device,
             size_t swapchainSize,
             const std::vector<VkImageView> &swapchainImageViews,
-            VkExtent2D extent,
             Renderpass &renderpass
         );
 
         bool operator==(const Framebuffer &other);
         void recreate(
-            Device &device,
             const std::vector<VkImageView> &swapchainImageViews
         );
         void setup(
-            VkExtent2D extent,
             const std::vector<VkImageView> &swapchainImageViews
         );
 
-        VkDevice m_device=VK_NULL_HANDLE;
+        // VkDevice m_device=VK_NULL_HANDLE;
+        Device *m_device=nullptr;
         std::vector<VkFramebuffer> m_framebuffers;
         Renderpass *m_renderpass=nullptr;
         size_t m_swapchainSize;

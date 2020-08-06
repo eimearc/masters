@@ -28,10 +28,10 @@ void Device::Swapchain::setup() noexcept
     VkExtent2D extent = chooseSwapExtent(m_window, swapChainSupport.capabilities);
 
     uint32_t imageCount = m_swapchainSize;
-    if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
-    {
-        throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
-    }
+    // if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
+    // {
+    //     throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
+    // }
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -66,10 +66,7 @@ void Device::Swapchain::setup() noexcept
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if(vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create swap chain.");
-    }
+    vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain);
 
     vkGetSwapchainImagesKHR(m_device, m_swapchain, &imageCount, nullptr);
     m_images.resize(imageCount);
@@ -206,21 +203,22 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
 
 void Device::Swapchain::recreate()
 {
-    vkDeviceWaitIdle(m_device);
+    destroy();
+    setup();
+}
 
+void Device::Swapchain::destroy() noexcept
+{
     for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
+    m_imageViews.resize(0);
     if (m_swapchain != VK_NULL_HANDLE)
         vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
     m_swapchain=VK_NULL_HANDLE;
-
-    setup();
 }
 
 Device::Swapchain::~Swapchain() noexcept
 {
-    for (auto &iv : m_imageViews) vkDestroyImageView(m_device, iv, nullptr);
-    if (m_swapchain != VK_NULL_HANDLE)
-        vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+    destroy();
 }
 
 } // namespace evk

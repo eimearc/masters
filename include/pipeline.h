@@ -88,9 +88,7 @@ class Pipeline
     );
     void recreate(Device &device);
     void reset();
-    void setup(
-        Device &device
-    );
+    void setup(Device &device);
 
     Descriptor* const descriptor() const { return m_descriptor; };
     VkPipelineLayout layout() const { return m_layout; };

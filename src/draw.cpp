@@ -25,14 +25,7 @@ void Device::draw()
     );
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        std::cout << "\nRecreating\n\n";
-        vkDeviceWaitIdle(m_device->m_device);
-        m_swapchain->recreate();
-        m_framebuffer->recreate(
-            *this, m_swapchain->m_imageViews
-        );
-        for (auto &p: m_pipelines) p->recreate(*this);
-        record();
+        resizeScreen();
         currentFrame = 0;
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -94,9 +87,7 @@ void Device::draw()
         std::cout << "Recreating\n";
         m_swapchain->recreate();
         for (auto &p: m_pipelines) p->recreate(*this);
-        m_framebuffer->recreate(
-            *this, m_swapchain->m_imageViews
-        );
+        m_framebuffer->recreate(m_swapchain->m_imageViews);
         record();
     }
     else if (result != VK_SUCCESS) {
@@ -116,7 +107,7 @@ void Device::finalize(
 {
     auto renderpass=pipelines[0]->renderpass();
     m_framebuffer = std::make_unique<Framebuffer>(
-        device(), swapchainSize(), swapchainImageViews(), extent(), *renderpass
+        *this, swapchainSize(), swapchainImageViews(), *renderpass
     );
 
     m_indexBuffer=&indexBuffer;
@@ -243,6 +234,16 @@ void Device::record()
             throw std::runtime_error("Could not end primaryCommandBuffer.");   
         }
     }
+}
+
+void Device::resizeScreen()
+{
+    std::cout << "\nRecreating\n\n";
+    vkDeviceWaitIdle(m_device->m_device);
+    m_swapchain->recreate();
+    m_framebuffer->recreate(m_swapchain->m_imageViews);
+    for (auto &p: m_pipelines) p->recreate(*this);
+    record();
 }
 
 } // namespace evk

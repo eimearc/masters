@@ -5,41 +5,39 @@
 namespace evk {
 
 Device::Framebuffer::Framebuffer(
-    const VkDevice &device,
+    Device &device,
     size_t swapchainSize,
     const std::vector<VkImageView> &swapchainImageViews,
-    VkExtent2D extent,
     Renderpass &renderpass) // This should be part of attachment creation.
 {
-    m_device = device;
+    m_device = &device;
     m_framebuffers.resize(swapchainSize);
     m_renderpass = &renderpass;
     m_swapchainSize = swapchainSize;
 
-    setup(extent, swapchainImageViews);
+    setup(swapchainImageViews);
 }
 
 void Device::Framebuffer::recreate(
-    Device &device,
     const std::vector<VkImageView> &swapchainImageViews
 )
 {
     for (auto &framebuffer : m_framebuffers)
     {
-        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+        vkDestroyFramebuffer(m_device->m_device->m_device, framebuffer, nullptr); // TODO: Tidy
         framebuffer=VK_NULL_HANDLE;
     }
     auto &attachments = m_renderpass->attachments();
-    for (auto &a : attachments) a->recreate(device);
-    setup(device.extent(), swapchainImageViews);
+    for (auto &a : attachments) a->recreate(*m_device);
+    setup(swapchainImageViews);
 }
 
 void Device::Framebuffer::setup(
-    VkExtent2D extent,
     const std::vector<VkImageView> &swapchainImageViews
 )
 {
     auto &attachments = m_renderpass->attachments();
+    const auto &extent = m_device->extent();
     const auto &numAttachments = attachments.size();
 
     std::vector<VkImageView> imageViews(numAttachments);
@@ -62,7 +60,7 @@ void Device::Framebuffer::setup(
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];
-        if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS)
+        if (vkCreateFramebuffer(m_device->m_device->m_device, &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) // TODO: Tidy.
         {
             throw std::runtime_error("failed to create framebuffer.");
         }
@@ -99,7 +97,7 @@ Device::Framebuffer::~Framebuffer() noexcept
 {
     for (auto framebuffer : m_framebuffers)
     {
-        vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
     }
 }
 
