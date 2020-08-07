@@ -30,15 +30,47 @@ std::vector<Vertex> setupVerts()
     return verts;
 }
 
-std::unique_ptr<Device> d=nullptr;
-
-static void resizeCallback(GLFWwindow* window, int width, int height)
+std::vector<const char*> glfwExtensions()
 {
-    std::cout << "HERE\n";
-    d->framebufferOutofDate = true;
+    uint32_t glfwExtensionCount = 0;
+    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    std::vector<const char*> surfaceExtensions(
+        glfwExtensions, glfwExtensions + glfwExtensionCount
+    );
+    return surfaceExtensions;
 }
 
-void run()
+struct WindowResize
+{
+    static void resizeGLFW(GLFWwindow *window, int width, int height)
+    {
+        auto r = reinterpret_cast<WindowResize*>(
+            glfwGetWindowUserPointer(window)
+        );
+        r->device->framebufferOutofDate = true;
+    }
+
+    Device *device;
+};
+
+void createSurfaceGLFW(Device &device, GLFWwindow *window)
+{
+    WindowResize r = {&device};
+    glfwSetWindowUserPointer(window,&r);
+
+    auto surfaceExtensions = glfwExtensions();
+    auto surfaceFunc = [&](){
+        glfwCreateWindowSurface(
+            device.instance(), window, nullptr, &device.surface()
+        );
+    };
+
+    std::function<void(Device&)> f = {};
+    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
+    glfwSetFramebufferSizeCallback(window, r.resizeGLFW);
+}
+
+int main()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -48,24 +80,11 @@ void run()
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
-    d = std::make_unique<Device>(
+    Device device = Device(
         numThreads, deviceExtensions, swapchainSize, validationLayers
     );
 
-    Device &device = *d.get();
-
-    uint32_t glfwExtensionCount = 0;
-    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> surfaceExtensions(
-        glfwExtensions, glfwExtensions + glfwExtensionCount
-    );
-    auto surfaceFunc = [&](){
-        glfwCreateWindowSurface(
-            device.instance(), window, nullptr, &device.surface()
-        );
-    };
-    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
-    glfwSetFramebufferSizeCallback(window, resizeCallback);
+    createSurfaceGLFW(device,window);
     
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
@@ -113,10 +132,4 @@ void run()
         glfwPollEvents();
         device.draw();
     }
-}
-
-int main()
-{
-    run();
-    d.reset();
 }
