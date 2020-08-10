@@ -2,60 +2,13 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "../util.h"
 
 using namespace evk; // TODO: Remove.
 
-std::vector<const char*> validationLayers =
+void createSurfaceGLFW(Device &device, GLFWwindow *window, WindowResize &r)
 {
-    "VK_LAYER_LUNARG_standard_validation"
-};
-std::vector<const char*> deviceExtensions = 
-{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-std::vector<Vertex> setupVerts()
-{
-    std::vector<Vertex> verts;
-    Vertex v;
-    v.pos={0,-0.5,0};
-    v.color={1,0,0};
-    verts.push_back(v);
-    v.pos={-0.5,0.5,0};
-    v.color={0,0,1};
-    verts.push_back(v);
-    v.pos={0.5,0.5,0};
-    v.color={0,1,0};
-    verts.push_back(v);
-    return verts;
-}
-
-std::vector<const char*> glfwExtensions()
-{
-    uint32_t glfwExtensionCount = 0;
-    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> surfaceExtensions(
-        glfwExtensions, glfwExtensions + glfwExtensionCount
-    );
-    return surfaceExtensions;
-}
-
-struct WindowResize
-{
-    static void resizeGLFW(GLFWwindow *window, int width, int height)
-    {
-        auto r = reinterpret_cast<WindowResize*>(
-            glfwGetWindowUserPointer(window)
-        );
-        r->device->framebufferOutofDate = true;
-    }
-
-    Device *device;
-};
-
-void createSurfaceGLFW(Device &device, GLFWwindow *window)
-{
-    WindowResize r = {&device};
+    r = {&device};
     glfwSetWindowUserPointer(window,&r);
 
     auto surfaceExtensions = glfwExtensions();
@@ -65,7 +18,6 @@ void createSurfaceGLFW(Device &device, GLFWwindow *window)
         );
     };
 
-    std::function<void(Device&)> f = {};
     device.createSurface(surfaceFunc,800,600,surfaceExtensions);
     glfwSetFramebufferSizeCallback(window, r.resizeGLFW);
 }
@@ -84,8 +36,9 @@ int main()
         numThreads, deviceExtensions, swapchainSize, validationLayers
     );
 
-    createSurfaceGLFW(device,window);
-    
+    WindowResize r;
+    createSurfaceGLFW(device,window,r);
+
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
 

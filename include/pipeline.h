@@ -47,7 +47,7 @@ class Pipeline
     ~Pipeline() noexcept;
 
     /**
-     * Creates a Pipeline.
+     * Creates a Pipeline with an attached descriptor.
      * @param[in] device the Device used to create the Pipeline.
      * @param[in] pSubpass the Subpass to use in this Pipeline.
      * @param[in] pDescriptor the Descriptor to use in this Pipeline.
@@ -65,7 +65,7 @@ class Pipeline
     );
 
     /**
-     * Creates a Pipeline.
+     * Creates a Pipeline without an attached descriptor.
      * @param[in] device the Device used to create the Pipeline.
      * @param[in] pSubpass the Subpass to use in this Pipeline.
      * @param[in] vertexInput the vertexInput for this Pipeline.
