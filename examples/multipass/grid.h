@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVK_EXAMPLES_GRID_H_
+#define EVK_EXAMPLES_GRID_H_
 
 #include "cube.h"
 #include "evulkan.h"
@@ -63,3 +64,5 @@ void createGrid(
         ++i;
     }
 }
+
+#endif
