@@ -70,8 +70,14 @@ class VertexInput
     );
     void setBindingDescription(uint32_t stride);
 
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const { return m_attributeDescriptions; };
-    VkVertexInputBindingDescription bindingDescription() const {return m_bindingDescription; };    
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const
+    { 
+        return m_attributeDescriptions;
+    };
+    VkVertexInputBindingDescription bindingDescription() const
+    {
+        return m_bindingDescription;
+    };    
     
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
