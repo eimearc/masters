@@ -47,7 +47,7 @@ struct WindowResize
         auto r = reinterpret_cast<WindowResize*>(
             glfwGetWindowUserPointer(window)
         );
-        r->device->framebufferOutofDate = true;
+        r->device->resizeRequired();
     }
     evk::Device *device;
 };

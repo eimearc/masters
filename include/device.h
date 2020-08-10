@@ -112,8 +112,10 @@ class Device
      **/
     void draw();
 
-    // TODO: Remove here.
-    bool framebufferOutofDate=false;
+    /**
+     * Resize the surface and associated resources during the next draw command.
+     **/
+    void resizeRequired() noexcept;
 
     VkInstance instance() const { return m_device->m_instance; }
     VkSurfaceKHR& surface() const { return m_device->m_surface; }
@@ -356,16 +358,16 @@ class Device
     std::unique_ptr<_Device> m_device=nullptr;
     std::unique_ptr<Commands> m_commands=nullptr;
     std::unique_ptr<Framebuffer> m_framebuffer=nullptr;
+    Buffer *m_indexBuffer=nullptr;
     size_t m_numThreads=1;
+    std::vector<Pipeline*> m_pipelines;
+    bool m_resizeRequired=false;
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
     uint32_t m_swapchainSize=1;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
     VkExtent2D m_windowExtent;
-
-    Buffer *m_indexBuffer=nullptr;
     Buffer *m_vertexBuffer=nullptr;
-    std::vector<Pipeline*> m_pipelines;
 
     friend class Attachment;
     friend class Buffer;

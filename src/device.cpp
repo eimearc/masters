@@ -123,6 +123,11 @@ Device& Device::operator=(Device&& other) noexcept
     return *this;
 }
 
+void Device::resizeRequired() noexcept
+{
+    m_resizeRequired=true;
+}
+
 Device::_Device::_Device(
     const std::vector<const char*> &validationLayers,
     const std::vector<const char *> &deviceExtensions

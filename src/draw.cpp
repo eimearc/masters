@@ -81,9 +81,9 @@ void Device::draw()
 
     const auto &presentQueue = this->presentQueue();
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferOutofDate)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_resizeRequired)
     {
-        framebufferOutofDate = false;
+        m_resizeRequired = false;
         resizeWindow();
     }
     else if (result != VK_SUCCESS) {
