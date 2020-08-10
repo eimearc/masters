@@ -161,8 +161,8 @@ class Descriptor
     friend class Device;
 
     // Testing.
-    friend class DescriptorTest_ctor_Test;
-    friend class DescriptorTest_multipleUniformBuffers_Test;
+    FRIEND_TEST(DescriptorTest,ctor);
+    FRIEND_TEST(DescriptorTest,multipleUniformBuffers);
 };
 
 } // namespace evk

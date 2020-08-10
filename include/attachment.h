@@ -102,9 +102,9 @@ class Attachment
     friend class Subpass;
 
     // Tests.
-    friend class AttachmentTest_ctor_Test;
-    friend class AttachmentTest_move_Test;
-    friend class PassTest_constructDescriptions_Test;
+    FRIEND_TEST(AttachmentTest,ctor);
+    FRIEND_TEST(AttachmentTest,move);
+    FRIEND_TEST(PassTest,constructDescriptions);
 };
 
 } // namespace evk

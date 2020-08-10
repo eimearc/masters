@@ -1,6 +1,7 @@
 #ifndef EVK_VERTEX_INPUT_H_
 #define EVK_VERTEX_INPUT_H_
 
+#include "util.h"
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -78,7 +79,7 @@ class VertexInput
     friend class Pipeline;
 
     // Tests.
-    friend class VertexInputTest_ctor_Test;
+    FRIEND_TEST(VertexInputTest,ctor);
 };
 
 } // namespace evk

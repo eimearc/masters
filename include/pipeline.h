@@ -107,7 +107,7 @@ class Pipeline
     friend class Device;
 
     // Tests.
-    friend class PipelineTest_ctor_Test;
+    FRIEND_TEST(PipelineTest,ctor);
 };
 
 } // end namespace evk

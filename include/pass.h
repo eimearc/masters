@@ -67,7 +67,7 @@ class Subpass
     friend class Renderpass;
 
     // Tests.
-    friend class PassTest_ctor_Test;
+    FRIEND_TEST(PassTest,ctor);
 };
 
 /**
@@ -128,8 +128,8 @@ class Renderpass
     friend class Pipeline;
 
     // Tests.
-    friend class PassTest_constructDescriptions_Test;
-    friend class PassTest_ctor_Test;
+    FRIEND_TEST(PassTest,constructDescriptions);
+    FRIEND_TEST(PassTest,ctor);
 };
 
 } // namespace evk

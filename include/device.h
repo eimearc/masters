@@ -368,22 +368,22 @@ class Device
     friend class Texture;
 
     // Tests.
-    friend class CommandTest_ctor_Test;
-    friend class CommandTest_move_Test;
-    friend class DeviceTest_ctor_Test;
-    friend class FramebufferTest_ctor_Test;
-    friend class PassTest_ctor_Test;
-    friend class SwapchainTest_ctor_Test;
-    friend class SwapchainTest_move_Test;
-    friend class SyncTest_ctor_Test;
-    friend class SyncTest_move_Test;
-    friend class UtilTest_createImage_Test;
-    friend class UtilTest_createImageView_Test;
-    friend class UtilTest_createBuffer_Test;
-    friend class UtilTest_findMemoryType_Test;
-    friend class UtilTest_cmds_Test;
-    friend class UtilTest_findQueueFamilies_Test;
-    friend class UtilTest_querySwapChainSupport_Test;
+    FRIEND_TEST(CommandTest,ctor);
+    FRIEND_TEST(CommandTest,move);
+    FRIEND_TEST(DeviceTest,ctor);
+    FRIEND_TEST(FramebufferTest,ctor);
+    FRIEND_TEST(PassTest,ctor);
+    FRIEND_TEST(SwapchainTest,ctor);
+    FRIEND_TEST(SwapchainTest,move);
+    FRIEND_TEST(SyncTest,ctor);
+    FRIEND_TEST(SyncTest,move);
+    FRIEND_TEST(UtilTest,createImage);
+    FRIEND_TEST(UtilTest,createImageView);
+    FRIEND_TEST(UtilTest,createBuffer);
+    FRIEND_TEST(UtilTest,findMemoryType);
+    FRIEND_TEST(UtilTest,cmds);
+    FRIEND_TEST(UtilTest,findQueueFamilies);
+    FRIEND_TEST(UtilTest,querySwapChainSupport);
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

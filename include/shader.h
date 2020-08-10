@@ -73,7 +73,7 @@ class Shader
     friend class Pipeline;
 
     // Tests.
-    friend class ShaderTest_ctor_Test;
+    FRIEND_TEST(ShaderTest,ctor);
 };
 
 } // namespace evk
