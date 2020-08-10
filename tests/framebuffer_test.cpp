@@ -56,7 +56,7 @@ class FramebufferTest : public  ::testing::Test
 
 TEST_F(FramebufferTest, ctor)
 {
-    ASSERT_EQ(device.m_framebuffer,nullptr);
+    EXPECT_EQ(device.m_framebuffer,nullptr);
 
     std::vector<Vertex> vertices;
     Vertex v;
@@ -114,8 +114,8 @@ TEST_F(FramebufferTest, ctor)
 
     const auto &framebuffer = device.m_framebuffer;
     ASSERT_NE(framebuffer,nullptr);
-    ASSERT_EQ(framebuffer->m_device->device(), device.device());
-    ASSERT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
+    EXPECT_EQ(framebuffer->m_device->device(), device.device());
+    EXPECT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
 }
 
 } // namespace evk

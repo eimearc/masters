@@ -87,15 +87,15 @@ TEST_F(BufferTest, update)
     DynamicBuffer dynamic(device, &data, sizeof(data), 1, Buffer::UBO);
     ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, data.a);
     data.a=1;
-    ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 0);
+    EXPECT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 0);
     dynamic.update(&data);
-    ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 1);
+    EXPECT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 1);
 
     data.a=0;
     StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::UBO);
     ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, data.a);
     data.a=1;
-    ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, 0);
+    EXPECT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, 0);
 }
 
 } // namespace evk

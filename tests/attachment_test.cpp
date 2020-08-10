@@ -74,20 +74,20 @@ TEST_F(AttachmentTest, move)
 {
     a=Attachment(device, 1, Attachment::Type::DEPTH);
     a=std::move(a);
-    ASSERT_EQ(a.m_colorReference.attachment,1);
+    EXPECT_EQ(a.m_colorReference.attachment,1);
 
     b=Attachment(device, 2, Attachment::Type::COLOR);
     c=std::move(a);
     a=std::move(b);
-    ASSERT_EQ(a.index(),2);
-    ASSERT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
+    EXPECT_EQ(a.index(),2);
+    EXPECT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
 
     VkClearColorValue got = a.clearValue().color;
     VkClearColorValue want = {0.0f,0.0f,0.0f,1.0f};
-    ASSERT_EQ(*got.float32, *want.float32);
-    ASSERT_EQ(a.m_colorReference.attachment,2);
-    ASSERT_EQ(a.m_depthReference.attachment,2);
-    ASSERT_EQ(b.index(),0);
+    EXPECT_EQ(*got.float32, *want.float32);
+    EXPECT_EQ(a.m_colorReference.attachment,2);
+    EXPECT_EQ(a.m_depthReference.attachment,2);
+    EXPECT_EQ(b.index(),0);
     
     if (b.m_image!=VK_NULL_HANDLE) FAIL();
     if (b.m_imageMemory!=VK_NULL_HANDLE) FAIL();

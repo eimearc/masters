@@ -3,9 +3,6 @@
 #include "grid.h"
 #include "../util.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 using namespace evk; // TODO: Remove.
 
 struct UniformBufferObject
