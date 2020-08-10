@@ -44,19 +44,23 @@ void Buffer::reset() noexcept
     m_elementSize=0;
 }
 
-bool Buffer::operator==(const Buffer &other) const // TODO: Mark all as const.
+bool Buffer::operator==(const Buffer &other) const noexcept
 {
-    bool result=true;
-    result &= (m_buffer==other.m_buffer);
-    result &= (m_bufferMemory==other.m_bufferMemory);
-    result &= (m_numElements==other.m_numElements);
-    result &= (m_device==other.m_device);
-    result &= (m_physicalDevice==other.m_physicalDevice);
-    result &= (m_bufferSize==other.m_bufferSize);
-    result &= (m_queue==other.m_queue);
-    result &= (m_numThreads==other.m_numThreads);
-    result &= (m_elementSize==other.m_elementSize);
-    return result;
+    if (m_buffer!=other.m_buffer) return false;
+    if (m_bufferMemory!=other.m_bufferMemory) return false;
+    if (m_numElements!=other.m_numElements) return false;
+    if (m_device!=other.m_device) return false;
+    if (m_physicalDevice!=other.m_physicalDevice) return false;
+    if (m_bufferSize!=other.m_bufferSize) return false;
+    if (m_queue!=other.m_queue) return false;
+    if (m_numThreads!=other.m_numThreads) return false;
+    if (m_elementSize!=other.m_elementSize) return false;
+    return true;
+}
+
+bool Buffer::operator!=(const Buffer &other) const noexcept
+{
+    return !(*this==other);
 }
 
 VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const

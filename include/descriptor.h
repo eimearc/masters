@@ -56,7 +56,8 @@ class Descriptor
         const size_t swapchainSize
     );
 
-    bool operator==(const Descriptor&) const;
+    bool operator==(const Descriptor&) const noexcept;
+    bool operator!=(const Descriptor&) const noexcept;
 
     /**
      * Adds an input attachment binding to the descriptor.
@@ -143,7 +144,7 @@ class Descriptor
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
-    std::vector<Attachment*> m_attachments; // TODO: Union?
+    std::vector<Attachment*> m_attachments;
     std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
     VkDevice m_device=VK_NULL_HANDLE;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;
@@ -161,8 +162,8 @@ class Descriptor
     friend class Device;
 
     // Testing.
-    friend class DescriptorTest_ctor_Test;
-    friend class DescriptorTest_multipleUniformBuffers_Test;
+    FRIEND_TEST(DescriptorTest,ctor);
+    FRIEND_TEST(DescriptorTest,multipleUniformBuffers);
 };
 
 } // namespace evk

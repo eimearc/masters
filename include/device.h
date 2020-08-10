@@ -1,6 +1,7 @@
 #ifndef EVK_DEVICE_H_
 #define EVK_DEVICE_H_
 
+#include <functional>
 #include "threadpool.h"
 #include "util.h"
 #include <vulkan/vulkan.h>
@@ -32,7 +33,7 @@ class Renderpass;
  * 
  * @example
  * Device device(
- *  1, window, extensions, 2, layers
+ *  1, extensions, 2, layers
  * );
  **/ 
 class Device
@@ -48,14 +49,12 @@ class Device
     /**
      * Constructs a Device without validation layers.
      * @param[in] numThreads the number of threads the Device should use.
-     * @param[in] window a pointer to the window used to display images.
      * @param[in] deviceExtensions the extensions required to create the device.
      * @param[in] swapchainSize the number of images used by the swapchain,
      *  generally between two and three.
      */
     Device(
         uint32_t numThreads,
-        GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         const uint32_t swapchainSize
     );
@@ -64,7 +63,6 @@ class Device
      * Constructs a Device with validation layers turned on. This is useful for
      *  developing programs.
      * @param[in] numThreads the number of threads the Device should use.
-     * @param[in] window a pointer to the window used to display images.
      * @param[in] deviceExtensions the extensions required to create the device.
      * @param[in] swapchainSize the number of images used by the swapchain,
      *  generally between two and three.
@@ -72,13 +70,29 @@ class Device
      */
     Device(
         uint32_t numThreads,
-        GLFWwindow *window,
         const std::vector<const char *> &deviceExtensions,
         uint32_t swapchainSize,
         const std::vector<const char*> &validationLayers
     );
 
-    bool operator==(const Device& other);
+    bool operator==(const Device&) const noexcept;
+    bool operator!=(const Device&) const noexcept;
+
+    /**
+     * Creates a surface object and finishes Device setup.
+     * @param[in] surfaceFunc the function which will be called to generate
+     *  a surface object.
+     * @param[in] width the window width in pixels.
+     * @param[in] height the window height in pixels.
+     * @param[in] windowExtensions the set of extentsions required for Vulkan
+     *  to interface with the windowing system.
+     **/
+    void createSurface(
+        std::function<void()> surfaceFunc,
+        uint32_t width,
+        uint32_t height,
+        const std::vector<const char *> &windowExtensions
+    );
 
     /**
      * Finalize the device. This is the last function that is called before
@@ -98,11 +112,16 @@ class Device
      **/
     void draw();
 
+    /**
+     * Resize the surface and associated resources during the next draw command.
+     **/
+    void resizeRequired() noexcept;
+
+    VkInstance instance() const { return m_device->m_instance; }
+    VkSurfaceKHR& surface() const { return m_device->m_surface; }
+
     private:
     // Device.
-    GLFWwindow* window() const { return m_device->m_window; }
-    VkInstance instance() const { return m_device->m_instance; }
-    VkSurfaceKHR surface() const { return m_device->m_surface; }
     VkPhysicalDevice physicalDevice() const { return m_device->m_physicalDevice; }
     VkDevice device() const { return m_device->m_device; }
     VkFormat depthFormat() const { return m_device->m_depthFormat; };
@@ -111,6 +130,10 @@ class Device
     uint32_t numThreads() const { return m_numThreads; };
     std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
 
+    void finishSetup(
+        std::function<void()> windowFunc,
+        const std::vector<const char*> &windowExtensions
+    );
     void record();
     void resizeWindow();
     void wait() { m_threadPool.wait(); };
@@ -146,38 +169,34 @@ class Device
         ~_Device() noexcept;
 
         _Device(
-            uint32_t num_threads,
-            const std::vector<const char*> &validation_layers,
-            GLFWwindow *window,
-            const std::vector<const char *> &device_extensions
+            const std::vector<const char*> &validationLayers,
+            const std::vector<const char *> &deviceExtensions
         );
 
-        bool operator==(const _Device &other);
+        bool operator==(const _Device &other) const noexcept;
+        bool operator!=(const _Device &other) const noexcept;
+
+        void finishSetup(
+            std::function<void()> windowFunc,
+            const std::vector<const char *> &windowExtensions
+        );
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
         VkDevice m_device=VK_NULL_HANDLE;
+        std::vector<const char *> m_deviceExtensions;
         VkQueue m_graphicsQueue=VK_NULL_HANDLE;
         VkInstance m_instance=VK_NULL_HANDLE;
         VkPhysicalDevice m_physicalDevice=VK_NULL_HANDLE;
         VkQueue m_presentQueue=VK_NULL_HANDLE;
         VkSurfaceKHR m_surface=VK_NULL_HANDLE;
-        GLFWwindow *m_window=nullptr;
+        std::vector<const char*> m_validationLayers;
+        std::vector<const char *> m_windowExtensions;
 
         private:
-        void createInstance(
-            const std::vector<const char*> &validationLayers
-        );
-        void createSurface(
-            GLFWwindow *window
-        );
-        void pickPhysicalDevice(
-            const std::vector<const char *> &deviceExtensions
-        );
-        void createDevice(
-            const std::vector<const char *> &device_extensions,
-            const std::vector<const char*> &validation_layers
-        );
+        void createInstance();
+        void pickPhysicalDevice();
+        void createDevice();
         VkResult createDebugUtilsMessengerEXT(
             VkInstance instance,
             const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -222,18 +241,18 @@ class Device
             const VkDevice &device,
             const VkPhysicalDevice &physicalDevice,
             const VkSurfaceKHR &surface,
-            GLFWwindow *window,
+            VkExtent2D windowExtent,
             const uint32_t swapchainSize
         );
 
         bool operator==(const Swapchain &other) const;
         bool operator!=(const Swapchain &other) const;
+
         void reset() noexcept;
         void recreate();
         void setup() noexcept;
 
         VkExtent2D chooseSwapExtent(
-            GLFWwindow* window,
             const VkSurfaceCapabilitiesKHR& capabilities
         ) const;
         VkPresentModeKHR chooseSwapPresentMode(
@@ -250,12 +269,10 @@ class Device
         std::vector<VkImage> m_images;
         std::vector<VkImageView> m_imageViews;
         VkSwapchainKHR m_swapchain=VK_NULL_HANDLE;
-
         uint32_t m_swapchainSize;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-
-        GLFWwindow *m_window;
+        VkExtent2D m_windowExtent;
     };
 
     class Commands
@@ -276,7 +293,9 @@ class Device
             const uint32_t &numThreads
         );
 
-        bool operator==(const Commands &other);
+        bool operator==(const Commands&) const noexcept;
+        bool operator!=(const Commands&) const noexcept;
+
         void reset() noexcept;
 
         std::vector<VkCommandPool> m_commandPools;
@@ -297,7 +316,9 @@ class Device
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
 
-        bool operator==(const Sync &other);
+        bool operator==(const Sync &other) const noexcept;
+        bool operator!=(const Sync &other) const noexcept;
+
         void reset() noexcept;
 
         VkDevice m_device=VK_NULL_HANDLE;
@@ -322,7 +343,9 @@ class Device
             Renderpass &renderpass
         );
 
-        bool operator==(const Framebuffer &other);
+        bool operator==(const Framebuffer &other) const noexcept;
+        bool operator!=(const Framebuffer &other) const noexcept;
+
         void recreate();
         void setup();
 
@@ -335,14 +358,16 @@ class Device
     std::unique_ptr<_Device> m_device=nullptr;
     std::unique_ptr<Commands> m_commands=nullptr;
     std::unique_ptr<Framebuffer> m_framebuffer=nullptr;
+    Buffer *m_indexBuffer=nullptr;
     size_t m_numThreads=1;
+    std::vector<Pipeline*> m_pipelines;
+    bool m_resizeRequired=false;
     std::unique_ptr<Swapchain> m_swapchain=nullptr;
+    uint32_t m_swapchainSize=1;
     std::unique_ptr<Sync> m_sync=nullptr;
     ThreadPool m_threadPool;
-
-    Buffer *m_indexBuffer=nullptr;
+    VkExtent2D m_windowExtent;
     Buffer *m_vertexBuffer=nullptr;
-    std::vector<Pipeline*> m_pipelines;
 
     friend class Attachment;
     friend class Buffer;
@@ -355,22 +380,22 @@ class Device
     friend class Texture;
 
     // Tests.
-    friend class CommandTest_ctor_Test;
-    friend class CommandTest_move_Test;
-    friend class DeviceTest_ctor_Test;
-    friend class FramebufferTest_ctor_Test;
-    friend class PassTest_ctor_Test;
-    friend class SwapchainTest_ctor_Test;
-    friend class SwapchainTest_move_Test;
-    friend class SyncTest_ctor_Test;
-    friend class SyncTest_move_Test;
-    friend class UtilTest_createImage_Test;
-    friend class UtilTest_createImageView_Test;
-    friend class UtilTest_createBuffer_Test;
-    friend class UtilTest_findMemoryType_Test;
-    friend class UtilTest_cmds_Test;
-    friend class UtilTest_findQueueFamilies_Test;
-    friend class UtilTest_querySwapChainSupport_Test;
+    FRIEND_TEST(CommandTest,ctor);
+    FRIEND_TEST(CommandTest,move);
+    FRIEND_TEST(DeviceTest,ctor);
+    FRIEND_TEST(FramebufferTest,ctor);
+    FRIEND_TEST(PassTest,ctor);
+    FRIEND_TEST(SwapchainTest,ctor);
+    FRIEND_TEST(SwapchainTest,move);
+    FRIEND_TEST(SyncTest,ctor);
+    FRIEND_TEST(SyncTest,move);
+    FRIEND_TEST(UtilTest,createImage);
+    FRIEND_TEST(UtilTest,createImageView);
+    FRIEND_TEST(UtilTest,createBuffer);
+    FRIEND_TEST(UtilTest,findMemoryType);
+    FRIEND_TEST(UtilTest,cmds);
+    FRIEND_TEST(UtilTest,findQueueFamilies);
+    FRIEND_TEST(UtilTest,querySwapChainSupport);
 };
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

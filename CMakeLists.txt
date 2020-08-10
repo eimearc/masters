@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.1)
 project (evulkan)
 
 find_package(PkgConfig REQUIRED)
-find_package(Microsoft.GSL CONFIG)
 set (CMAKE_CXX_STANDARD 14)
 
 option(BUILD_EXAMPLES "Build the examples" ON)
@@ -20,10 +19,6 @@ set(VULKAN_SRC ${VULKANROOT}/src)
 include_directories (./include)
 include_directories (${VULKAN_SDK}/include)
 include_directories (${STB_INCLUDE_PATH})
-
-# Add GLFW libraries.
-find_package(glfw3 3.3 REQUIRED)
-link_libraries(glfw)
 
 # Add Vulkan libraries.
 find_package(Vulkan REQUIRED)

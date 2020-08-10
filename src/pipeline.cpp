@@ -36,19 +36,19 @@ void Pipeline::reset()
 
 Pipeline::Pipeline(
     Device &device,
-    Subpass *pSubpass,
-    gsl::not_null<Descriptor*> pDescriptor,
+    Subpass &subpass,
+    Descriptor &descriptor,
     const VertexInput &vertexInput,
-    Renderpass *pRenderpass,
+    Renderpass &renderpass,
     const std::vector<Shader*> &shaders
 )
 {
     m_device = &device;
     m_vertexInput = vertexInput;
-    m_subpass = pSubpass;
-    m_descriptor = pDescriptor;
+    m_subpass = &subpass;
+    m_descriptor = &descriptor;
     m_shaders = shaders;
-    m_renderpass = pRenderpass;
+    m_renderpass = &renderpass;
 
     // Finalize descriptor sets.
     m_descriptor->finalize();
@@ -61,17 +61,17 @@ Pipeline::Pipeline(
 
 Pipeline::Pipeline(
     Device &device,
-    Subpass *pSubpass,
+    Subpass &subpass,
     const VertexInput &vertexInput,
-    Renderpass *pRenderpass,
+    Renderpass &renderpass,
     const std::vector<Shader*> &shaders
 )
 {
     m_device = &device;
     m_vertexInput = vertexInput;
-    m_subpass = pSubpass;
+    m_subpass = &subpass;
     m_shaders = shaders;
-    m_renderpass = pRenderpass;
+    m_renderpass = &renderpass;
 
     std::vector<VkDescriptorSetLayout> setLayouts;
     createSetLayout(setLayouts);
@@ -94,33 +94,33 @@ void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayo
     }
 }
 
-bool Pipeline::operator==(const Pipeline &other) const
+bool Pipeline::operator==(const Pipeline &other) const noexcept
 {
     if (m_descriptor!=nullptr && other.m_descriptor!=nullptr)
-    {
-        if (!(*m_descriptor==*other.m_descriptor)) return false;
-    }
-    else if (m_descriptor!=other.m_descriptor) return false;
+        if (*m_descriptor!=*other.m_descriptor) return false;
+    if (m_descriptor!=other.m_descriptor) return false;
     if (m_device!=other.m_device) return false;
     if (m_layout!=other.m_layout) return false;
     if (m_pipeline!=other.m_pipeline) return false;
     if (m_renderpass!=nullptr && other.m_renderpass!=nullptr)
-    {
-        if (!(*m_renderpass==*other.m_renderpass)) return false;
-    }
-    else if (m_renderpass!=other.m_renderpass) return false;
+        if (*m_renderpass!=*other.m_renderpass) return false;
+    if (m_renderpass!=other.m_renderpass) return false;
     if (m_shaders.size()!=other.m_shaders.size()) return false;
     if (!std::equal(
             m_shaders.begin(), m_shaders.end(),
-            other.m_shaders.begin()))
-        return false;
+            other.m_shaders.begin()
+        )) return false;
     if (m_subpass!=nullptr && other.m_subpass!=nullptr)
-    {
-        if (!(*m_subpass==*other.m_subpass)) return false;
-    }
-    else if (m_subpass!=other.m_subpass) return false;
-    if (!(m_vertexInput==other.m_vertexInput)) return false;
+        if (*m_subpass!=*other.m_subpass) return false;
+    if (m_subpass!=other.m_subpass) return false;
+    if (m_vertexInput!=other.m_vertexInput) return false;
+
     return true;
+}
+
+bool Pipeline::operator!=(const Pipeline &other) const noexcept
+{
+    return !(*this==other);
 }
 
 void Pipeline::setup()

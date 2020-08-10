@@ -57,8 +57,8 @@ class Shader
         const Stage &stage
     );
 
-    bool operator==(const Shader&) const;
-    bool operator!=(const Shader&) const;
+    bool operator==(const Shader&) const noexcept;
+    bool operator!=(const Shader&) const noexcept;
 
     private:
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
@@ -73,7 +73,7 @@ class Shader
     friend class Pipeline;
 
     // Tests.
-    friend class ShaderTest_ctor_Test;
+    FRIEND_TEST(ShaderTest,ctor);
 };
 
 } // namespace evk

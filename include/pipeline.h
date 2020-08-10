@@ -3,7 +3,6 @@
 
 #include "descriptor.h"
 #include "device.h"
-#include <gsl/gsl>
 #include "shader.h"
 #include "pass.h"
 #include "util.h"
@@ -47,40 +46,41 @@ class Pipeline
     ~Pipeline() noexcept;
 
     /**
-     * Creates a Pipeline.
+     * Creates a Pipeline with an attached descriptor.
      * @param[in] device the Device used to create the Pipeline.
-     * @param[in] pSubpass the Subpass to use in this Pipeline.
-     * @param[in] pDescriptor the Descriptor to use in this Pipeline.
+     * @param[in] subpass the Subpass to use in this Pipeline.
+     * @param[in] descriptor the Descriptor to use in this Pipeline.
      * @param[in] vertexInput the vertexInput for this Pipeline.
-     * @param[in] pRenderpass the Renderpass for this Pipeline.
+     * @param[in] renderpass the Renderpass for this Pipeline.
      * @param[in] shaders the set of Shaders used in this Pipeline.
      **/
     Pipeline(
         Device &device,
-        Subpass *pSubpass,
-        gsl::not_null<Descriptor*> pDescriptor,
+        Subpass &subpass,
+        Descriptor &descriptor,
         const VertexInput &vertexInput,
-        Renderpass *pRenderpass,
+        Renderpass &renderpass,
         const std::vector<Shader*> &shaders
     );
 
     /**
-     * Creates a Pipeline.
+     * Creates a Pipeline without an attached descriptor.
      * @param[in] device the Device used to create the Pipeline.
-     * @param[in] pSubpass the Subpass to use in this Pipeline.
+     * @param[in] subpass the Subpass to use in this Pipeline.
      * @param[in] vertexInput the vertexInput for this Pipeline.
-     * @param[in] pRenderpass the Renderpass for this Pipeline.
+     * @param[in] renderpass the Renderpass for this Pipeline.
      * @param[in] shaders the set of Shaders used in this Pipeline.
      **/
     Pipeline(
         Device &device,
-        Subpass *pSubpass,
+        Subpass &subpass,
         const VertexInput &vertexInput,
-        Renderpass *pRenderpass,
+        Renderpass &renderpass,
         const std::vector<Shader*> &shaders
     );
 
-    bool operator==(const Pipeline&) const;
+    bool operator==(const Pipeline&) const noexcept;
+    bool operator!=(const Pipeline&) const noexcept;
 
     private:
     void createSetLayout(
@@ -107,7 +107,7 @@ class Pipeline
     friend class Device;
 
     // Tests.
-    friend class PipelineTest_ctor_Test;
+    FRIEND_TEST(PipelineTest,ctor);
 };
 
 } // end namespace evk

@@ -7,7 +7,7 @@ VertexInput::VertexInput(uint32_t stride)
     setBindingDescription(stride);
 }
 
-bool VertexInput::operator==(const VertexInput &other) const
+bool VertexInput::operator==(const VertexInput &other) const noexcept
 {
     if (m_attributeDescriptions.size()!=other.m_attributeDescriptions.size())
         return false;
@@ -24,7 +24,7 @@ bool VertexInput::operator==(const VertexInput &other) const
     return true;
 }
 
-bool VertexInput::operator!=(const VertexInput &other) const
+bool VertexInput::operator!=(const VertexInput &other) const noexcept
 {
     return !(*this==other);
 }

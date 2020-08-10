@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -15,9 +17,21 @@ class FramebufferTest : public  ::testing::Test
         window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
         device = {
-            numThreads, window, deviceExtensions,
+            numThreads, deviceExtensions,
             swapchainSize, validationLayers
         };
+
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
     }
 
     virtual void TearDown() override
@@ -42,7 +56,7 @@ class FramebufferTest : public  ::testing::Test
 
 TEST_F(FramebufferTest, ctor)
 {
-    ASSERT_EQ(device.m_framebuffer,nullptr);
+    EXPECT_EQ(device.m_framebuffer,nullptr);
 
     std::vector<Vertex> vertices;
     Vertex v;
@@ -66,11 +80,7 @@ TEST_F(FramebufferTest, ctor)
     std::vector<Subpass::Dependency> dependencies;
     
     Subpass subpass(
-        0,
-        dependencies,
-        colorAttachments,
-        depthAttachments,
-        inputAttachments
+        0, dependencies, colorAttachments, depthAttachments, inputAttachments
     );
 
     std::vector<Subpass*> subpasses = {&subpass};
@@ -93,15 +103,18 @@ TEST_F(FramebufferTest, ctor)
     Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
-    Pipeline pipeline(device, &subpass, vertexInput, &renderpass, shaders);
+    Pipeline pipeline(device, subpass, vertexInput, renderpass, shaders);
     std::vector<Pipeline*> pipelines = {&pipeline};
     
     device.finalize(indexBuffer,vertexBuffer,pipelines);
 
     const auto &framebuffer = device.m_framebuffer;
     ASSERT_NE(framebuffer,nullptr);
-    ASSERT_EQ(framebuffer->m_device->device(), device.device());
-    ASSERT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
+    EXPECT_EQ(framebuffer->m_device->device(), device.device());
+    EXPECT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
+
+    EXPECT_TRUE(framebuffer==framebuffer);
+    EXPECT_FALSE(framebuffer!=framebuffer);
 }
 
 } // namespace evk

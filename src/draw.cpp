@@ -81,18 +81,19 @@ void Device::draw()
 
     const auto &presentQueue = this->presentQueue();
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_resizeRequired)
     {
+        m_resizeRequired = false;
         resizeWindow();
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
+    else currentFrame = ((currentFrame)+1) % swapchainSize();
 
     vkQueueWaitIdle(presentQueue);
 
-    currentFrame = ((currentFrame)+1) % swapchainSize();
-    previousImageIndex=imageIndex;
+    // currentFrame = ((currentFrame)+1) % swapchainSize();
 }
 
 void Device::finalize(

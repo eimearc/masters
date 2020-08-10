@@ -1,6 +1,7 @@
 #ifndef EVK_VERTEX_INPUT_H_
 #define EVK_VERTEX_INPUT_H_
 
+#include "util.h"
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -41,8 +42,8 @@ class VertexInput
      **/
     VertexInput(uint32_t stride);
 
-    bool operator==(const VertexInput&) const;
-    bool operator!=(const VertexInput&) const;
+    bool operator==(const VertexInput&) const noexcept;
+    bool operator!=(const VertexInput&) const noexcept;
 
     /**
      * Sets the Vertex attribute at a specified location for a 2-part vector.
@@ -69,8 +70,14 @@ class VertexInput
     );
     void setBindingDescription(uint32_t stride);
 
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const { return m_attributeDescriptions; };
-    VkVertexInputBindingDescription bindingDescription() const {return m_bindingDescription; };    
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const
+    { 
+        return m_attributeDescriptions;
+    };
+    VkVertexInputBindingDescription bindingDescription() const
+    {
+        return m_bindingDescription;
+    };    
     
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
@@ -78,7 +85,7 @@ class VertexInput
     friend class Pipeline;
 
     // Tests.
-    friend class VertexInputTest_ctor_Test;
+    FRIEND_TEST(VertexInputTest,ctor);
 };
 
 } // namespace evk

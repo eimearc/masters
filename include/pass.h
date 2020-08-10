@@ -39,7 +39,8 @@ class Subpass
         const std::vector<Attachment*> &inputAttachments
     );
 
-    bool operator==(const Subpass&) const;
+    bool operator==(const Subpass&) const noexcept;
+    bool operator!=(const Subpass&) const noexcept;
 
     private:
     void addDependency(Dependency dependency);
@@ -67,7 +68,7 @@ class Subpass
     friend class Renderpass;
 
     // Tests.
-    friend class PassTest_ctor_Test;
+    FRIEND_TEST(PassTest,ctor);
 };
 
 /**
@@ -95,7 +96,8 @@ class Renderpass
         std::vector<Subpass*> &subpasses
     );
 
-    bool operator==(const Renderpass&) const;
+    bool operator==(const Renderpass&) const noexcept;
+    bool operator!=(const Renderpass&) const noexcept;
 
     private:
     struct AttachmentInfo
@@ -128,8 +130,8 @@ class Renderpass
     friend class Pipeline;
 
     // Tests.
-    friend class PassTest_constructDescriptions_Test;
-    friend class PassTest_ctor_Test;
+    FRIEND_TEST(PassTest,constructDescriptions);
+    FRIEND_TEST(PassTest,ctor);
 };
 
 } // namespace evk

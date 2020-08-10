@@ -66,16 +66,20 @@ Attachment::Attachment(
     }
 }
 
-bool Attachment::operator==(const Attachment &other) const
+bool Attachment::operator==(const Attachment &other) const noexcept
 {
-    bool result=true;
-    result &= (m_description.format==other.m_description.format);
-    result &= (m_image==other.m_image);
-    result &= (m_imageMemory==other.m_imageMemory);
-    result &= (m_imageView==other.m_imageView);
-    result &= (m_index==other.m_index);
-    result &= (m_type==other.m_type);
-    return result;
+    if (m_description.format!=other.m_description.format) return false;
+    if (m_image!=other.m_image) return false;
+    if (m_imageMemory!=other.m_imageMemory) return false;
+    if (m_imageView!=other.m_imageView) return false;
+    if (m_index!=other.m_index) return false;
+    if (m_type!=other.m_type) return false;
+    return true;
+}
+
+bool Attachment::operator!=(const Attachment &other) const noexcept
+{
+    return !(*this==other);
 }
 
 void Attachment::setFramebufferAttachment()

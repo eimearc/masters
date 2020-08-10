@@ -6,78 +6,101 @@ namespace evk {
 
 Device::Device(
     uint32_t num_threads,
-    GLFWwindow *window,
-    const std::vector<const char *> &device_extensions,
-    uint32_t swapchain_size)
+    const std::vector<const char *> &deviceExtensions,
+    uint32_t swapchainSize)
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
+    m_swapchainSize=swapchainSize;
 
     const std::vector<const char*> validationLayers; // TODO: Remove.
     m_device=std::make_unique<_Device>(
-        num_threads, validationLayers, window, device_extensions
-    );
-    m_swapchain=std::make_unique<Swapchain>(
-        m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
-        window, swapchain_size
-    );
-    m_sync=std::make_unique<Sync>(m_device->m_device, swapchain_size);
-    m_commands=std::make_unique<Commands>(m_device->m_device,
-        m_device->m_physicalDevice, m_device->m_surface, swapchain_size,
-        num_threads
+        validationLayers, deviceExtensions
     );
 }
 
 Device::Device(
     uint32_t num_threads,
-    GLFWwindow *window,
-    const std::vector<const char *> &device_extensions,
-    uint32_t swapchain_size,
-    const std::vector<const char*> &validation_layers)
+    const std::vector<const char *> &deviceExtensions,
+    uint32_t swapchainSize,
+    const std::vector<const char*> &validationLayers)
 {
     m_threadPool.setThreadCount(num_threads);
-    m_numThreads=num_threads;
+    m_numThreads = num_threads;
+    m_swapchainSize = swapchainSize;
 
     m_device=std::make_unique<_Device>(
-        num_threads, validation_layers, window, device_extensions
-    );
-    m_swapchain=std::make_unique<Swapchain>(
-        m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
-        window, swapchain_size
-    );
-    m_sync=std::make_unique<Sync>(m_device->m_device, swapchain_size);
-    m_commands=std::make_unique<Commands>(m_device->m_device,
-        m_device->m_physicalDevice, m_device->m_surface, swapchain_size,
-        num_threads
+        validationLayers, deviceExtensions
     );
 }
 
-bool Device::operator==(const Device& other)
+void Device::finishSetup(
+    std::function<void()> windowFunc,
+    const std::vector<const char*> &windowExtensions
+)
 {
-    bool result = true;
+    m_device->finishSetup(windowFunc, windowExtensions);
+    m_swapchain=std::make_unique<Swapchain>(
+        m_device->m_device, m_device->m_physicalDevice, m_device->m_surface,
+        m_windowExtent, m_swapchainSize
+    );
+    m_sync=std::make_unique<Sync>(m_device->m_device, m_swapchainSize);
+    m_commands=std::make_unique<Commands>(m_device->m_device,
+        m_device->m_physicalDevice, m_device->m_surface, m_swapchainSize,
+        m_numThreads
+    );
+}
+
+void Device::createSurface(
+    std::function<void()> surfaceFunc,
+    uint32_t width,
+    uint32_t height,
+    const std::vector<const char*> &windowExtensions
+)
+{
+    m_windowExtent = {width,height};
+    finishSetup(surfaceFunc, windowExtensions);
+}
+
+bool Device::operator==(const Device& other) const noexcept
+{
     if ((m_commands!=nullptr) && (other.m_commands!=nullptr))
-        result &= (*m_commands.get() == *other.m_commands.get());
-    else result &= ((m_commands==nullptr) && (other.m_commands==nullptr));
+        if (*m_commands.get() != *other.m_commands.get()) return false;
+
+    if ((m_commands==nullptr) != (other.m_commands==nullptr))
+        return false;
 
     if ((m_device!=nullptr) && (other.m_device!=nullptr))
-        result &= (*m_device.get() == *other.m_device.get());
-    else result &= ((m_device==nullptr) && (other.m_device==nullptr));
+        if (*m_device.get() != *other.m_device.get()) return false;
+
+    if ((m_device==nullptr) != (other.m_device==nullptr)) return false;
 
     if ((m_framebuffer!=nullptr) && other.m_framebuffer!=nullptr)
-        result &= (*m_framebuffer.get() == *other.m_framebuffer.get());
-    else result &= ((m_framebuffer==nullptr) && (other.m_framebuffer==nullptr));
+        if (*m_framebuffer.get() != *other.m_framebuffer.get()) return false;
+
+    if ((m_framebuffer==nullptr) != (other.m_framebuffer==nullptr))
+        return false;
     
-    result &= (m_numThreads == other.m_numThreads);
+    if (m_numThreads != other.m_numThreads) return false;
 
     if ((m_swapchain!=nullptr) && (other.m_swapchain!=nullptr))
-        result &= (*m_swapchain.get() == *other.m_swapchain.get());
-    else result &= ((m_swapchain==nullptr) && (other.m_swapchain==nullptr));
+        if (*m_swapchain.get() != *other.m_swapchain.get()) return false;
+
+    if ((m_swapchain==nullptr) != (other.m_swapchain==nullptr)) return false;
+
+    if (m_swapchainSize != other.m_swapchainSize) return false;
 
     if ((m_sync!=nullptr) && (other.m_sync!=nullptr))
-        result &= (*m_sync.get() == *other.m_sync.get());
-    else result &= ((m_sync==nullptr) && (other.m_sync==nullptr));
+        if (*m_sync.get() != *other.m_sync.get()) return false;
 
-    return result;
+    if ((m_sync==nullptr) != (other.m_sync==nullptr)) return false;
+
+    return true;
+}
+
+bool Device::operator!=(const Device& other) const noexcept
+{
+    return !(*this==other);
 }
 
 Device::Device(Device&& other) noexcept
@@ -94,25 +117,37 @@ Device& Device::operator=(Device&& other) noexcept
     m_numThreads = other.m_numThreads;
     other.m_numThreads=1;
     m_swapchain = std::move(other.m_swapchain);
+    m_swapchainSize=other.m_swapchainSize;
     m_sync = std::move(other.m_sync);
     m_threadPool = std::move(other.m_threadPool);
     return *this;
 }
 
+void Device::resizeRequired() noexcept
+{
+    m_resizeRequired=true;
+}
+
 Device::_Device::_Device(
-    uint32_t num_threads,
-    const std::vector<const char*> &validation_layers,
-    GLFWwindow *window,
-    const std::vector<const char *> &device_extensions
+    const std::vector<const char*> &validationLayers,
+    const std::vector<const char *> &deviceExtensions
 )
 {
-    m_window=window;
-    createInstance(validation_layers);
-    createSurface(window);
-    pickPhysicalDevice(device_extensions);
-    setDepthFormat();
+    m_deviceExtensions=deviceExtensions;
+    m_validationLayers=validationLayers;
+}
 
-    createDevice(device_extensions, validation_layers);
+void Device::_Device::finishSetup(
+    std::function<void()> windowFunc,
+    const std::vector<const char *> &windowExtensions
+)
+{
+    m_windowExtensions=windowExtensions;
+    createInstance();
+    windowFunc();
+    pickPhysicalDevice();
+    setDepthFormat();
+    createDevice();
 }
 
 // TODO: Check is this needed.
@@ -136,7 +171,6 @@ Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
     m_presentQueue=other.m_presentQueue;
     m_surface=other.m_surface;
     other.m_surface=VK_NULL_HANDLE;
-    m_window=other.m_window;
     return *this;
 }
 
@@ -151,22 +185,25 @@ Device::_Device::~_Device() noexcept
     if (m_instance!=VK_NULL_HANDLE) vkDestroyInstance(m_instance, nullptr);
 }
 
-bool Device::_Device::operator==(const _Device &other)
+bool Device::_Device::operator==(const _Device &other) const noexcept
 {
-    bool result = true;
-    result &= (m_debugMessenger==other.m_debugMessenger);
-    result &= (m_depthFormat==other.m_depthFormat);
-    result &= (m_device==other.m_device);
-    result &= (m_graphicsQueue==other.m_graphicsQueue);
-    result &= (m_instance==other.m_instance);
-    result &= (m_physicalDevice==other.m_physicalDevice);
-    result &= (m_presentQueue==other.m_presentQueue);
-    result &= (m_surface==other.m_surface);
-    result &= (m_window==other.m_window);
-    return result;
+    if (m_debugMessenger!=other.m_debugMessenger)return false;
+    if (m_depthFormat!=other.m_depthFormat)return false;
+    if (m_device!=other.m_device)return false;
+    if (m_graphicsQueue!=other.m_graphicsQueue)return false;
+    if (m_instance!=other.m_instance)return false;
+    if (m_physicalDevice!=other.m_physicalDevice)return false;
+    if (m_presentQueue!=other.m_presentQueue)return false;
+    if (m_surface!=other.m_surface)return false;
+    return true;
 }
 
-void Device::_Device::createInstance(const std::vector<const char*> &validation_layers)
+bool Device::_Device::operator!=(const _Device &other) const noexcept
+{
+    return !(*this==other);
+}
+
+void Device::_Device::createInstance()
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -181,22 +218,16 @@ void Device::_Device::createInstance(const std::vector<const char*> &validation_
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = 0;
 
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
+    auto extensions=m_windowExtensions;
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    if(validation_layers.size() > 0)
+    if(m_validationLayers.size() > 0)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
-        createInfo.ppEnabledLayerNames = validation_layers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.ppEnabledLayerNames = m_validationLayers.data();
         debugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-        
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
     }
     else
     {
@@ -204,12 +235,15 @@ void Device::_Device::createInstance(const std::vector<const char*> &validation_
         createInfo.pNext = nullptr;
     }
 
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
+
     if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create instance->");
     }
 
-    if (validation_layers.size() > 0)
+    if (m_validationLayers.size() > 0)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         debugMessengerCreateInfo(createInfo); //TODO: Why is this duplicate of above?
@@ -221,15 +255,7 @@ void Device::_Device::createInstance(const std::vector<const char*> &validation_
     }
 }
 
-void Device::_Device::createSurface(GLFWwindow *window)
-{
-    if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create window instance->surface.");
-    }
-}
-
-void Device::_Device::pickPhysicalDevice(const std::vector<const char *> &device_extensions)
+void Device::_Device::pickPhysicalDevice()
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -242,7 +268,7 @@ void Device::_Device::pickPhysicalDevice(const std::vector<const char *> &device
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
     for (const auto& device : devices)
     {
-        if (isDeviceSuitable(device, m_surface, device_extensions))
+        if (isDeviceSuitable(device, m_surface, m_deviceExtensions))
         {
             m_physicalDevice = device;
             break;
@@ -255,10 +281,7 @@ void Device::_Device::pickPhysicalDevice(const std::vector<const char *> &device
     }
 }
 
-void Device::_Device::createDevice(
-    const std::vector<const char*> &deviceExtensions,
-    const std::vector<const char*> &validationLayers
-)
+void Device::_Device::createDevice()
 {
     internal::QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
 
@@ -287,12 +310,12 @@ void Device::_Device::createDevice(
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
-    if (validationLayers.size()>0) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+    if (m_validationLayers.size()>0) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.ppEnabledLayerNames = m_validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -380,7 +403,7 @@ bool Device::_Device::checkDeviceExtensionSupport(VkPhysicalDevice device, std::
 
     std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-    for (const auto& extension : availableExtensions)
+    for (const auto &extension : availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
     }
@@ -422,7 +445,7 @@ internal::QueueFamilyIndices Device::_Device::getQueueFamilies(
     internal::QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr); //Crashes here.
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 

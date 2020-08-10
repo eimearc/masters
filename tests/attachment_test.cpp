@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -25,9 +27,21 @@ class AttachmentTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, window, deviceExtensions,
+            numThreads, deviceExtensions,
             swapchainSize, validationLayers
         };
+
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
     }
 
     virtual void TearDown() override
@@ -54,26 +68,32 @@ TEST_F(AttachmentTest, ctor)
     EXPECT_TRUE(c.m_image);
     EXPECT_TRUE(c.m_imageView);
     EXPECT_TRUE(c.m_imageMemory);
+
+    EXPECT_TRUE(b==b);
+    EXPECT_FALSE(b!=b);
+
+    EXPECT_TRUE(c==c);
+    EXPECT_FALSE(c!=c);
 }
 
 TEST_F(AttachmentTest, move)
 {
     a=Attachment(device, 1, Attachment::Type::DEPTH);
     a=std::move(a);
-    ASSERT_EQ(a.m_colorReference.attachment,1);
+    EXPECT_EQ(a.m_colorReference.attachment,1);
 
     b=Attachment(device, 2, Attachment::Type::COLOR);
     c=std::move(a);
     a=std::move(b);
-    ASSERT_EQ(a.index(),2);
-    ASSERT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
+    EXPECT_EQ(a.index(),2);
+    EXPECT_EQ(a.description().format, VK_FORMAT_R8G8B8A8_UNORM);
 
     VkClearColorValue got = a.clearValue().color;
     VkClearColorValue want = {0.0f,0.0f,0.0f,1.0f};
-    ASSERT_EQ(*got.float32, *want.float32);
-    ASSERT_EQ(a.m_colorReference.attachment,2);
-    ASSERT_EQ(a.m_depthReference.attachment,2);
-    ASSERT_EQ(b.index(),0);
+    EXPECT_EQ(*got.float32, *want.float32);
+    EXPECT_EQ(a.m_colorReference.attachment,2);
+    EXPECT_EQ(a.m_depthReference.attachment,2);
+    EXPECT_EQ(b.index(),0);
     
     if (b.m_image!=VK_NULL_HANDLE) FAIL();
     if (b.m_imageMemory!=VK_NULL_HANDLE) FAIL();

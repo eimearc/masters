@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -17,9 +19,21 @@ class PipelineTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, window, deviceExtensions, swapchainSize,
+            numThreads, deviceExtensions, swapchainSize,
             validationLayers
         };
+
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -93,7 +107,7 @@ class PipelineTest : public  ::testing::Test
 TEST_F(PipelineTest,ctor)
 {
     pipeline0 = {
-        device, &subpass, vertexInput, &renderpass, shaders
+        device, subpass, vertexInput, renderpass, shaders
     };
     EXPECT_EQ(pipeline0.m_descriptor, nullptr);
     if (pipeline0.m_device==VK_NULL_HANDLE) FAIL();
@@ -108,6 +122,9 @@ TEST_F(PipelineTest,ctor)
     EXPECT_TRUE(pipeline0.m_layout);
     EXPECT_TRUE(pipeline0.m_pipeline);
 
+    EXPECT_TRUE(pipeline0==pipeline0);
+    EXPECT_FALSE(pipeline0!=pipeline0);
+
     VertexInput empty;
     EXPECT_NE(pipeline0.m_vertexInput, empty);
 
@@ -116,7 +133,7 @@ TEST_F(PipelineTest,ctor)
     descriptor.addUniformBuffer(0, buffer, Shader::Stage::VERTEX);
 
     pipeline1 = {
-        device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+        device, subpass, descriptor, vertexInput, renderpass, shaders
     };
     EXPECT_NE(pipeline1.m_descriptor, nullptr);
     if (pipeline1.m_device==VK_NULL_HANDLE) FAIL();
@@ -131,6 +148,12 @@ TEST_F(PipelineTest,ctor)
     EXPECT_TRUE(pipeline1.m_layout);
     EXPECT_TRUE(pipeline1.m_pipeline);
     EXPECT_NE(pipeline1.m_vertexInput, empty);
+
+    EXPECT_TRUE(pipeline1==pipeline1);
+    EXPECT_FALSE(pipeline1!=pipeline1);
+
+    EXPECT_FALSE(pipeline0==pipeline1);
+    EXPECT_TRUE(pipeline0!=pipeline1);
 }
 
 } // namespace evk

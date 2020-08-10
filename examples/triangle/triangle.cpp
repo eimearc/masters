@@ -1,31 +1,12 @@
 #include "evulkan.h"
 
+#include <cassert>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include "../util.h"
+
 using namespace evk; // TODO: Remove.
-
-std::vector<const char*> validationLayers =
-{
-    "VK_LAYER_LUNARG_standard_validation"
-};
-std::vector<const char*> deviceExtensions = 
-{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-std::vector<Vertex> setupVerts()
-{
-    std::vector<Vertex> verts;
-    Vertex v;
-    v.pos={0,-0.5,0};
-    v.color={1,0,0};
-    verts.push_back(v);
-    v.pos={-0.5,0.5,0};
-    v.color={0,0,1};
-    verts.push_back(v);
-    v.pos={0.5,0.5,0};
-    v.color={0,1,0};
-    verts.push_back(v);
-    return verts;
-}
 
 int main()
 {
@@ -37,10 +18,13 @@ int main()
     const uint32_t numThreads = 1;
     const uint32_t swapchainSize = 2;
 
-    Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+    Device device = Device(
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
-    
+
+    WindowResize r;
+    createSurfaceGLFW(device,window,r);
+
     std::vector<Vertex> vertices=setupVerts();
     std::vector<uint32_t> indices={0,1,2};
 
@@ -76,7 +60,7 @@ int main()
     Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
-    Pipeline pipeline(device, &subpass, vertexInput, &renderpass, shaders);
+    Pipeline pipeline(device, subpass, vertexInput, renderpass, shaders);
     std::vector<Pipeline*> pipelines = {&pipeline};
     
     device.finalize(indexBuffer,vertexBuffer,pipelines);

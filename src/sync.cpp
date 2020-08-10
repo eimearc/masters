@@ -59,7 +59,7 @@ void Device::Sync::reset() noexcept
     m_imagesInFlight.resize(0);
 }
 
-bool Device::Sync::operator==(const Sync &other)
+bool Device::Sync::operator==(const Sync &other) const noexcept
 {
     if (m_device!=other.m_device) return false;
     if (m_fencesInFlight.size()!=other.m_fencesInFlight.size()) return false;
@@ -95,10 +95,17 @@ bool Device::Sync::operator==(const Sync &other)
     return true;
 }
 
+bool Device::Sync::operator!=(const Sync &other) const noexcept
+{
+    return !(*this==other);
+}
+
 Device::Sync::~Sync() noexcept
 {
-    for (auto &s : m_renderFinishedSemaphores) vkDestroySemaphore(m_device, s, nullptr);
-    for (auto &s : m_imageAvailableSemaphores) vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &s : m_renderFinishedSemaphores)
+        vkDestroySemaphore(m_device, s, nullptr);
+    for (auto &s : m_imageAvailableSemaphores)
+        vkDestroySemaphore(m_device, s, nullptr);
     for (auto &f : m_fencesInFlight) vkDestroyFence(m_device, f, nullptr);
 }
 

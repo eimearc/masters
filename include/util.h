@@ -1,18 +1,25 @@
 #ifndef EVK_UTIL_H_
 #define EVK_UTIL_H_
 
+// Uncomment to disable assert();
+// #define NDEBUG 
+#include <cassert>
 #include <fstream>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLM_FORCE_RADIANS
+#define GLM_FORCE_RADIANS // TODO: is this needed?
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
 #include "vertex.h"
 #include <vulkan/vulkan.h>
+
+// Used for assert with message at failure.
+#define assertm(exp, msg) assert(((void)msg, exp))
+
+// Macro for GTest friend class.
+#define FRIEND_TEST(test_case_name, test_name)\
+    friend class test_case_name##_##test_name##_Test
 
 namespace internal
 {

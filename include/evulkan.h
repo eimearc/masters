@@ -12,6 +12,4 @@
 #include "texture.h"
 #include "vertexinput.h"
 
-#define GLFW_INCLUDE_VULKAN
-
 #endif

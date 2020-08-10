@@ -4,10 +4,11 @@ find_package(gflags REQUIRED)
 
 set(
     FILES
+    cube.h
+    grid.h
     multipass.cpp
     ../flags.cpp
-    grid.h
-    cube.h
+    ../util.h
 )
 
 add_executable(multipass ${FILES})

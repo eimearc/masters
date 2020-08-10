@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -17,9 +19,21 @@ class PassTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, window, deviceExtensions, swapchainSize,
+            numThreads, deviceExtensions, swapchainSize,
             validationLayers
         };
+
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -75,6 +89,9 @@ TEST_F(PassTest,ctor)
         subpass.m_colorReferences.begin(),Subpass::referenceEqual))
     FAIL();
 
+    EXPECT_TRUE(subpass==subpass);
+    EXPECT_FALSE(subpass!=subpass);
+
     EXPECT_EQ(subpass.m_colorAttachments, colorAttachments);
 
     std::vector<VkAttachmentReference> colorReferences = 
@@ -101,12 +118,14 @@ TEST_F(PassTest,ctor)
     EXPECT_EQ(subpass,subpass);
 
     // Renderpass ctor.
-    if (renderpass.m_renderPass==VK_NULL_HANDLE) FAIL();
+    EXPECT_FALSE(renderpass.m_renderPass==VK_NULL_HANDLE);
     EXPECT_EQ(renderpass.m_device, device.m_device->m_device);
     EXPECT_EQ(renderpass.m_attachments.size(),2);
     EXPECT_EQ(renderpass.m_clearValues.size(),2);
     EXPECT_EQ(renderpass.m_subpasses.size(),1);
-    if (!(renderpass==renderpass)) FAIL();
+
+    EXPECT_TRUE(renderpass==renderpass);
+    EXPECT_FALSE(renderpass!=renderpass);
 }
 
 bool descriptionEqual(

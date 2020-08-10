@@ -53,7 +53,8 @@ class Buffer
     Buffer& operator=(Buffer&&) noexcept;
     ~Buffer() noexcept;
 
-    bool operator==(const Buffer&) const;
+    bool operator==(const Buffer&) const noexcept;
+    bool operator!=(const Buffer&) const noexcept;
 
     protected:
     VkBuffer buffer() const { return m_buffer; };
@@ -84,8 +85,8 @@ class Buffer
     friend class Device;
 
     // Tests.
-    friend class BufferTest_ctor_Test;
-    friend class BufferTest_update_Test;
+    FRIEND_TEST(BufferTest,ctor);
+    FRIEND_TEST(BufferTest,update);
 };
 
 class DynamicBuffer : public Buffer

@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -17,9 +19,21 @@ class ShaderTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, window, deviceExtensions, swapchainSize,
+            numThreads, deviceExtensions, swapchainSize,
             validationLayers
         };
+
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -106,6 +120,9 @@ TEST_F(ShaderTest,ctor)
     EXPECT_TRUE(vertexShader.m_device);
     EXPECT_TRUE(vertexShader.m_module);
 
+    EXPECT_TRUE(vertexShader==vertexShader);
+    EXPECT_FALSE(vertexShader!=vertexShader);
+
     if (fragmentShader.m_device==VK_NULL_HANDLE) FAIL();
     if (fragmentShader.m_module==VK_NULL_HANDLE) FAIL();
     EXPECT_EQ(
@@ -122,6 +139,12 @@ TEST_F(ShaderTest,ctor)
     if (fragmentShader!=fragmentShader) FAIL();  
     EXPECT_TRUE(fragmentShader.m_device);
     EXPECT_TRUE(fragmentShader.m_module);  
+
+    EXPECT_TRUE(fragmentShader==fragmentShader);
+    EXPECT_FALSE(fragmentShader!=fragmentShader);
+
+    EXPECT_FALSE(vertexShader==fragmentShader);
+    EXPECT_TRUE(vertexShader!=fragmentShader);
 }
 
 } // namespace evk

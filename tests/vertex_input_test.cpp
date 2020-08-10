@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -13,7 +15,7 @@ class VertexInputTest : public  ::testing::Test
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
-        device = {1, window, deviceExtensions, 2, validationLayers};
+        device = {1, deviceExtensions, 2, validationLayers};
     }
 
     virtual void TearDown() override

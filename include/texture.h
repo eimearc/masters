@@ -73,9 +73,9 @@ class Texture
     friend class Descriptor;
 
     // Tests.
-    friend class TextureTest_ctor_Test;
-    friend class TextureTest_get_Test;
-    friend class TextureTest_move_Test;
+    FRIEND_TEST(TextureTest,ctor);
+    FRIEND_TEST(TextureTest,get);
+    FRIEND_TEST(TextureTest,move);
 };
 
 } // namespace evk

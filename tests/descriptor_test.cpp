@@ -1,5 +1,7 @@
 #include "evulkan.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <gtest/gtest.h>
 
 namespace evk {
@@ -25,9 +27,20 @@ class DescriptorTest : public  ::testing::Test
         const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
         device = {
-            numThreads, window, deviceExtensions,
+            numThreads, deviceExtensions,
             swapchainSize, validationLayers
         };
+        uint32_t glfwExtensionCount = 0;
+        auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+        std::vector<const char*> surfaceExtensions(
+            glfwExtensions, glfwExtensions + glfwExtensionCount
+        );
+        auto surfaceFunc = [&](){
+            glfwCreateWindowSurface(
+                device.instance(), window, nullptr, &device.surface()
+            );
+        };
+        device.createSurface(surfaceFunc,800,600,surfaceExtensions);
 
         descriptor = {device, swapchainSize};
     }
@@ -61,6 +74,8 @@ TEST_F(DescriptorTest, ctor)
         auto index = static_cast<uint32_t>(t);
         EXPECT_EQ(descriptor.m_poolSizes[index].descriptorCount, 0);
     }
+    EXPECT_TRUE(descriptor==descriptor);
+    EXPECT_FALSE(descriptor!=descriptor);
 }
 
 TEST_F(DescriptorTest, multipleUniformBuffers)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVK_EXAMPLES_CUBE_H_
+#define EVK_EXAMPLES_CUBE_H_
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -46,3 +47,5 @@ struct Cube
     std::vector<uint32_t> indices;
     glm::vec3 color={0,1,0};
 };
+
+#endif

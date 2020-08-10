@@ -63,20 +63,24 @@ void Descriptor::initializePoolSize(Type type)
     m_poolSizes[index].type=descriptorType(type);
 }
 
-bool Descriptor::operator==(const Descriptor &other) const
+bool Descriptor::operator==(const Descriptor &other) const noexcept
 {
-    bool result = true;
-    result &= (m_device==other.m_device);
-    result &= (m_pool==other.m_pool);
-    result &= std::equal(
-        m_setLayouts.begin(), m_setLayouts.end(),
-        other.m_setLayouts.begin()  
-    );
-    result &= std::equal(
-        m_sets.begin(), m_sets.end(),
-        other.m_sets.begin()  
-    );
-    return result;
+    if (m_device!=other.m_device) return false;
+    if (m_pool!=other.m_pool) return false;
+    if (!std::equal(
+            m_setLayouts.begin(), m_setLayouts.end(),
+            other.m_setLayouts.begin()  
+        )) return false;
+    if (!std::equal(
+            m_sets.begin(), m_sets.end(),
+            other.m_sets.begin()  
+        )) return false;
+    return true;
+}
+
+bool Descriptor::operator!=(const Descriptor &other) const noexcept
+{
+    return !(*this==other);
 }
 
 void Descriptor::finalize()

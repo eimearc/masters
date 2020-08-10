@@ -1,5 +1,7 @@
 #include "evulkan.h"
+
 #include "flags.h"
+#include "../util.h"
 
 using namespace evk; // TODO: Remove.
 
@@ -8,14 +10,6 @@ struct UniformBufferObject
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
-};
-std::vector<const char*> validationLayers =
-{
-    "VK_LAYER_LUNARG_standard_validation"
-};
-std::vector<const char*> deviceExtensions = 
-{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 int main(int argc, char **argv)
@@ -34,8 +28,11 @@ int main(int argc, char **argv)
     const uint32_t swapchainSize = 2;
 
     Device device(
-        numThreads, window, deviceExtensions, swapchainSize, validationLayers
+        numThreads, deviceExtensions, swapchainSize, validationLayers
     );
+
+    WindowResize r;
+    createSurfaceGLFW(device, window, r);
     
     std::vector<Vertex> v;
     std::vector<uint32_t> in;
@@ -83,7 +80,6 @@ int main(int argc, char **argv)
     vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.setVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    // device.indexBuffer(...)?
     StaticBuffer indexBuffer(
         device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX
     );
@@ -96,7 +92,7 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
     Pipeline pipeline(
-        device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+        device, subpass, descriptor, vertexInput, renderpass, shaders
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};
