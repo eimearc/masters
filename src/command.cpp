@@ -62,22 +62,27 @@ void Device::Commands::reset() noexcept
     m_secondaryCommandBuffers.resize(0);  
 }
 
-bool Device::Commands::operator==(const Commands &other)
+bool Device::Commands::operator==(const Commands &other) const noexcept
 {
-    bool result = true;
-    result &= std::equal(
-        m_commandPools.begin(), m_commandPools.end(), other.m_commandPools.begin()
-    );
-    result &= (m_device==other.m_device);
-    result &= std::equal(
-        m_primaryCommandBuffers.begin(), m_primaryCommandBuffers.end(),
-        other.m_primaryCommandBuffers.begin()
-    );
-    result &= std::equal(
-        m_secondaryCommandBuffers.begin(), m_secondaryCommandBuffers.end(),
-        other.m_secondaryCommandBuffers.begin()
-    );
-    return result;
+    if (!std::equal(
+            m_commandPools.begin(), m_commandPools.end(),
+            other.m_commandPools.begin()
+        )) return false;
+    if (m_device!=other.m_device) return false;
+    if (!std::equal(
+            m_primaryCommandBuffers.begin(), m_primaryCommandBuffers.end(),
+            other.m_primaryCommandBuffers.begin()
+        )) return false;
+    if (!std::equal(
+            m_secondaryCommandBuffers.begin(), m_secondaryCommandBuffers.end(),
+            other.m_secondaryCommandBuffers.begin()
+        )) return false;
+    return true;
+}
+
+bool Device::Commands::operator!=(const Commands &other) const noexcept
+{
+    return !(*this==other);
 }
 
 Device::Commands::~Commands() noexcept

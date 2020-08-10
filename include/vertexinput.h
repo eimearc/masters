@@ -42,8 +42,8 @@ class VertexInput
      **/
     VertexInput(uint32_t stride);
 
-    bool operator==(const VertexInput&) const;
-    bool operator!=(const VertexInput&) const;
+    bool operator==(const VertexInput&) const noexcept;
+    bool operator!=(const VertexInput&) const noexcept;
 
     /**
      * Sets the Vertex attribute at a specified location for a 2-part vector.

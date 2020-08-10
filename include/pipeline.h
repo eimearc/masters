@@ -79,7 +79,8 @@ class Pipeline
         const std::vector<Shader*> &shaders
     );
 
-    bool operator==(const Pipeline&) const;
+    bool operator==(const Pipeline&) const noexcept;
+    bool operator!=(const Pipeline&) const noexcept;
 
     private:
     void createSetLayout(

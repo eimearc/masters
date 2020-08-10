@@ -53,7 +53,8 @@ class Buffer
     Buffer& operator=(Buffer&&) noexcept;
     ~Buffer() noexcept;
 
-    bool operator==(const Buffer&) const;
+    bool operator==(const Buffer&) const noexcept;
+    bool operator!=(const Buffer&) const noexcept;
 
     protected:
     VkBuffer buffer() const { return m_buffer; };

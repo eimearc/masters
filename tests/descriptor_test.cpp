@@ -74,6 +74,8 @@ TEST_F(DescriptorTest, ctor)
         auto index = static_cast<uint32_t>(t);
         EXPECT_EQ(descriptor.m_poolSizes[index].descriptorCount, 0);
     }
+    EXPECT_TRUE(descriptor==descriptor);
+    EXPECT_FALSE(descriptor!=descriptor);
 }
 
 TEST_F(DescriptorTest, multipleUniformBuffers)

@@ -39,7 +39,8 @@ class Subpass
         const std::vector<Attachment*> &inputAttachments
     );
 
-    bool operator==(const Subpass&) const;
+    bool operator==(const Subpass&) const noexcept;
+    bool operator!=(const Subpass&) const noexcept;
 
     private:
     void addDependency(Dependency dependency);
@@ -95,7 +96,8 @@ class Renderpass
         std::vector<Subpass*> &subpasses
     );
 
-    bool operator==(const Renderpass&) const;
+    bool operator==(const Renderpass&) const noexcept;
+    bool operator!=(const Renderpass&) const noexcept;
 
     private:
     struct AttachmentInfo

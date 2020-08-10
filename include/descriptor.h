@@ -56,7 +56,8 @@ class Descriptor
         const size_t swapchainSize
     );
 
-    bool operator==(const Descriptor&) const;
+    bool operator==(const Descriptor&) const noexcept;
+    bool operator!=(const Descriptor&) const noexcept;
 
     /**
      * Adds an input attachment binding to the descriptor.

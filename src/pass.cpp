@@ -33,7 +33,7 @@ Subpass::Subpass(
     m_description.pInputAttachments=m_inputReferences.data();
 }
 
-bool Subpass::operator==(const Subpass &other) const
+bool Subpass::operator==(const Subpass &other) const noexcept
 {
     if (m_colorAttachments.size()!=other.m_colorAttachments.size())
         return false;
@@ -77,6 +77,11 @@ bool Subpass::operator==(const Subpass &other) const
     if (m_index!=other.m_index) return false;
 
     return true;
+}
+
+bool Subpass::operator!=(const Subpass &other) const noexcept
+{
+    return !(*this==other);
 }
 
 void Subpass::addDependency(Dependency dep)
@@ -210,7 +215,7 @@ Renderpass::Renderpass(
 }
 
 
-bool Renderpass::operator==(const Renderpass &other) const
+bool Renderpass::operator==(const Renderpass &other) const noexcept
 {
     if (m_attachments.size()!=other.m_attachments.size())
         return false;
@@ -225,6 +230,11 @@ bool Renderpass::operator==(const Renderpass &other) const
             other.m_subpasses.begin()))
         return false;
     return true;
+}
+
+bool Renderpass::operator!=(const Renderpass &other) const noexcept
+{
+    return !(*this==other);
 }
 
 

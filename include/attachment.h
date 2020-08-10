@@ -55,7 +55,8 @@ class Attachment
         const Type &type
     );
 
-    bool operator==(const Attachment&) const;
+    bool operator==(const Attachment&) const noexcept;
+    bool operator!=(const Attachment&) const noexcept;
 
     private:
     void createFramebuffer();

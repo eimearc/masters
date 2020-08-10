@@ -68,6 +68,12 @@ TEST_F(AttachmentTest, ctor)
     EXPECT_TRUE(c.m_image);
     EXPECT_TRUE(c.m_imageView);
     EXPECT_TRUE(c.m_imageMemory);
+
+    EXPECT_TRUE(b==b);
+    EXPECT_FALSE(b!=b);
+
+    EXPECT_TRUE(c==c);
+    EXPECT_FALSE(c!=c);
 }
 
 TEST_F(AttachmentTest, move)

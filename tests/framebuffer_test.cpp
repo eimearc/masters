@@ -112,6 +112,9 @@ TEST_F(FramebufferTest, ctor)
     ASSERT_NE(framebuffer,nullptr);
     EXPECT_EQ(framebuffer->m_device->device(), device.device());
     EXPECT_EQ(framebuffer->m_framebuffers.size(), swapchainSize);
+
+    EXPECT_TRUE(framebuffer==framebuffer);
+    EXPECT_FALSE(framebuffer!=framebuffer);
 }
 
 } // namespace evk

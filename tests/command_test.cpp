@@ -65,6 +65,9 @@ TEST_F(CommandTest, ctor)
     EXPECT_EQ(
         commands->m_secondaryCommandBuffers.size(), numThreads
     );
+
+    EXPECT_TRUE(commands==commands);
+    EXPECT_FALSE(commands!=commands);
 }
 
 TEST_F(CommandTest, move)

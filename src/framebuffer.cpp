@@ -77,15 +77,19 @@ Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other) noexcep
     return *this;
 }
 
-bool Device::Framebuffer::operator==(const Framebuffer &other)
+bool Device::Framebuffer::operator==(const Framebuffer &other) const noexcept
 {
-    bool result = true;
-    result &= (m_device==other.m_device);
-    result &= std::equal(
-        m_framebuffers.begin(), m_framebuffers.end(),
-        other.m_framebuffers.begin()
-    );
-    return result;
+    if (m_device!=other.m_device) return false;
+    if (!std::equal(
+            m_framebuffers.begin(), m_framebuffers.end(),
+            other.m_framebuffers.begin()
+        )) return false;
+    return true;
+}
+
+bool Device::Framebuffer::operator!=(const Framebuffer &other) const noexcept
+{
+    return !(*this==other);
 }
 
 Device::Framebuffer::~Framebuffer() noexcept

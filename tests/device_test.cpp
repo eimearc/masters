@@ -97,6 +97,9 @@ TEST_F(DeviceTest, ctor)
     EXPECT_TRUE(d.m_presentQueue);
     EXPECT_TRUE(d.m_surface);
 
+    EXPECT_TRUE(d==d);
+    EXPECT_FALSE(d!=d);
+
     const std::vector<const char*> validationLayers1;
     Device::_Device d1(validationLayers1, deviceExtensions);
     auto sf1 = [&](){
@@ -112,6 +115,9 @@ TEST_F(DeviceTest, ctor)
     EXPECT_TRUE(d1.m_physicalDevice);
     EXPECT_TRUE(d1.m_presentQueue);
     EXPECT_TRUE(d1.m_surface);
+
+    EXPECT_TRUE(d1==d1);
+    EXPECT_FALSE(d1!=d1);
 }
 
 TEST_F(DeviceTest, move)

@@ -122,6 +122,9 @@ TEST_F(PipelineTest,ctor)
     EXPECT_TRUE(pipeline0.m_layout);
     EXPECT_TRUE(pipeline0.m_pipeline);
 
+    EXPECT_TRUE(pipeline0==pipeline0);
+    EXPECT_FALSE(pipeline0!=pipeline0);
+
     VertexInput empty;
     EXPECT_NE(pipeline0.m_vertexInput, empty);
 
@@ -145,6 +148,12 @@ TEST_F(PipelineTest,ctor)
     EXPECT_TRUE(pipeline1.m_layout);
     EXPECT_TRUE(pipeline1.m_pipeline);
     EXPECT_NE(pipeline1.m_vertexInput, empty);
+
+    EXPECT_TRUE(pipeline1==pipeline1);
+    EXPECT_FALSE(pipeline1!=pipeline1);
+
+    EXPECT_FALSE(pipeline0==pipeline1);
+    EXPECT_TRUE(pipeline0!=pipeline1);
 }
 
 } // namespace evk

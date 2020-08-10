@@ -57,8 +57,8 @@ class Shader
         const Stage &stage
     );
 
-    bool operator==(const Shader&) const;
-    bool operator!=(const Shader&) const;
+    bool operator==(const Shader&) const noexcept;
+    bool operator!=(const Shader&) const noexcept;
 
     private:
     VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };

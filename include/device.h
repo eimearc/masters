@@ -75,7 +75,8 @@ class Device
         const std::vector<const char*> &validationLayers
     );
 
-    bool operator==(const Device& other);
+    bool operator==(const Device&) const noexcept;
+    bool operator!=(const Device&) const noexcept;
 
     /**
      * Creates a surface object and finishes Device setup.
@@ -170,11 +171,13 @@ class Device
             const std::vector<const char *> &deviceExtensions
         );
 
+        bool operator==(const _Device &other) const noexcept;
+        bool operator!=(const _Device &other) const noexcept;
+
         void finishSetup(
             std::function<void()> windowFunc,
             const std::vector<const char *> &windowExtensions
         );
-        bool operator==(const _Device &other);
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
@@ -242,6 +245,7 @@ class Device
 
         bool operator==(const Swapchain &other) const;
         bool operator!=(const Swapchain &other) const;
+
         void reset() noexcept;
         void recreate();
         void setup() noexcept;
@@ -287,7 +291,9 @@ class Device
             const uint32_t &numThreads
         );
 
-        bool operator==(const Commands &other);
+        bool operator==(const Commands&) const noexcept;
+        bool operator!=(const Commands&) const noexcept;
+
         void reset() noexcept;
 
         std::vector<VkCommandPool> m_commandPools;
@@ -308,7 +314,9 @@ class Device
 
         Sync(const VkDevice &device, const uint32_t &swapchainSize);
 
-        bool operator==(const Sync &other);
+        bool operator==(const Sync &other) const noexcept;
+        bool operator!=(const Sync &other) const noexcept;
+
         void reset() noexcept;
 
         VkDevice m_device=VK_NULL_HANDLE;
@@ -333,7 +341,9 @@ class Device
             Renderpass &renderpass
         );
 
-        bool operator==(const Framebuffer &other);
+        bool operator==(const Framebuffer &other) const noexcept;
+        bool operator!=(const Framebuffer &other) const noexcept;
+
         void recreate();
         void setup();
 

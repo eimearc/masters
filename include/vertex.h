@@ -19,7 +19,7 @@ struct Vertex {
     glm::vec2 texCoord;
     glm::vec3 normal;
 
-    bool operator==(const Vertex &other) const
+    bool operator==(const Vertex &other) const noexcept
     {
         if (pos!=other.pos) return false;
         if (color!=other.color) return false;
@@ -28,7 +28,7 @@ struct Vertex {
         return true;
     }
 
-    bool operator!=(const Vertex &other) const
+    bool operator!=(const Vertex &other) const noexcept
     {
         return !(*this==other);
     }

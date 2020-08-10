@@ -63,7 +63,8 @@ TEST_F(SwapchainTest,ctor)
         EXPECT_TRUE(iv);
     EXPECT_TRUE(swapchain->m_format);
 
-    if (swapchain!=swapchain) FAIL();
+    EXPECT_TRUE(swapchain==swapchain);
+    EXPECT_FALSE(swapchain!=swapchain);
 }
 
 TEST_F(SwapchainTest,move)
