@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include <stdexcept>
+#include "evk_assert.h"
 #include <vulkan/vulkan.h> // TODO: Remove.
 
 namespace internal
@@ -33,10 +33,10 @@ void createImage(
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(device, &imageInfo, nullptr, pImage) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create image.");
-    }
+    EVK_ASSERT(
+        vkCreateImage(device, &imageInfo, nullptr, pImage),
+        "failed to create image\n"
+    );
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, *pImage, &memRequirements);
@@ -47,10 +47,11 @@ void createImage(
         physicalDevice, memRequirements.memoryTypeBits, properties
     );
 
-    if (vkAllocateMemory(device, &allocInfo, nullptr, pImageMemory) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate image memory.");
-    }
+    EVK_ASSERT(
+        vkAllocateMemory(device, &allocInfo, nullptr, pImageMemory),
+        "failed to allocate image memory"
+    );
+
     vkBindImageMemory(device, *pImage, *pImageMemory, 0);
 }
 
@@ -72,8 +73,10 @@ void createImageView(
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(device, &viewInfo, nullptr, pImageView) != VK_SUCCESS)
-        throw std::runtime_error("failed to create texture image view!");
+    EVK_ASSERT(
+        vkCreateImageView(device, &viewInfo, nullptr, pImageView),
+        "failed to create texture image view\n"
+    );
 }
 
 void createBuffer(
@@ -91,10 +94,10 @@ void createBuffer(
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateBuffer(device, &bufferInfo, nullptr, pBuffer) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create vertex buffer.");
-    }
+    EVK_ASSERT(
+        vkCreateBuffer(device, &bufferInfo, nullptr, pBuffer),
+        "failed to create buffer\n"
+    );
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, *pBuffer, &memRequirements);
@@ -104,12 +107,14 @@ void createBuffer(
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(device, &allocInfo, nullptr, pBufferMemory) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate vertex buffer memory");
-    }
-
-    vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0);
+    EVK_ASSERT(
+        vkAllocateMemory(device, &allocInfo, nullptr, pBufferMemory),
+        "failed to allocate buffer memory"
+    );
+    EVK_ASSERT(
+        vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0),
+        "failed to bind buffer memory"
+    );
 }
 
 uint32_t findMemoryType(
@@ -134,7 +139,8 @@ uint32_t findMemoryType(
         if (currentTypeFilter && propertiesMatch) return i;
     }
 
-    throw std::runtime_error("failed to find suitable memory type.");
+    std::cerr << "failed to find suitable memory type\n";
+    std::abort(); // TODO: Remove.
 }
 
 void beginSingleTimeCommands(VkDevice device, VkCommandPool commandPool, VkCommandBuffer *pCommandBuffer)

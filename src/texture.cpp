@@ -1,5 +1,6 @@
 #include "texture.h"
 
+#include "evk_assert.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -68,7 +69,9 @@ Texture::Texture(
     auto &commandPool = commandPools[0];
 
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(fileName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(
+        fileName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha
+    );
 
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
@@ -76,7 +79,8 @@ Texture::Texture(
     VkDeviceMemory stagingBufferMemory;
     internal::createBuffer(device.device(), device.physicalDevice(), imageSize,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &stagingBuffer, &stagingBufferMemory);
 
     void* data;
@@ -86,19 +90,29 @@ Texture::Texture(
 
     stbi_image_free(pixels);
 
-    VkExtent2D extent = {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)};
+    VkExtent2D extent = {
+        static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)
+    };
     VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
-    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT;
     VkMemoryPropertyFlagBits properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     internal::createImage(
         device.device(), device.physicalDevice(), extent, format, tiling, usage,
         properties, &m_image, &m_memory
     );
 
-    transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    transitionImageLayout(
+        device, commandPool, m_image, format, VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+    );
     copyBufferToImage(device, commandPool, stagingBuffer, m_image, extent);
-    transitionImageLayout(device, commandPool, m_image, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    transitionImageLayout(
+        device, commandPool, m_image, format,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    );
 
     vkDestroyBuffer(device.device(), stagingBuffer, nullptr);
     vkFreeMemory(device.device(), stagingBufferMemory, nullptr);
@@ -126,8 +140,12 @@ Texture::Texture(
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
-    if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &m_imageSampler) != VK_SUCCESS)
-        throw std::runtime_error("failed to create texture sampler.");
+
+    EVK_ASSERT(
+        vkCreateSampler(
+            device.device(), &samplerInfo, nullptr, &m_imageSampler),
+        "failed to create texture sampler\n"
+    );
 }
 
 void Texture::transitionImageLayout(
@@ -161,18 +179,20 @@ void Texture::transitionImageLayout(
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
 
-    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+            newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
         barrier.srcAccessMask = 0;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+            newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else {
-        throw std::invalid_argument("unsupported layout transition!");
+        throw std::invalid_argument("unsupported layout transition!"); // TODO: Check if this is really needed.
     }
 
     vkCmdPipelineBarrier(
