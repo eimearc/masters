@@ -194,8 +194,7 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
         }
     }
 
-    std::cerr << "no suitable surface format found in available formats\n";
-    std::abort(); // TODO: Add macro?
+    EVK_ABORT("no suitable surface format found in available formats\n");
 }
 
 void Device::Swapchain::recreate()

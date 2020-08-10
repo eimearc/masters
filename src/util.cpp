@@ -139,8 +139,7 @@ uint32_t findMemoryType(
         if (currentTypeFilter && propertiesMatch) return i;
     }
 
-    std::cerr << "failed to find suitable memory type\n";
-    std::abort(); // TODO: Remove.
+    EVK_ABORT("failed to find suitable memory type\n");
 }
 
 void beginSingleTimeCommands(VkDevice device, VkCommandPool commandPool, VkCommandBuffer *pCommandBuffer)

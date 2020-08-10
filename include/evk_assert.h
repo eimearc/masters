@@ -1,6 +1,9 @@
 #ifndef EVK_ASSERT_H_
 #define EVK_ASSERT_H_
 
+#define EVK_ABORT(msg) \
+    {std::cerr << "FATAL ERROR: " << msg; std::abort();}
+
 // Used for assert with message at failure.
 #ifndef EVK_NDEBUG
 
