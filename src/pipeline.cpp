@@ -39,7 +39,7 @@ Pipeline::Pipeline(
     Subpass *pSubpass,
     gsl::not_null<Descriptor*> pDescriptor,
     const VertexInput &vertexInput,
-    Renderpass *pRenderpass,
+    Renderpass &renderpass,
     const std::vector<Shader*> &shaders
 )
 {
@@ -48,7 +48,7 @@ Pipeline::Pipeline(
     m_subpass = pSubpass;
     m_descriptor = pDescriptor;
     m_shaders = shaders;
-    m_renderpass = pRenderpass;
+    m_renderpass = &renderpass;
 
     // Finalize descriptor sets.
     m_descriptor->finalize();
@@ -63,7 +63,7 @@ Pipeline::Pipeline(
     Device &device,
     Subpass *pSubpass,
     const VertexInput &vertexInput,
-    Renderpass *pRenderpass,
+    Renderpass &renderpass,
     const std::vector<Shader*> &shaders
 )
 {
@@ -71,7 +71,7 @@ Pipeline::Pipeline(
     m_vertexInput = vertexInput;
     m_subpass = pSubpass;
     m_shaders = shaders;
-    m_renderpass = pRenderpass;
+    m_renderpass = &renderpass;
 
     std::vector<VkDescriptorSetLayout> setLayouts;
     createSetLayout(setLayouts);

@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
     Pipeline pipeline(
-        device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+        device, &subpass, &descriptor, vertexInput, renderpass, shaders
     );
 
     std::vector<Pipeline*> pipelines = {&pipeline};

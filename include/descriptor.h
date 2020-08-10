@@ -143,7 +143,7 @@ class Descriptor
     std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
     std::vector<VkDescriptorSet> sets() const { return m_sets; };
 
-    std::vector<Attachment*> m_attachments; // TODO: Union?
+    std::vector<Attachment*> m_attachments;
     std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
     VkDevice m_device=VK_NULL_HANDLE;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;

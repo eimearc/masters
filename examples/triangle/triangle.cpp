@@ -58,7 +58,7 @@ int main()
     Shader fragmentShader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
     std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
-    Pipeline pipeline(device, &subpass, vertexInput, &renderpass, shaders);
+    Pipeline pipeline(device, &subpass, vertexInput, renderpass, shaders);
     std::vector<Pipeline*> pipelines = {&pipeline};
     
     device.finalize(indexBuffer,vertexBuffer,pipelines);

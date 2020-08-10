@@ -52,7 +52,7 @@ class Pipeline
      * @param[in] pSubpass the Subpass to use in this Pipeline.
      * @param[in] pDescriptor the Descriptor to use in this Pipeline.
      * @param[in] vertexInput the vertexInput for this Pipeline.
-     * @param[in] pRenderpass the Renderpass for this Pipeline.
+     * @param[in] renderpass the Renderpass for this Pipeline.
      * @param[in] shaders the set of Shaders used in this Pipeline.
      **/
     Pipeline(
@@ -60,7 +60,7 @@ class Pipeline
         Subpass *pSubpass,
         gsl::not_null<Descriptor*> pDescriptor,
         const VertexInput &vertexInput,
-        Renderpass *pRenderpass,
+        Renderpass &renderpass,
         const std::vector<Shader*> &shaders
     );
 
@@ -69,14 +69,14 @@ class Pipeline
      * @param[in] device the Device used to create the Pipeline.
      * @param[in] pSubpass the Subpass to use in this Pipeline.
      * @param[in] vertexInput the vertexInput for this Pipeline.
-     * @param[in] pRenderpass the Renderpass for this Pipeline.
+     * @param[in] renderpass the Renderpass for this Pipeline.
      * @param[in] shaders the set of Shaders used in this Pipeline.
      **/
     Pipeline(
         Device &device,
         Subpass *pSubpass,
         const VertexInput &vertexInput,
-        Renderpass *pRenderpass,
+        Renderpass &renderpass,
         const std::vector<Shader*> &shaders
     );
 

@@ -107,7 +107,7 @@ class PipelineTest : public  ::testing::Test
 TEST_F(PipelineTest,ctor)
 {
     pipeline0 = {
-        device, &subpass, vertexInput, &renderpass, shaders
+        device, &subpass, vertexInput, renderpass, shaders
     };
     EXPECT_EQ(pipeline0.m_descriptor, nullptr);
     if (pipeline0.m_device==VK_NULL_HANDLE) FAIL();
@@ -130,7 +130,7 @@ TEST_F(PipelineTest,ctor)
     descriptor.addUniformBuffer(0, buffer, Shader::Stage::VERTEX);
 
     pipeline1 = {
-        device, &subpass, &descriptor, vertexInput, &renderpass, shaders
+        device, &subpass, &descriptor, vertexInput, renderpass, shaders
     };
     EXPECT_NE(pipeline1.m_descriptor, nullptr);
     if (pipeline1.m_device==VK_NULL_HANDLE) FAIL();
