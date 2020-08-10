@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.1)
 project (evulkan)
 
 find_package(PkgConfig REQUIRED)
-find_package(Microsoft.GSL CONFIG)
 set (CMAKE_CXX_STANDARD 14)
 
 option(BUILD_EXAMPLES "Build the examples" ON)

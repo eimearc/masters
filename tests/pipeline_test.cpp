@@ -130,7 +130,7 @@ TEST_F(PipelineTest,ctor)
     descriptor.addUniformBuffer(0, buffer, Shader::Stage::VERTEX);
 
     pipeline1 = {
-        device, &subpass, &descriptor, vertexInput, renderpass, shaders
+        device, &subpass, descriptor, vertexInput, renderpass, shaders
     };
     EXPECT_NE(pipeline1.m_descriptor, nullptr);
     if (pipeline1.m_device==VK_NULL_HANDLE) FAIL();
