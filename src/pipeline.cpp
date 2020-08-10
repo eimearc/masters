@@ -36,7 +36,7 @@ void Pipeline::reset()
 
 Pipeline::Pipeline(
     Device &device,
-    Subpass *pSubpass,
+    Subpass &subpass,
     Descriptor &descriptor,
     const VertexInput &vertexInput,
     Renderpass &renderpass,
@@ -45,7 +45,7 @@ Pipeline::Pipeline(
 {
     m_device = &device;
     m_vertexInput = vertexInput;
-    m_subpass = pSubpass;
+    m_subpass = &subpass;
     m_descriptor = &descriptor;
     m_shaders = shaders;
     m_renderpass = &renderpass;
@@ -61,7 +61,7 @@ Pipeline::Pipeline(
 
 Pipeline::Pipeline(
     Device &device,
-    Subpass *pSubpass,
+    Subpass &subpass,
     const VertexInput &vertexInput,
     Renderpass &renderpass,
     const std::vector<Shader*> &shaders
@@ -69,7 +69,7 @@ Pipeline::Pipeline(
 {
     m_device = &device;
     m_vertexInput = vertexInput;
-    m_subpass = pSubpass;
+    m_subpass = &subpass;
     m_shaders = shaders;
     m_renderpass = &renderpass;
 

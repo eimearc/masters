@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders0 = {&vertexShader0, &fragmentShader0};
 
     Pipeline pipeline0(
-        device, &subpass0, descriptor0, vertexInput0, renderpass, shaders0
+        device, subpass0, descriptor0, vertexInput0, renderpass, shaders0
     );
 
     Shader vertexShader1(device, "pass_1_vert.spv", Shader::Stage::VERTEX);
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     std::vector<Shader*> shaders1 = {&vertexShader1, &fragmentShader1};
 
     Pipeline pipeline1(
-        device, &subpass1, descriptor1, vertexInput1, renderpass, shaders1
+        device, subpass1, descriptor1, vertexInput1, renderpass, shaders1
     );
     std::vector<Pipeline*> pipelines = {&pipeline0, &pipeline1};
 
