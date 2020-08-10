@@ -1,5 +1,6 @@
 #include "device.h"
 
+#include "evk_assert.h"
 #include <set>
 
 namespace evk {

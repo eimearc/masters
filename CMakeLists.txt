@@ -7,6 +7,8 @@ set (CMAKE_CXX_STANDARD 14)
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build the tests" ON)
 
+# add_definitions(-DEVK_NDEBUG) # TODO: Add documentation.
+
 set(VULKANROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
 set(STB_INCLUDE_PATH /usr/local/include)
