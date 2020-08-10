@@ -64,6 +64,7 @@ ENTRY
     title
     type
     url
+    urldate
     volume
     year
     %doi
@@ -292,7 +293,14 @@ FUNCTION {format.issn}
 FUNCTION {format.url}
 { url empty$
     { "" }
-    { new.block "Available from: \url{" url * "}" * " [ Accessed 1 November 2019 ]" *}
+    { new.block "Available from: \url{" url * "}" *}
+  if$
+}
+
+FUNCTION {format.urldate}
+{ urldate empty$
+    { "" }
+    { new.block " [ Accessed " urldate * " ]" * }
   if$
 }
 
@@ -1004,6 +1012,8 @@ FUNCTION {online}
   format.place "address" output.check
   new.block
   format.url "url" output.check
+  new.block
+  format.urldate "urldate" output.check
   new.block
   note output
   fin.entry
