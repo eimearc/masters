@@ -6,22 +6,6 @@
 
 using namespace evk; // TODO: Remove.
 
-void createSurfaceGLFW(Device &device, GLFWwindow *window, WindowResize &r)
-{
-    r = {&device};
-    glfwSetWindowUserPointer(window,&r);
-
-    auto surfaceExtensions = glfwExtensions();
-    auto surfaceFunc = [&](){
-        glfwCreateWindowSurface(
-            device.instance(), window, nullptr, &device.surface()
-        );
-    };
-
-    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
-    glfwSetFramebufferSizeCallback(window, r.resizeGLFW);
-}
-
 int main()
 {
     glfwInit();

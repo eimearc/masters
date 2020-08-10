@@ -1,6 +1,12 @@
 include_directories(../)
 
-add_executable(triangle triangle.cpp)
+set(
+    FILES
+    triangle.cpp
+    ../util.h
+)
+
+add_executable(triangle ${FILES})
 target_link_libraries(triangle evulkan)
 
 configure_file("../compile.sh" "." COPYONLY)

@@ -12,22 +12,6 @@ struct UniformBufferObject
     glm::mat4 proj;
 };
 
-void createSurfaceGLFW(Device &device, GLFWwindow *window, WindowResize &r)
-{
-    r = {&device};
-    glfwSetWindowUserPointer(window,&r);
-
-    auto surfaceExtensions = glfwExtensions();
-    auto surfaceFunc = [&](){
-        glfwCreateWindowSurface(
-            device.instance(), window, nullptr, &device.surface()
-        );
-    };
-
-    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
-    glfwSetFramebufferSizeCallback(window, r.resizeGLFW);
-}
-
 int main(int argc, char **argv)
 {
     gflags::SetUsageMessage(
@@ -96,7 +80,6 @@ int main(int argc, char **argv)
     vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
     vertexInput.setVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
-    // device.indexBuffer(...)?
     StaticBuffer indexBuffer(
         device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX
     );

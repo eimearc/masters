@@ -1,6 +1,7 @@
 #include "evulkan.h"
 #include "flags.h"
 #include "grid.h"
+#include "../util.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -13,47 +14,6 @@ struct UniformBufferObject
     glm::mat4 MVP_light;
     glm::mat4 MV;
 };
-std::vector<const char*> validationLayers =
-{
-    "VK_LAYER_LUNARG_standard_validation"
-};
-std::vector<const char*> deviceExtensions = 
-{
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-GLFWwindow *window;
-
-void createGrid(
-    uint32_t numCubes,
-    std::vector<Vertex> &vertices,
-    std::vector<uint32_t> &indices)
-{
-    constexpr size_t NUM_VERTS = 8;
-    constexpr float GRID_SIZE = 2.0f;
-    numCubes = sqrt(numCubes);
-    float cubeSize = (GRID_SIZE/numCubes)*0.5;
-    Grid grid = Grid(GRID_SIZE, cubeSize, numCubes);
-    int i=0;
-    Vertex vertex;
-    for (auto cube : grid.cubes)
-    {
-        std::vector<glm::vec3> verts = cube.vertices;
-        std::vector<uint32_t> ind = cube.indices;
-        for(size_t j = 0; j<verts.size(); ++j)
-        {
-            vertex.pos=verts[j];
-            vertex.color={1,0,1};
-            vertex.normal=-vertex.pos;
-            vertices.push_back(vertex);
-        }
-        for(size_t j = 0; j<ind.size(); ++j)
-        {
-            indices.push_back(ind[j]+i*NUM_VERTS);
-        }
-        ++i;
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -68,7 +28,7 @@ int main(int argc, char **argv)
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+    GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -78,17 +38,8 @@ int main(int argc, char **argv)
         numThreads, deviceExtensions, swapchainSize, validationLayers
     );
 
-    uint32_t glfwExtensionCount = 0;
-    auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> surfaceExtensions(
-        glfwExtensions, glfwExtensions + glfwExtensionCount
-    );
-    auto surfaceFunc = [&](){
-        glfwCreateWindowSurface(
-            device.instance(), window, nullptr, &device.surface()
-        );
-    };
-    device.createSurface(surfaceFunc,800,600,surfaceExtensions);
+    WindowResize r;
+    createSurfaceGLFW(device, window, r);
 
     Attachment framebufferAttachment(device, 0, Attachment::Type::FRAMEBUFFER);
     Attachment colorAttachment(device, 1, Attachment::Type::COLOR);
@@ -115,7 +66,6 @@ int main(int argc, char **argv)
     std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
     Renderpass renderpass(device,subpasses);
 
-    // Set up UBO.
     DynamicBuffer ubo(device, sizeof(UniformBufferObject));
 
     Descriptor descriptor0(device, swapchainSize);
