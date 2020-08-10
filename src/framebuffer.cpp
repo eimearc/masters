@@ -1,5 +1,6 @@
 #include "device.h"
 
+#include "evk_assert.h"
 #include "pass.h"
 
 namespace evk {
@@ -55,10 +56,11 @@ void Device::Framebuffer::setup()
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];
-        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &framebuffer) != VK_SUCCESS) // TODO: Tidy.
-        {
-            throw std::runtime_error("failed to create framebuffer.");
-        }
+        EVK_ASSERT(
+            vkCreateFramebuffer(
+                m_device->device(), &framebufferInfo, nullptr, &framebuffer),
+            "failed to create framebuffer"
+        ); // TODO: Tidy.
     }
 }
 

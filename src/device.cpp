@@ -239,31 +239,34 @@ void Device::_Device::createInstance()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create instance->");
-    }
+    EVK_ASSERT(
+        vkCreateInstance(&createInfo, nullptr, &m_instance),
+        "failed to create instance"
+    );
 
     if (m_validationLayers.size() > 0)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         debugMessengerCreateInfo(createInfo); //TODO: Why is this duplicate of above?
 
-        if (createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to set up debug messenger.");
-        }
+        EVK_ASSERT(
+            createDebugUtilsMessengerEXT(
+                m_instance, &createInfo, nullptr, &m_debugMessenger),
+            "failed to set up debug messenger"
+        );
     }
 }
 
 void Device::_Device::pickPhysicalDevice()
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
-    if (deviceCount == 0)
-    {
-        throw std::runtime_error("failed to find GPUs with Vulkan support.");
-    }
+    const std::string enumerateError =
+        "failed to find GPUs with Vulkan support";
+    EVK_ASSERT(
+        vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr),
+        enumerateError
+    );
+    EVK_ASSERT_TRUE(deviceCount!=0,enumerateError);
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
@@ -275,11 +278,9 @@ void Device::_Device::pickPhysicalDevice()
             break;
         }
     }
-
-    if (m_physicalDevice == VK_NULL_HANDLE)
-    {
-        throw std::runtime_error("failed to find suitable GPU.");
-    }
+    EVK_ASSERT_TRUE(
+        m_physicalDevice!=VK_NULL_HANDLE, "failed to find suitable GPU"
+    )
 }
 
 void Device::_Device::createDevice()
@@ -321,10 +322,10 @@ void Device::_Device::createDevice()
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create logical device.");
-    }
+    EVK_ASSERT(
+        vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device),
+        "failed to create logical device."
+    );
 
     vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
     vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);

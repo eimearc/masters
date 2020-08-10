@@ -1,6 +1,6 @@
 #include "pass.h"
 
-#include <set>
+#include "evk_assert.h"
 
 namespace evk {
 
@@ -208,10 +208,12 @@ Renderpass::Renderpass(
     renderPassInfo.pSubpasses = subpassDescriptions.data();
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
-    if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create render pass.");
-    }
+    
+    EVK_ASSERT(
+        vkCreateRenderPass(
+            device.device(), &renderPassInfo, nullptr, &m_renderPass),
+        "failed to create render pass"
+    );
 }
 
 

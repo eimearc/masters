@@ -1,5 +1,6 @@
 #include "obj.h"
 
+#include "evk_assert.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -15,11 +16,11 @@ void loadOBJ(
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    if (!tinyobj::LoadObj(
-        &attrib, &shapes, &materials, &warn, &err, fileName.c_str()))
-    {
-        throw std::runtime_error(warn + err);
-    }
+    auto result = tinyobj::LoadObj(
+        &attrib, &shapes, &materials, &warn, &err, fileName.c_str()
+    );
+
+    EVK_EXPECT_TRUE(result, "could not load obj"); // TODO: Add warn and err?
 
     for (const auto &shape : shapes)
     {
