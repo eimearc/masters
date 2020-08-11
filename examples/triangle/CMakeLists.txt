@@ -41,10 +41,10 @@ add_custom_command(
 )
 
 add_custom_target(
-    shaders ALL
+    shaders_triangle ALL
     DEPENDS ${SHADERS_SPV}
 )
 
 add_executable(triangle ${FILES})
 target_link_libraries(triangle evulkan)
-add_dependencies(triangle shaders)
+add_dependencies(triangle shaders_triangle)
