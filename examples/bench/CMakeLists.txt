@@ -1,17 +1,22 @@
 include_directories(../)
+include_directories(../multipass)
 include_directories(.)
 
 set(
     FILES
     main.cpp
-    triangle.h
-    ../util.h
     bench.h
+    triangle.h
+    multipass.h
+    ../util.h
 )
 
 add_executable(bench ${FILES})
 target_link_libraries(bench evulkan)
 
-configure_file("../compile.sh" "." COPYONLY)
-configure_file("shader.frag" "." COPYONLY)
-configure_file("shader.vert" "." COPYONLY)
+configure_file("triangle_vert.spv" "." COPYONLY)
+configure_file("triangle_frag.spv" "." COPYONLY)
+configure_file("pass_0_vert.spv" "." COPYONLY)
+configure_file("pass_0_frag.spv" "." COPYONLY)
+configure_file("pass_1_vert.spv" "." COPYONLY)
+configure_file("pass_1_frag.spv" "." COPYONLY)

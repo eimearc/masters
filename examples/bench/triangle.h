@@ -2,7 +2,6 @@
 #define EVK_EXAMPLES_BENCH_TRIANGLE_H_
 
 #include "evulkan.h"
-
 #include "../util.h"
 
 using namespace evk;
@@ -55,8 +54,8 @@ class TriangleBench
             Buffer::VERTEX
         );
 
-        vertexShader = Shader(device, "shader_vert.spv", Shader::Stage::VERTEX);
-        fragmentShader = Shader(device, "shader_frag.spv", Shader::Stage::FRAGMENT);
+        vertexShader = Shader(device, "triangle_vert.spv", Shader::Stage::VERTEX);
+        fragmentShader = Shader(device, "triangle_frag.spv", Shader::Stage::FRAGMENT);
         std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
 
         pipeline = Pipeline(device, subpass, vertexInput, renderpass, shaders);
@@ -69,6 +68,11 @@ class TriangleBench
     void draw()
     {
         device.draw();
+    }
+
+    size_t numVerts()
+    {
+        return vertices.size();
     }
 
     private:

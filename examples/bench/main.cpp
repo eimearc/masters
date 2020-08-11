@@ -1,5 +1,6 @@
 #include "bench.h"
 #include <iostream>
+#include "multipass.h"
 #include "triangle.h"
 
 template<typename T>
@@ -17,6 +18,7 @@ void runBench(GLFWwindow *window, std::string fileName)
             startupTime = bench.start();
             T tb(window,t);
             bench.startupTime(startupTime);
+            bench.numVerts(tb.numVerts());
             for (size_t j = 0; j<10; ++j)
             {
                 glfwPollEvents();
@@ -37,4 +39,5 @@ int main()
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     runBench<TriangleBench>(window, "triangle.txt");
+    runBench<MultipassBench>(window, "multipass.txt");
 }
