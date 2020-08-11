@@ -1,13 +1,13 @@
 #ifndef EVK_ASSERT_H_
 #define EVK_ASSERT_H_
 
+#include <iostream>
 #define EVK_ABORT(msg) \
     {std::cerr << "FATAL ERROR: " << msg; std::abort();}
 
 // Used for assert with message at failure.
 #ifndef EVK_NDEBUG
 
-    #include <iostream>
     #define _ASSERTM(exp, msg) \
         {if(!(exp)) \
             {std::cerr << "Assertion failed: line " << __LINE__ \
