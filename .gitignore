@@ -3,7 +3,7 @@ build/
 main
 *.spv
 !tests/*.spv
-!examples/bench/*.spv
+!examples/bench/shaders/*.spv
 
 # Thesis temporary files.
 *.bbl
