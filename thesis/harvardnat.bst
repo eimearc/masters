@@ -104,6 +104,31 @@ FUNCTION {output.nonnull}
   s
 }
 
+% Use a colon to separate output. Used only for address/publisher
+% combination in book/inbook types, address/institution for manuals,
+% and organization:publisher for proceedings (inproceedings).
+%
+FUNCTION {output.nonnull.colon}
+{ 's :=
+  output.state mid.sentence =
+    { ": " * write$ }
+    { output.state after.block =
+    { add.period$ write$
+      newline$
+      "\newblock " write$
+    }
+    { output.state before.all =
+        'write$
+        { add.period$ " " * write$ }
+      if$
+    }
+      if$
+      mid.sentence 'output.state :=
+    }
+  if$
+  s
+}
+
 FUNCTION {output}
 { duplicate$ empty$
     'pop$
@@ -116,6 +141,14 @@ FUNCTION {output.check}
   duplicate$ empty$
     { pop$ "empty " t * " in " * cite$ * warning$ }
     'output.nonnull
+  if$
+}
+
+FUNCTION {output.check.colon}
+{ 't :=
+  duplicate$ empty$
+    { pop$ "empty " t * " in " * cite$ * warning$ }
+    'output.nonnull.colon
   if$
 }
 
@@ -781,6 +814,8 @@ FUNCTION {article}				% For Royal Society Paper
 %  fin.entry
 %}
 
+% http://ftp.math.utah.edu/pub/tex/bibtex/chicago.bst Similar BST file.
+
 FUNCTION {book}
 { output.bibitem
   author empty$
@@ -798,19 +833,18 @@ FUNCTION {book}
   if$
   new.block
   format.btitle "title" output.check
+  new.block format.edition output
   crossref missing$
     { format.bvolume output
-      new.block
       format.number.series output
-      new.sentence
-      publisher "publisher" output.check
+      new.block
       address output
+      publisher "publisher" output.check.colon
     }
     { new.block
       format.book.crossref output.nonnull
     }
   if$
-  format.edition output
 %  format.isbn output
 %  format.url output
   new.block
@@ -1009,7 +1043,8 @@ FUNCTION {online}
   new.block
   format.webpage "webpage" output.check
   new.block
-  format.place "address" output.check
+  address output
+  publisher "publisher" output.check.colon
   new.block
   format.url "url" output.check
   new.block

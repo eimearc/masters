@@ -1,6 +1,7 @@
 #include "device.h"
 
 #include "buffer.h"
+#include "evk_assert.h"
 #include "pipeline.h"
 
 namespace evk {
@@ -20,7 +21,8 @@ void Device::draw()
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        device, m_swapchain->m_swapchain, UINT64_MAX, imageSemaphores[currentFrame],
+        device, m_swapchain->m_swapchain, UINT64_MAX,
+        imageSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex
     );
 
@@ -28,12 +30,12 @@ void Device::draw()
         resizeWindow();
         currentFrame = 0;
         return;
-    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("failed to acquire swap chain image!");
     }
+    EVK_ASSERT_IMAGE_VALID(result, "failed to acquire swap chain image");
 
     auto &imageFence = imageFences[imageIndex];
 
+    // TODO: Remove
     // if (currentFrame != imageIndex)
         // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
 
@@ -64,10 +66,8 @@ void Device::draw()
 
     vkResetFences(device, 1, &frameFence);
 
-    if (vkQueueSubmit(graphicsQueue(), 1, &submitInfo, frameFence) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to submit draw command buffer!");
-    }
+    result = vkQueueSubmit(graphicsQueue(), 1, &submitInfo, frameFence);
+    EVK_ASSERT(result,"failed to submit draw command buffer");
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -86,13 +86,15 @@ void Device::draw()
         m_resizeRequired = false;
         resizeWindow();
     }
-    else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
     else currentFrame = ((currentFrame)+1) % swapchainSize();
+    
+    EVK_EXPECT_PRESENT_VALID(
+        result, "failed to present swap chain image"
+    );
 
     vkQueueWaitIdle(presentQueue);
 
+    // TODO: Remove?
     // currentFrame = ((currentFrame)+1) % swapchainSize();
 }
 
@@ -171,10 +173,10 @@ void Device::record()
                 allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                if (vkAllocateCommandBuffers(this->device(), &allocInfo, &secondaryCommandBuffer) != VK_SUCCESS)
-                {
-                    throw std::runtime_error("failed to allocate command buffers.");
-                }
+                auto result = vkAllocateCommandBuffers(  // TODO: Remove this->?
+                        this->device(), &allocInfo, &secondaryCommandBuffer
+                );
+                EVK_ASSERT(result,"failed to allocate command buffers");
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -187,10 +189,10 @@ void Device::record()
                 beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
                 beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-                if (vkBeginCommandBuffer(secondaryCommandBuffer, &beginInfo) != VK_SUCCESS)
-                {
-                    throw std::runtime_error("failed to begin recording command buffer.");
-                }
+                result = vkBeginCommandBuffer(
+                    secondaryCommandBuffer, &beginInfo
+                );
+                EVK_ASSERT(result,"failed to begin recording command buffer");
 
                 vkCmdBindPipeline(secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -208,10 +210,8 @@ void Device::record()
                 }
                 vkCmdDrawIndexed(secondaryCommandBuffer, numIndices, 1, indexOffset, 0, 0);
 
-                if (vkEndCommandBuffer(secondaryCommandBuffer) != VK_SUCCESS)
-                {
-                    throw std::runtime_error("failed to record command buffer.");
-                }
+                result = vkEndCommandBuffer(secondaryCommandBuffer);
+                EVK_ASSERT(result,"failed to record command buffer");
             };
 
             int counter = 0;
@@ -220,15 +220,19 @@ void Device::record()
                 t->addJob(std::bind(createDrawCommands,counter++));
             }
             this->wait();
-            vkCmdExecuteCommands(primaryCommandBuffer, secondaryCommandBuffers.size(), secondaryCommandBuffers.data());
+            vkCmdExecuteCommands(
+                primaryCommandBuffer, secondaryCommandBuffers.size(),
+                secondaryCommandBuffers.data()
+            );
         }
 
         vkCmdEndRenderPass(primaryCommandBuffer);
 
-        if (vkEndCommandBuffer(primaryCommandBuffer) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Could not end primaryCommandBuffer.");   
-        }
+        auto result = vkEndCommandBuffer(primaryCommandBuffer);
+        EVK_ASSERT(
+            result,
+            "could not end recording renderpass to primary command buffer."
+        );
     }
 }
 

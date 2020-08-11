@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include "evk_assert.h"
+
 namespace evk {
 
 Shader::Shader(
@@ -15,10 +17,10 @@ Shader::Shader(
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderCode.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
-    if (vkCreateShaderModule(device.device(), &createInfo, nullptr, &m_module) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create shader module.");
-    }
+    auto result = vkCreateShaderModule(
+        device.device(), &createInfo, nullptr, &m_module
+    );
+    EVK_ASSERT(result,"failed to create shader module");
 
     m_createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_createInfo.stage = flags;
@@ -82,10 +84,9 @@ std::vector<char> Shader::readFile(const std::string& filename) const
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
-    if (!file.is_open())
-    {
-        throw std::runtime_error("failed to open file.");
-    }
+    EVK_EXPECT_TRUE(
+        file.is_open(), "failed to open file"
+    )
 
     size_t fileSize = static_cast<size_t>(file.tellg());
     std::vector<char> buffer(fileSize);

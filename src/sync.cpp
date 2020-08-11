@@ -1,5 +1,6 @@
 #include "device.h"
 
+#include "evk_assert.h"
 #include <iostream>
 
 namespace evk {
@@ -22,14 +23,21 @@ Device::Sync::Sync(
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+    VkResult result;
     for (size_t i = 0; i < maxFramesInFlight; i++)
     {
-        if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &(m_imageAvailableSemaphores)[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &(m_renderFinishedSemaphores)[i]) != VK_SUCCESS ||
-            vkCreateFence(m_device, &fenceInfo, nullptr, &(m_fencesInFlight)[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create semaphores for a frame.");
-        }
+        result = vkCreateSemaphore(
+            m_device, &semaphoreInfo, nullptr,&(m_imageAvailableSemaphores)[i]
+        );
+        EVK_ASSERT(result, "failed to create image available semaphore\n");
+        result = vkCreateSemaphore(
+            m_device, &semaphoreInfo, nullptr,&(m_renderFinishedSemaphores)[i]
+        );
+        EVK_ASSERT(result,"failed to create render finished semaphore\n");
+        result = vkCreateFence(
+            m_device, &fenceInfo, nullptr, &(m_fencesInFlight)[i]
+        );
+        EVK_ASSERT(result,"failed to create fence\n");
     }
 }
 

@@ -1,5 +1,7 @@
 #include "device.h"
 
+#include "evk_assert.h"
+
 namespace evk {
 
 Device::Swapchain::Swapchain(
@@ -28,10 +30,12 @@ void Device::Swapchain::setup() noexcept
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = m_swapchainSize;
-    // if (imageCount < swapChainSupport.capabilities.minImageCount || imageCount > swapChainSupport.capabilities.maxImageCount)
-    // {
-    //     throw std::runtime_error("Please specify an image count within the swapchain capabilites.");
-    // }
+    bool validSwapchainSize =
+        imageCount >= swapChainSupport.capabilities.minImageCount &&
+        imageCount <= swapChainSupport.capabilities.maxImageCount;
+    EVK_EXPECT_TRUE(
+        validSwapchainSize, "swapchain size outside of swapchain capabilities"
+    );
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -190,7 +194,7 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
         }
     }
 
-    throw std::runtime_error("no suitable format found in available formats.");
+    EVK_ABORT("no suitable surface format found in available formats\n");
 }
 
 void Device::Swapchain::recreate()

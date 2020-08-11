@@ -1,5 +1,7 @@
 #include "device.h"
 
+#include "evk_assert.h"
+
 namespace evk {
 
 Device::Commands::Commands(
@@ -21,10 +23,10 @@ Device::Commands::Commands(
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
         poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create command pool.");
-        }
+        auto result = vkCreateCommandPool(
+            m_device, &poolInfo, nullptr, &commandPool
+        );
+        EVK_ASSERT(result, "failed to create command pool.");
     }
 
     m_primaryCommandBuffers.resize(swapchainSize);
@@ -33,7 +35,8 @@ Device::Commands::Commands(
     allocInfo.commandPool = m_commandPools[0];
     allocInfo.commandBufferCount = 1;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    for (auto &cb : m_primaryCommandBuffers) vkAllocateCommandBuffers(m_device, &allocInfo, &cb);
+    for (auto &cb : m_primaryCommandBuffers)
+        vkAllocateCommandBuffers(m_device, &allocInfo, &cb);
 
     m_secondaryCommandBuffers.resize(numThreads);
 }

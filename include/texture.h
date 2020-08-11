@@ -44,6 +44,8 @@ class Texture
     bool operator!=(const Texture&) const noexcept;
 
     private:
+    enum class Transition {INITIAL,SHADER};
+
     void copyBufferToImage(
         const Device &device,
         VkCommandPool commandPool,
@@ -56,8 +58,7 @@ class Texture
         VkCommandPool commandPool,
         VkImage image,
         VkFormat format,
-        VkImageLayout oldLayout,
-        VkImageLayout newLayout
+        Transition transition
     );
     void reset() noexcept;
 
