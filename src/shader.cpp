@@ -67,6 +67,8 @@ Shader::~Shader() noexcept
 {
     if (m_module!=VK_NULL_HANDLE)
         vkDestroyShaderModule(m_device, m_module, nullptr);
+    m_module=VK_NULL_HANDLE;
+    m_createInfo={};
 }
 
 VkShaderStageFlagBits Shader::stageFlags(const Stage &shaderStage)

@@ -13,15 +13,13 @@ int main()
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     time_point startupTime, frameTime;
-    for (size_t i = 0; i<5; ++i)
+    for (size_t i = 0; i<10; ++i)
     {
-        std::cout << "HERE" << i << std::endl;
         startupTime = bench.start();
         TriangleBench tb(window);
         bench.startupTime(startupTime);
-        for (size_t j = 0; j<5; ++j)
+        for (size_t j = 0; j<10; ++j)
         {
-            std::cout << "\t" << j << std::endl;
             glfwPollEvents();
             frameTime = bench.start();
             tb.draw();
