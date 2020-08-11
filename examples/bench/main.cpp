@@ -1,5 +1,4 @@
 #include "bench.h"
-#include <iostream>
 #include "multipass.h"
 #include "obj.h"
 #include "triangle.h"
