@@ -13,9 +13,8 @@ class TriangleBench
     TriangleBench()=default;
     ~TriangleBench()=default;
 
-    TriangleBench(GLFWwindow *window)
+    TriangleBench(GLFWwindow *window, size_t numThreads)
     {
-        const uint32_t numThreads = 1;
         const uint32_t swapchainSize = 2;
 
         device = Device(

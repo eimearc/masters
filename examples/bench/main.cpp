@@ -5,7 +5,7 @@
 int main()
 {
     Bench bench;
-    bench.open("triange.txt");
+    bench.open("triangle.txt");
 
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -13,18 +13,22 @@ int main()
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
     time_point startupTime, frameTime;
-    for (size_t i = 0; i<10; ++i)
+    for (size_t t = 1; t <= 4; ++t)
     {
-        startupTime = bench.start();
-        TriangleBench tb(window);
-        bench.startupTime(startupTime);
-        for (size_t j = 0; j<10; ++j)
+        bench.numThreads(t);
+        for (size_t i = 0; i<10; ++i)
         {
-            glfwPollEvents();
-            frameTime = bench.start();
-            tb.draw();
-            bench.frameTime(frameTime);
-            bench.record();
+            startupTime = bench.start();
+            TriangleBench tb(window,t);
+            bench.startupTime(startupTime);
+            for (size_t j = 0; j<10; ++j)
+            {
+                glfwPollEvents();
+                frameTime = bench.start();
+                tb.draw();
+                bench.frameTime(frameTime);
+                bench.record();
+            }
         }
     }
 }

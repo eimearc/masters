@@ -21,8 +21,14 @@ class Bench
     {
         std::ios_base::openmode mode = std::fstream::out;
         m_file.open(file, mode);
+        m_file<<"numThreads,";
         m_file<<"frame,";
         m_file<<"startup\n";
+    }
+
+    void numThreads(size_t numThreads)
+    {
+        m_numThreads = numThreads;
     }
 
     time_point start()
@@ -44,6 +50,7 @@ class Bench
 
     void record()
     {
+        m_file<<m_numThreads<<",";
         m_file<<m_frame<<",";
         m_file<<m_startup;
         m_file<<"\n";
@@ -56,6 +63,7 @@ class Bench
 
     private:
     std::fstream m_file;
+    size_t m_numThreads=1;
     float m_frame=0.0f;
     float m_startup=0.0f;
 
