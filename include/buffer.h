@@ -92,6 +92,7 @@ class Buffer
 class DynamicBuffer : public Buffer
 {
     public:
+    DynamicBuffer()=default;
     /**
      * Creates a DynamicBuffer.
      * @param[in] device the device used to construct the Buffer.
@@ -126,6 +127,7 @@ class DynamicBuffer : public Buffer
 class StaticBuffer : public Buffer
 {
     public:
+    StaticBuffer()=default;
     /**
      * Creates a StaticBuffer.
      * @param[in] device the device used to construct the Buffer.
