@@ -10,7 +10,7 @@ set(
     SHADERS_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/shader.frag"
     "${CMAKE_CURRENT_SOURCE_DIR}/shader.vert"
-    "${CMAKE_CURRENT_SOURCE_DIR}/compile.sh"
+    "${COMPILE_SRC_SCRIPT}"
 )
 
 set(
@@ -36,6 +36,7 @@ add_custom_command(
 add_custom_command(
     OUTPUT ${SHADERS_SPV}
     COMMAND ./compile.sh && rm ${SHADERS_BIN}
+    COMMENT "Compiling shader files and removing redundant files."
     DEPENDS ${SHADERS_BIN}
 )
 
