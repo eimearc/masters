@@ -1,6 +1,7 @@
 #include "bench.h"
 #include <iostream>
 #include "multipass.h"
+#include "obj.h"
 #include "triangle.h"
 
 template<typename T>
@@ -38,6 +39,9 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
-    runBench<TriangleBench>(window, "triangle.txt");
-    runBench<MultipassBench>(window, "multipass.txt");
+    const std::string dir = "timings/"; // This needs to be changed for Windows.
+
+    runBench<TriangleBench>(window, dir + "triangle.txt");
+    runBench<MultipassBench>(window, dir + "multipass.txt");
+    runBench<ObjBench>(window, dir + "obj.txt");
 }
