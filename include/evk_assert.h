@@ -8,24 +8,30 @@
 #ifndef EVK_NDEBUG
 
     #include <iostream>
-    #define _ASSERTM(exp, msg) assert(((void)msg, exp))
+    #define _ASSERTM(exp, msg) \
+        {if(!(exp)) \
+            {std::cerr << "Assertion failed: line " << __LINE__ \
+                << " of file " << __FILE__ << " -- " << msg;}}
+    #define _EXPECTM(msg) \
+        {std::cerr << "Warning: Expect true failed: line " << __LINE__ \
+                << " of file " << __FILE__ << " -- " << msg;}
     #define EVK_ASSERT(x,msg) \
-        {_ASSERTM(x==VK_SUCCESS,msg);}
+        {_ASSERTM((x==VK_SUCCESS),msg);}
     #define EVK_ASSERT_TRUE(x,msg) \
         {_ASSERTM(x,msg);}
     #define EVK_EXPECT_TRUE(x,msg) \
-        {if(!x) std::cerr << "Warning: " << msg;}
+        {if(!(x)) _EXPECTM(msg);}
     #define EVK_ASSERT_IMAGE_VALID(x,msg) \
         {_ASSERTM( \
-            (x==VK_ERROR_OUT_OF_DATE_KHR || \
-            x==VK_SUBOPTIMAL_KHR || \
-            x==VK_SUCCESS),msg);}
+            ((x==VK_ERROR_OUT_OF_DATE_KHR) || \
+            (x==VK_SUBOPTIMAL_KHR) || \
+            (x==VK_SUCCESS)),msg);}
     #define EVK_EXPECT_PRESENT_VALID(x,msg) \
         {if( \
             x!=VK_ERROR_OUT_OF_DATE_KHR && \
             x!=VK_SUBOPTIMAL_KHR && \
             x!=VK_SUCCESS) \
-            std::cerr << "Warning: " << msg;}
+            _EXPECTM(msg);}
 
 #else
 
