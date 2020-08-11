@@ -50,8 +50,10 @@ class Device
      * Constructs a Device without validation layers.
      * @param[in] numThreads the number of threads the Device should use.
      * @param[in] deviceExtensions the extensions required to create the device.
-     * @param[in] swapchainSize the number of images used by the swapchain,
-     *  generally between two and three.
+     * @param[in] swapchainSize the number of images used by the swapchain. A
+     *  graphics card has a minimum number of images it needs to function, in
+     *  addition to a maximum. The capabilities of a graphics card are
+     *  available to view by running the `vulkaninfo` command.
      */
     Device(
         uint32_t numThreads,
@@ -64,8 +66,10 @@ class Device
      *  developing programs.
      * @param[in] numThreads the number of threads the Device should use.
      * @param[in] deviceExtensions the extensions required to create the device.
-     * @param[in] swapchainSize the number of images used by the swapchain,
-     *  generally between two and three.
+     * @param[in] swapchainSize the number of images used by the swapchain. A
+     *  graphics card has a minimum number of images it needs to function, in
+     *  addition to a maximum. The capabilities of a graphics card are
+     *  available to view by running the `vulkaninfo` command.
      * @param[in] validationLayers the layers to use for validation.
      */
     Device(
