@@ -139,11 +139,10 @@ Texture::Texture(
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    EVK_ASSERT(
-        vkCreateSampler(
-            device.device(), &samplerInfo, nullptr, &m_imageSampler),
-        "failed to create texture sampler\n"
+    auto result = vkCreateSampler(
+        device.device(), &samplerInfo, nullptr, &m_imageSampler
     );
+    EVK_ASSERT(result,"failed to create texture sampler\n");
 }
 
 void Texture::transitionImageLayout(

@@ -90,11 +90,10 @@ void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayo
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    EVK_ASSERT(
-        vkCreatePipelineLayout(
-            m_device->device(), &pipelineLayoutInfo, nullptr, &m_layout),
-        "failed to create pipeline layout"
+    auto result = vkCreatePipelineLayout(
+        m_device->device(), &pipelineLayoutInfo, nullptr, &m_layout
     );
+    EVK_ASSERT(result,"failed to create pipeline layout");
 }
 
 bool Pipeline::operator==(const Pipeline &other) const noexcept
@@ -279,12 +278,11 @@ void Pipeline::setup()
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.pDepthStencilState = &depthStencil;
 
-    EVK_ASSERT(
-        vkCreateGraphicsPipelines(
-            m_device->device(), VK_NULL_HANDLE, 1, &pipelineInfo,
-            nullptr, &m_pipeline),
-        "failed to create graphics pipeline"
+    auto result = vkCreateGraphicsPipelines(
+        m_device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+        &m_pipeline
     );
+    EVK_ASSERT(result, "failed to create graphics pipeline");
 }
 
 void Pipeline::recreate()

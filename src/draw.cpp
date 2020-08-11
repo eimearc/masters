@@ -31,9 +31,7 @@ void Device::draw()
         currentFrame = 0;
         return;
     }
-    EVK_ASSERT_IMAGE_VALID(
-        result, "failed to acquire swap chain image"
-    );
+    EVK_ASSERT_IMAGE_VALID(result, "failed to acquire swap chain image");
 
     auto &imageFence = imageFences[imageIndex];
 
@@ -68,10 +66,8 @@ void Device::draw()
 
     vkResetFences(device, 1, &frameFence);
 
-    EVK_ASSERT(
-        vkQueueSubmit(graphicsQueue(), 1, &submitInfo, frameFence),
-        "failed to submit draw command buffer"
-    )
+    result = vkQueueSubmit(graphicsQueue(), 1, &submitInfo, frameFence);
+    EVK_ASSERT(result,"failed to submit draw command buffer");
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -177,11 +173,10 @@ void Device::record()
                 allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                EVK_ASSERT(
-                    vkAllocateCommandBuffers(  // TODO: Remove this->?
-                        this->device(), &allocInfo, &secondaryCommandBuffer),
-                    "failed to allocate command buffers"
+                auto result = vkAllocateCommandBuffers(  // TODO: Remove this->?
+                        this->device(), &allocInfo, &secondaryCommandBuffer
                 );
+                EVK_ASSERT(result,"failed to allocate command buffers");
 
                 VkCommandBufferInheritanceInfo inheritanceInfo = {};
                 inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -194,10 +189,10 @@ void Device::record()
                 beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
                 beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-                EVK_ASSERT(
-                    vkBeginCommandBuffer(secondaryCommandBuffer, &beginInfo),
-                    "failed to begin recording command buffer"
+                result = vkBeginCommandBuffer(
+                    secondaryCommandBuffer, &beginInfo
                 );
+                EVK_ASSERT(result,"failed to begin recording command buffer");
 
                 vkCmdBindPipeline(secondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -215,10 +210,8 @@ void Device::record()
                 }
                 vkCmdDrawIndexed(secondaryCommandBuffer, numIndices, 1, indexOffset, 0, 0);
 
-                EVK_ASSERT(
-                    vkEndCommandBuffer(secondaryCommandBuffer),
-                    "failed to record command buffer"
-                );
+                result = vkEndCommandBuffer(secondaryCommandBuffer);
+                EVK_ASSERT(result,"failed to record command buffer");
             };
 
             int counter = 0;
@@ -235,8 +228,9 @@ void Device::record()
 
         vkCmdEndRenderPass(primaryCommandBuffer);
 
+        auto result = vkEndCommandBuffer(primaryCommandBuffer);
         EVK_ASSERT(
-            vkEndCommandBuffer(primaryCommandBuffer),
+            result,
             "could not end recording renderpass to primary command buffer."
         );
     }

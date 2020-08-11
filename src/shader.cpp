@@ -17,10 +17,10 @@ Shader::Shader(
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderCode.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
-    EVK_ASSERT(
-        vkCreateShaderModule(device.device(), &createInfo, nullptr, &m_module),
-        "failed to create shader module"
+    auto result = vkCreateShaderModule(
+        device.device(), &createInfo, nullptr, &m_module
     );
+    EVK_ASSERT(result,"failed to create shader module");
 
     m_createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     m_createInfo.stage = flags;

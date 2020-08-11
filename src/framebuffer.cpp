@@ -56,11 +56,10 @@ void Device::Framebuffer::setup()
         }
         framebufferInfo.pAttachments = imageViews.data();
         auto &framebuffer = m_framebuffers[i];
-        EVK_ASSERT(
-            vkCreateFramebuffer(
-                m_device->device(), &framebufferInfo, nullptr, &framebuffer),
-            "failed to create framebuffer"
-        ); // TODO: Tidy.
+        auto result =  vkCreateFramebuffer(
+            m_device->device(), &framebufferInfo, nullptr, &framebuffer
+        );
+        EVK_ASSERT(result,"failed to create framebuffer"); // TODO: Tidy.
     }
 }
 

@@ -209,11 +209,10 @@ Renderpass::Renderpass(
     renderPassInfo.dependencyCount = dependencies.size();
     renderPassInfo.pDependencies = dependencies.data();
     
-    EVK_ASSERT(
-        vkCreateRenderPass(
-            device.device(), &renderPassInfo, nullptr, &m_renderPass),
-        "failed to create render pass"
+    auto result = vkCreateRenderPass(
+        device.device(), &renderPassInfo, nullptr, &m_renderPass
     );
+    EVK_ASSERT(result,"failed to create render pass");
 }
 
 

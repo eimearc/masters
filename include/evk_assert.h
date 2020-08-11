@@ -11,7 +11,7 @@
     #define _ASSERTM(exp, msg) \
         {if(!(exp)) \
             {std::cerr << "Assertion failed: line " << __LINE__ \
-                << " of file " << __FILE__ << " -- " << msg;}}
+                << " of file " << __FILE__ << " -- " << msg;std::abort();}}
     #define _EXPECTM(msg) \
         {std::cerr << "Warning: Expect true failed: line " << __LINE__ \
                 << " of file " << __FILE__ << " -- " << msg;}
@@ -39,6 +39,7 @@
     #define EVK_ASSERT_TRUE(x,msg)
     #define EVK_EXPECT_TRUE(x,msg)
     #define EVK_ASSERT_IMAGE_VALID(x,msg)
+    #define EVK_EXPECT_PRESENT_VALID(x,msg)
     #define EVK_ASSERT_PRESENT_VALID(x,msg)
 
 #endif

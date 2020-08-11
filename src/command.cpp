@@ -23,10 +23,10 @@ Device::Commands::Commands(
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
         poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        EVK_ASSERT(
-            vkCreateCommandPool(m_device, &poolInfo, nullptr, &commandPool),
-            "Failed to create command pool."
+        auto result = vkCreateCommandPool(
+            m_device, &poolInfo, nullptr, &commandPool
         );
+        EVK_ASSERT(result, "failed to create command pool.");
     }
 
     m_primaryCommandBuffers.resize(swapchainSize);

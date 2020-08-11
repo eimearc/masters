@@ -33,10 +33,8 @@ void createImage(
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
 
-    EVK_ASSERT(
-        vkCreateImage(device, &imageInfo, nullptr, pImage),
-        "failed to create image\n"
-    );
+    auto result = vkCreateImage(device, &imageInfo, nullptr, pImage);
+    EVK_ASSERT(result,"failed to create image\n");
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, *pImage, &memRequirements);
@@ -47,10 +45,8 @@ void createImage(
         physicalDevice, memRequirements.memoryTypeBits, properties
     );
 
-    EVK_ASSERT(
-        vkAllocateMemory(device, &allocInfo, nullptr, pImageMemory),
-        "failed to allocate image memory"
-    );
+    result = vkAllocateMemory(device, &allocInfo, nullptr, pImageMemory);
+    EVK_ASSERT(result, "failed to allocate image memory");
 
     vkBindImageMemory(device, *pImage, *pImageMemory, 0);
 }
@@ -73,10 +69,8 @@ void createImageView(
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    EVK_ASSERT(
-        vkCreateImageView(device, &viewInfo, nullptr, pImageView),
-        "failed to create texture image view\n"
-    );
+    auto result = vkCreateImageView(device, &viewInfo, nullptr, pImageView);
+    EVK_ASSERT(result, "failed to create texture image view\n");
 }
 
 void createBuffer(
@@ -94,10 +88,8 @@ void createBuffer(
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    EVK_ASSERT(
-        vkCreateBuffer(device, &bufferInfo, nullptr, pBuffer),
-        "failed to create buffer\n"
-    );
+    auto result = vkCreateBuffer(device, &bufferInfo, nullptr, pBuffer);
+    EVK_ASSERT(result,"failed to create buffer\n");
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, *pBuffer, &memRequirements);
@@ -107,14 +99,10 @@ void createBuffer(
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-    EVK_ASSERT(
-        vkAllocateMemory(device, &allocInfo, nullptr, pBufferMemory),
-        "failed to allocate buffer memory"
-    );
-    EVK_ASSERT(
-        vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0),
-        "failed to bind buffer memory"
-    );
+    result = vkAllocateMemory(device, &allocInfo, nullptr, pBufferMemory);
+    EVK_ASSERT(result, "failed to allocate buffer memory");
+    result = vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0);
+    EVK_ASSERT(result, "failed to bind buffer memory");
 }
 
 uint32_t findMemoryType(

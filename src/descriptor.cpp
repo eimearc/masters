@@ -101,10 +101,8 @@ void Descriptor::allocateDescriptorPool()
     poolInfo.pPoolSizes = m_poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(m_swapchainSize*2);
 
-    EVK_ASSERT(
-        vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_pool),
-        "failed to create descriptor pool."
-    );
+    auto result = vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_pool);
+    EVK_ASSERT(result,"failed to create descriptor pool.");
 }
 
 void Descriptor::removeEmptyPoolSizes()
@@ -150,19 +148,18 @@ void Descriptor::allocateDescriptorSets()
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(vertexBindings.size());
     layoutInfo.pBindings = vertexBindings.data();
-    EVK_ASSERT(
-        vkCreateDescriptorSetLayout(
-            m_device, &layoutInfo, nullptr, &m_setLayouts[0]),
-        "failed to create vertex descriptor set layout."
+   
+    auto result = vkCreateDescriptorSetLayout(
+            m_device, &layoutInfo, nullptr, &m_setLayouts[0]
     );
+    EVK_ASSERT(result,"failed to create vertex descriptor set layout.");
 
     layoutInfo.bindingCount = static_cast<uint32_t>(fragmentBindings.size());
     layoutInfo.pBindings = fragmentBindings.data();
-    EVK_ASSERT(
-        vkCreateDescriptorSetLayout(
-            m_device, &layoutInfo, nullptr, &m_setLayouts[1]),
-        "failed to create fragment descriptor set layout."
+    result = vkCreateDescriptorSetLayout(
+            m_device, &layoutInfo, nullptr, &m_setLayouts[1]
     );
+    EVK_ASSERT(result,"failed to create fragment descriptor set layout.");
 
     // TODO: Start here tomorrow: need a way of updating the input attachment.
 
@@ -173,10 +170,8 @@ void Descriptor::allocateDescriptorSets()
     allocInfo.descriptorPool = m_pool;
     allocInfo.descriptorSetCount = m_setLayouts.size();
     allocInfo.pSetLayouts = m_setLayouts.data();
-    EVK_ASSERT(
-        vkAllocateDescriptorSets(m_device, &allocInfo, m_sets.data()),
-        "failed to allocate descriptor sets."
-    );
+    result = vkAllocateDescriptorSets(m_device, &allocInfo, m_sets.data());
+    EVK_ASSERT(result, "failed to allocate descriptor sets.");
 
     removeEmptyWriteSets();
     for (auto &ds : m_writeSetVertex) ds.dstSet=m_sets[0];

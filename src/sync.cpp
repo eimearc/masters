@@ -23,25 +23,21 @@ Device::Sync::Sync(
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+    VkResult result;
     for (size_t i = 0; i < maxFramesInFlight; i++)
     {
-        EVK_ASSERT(
-            vkCreateSemaphore(
-                m_device, &semaphoreInfo, nullptr,
-                &(m_imageAvailableSemaphores)[i]),
-            "failed to create image available semaphore\n"
+        result = vkCreateSemaphore(
+            m_device, &semaphoreInfo, nullptr,&(m_imageAvailableSemaphores)[i]
         );
-        EVK_ASSERT(
-            vkCreateSemaphore(
-                m_device, &semaphoreInfo, nullptr,
-                &(m_renderFinishedSemaphores)[i]),
-            "failed to create render finished semaphore\n"
+        EVK_ASSERT(result, "failed to create image available semaphore\n");
+        result = vkCreateSemaphore(
+            m_device, &semaphoreInfo, nullptr,&(m_renderFinishedSemaphores)[i]
         );
-        EVK_ASSERT(
-            vkCreateFence(
-                m_device, &fenceInfo, nullptr, &(m_fencesInFlight)[i]),
-            "failed to create fence\n"
+        EVK_ASSERT(result,"failed to create render finished semaphore\n");
+        result = vkCreateFence(
+            m_device, &fenceInfo, nullptr, &(m_fencesInFlight)[i]
         );
+        EVK_ASSERT(result,"failed to create fence\n");
     }
 }
 

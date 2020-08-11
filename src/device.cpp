@@ -239,21 +239,18 @@ void Device::_Device::createInstance()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    EVK_ASSERT(
-        vkCreateInstance(&createInfo, nullptr, &m_instance),
-        "failed to create instance"
-    );
+    auto result = vkCreateInstance(&createInfo, nullptr, &m_instance);
+    EVK_ASSERT(result,"failed to create instance");
 
     if (m_validationLayers.size() > 0)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         debugMessengerCreateInfo(createInfo); //TODO: Why is this duplicate of above?
 
-        EVK_ASSERT(
-            createDebugUtilsMessengerEXT(
-                m_instance, &createInfo, nullptr, &m_debugMessenger),
-            "failed to set up debug messenger"
+        result = createDebugUtilsMessengerEXT(
+            m_instance, &createInfo, nullptr, &m_debugMessenger
         );
+        EVK_ASSERT(result, "failed to set up debug messenger");
     }
 }
 
@@ -262,10 +259,8 @@ void Device::_Device::pickPhysicalDevice()
     uint32_t deviceCount = 0;
     const std::string enumerateError =
         "failed to find GPUs with Vulkan support";
-    EVK_ASSERT(
-        vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr),
-        enumerateError
-    );
+    auto result = vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+    EVK_ASSERT(result,enumerateError);
     EVK_ASSERT_TRUE(deviceCount!=0,enumerateError);
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -322,10 +317,10 @@ void Device::_Device::createDevice()
         createInfo.enabledLayerCount = 0;
     }
 
-    EVK_ASSERT(
-        vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device),
-        "failed to create logical device."
+    auto result = vkCreateDevice(
+        m_physicalDevice, &createInfo, nullptr, &m_device
     );
+    EVK_ASSERT(result, "failed to create logical device.");
 
     vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
     vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
