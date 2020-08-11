@@ -4,6 +4,9 @@
 #include "obj.h"
 #include "triangle.h"
 
+const size_t NUM_SETUPS = 10;
+const size_t NUM_FRAMES = 10;
+
 template<typename T>
 void runBench(GLFWwindow *window, std::string fileName)
 {
@@ -14,13 +17,13 @@ void runBench(GLFWwindow *window, std::string fileName)
     for (size_t t = 1; t <= 4; ++t)
     {
         bench.numThreads(t);
-        for (size_t i = 0; i<10; ++i)
+        for (size_t i = 0; i<NUM_SETUPS; ++i)
         {
             startupTime = bench.start();
             T tb(window,t);
             bench.startupTime(startupTime);
             bench.numVerts(tb.numVerts());
-            for (size_t j = 0; j<10; ++j)
+            for (size_t j = 0; j<NUM_FRAMES; ++j)
             {
                 glfwPollEvents();
                 frameTime = bench.start();
@@ -39,9 +42,7 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
-    const std::string dir = "timings/"; // This needs to be changed for Windows.
-
-    runBench<TriangleBench>(window, dir + "triangle.txt");
-    runBench<MultipassBench>(window, dir + "multipass.txt");
-    runBench<ObjBench>(window, dir + "obj.txt");
+    runBench<TriangleBench>(window, "triangle.txt");
+    runBench<MultipassBench>(window, "multipass.txt");
+    runBench<ObjBench>(window, "obj.txt");
 }
