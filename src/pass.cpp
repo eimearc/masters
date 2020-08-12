@@ -9,7 +9,8 @@ Subpass::Subpass(
     const std::vector<Dependency> &dependencies,
     const std::vector<Attachment*> &colorAttachments,
     const std::vector<Attachment*> &depthAttachments,
-    const std::vector<Attachment*> &inputAttachments)
+    const std::vector<Attachment*> &inputAttachments
+) noexcept
 {
     m_index = index;
     for (const auto &d : dependencies) addDependency(d);
@@ -84,7 +85,7 @@ bool Subpass::operator!=(const Subpass &other) const noexcept
     return !(*this==other);
 }
 
-void Subpass::addDependency(Dependency dep)
+void Subpass::addDependency(Dependency dep) noexcept
 {
     VkSubpassDependency dependency;
     dependency.srcSubpass = dep;
@@ -99,7 +100,8 @@ void Subpass::addDependency(Dependency dep)
 
 bool Subpass::referenceEqual(
     const VkAttachmentReference &a,
-    const VkAttachmentReference &b)
+    const VkAttachmentReference &b
+) noexcept
 {
     bool result=true;
     result &= (a.attachment == b.attachment);
@@ -124,7 +126,7 @@ Renderpass& Renderpass::operator=(Renderpass &&other) noexcept
     return *this;
 }
 
-void Renderpass::reset()
+void Renderpass::reset() noexcept
 {
     m_attachments.resize(0);
     m_clearValues.resize(0);
@@ -135,7 +137,7 @@ void Renderpass::reset()
 
 void Renderpass::setAttachmentInfo(
     AttachmentInfo &info, Attachment *pAttachment
-)
+) noexcept
 {
     const uint32_t index = pAttachment->index();
     if (info.attachments.size()<=index)
@@ -151,7 +153,7 @@ void Renderpass::setAttachmentInfo(
 
 Renderpass::AttachmentInfo Renderpass::attachmentInfo(
     const std::vector<Subpass*> &subpasses
-)
+) noexcept
 {
     AttachmentInfo info;
     for (const auto &s : subpasses)
@@ -168,7 +170,8 @@ Renderpass::AttachmentInfo Renderpass::attachmentInfo(
 
 Renderpass::Renderpass(
     const Device &device,
-    std::vector<Subpass*> &subpasses)
+    std::vector<Subpass*> &subpasses
+) noexcept
 {
     m_device = device.device();
     m_subpasses = subpasses;
@@ -182,7 +185,8 @@ Renderpass::Renderpass(
     attachmentDescriptions = info.descriptions;
     m_clearValues = info.clearValues;
 
-    for (const auto &sp : subpasses) subpassDescriptions.push_back(sp->description()); 
+    for (const auto &sp : subpasses)
+        subpassDescriptions.push_back(sp->description()); 
 
     VkSubpassDependency dependency;
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -190,7 +194,8 @@ Renderpass::Renderpass(
     dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     dependencies.push_back(dependency);
 

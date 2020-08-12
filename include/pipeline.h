@@ -61,7 +61,7 @@ class Pipeline
         const VertexInput &vertexInput,
         Renderpass &renderpass,
         const std::vector<Shader*> &shaders
-    );
+    ) noexcept;
 
     /**
      * Creates a Pipeline without an attached descriptor.
@@ -77,23 +77,23 @@ class Pipeline
         const VertexInput &vertexInput,
         Renderpass &renderpass,
         const std::vector<Shader*> &shaders
-    );
+    ) noexcept;
 
     bool operator==(const Pipeline&) const noexcept;
     bool operator!=(const Pipeline&) const noexcept;
 
     private:
+    Descriptor* const descriptor() const noexcept { return m_descriptor; };
+    VkPipelineLayout layout() const noexcept { return m_layout; };
+    VkPipeline pipeline() const noexcept { return m_pipeline; };
+    Renderpass* const renderpass() const noexcept { return m_renderpass; };
+
     void createSetLayout(
         const std::vector<VkDescriptorSetLayout> &setLayouts
-    );
-    void recreate();
-    void reset();
-    void setup();
-
-    Descriptor* const descriptor() const { return m_descriptor; };
-    VkPipelineLayout layout() const { return m_layout; };
-    VkPipeline pipeline() const { return m_pipeline; };
-    Renderpass* const renderpass() const { return m_renderpass; };
+    ) noexcept;
+    void recreate() noexcept;
+    void reset() noexcept;
+    void setup() noexcept;
 
     Descriptor* m_descriptor=nullptr;
     Device *m_device=nullptr;

@@ -85,7 +85,8 @@ StaticBuffer::StaticBuffer(
     const void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    const Type &type)
+    const Type &type
+) noexcept
 {
     m_elementSize=elementSize;
     m_numElements=numElements;
@@ -104,7 +105,8 @@ StaticBuffer::StaticBuffer(
 
 void StaticBuffer::finalize(
     Device &device,
-    const Type &type) noexcept
+    const Type &type
+) noexcept
 {
     const std::vector<VkCommandPool> &commandPools = device.commandPools();
 
@@ -231,7 +233,8 @@ void StaticBuffer::copyData(
 
 DynamicBuffer::DynamicBuffer(
     const Device &device,
-    const VkDeviceSize &bufferSize) // TODO: Add type!!
+    const VkDeviceSize &bufferSize
+) noexcept // TODO: Add type!!
 {
     m_device = device.device();
     m_bufferSize=bufferSize;
@@ -261,7 +264,8 @@ DynamicBuffer::DynamicBuffer(
     const void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    const Type &type)
+    const Type &type
+) noexcept
 {
     m_device = device.device();
     m_physicalDevice=device.physicalDevice();

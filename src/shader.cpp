@@ -7,7 +7,8 @@ namespace evk {
 Shader::Shader(
     const Device &device,
     const std::string &fileName,
-    const Stage &stage)
+    const Stage &stage
+)
 {   
     m_device=device.device();
     auto flags = stageFlags(stage);
@@ -71,7 +72,7 @@ Shader::~Shader() noexcept
     m_createInfo={};
 }
 
-VkShaderStageFlagBits Shader::stageFlags(const Stage &shaderStage)
+VkShaderStageFlagBits Shader::stageFlags(const Stage &shaderStage) noexcept
 {
     switch (shaderStage)
     {

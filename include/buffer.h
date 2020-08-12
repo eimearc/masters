@@ -101,7 +101,7 @@ class DynamicBuffer : public Buffer
     DynamicBuffer(
         const Device &device,
         const VkDeviceSize &bufferSize
-    );
+    ) noexcept;
     /**
      * Creates a DynamicBuffer.
      * @param[in] device the device used to construct the Buffer.
@@ -116,7 +116,7 @@ class DynamicBuffer : public Buffer
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
-    );
+    ) noexcept;
     /**
      * Updates a DynamicBuffer.
      * @param[in] data a pointer to the data which will fill the Buffer.
@@ -142,7 +142,7 @@ class StaticBuffer : public Buffer
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
-    );
+    ) noexcept;
 
     private:
     void copyData(

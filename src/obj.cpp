@@ -9,7 +9,8 @@ namespace evk {
 void loadOBJ(
     const std::string &fileName,
     std::vector<Vertex> &vertices,
-    std::vector<uint32_t> &indices)
+    std::vector<uint32_t> &indices
+)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
