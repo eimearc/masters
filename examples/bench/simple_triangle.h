@@ -1,3 +1,8 @@
+/// @brief SimpleTriangleBenchmark
+/// Modified from :-
+/// Vulkan-Tutorial (2017). Creates a simple triangle in Vulkan [online]. [Accessed 2020]. 
+/// Available from: "https://vulkan-tutorial.com/".
+
 #ifndef EVK_EXAMPLES_BENCH_SIMPLE_TRIANGLE_H_
 #define EVK_EXAMPLES_BENCH_SIMPLE_TRIANGLE_H_
 
