@@ -7,7 +7,8 @@ namespace evk {
 
 Device::Framebuffer::Framebuffer(
     Device &device,
-    Renderpass &renderpass) // This should be part of attachment creation.
+    Renderpass &renderpass
+) // This should be part of attachment creation.
 {
     m_device = &device;
     m_framebuffers.resize(device.swapchainSize());
@@ -17,7 +18,7 @@ Device::Framebuffer::Framebuffer(
     setup();
 }
 
-void Device::Framebuffer::recreate()
+void Device::Framebuffer::recreate() noexcept
 {
     for (auto &framebuffer : m_framebuffers)
     {
@@ -29,7 +30,7 @@ void Device::Framebuffer::recreate()
     setup();
 }
 
-void Device::Framebuffer::setup()
+void Device::Framebuffer::setup() noexcept
 {
     auto &attachments = m_renderpass->attachments();
     const auto &extent = m_device->extent();
@@ -68,7 +69,9 @@ Device::Framebuffer::Framebuffer(Framebuffer &&other) noexcept
     *this=std::move(other);
 }
 
-Device::Framebuffer& Device::Framebuffer::operator=(Framebuffer &&other) noexcept
+Device::Framebuffer& Device::Framebuffer::operator=(
+    Framebuffer &&other
+) noexcept
 {
     if (*this==other) return *this;
     m_device=other.m_device;

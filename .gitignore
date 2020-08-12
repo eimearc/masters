@@ -5,6 +5,9 @@ main
 !tests/*.spv
 !examples/bench/shaders/*.spv
 .ipynb_checkpoints/
+.vscode/
+examples/bench/*.txt
+examples/bench/*.csv
 
 # Thesis temporary files.
 *.bbl

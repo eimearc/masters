@@ -6,7 +6,7 @@
 
 namespace evk {
 
-void Device::draw()
+void Device::draw() noexcept
 {
     static size_t currentFrame=0;
     static int previousImageIndex=-1;
@@ -53,7 +53,9 @@ void Device::draw()
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     VkSemaphore waitSemaphores[] = {imageSemaphores[currentFrame]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    VkPipelineStageFlags waitStages[] = {
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+    };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -101,7 +103,8 @@ void Device::draw()
 void Device::finalize(
     Buffer &indexBuffer,
     Buffer &vertexBuffer,
-    std::vector<Pipeline*> &pipelines)
+    std::vector<Pipeline*> &pipelines
+) noexcept
 {
     auto renderpass=pipelines[0]->renderpass();
     m_framebuffer = std::make_unique<Framebuffer>(
@@ -115,7 +118,7 @@ void Device::finalize(
     record();
 }
 
-void Device::record()
+void Device::record() noexcept
 {
     const auto &primaryCommandBuffers = this->primaryCommandBuffers();
     auto secondaryCommandBuffers = this->secondaryCommandBuffers();
@@ -236,7 +239,7 @@ void Device::record()
     }
 }
 
-void Device::resizeWindow()
+void Device::resizeWindow() noexcept
 {
     vkDeviceWaitIdle(device());
     m_swapchain->recreate();

@@ -9,7 +9,8 @@ Device::Swapchain::Swapchain(
     const VkPhysicalDevice &physicalDevice,
     const VkSurfaceKHR &surface,
     VkExtent2D windowExtent,
-    const uint32_t swapchainSize)
+    const uint32_t swapchainSize
+)
 {
     m_device = device;
     m_swapchainSize = swapchainSize;
@@ -25,8 +26,12 @@ void Device::Swapchain::setup() noexcept
     auto swapChainSupport = internal::querySwapChainSupport(
         m_physicalDevice, m_surface
     );
-    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-    VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
+        swapChainSupport.formats
+    );
+    VkPresentModeKHR presentMode = chooseSwapPresentMode(
+        swapChainSupport.presentModes
+    );
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = m_swapchainSize;
@@ -74,7 +79,9 @@ void Device::Swapchain::setup() noexcept
 
     vkGetSwapchainImagesKHR(m_device, m_swapchain, &imageCount, nullptr);
     m_images.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_device, m_swapchain, &imageCount, m_images.data());
+    vkGetSwapchainImagesKHR(
+        m_device, m_swapchain, &imageCount, m_images.data()
+    );
 
     m_format = surfaceFormat.format;
     m_extent = extent;
@@ -122,7 +129,7 @@ void Device::Swapchain::reset() noexcept
     m_extent={};
 }
 
-bool Device::Swapchain::operator==(const Swapchain &other) const
+bool Device::Swapchain::operator==(const Swapchain &other) const noexcept
 {
     if (m_device!=other.m_device) return false;
     if (m_extent.width!=other.m_extent.width) return false;
@@ -140,14 +147,14 @@ bool Device::Swapchain::operator==(const Swapchain &other) const
     return true;
 }
 
-bool Device::Swapchain::operator!=(const Swapchain &other) const
+bool Device::Swapchain::operator!=(const Swapchain &other) const noexcept
 {
     return !(*this==other);
 }
 
 VkExtent2D Device::Swapchain::chooseSwapExtent(
     const VkSurfaceCapabilitiesKHR& capabilities
-) const
+) const noexcept
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
     {
@@ -168,7 +175,7 @@ VkExtent2D Device::Swapchain::chooseSwapExtent(
 
 VkPresentModeKHR Device::Swapchain::chooseSwapPresentMode(
     const std::vector<VkPresentModeKHR>& availablePresentModes
-) const
+) const noexcept
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {
@@ -183,7 +190,7 @@ VkPresentModeKHR Device::Swapchain::chooseSwapPresentMode(
 
 VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
     const std::vector<VkSurfaceFormatKHR>& availableFormats
-) const
+) const noexcept
 {
     for (const auto& availableFormat : availableFormats)
     {
@@ -197,7 +204,7 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
     EVK_ABORT("no suitable surface format found in available formats\n");
 }
 
-void Device::Swapchain::recreate()
+void Device::Swapchain::recreate() noexcept
 {
     destroy();
     setup();
