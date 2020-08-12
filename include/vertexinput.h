@@ -40,7 +40,7 @@ class VertexInput
      * Constructs VertexInput with a specified stride.
      * @param[in] stride the stride of each vertex element.
      **/
-    VertexInput(uint32_t stride);
+    VertexInput(uint32_t stride) noexcept;
 
     bool operator==(const VertexInput&) const noexcept;
     bool operator!=(const VertexInput&) const noexcept;
@@ -50,34 +50,36 @@ class VertexInput
      * @param[in] location the location of the attribute.
      * @param[in] offset the offset within the Vertex structure.
      **/
-    void setVertexAttributeVec2(uint32_t location, uint32_t offset);
+    void setVertexAttributeVec2(uint32_t location, uint32_t offset) noexcept;
 
     /**
      * Sets the Vertex attribute at a specified location for a 3-part vector.
      * @param[in] location the location of the attribute.
      * @param[in] offset the offset within the Vertex structure.
      **/
-    void setVertexAttributeVec3(uint32_t location, uint32_t offset);
+    void setVertexAttributeVec3(uint32_t location, uint32_t offset) noexcept;
 
     private:
     static bool pred(
         const VkVertexInputAttributeDescription &a,
         const VkVertexInputAttributeDescription &b
-    );
-    void setAttributeDescription(
-        uint32_t location,
-        VkVertexInputAttributeDescription desc
-    );
-    void setBindingDescription(uint32_t stride);
+    ) noexcept;
 
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const
+    noexcept
     { 
         return m_attributeDescriptions;
     };
-    VkVertexInputBindingDescription bindingDescription() const
+    VkVertexInputBindingDescription bindingDescription() const noexcept
     {
         return m_bindingDescription;
-    };    
+    };
+
+    void setAttributeDescription(
+        uint32_t location,
+        VkVertexInputAttributeDescription desc
+    ) noexcept;
+    void setBindingDescription(uint32_t stride) noexcept;  
     
     std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;

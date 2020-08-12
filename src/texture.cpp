@@ -150,7 +150,8 @@ void Texture::transitionImageLayout(
     VkCommandPool commandPool,
     VkImage image,
     VkFormat format,
-    Transition transition)
+    Transition transition
+) noexcept
 {
     VkCommandBuffer commandBuffer;
     internal::beginSingleTimeCommands(
@@ -221,7 +222,8 @@ void Texture::copyBufferToImage(
     VkCommandPool commandPool,
     VkBuffer buffer,
     VkImage image,
-    VkExtent2D extent)
+    VkExtent2D extent
+) noexcept
 {
     VkCommandBuffer commandBuffer;
     internal::beginSingleTimeCommands(

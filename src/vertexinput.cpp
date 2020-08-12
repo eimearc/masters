@@ -2,7 +2,7 @@
 
 namespace evk {
 
-VertexInput::VertexInput(uint32_t stride)
+VertexInput::VertexInput(uint32_t stride) noexcept
 {
     setBindingDescription(stride);
 }
@@ -32,7 +32,7 @@ bool VertexInput::operator!=(const VertexInput &other) const noexcept
 bool VertexInput::pred(
     const VkVertexInputAttributeDescription &a,
     const VkVertexInputAttributeDescription &b
-)
+) noexcept
 {
     bool result=true;
     result &= (a.binding==b.binding);
@@ -42,7 +42,10 @@ bool VertexInput::pred(
     return result;
 }
 
-void VertexInput::setVertexAttributeVec3(uint32_t location, uint32_t offset)
+void VertexInput::setVertexAttributeVec3(
+    uint32_t location,
+    uint32_t offset
+) noexcept
 {
     VkVertexInputAttributeDescription desc;
     desc.binding=0;
@@ -52,7 +55,10 @@ void VertexInput::setVertexAttributeVec3(uint32_t location, uint32_t offset)
     setAttributeDescription(location, desc);
 }
 
-void VertexInput::setVertexAttributeVec2(uint32_t location, uint32_t offset)
+void VertexInput::setVertexAttributeVec2(
+    uint32_t location,
+    uint32_t offset
+) noexcept
 {
     VkVertexInputAttributeDescription desc;
     desc.binding=0;
@@ -65,14 +71,14 @@ void VertexInput::setVertexAttributeVec2(uint32_t location, uint32_t offset)
 void VertexInput::setAttributeDescription(
     uint32_t location,
     VkVertexInputAttributeDescription desc
-)
+) noexcept
 {
     if (m_attributeDescriptions.size()<=location)
         m_attributeDescriptions.resize(location+1);
     m_attributeDescriptions[location]=desc;
 }
 
-void VertexInput::setBindingDescription(uint32_t stride)
+void VertexInput::setBindingDescription(uint32_t stride) noexcept
 {
     VkVertexInputBindingDescription bindingDescription = {};
     bindingDescription.binding = 0;

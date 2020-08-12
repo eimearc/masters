@@ -3,9 +3,6 @@
 
 #include <cassert>
 #include <fstream>
-#define GLM_FORCE_RADIANS // TODO: is this needed?
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -42,7 +39,7 @@ void createImage(
     const VkMemoryPropertyFlags &properties,
     VkImage *pImage,
     VkDeviceMemory *pImageMemory
-);
+) noexcept;
 
 /**
  * Creates a VkImageView.
@@ -59,7 +56,7 @@ void createImageView(
     const VkFormat &format,
     const VkImageAspectFlags &aspectMask,
     VkImageView *pImageView
-);
+) noexcept;
 
 /**
  * Represents the capabilities of a VkQueueFamily.
@@ -69,7 +66,7 @@ struct QueueFamilyIndices
     int graphicsFamily=-1;
     int presentFamily=-1;
 
-    bool isComplete()
+    bool isComplete() noexcept
     {
         return graphicsFamily>=0 && presentFamily>=0;
     }
@@ -103,7 +100,7 @@ void createBuffer(
     VkMemoryPropertyFlags properties,
     VkBuffer *pBuffer,
     VkDeviceMemory *pBufferMemory
-);
+) noexcept;
 
 /**
  * Finds the index of a suitable memory type, matching desired properties.
@@ -116,7 +113,7 @@ uint32_t findMemoryType(
     VkPhysicalDevice physicalDevice,
     uint32_t typeFilter,
     VkMemoryPropertyFlags properties
-);
+) noexcept;
 
 /**
  * Begins recording work into a newly-allocated command buffer.
@@ -128,7 +125,7 @@ void beginSingleTimeCommands(
     VkDevice device,
     VkCommandPool commandPool,
     VkCommandBuffer *pCommandBuffer
-);
+) noexcept;
 
 /**
  * Ends a command buffer and submits it to a queue.
@@ -142,7 +139,7 @@ void endSingleTimeCommands(
     VkQueue queue,
     VkCommandPool commandPool,
     VkCommandBuffer commandBuffer
-);
+) noexcept;
 
 /**
  * Finds the VkQueue families which support a surface.
@@ -153,7 +150,7 @@ void endSingleTimeCommands(
 QueueFamilyIndices findQueueFamilies(
     VkPhysicalDevice device,
     VkSurfaceKHR surface
-);
+) noexcept;
     
 /**
  * Finds the requirements for swapchain support.
@@ -164,7 +161,7 @@ QueueFamilyIndices findQueueFamilies(
 SwapChainSupportDetails querySwapChainSupport(
     VkPhysicalDevice device,
     VkSurfaceKHR surface
-);
+) noexcept;
 
 } // namespace internal
 
