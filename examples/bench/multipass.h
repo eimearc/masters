@@ -5,6 +5,8 @@
 #include "../util.h"
 #include "../multipass/grid.h"
 
+const size_t NUM_CUBES = 10;
+
 using namespace evk;
 
 class MultipassBench
@@ -21,7 +23,7 @@ class MultipassBench
     {
         const uint32_t swapchainSize = 2;
 
-        createGrid(100, vertices, indices);
+        createGrid(NUM_CUBES*NUM_CUBES, vertices, indices);
 
         device = Device(
             numThreads, deviceExtensions, swapchainSize, validationLayers

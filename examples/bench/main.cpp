@@ -47,7 +47,7 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     GLFWwindow *window=glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
 
-    runBench<TriangleBench>(window, "triangle.txt");
-    runBench<MultipassBench>(window, "multipass.txt");
-    runBench<ObjBench>(window, "obj.txt");
+    runBench<TriangleBench>(window, "triangle.csv");
+    runBench<MultipassBench>(window, "multipass.csv");
+    runBench<ObjBench>(window, "obj.csv");
 }
