@@ -9,6 +9,7 @@ set(
     multipass.h
     obj.h
     triangle.h
+    simple_triangle.h
     ../util.h
 )
 
@@ -29,3 +30,5 @@ configure_file(${SHADER_DIR}/pass_1_vert.spv "." COPYONLY)
 configure_file(${SHADER_DIR}/pass_1_frag.spv "." COPYONLY)
 configure_file(${SHADER_DIR}/triangle_vert.spv "." COPYONLY)
 configure_file(${SHADER_DIR}/triangle_frag.spv "." COPYONLY)
+configure_file(${SHADER_DIR}/simple_triangle_vert.spv "." COPYONLY)
+configure_file(${SHADER_DIR}/simple_triangle_frag.spv "." COPYONLY)

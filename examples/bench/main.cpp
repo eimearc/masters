@@ -2,6 +2,7 @@
 #include "multipass.h"
 #include "obj.h"
 #include "triangle.h"
+#include "simple_triangle.h"
 
 const size_t NUM_SETUPS = 100;
 const size_t NUM_FRAMES = 100;
@@ -50,4 +51,5 @@ int main()
     runBench<TriangleBench>(window, "triangle.csv");
     runBench<MultipassBench>(window, "multipass.csv");
     runBench<ObjBench>(window, "obj.csv");
+    runBench<SimpleTriangleBench>(window, "simple_triangle.csv");
 }
