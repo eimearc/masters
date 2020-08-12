@@ -57,18 +57,18 @@ class Buffer
     bool operator!=(const Buffer&) const noexcept;
 
     protected:
-    VkBuffer buffer() const { return m_buffer; };
-    size_t numElements() const { return m_numElements; };
-    VkDeviceSize size() const { return m_bufferSize; }; 
+    VkBuffer buffer() const noexcept { return m_buffer; };
+    size_t numElements() const noexcept { return m_numElements; };
+    VkDeviceSize size() const noexcept { return m_bufferSize; }; 
 
     void copyBuffer(
         VkCommandPool commandPool,
         VkQueue queue,
         VkBuffer srcBuffer,
         VkBuffer dstBuffer
-    ) const;
+    ) const noexcept;
     void reset() noexcept;
-    VkBufferUsageFlags typeToFlag(const Type &type) const;
+    VkBufferUsageFlags typeToFlag(const Type &type) const noexcept;
 
     VkBuffer m_buffer=VK_NULL_HANDLE;
     void *m_bufferData=nullptr;
@@ -121,7 +121,7 @@ class DynamicBuffer : public Buffer
      * Updates a DynamicBuffer.
      * @param[in] data a pointer to the data which will fill the Buffer.
      **/
-    void update(const void *data);
+    void update(const void *data) noexcept;
 };
 
 class StaticBuffer : public Buffer
@@ -156,11 +156,11 @@ class StaticBuffer : public Buffer
         const size_t num_elements,
         const VkDeviceSize element_size,
         const size_t element_offset
-    ) const;
+    ) const noexcept;
     void finalize(
         Device &device,
         const Type &type
-    );
+    ) noexcept;
 };
 
 } // namespace evk

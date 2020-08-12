@@ -12,8 +12,10 @@ Buffer::Buffer(Buffer &&other) noexcept
 Buffer::~Buffer() noexcept
 {
     if (m_bufferData!=nullptr) free(m_bufferData);
-    if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
-    if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
+    if (m_buffer!=VK_NULL_HANDLE)
+        vkDestroyBuffer(m_device, m_buffer, nullptr);
+    if (m_bufferMemory!=VK_NULL_HANDLE)
+        vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
 
 Buffer& Buffer::operator=(Buffer &&other) noexcept
@@ -65,7 +67,7 @@ bool Buffer::operator!=(const Buffer &other) const noexcept
     return !(*this==other);
 }
 
-VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const
+VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const noexcept
 {
     switch(type)
     {
@@ -102,7 +104,7 @@ StaticBuffer::StaticBuffer(
 
 void StaticBuffer::finalize(
     Device &device,
-    const Type &type)
+    const Type &type) noexcept
 {
     const std::vector<VkCommandPool> &commandPools = device.commandPools();
 
@@ -180,7 +182,7 @@ void StaticBuffer::copyData(
     const size_t num_elements,
     const VkDeviceSize element_size,
     const size_t element_offset
-) const
+) const noexcept
 {
     const size_t buffer_offset = element_offset*element_size;
     const size_t buffer_size = num_elements*element_size;
@@ -242,7 +244,7 @@ DynamicBuffer::DynamicBuffer(
         &m_buffer, &m_bufferMemory);
 }
 
-void DynamicBuffer::update(const void *srcBuffer)
+void DynamicBuffer::update(const void *srcBuffer) noexcept
 {
     if (m_bufferData!=nullptr) free(m_bufferData);
     m_bufferData = malloc(m_bufferSize);
@@ -285,7 +287,7 @@ void Buffer::copyBuffer(
     VkCommandPool commandPool,
     VkQueue queue,
     VkBuffer srcBuffer,
-    VkBuffer dstBuffer) const
+    VkBuffer dstBuffer) const noexcept
 {
     VkCommandBuffer commandBuffer;
     internal::beginSingleTimeCommands(m_device, commandPool, &commandBuffer);

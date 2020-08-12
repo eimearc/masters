@@ -25,7 +25,7 @@ Attachment& Attachment::operator=(Attachment &&other) noexcept
     return *this;
 }
 
-void Attachment::reset()
+void Attachment::reset() noexcept
 {
     m_clearValue={};
     m_colorReference={};
@@ -42,7 +42,7 @@ void Attachment::reset()
 Attachment::Attachment(
     const Device &device,
     uint32_t index,
-    const Type &type)
+    const Type &type) noexcept
 {
     m_device = device.device();
     m_index = index;
@@ -50,7 +50,9 @@ Attachment::Attachment(
 
     m_inputReference = {index, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     m_colorReference = {index, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-    m_depthReference = {index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+    m_depthReference = {
+        index, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    };
 
     switch(type)
     {
@@ -82,7 +84,7 @@ bool Attachment::operator!=(const Attachment &other) const noexcept
     return !(*this==other);
 }
 
-void Attachment::setFramebufferAttachment()
+void Attachment::setFramebufferAttachment() noexcept
 {
     m_description.flags = 0;
     m_description.format = VK_FORMAT_B8G8R8A8_SRGB;
@@ -97,7 +99,7 @@ void Attachment::setFramebufferAttachment()
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setColorAttachment(const Device &device)
+void Attachment::setColorAttachment(const Device &device) noexcept
 {
     VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -127,7 +129,7 @@ void Attachment::setColorAttachment(const Device &device)
     m_clearValue.color = {0.0f,0.0f,0.0f,1.0f};
 }
 
-void Attachment::setDepthAttachment(const Device &device)
+void Attachment::setDepthAttachment(const Device &device) noexcept
 {
     m_description.flags = 0;
     m_description.format = device.depthFormat();
@@ -155,20 +157,22 @@ void Attachment::setDepthAttachment(const Device &device)
     m_clearValue.depthStencil = {1.0f,1};
 }
 
-void Attachment::recreate(Device &device)
+void Attachment::recreate(Device &device) noexcept
 {
     switch (m_type)
     {
     case Type::FRAMEBUFFER:
         return;
-
     default:
-        if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
-        if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr); 
-        if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
+        if (m_imageView != VK_NULL_HANDLE)
+            vkDestroyImageView(m_device, m_imageView, nullptr);
+        if (m_image != VK_NULL_HANDLE)
+            vkDestroyImage(m_device, m_image, nullptr); 
+        if (m_imageMemory != VK_NULL_HANDLE)
+            vkFreeMemory(m_device, m_imageMemory, nullptr);
         internal::createImage(
-            device.device(), device.physicalDevice(),
-            device.extent(), m_format, m_tiling, m_usage, m_properties,
+            device.device(), device.physicalDevice(), device.extent(),
+            m_format, m_tiling, m_usage, m_properties,
             &m_image, &m_imageMemory
         );
         internal::createImageView(
@@ -181,9 +185,12 @@ void Attachment::recreate(Device &device)
 
 Attachment::~Attachment() noexcept
 {
-    if (m_imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_imageView, nullptr);
-    if (m_image != VK_NULL_HANDLE) vkDestroyImage(m_device, m_image, nullptr);
-    if (m_imageMemory != VK_NULL_HANDLE) vkFreeMemory(m_device, m_imageMemory, nullptr);
+    if (m_imageView != VK_NULL_HANDLE)
+        vkDestroyImageView(m_device, m_imageView, nullptr);
+    if (m_image != VK_NULL_HANDLE)
+        vkDestroyImage(m_device, m_image, nullptr);
+    if (m_imageMemory != VK_NULL_HANDLE)
+        vkFreeMemory(m_device, m_imageMemory, nullptr);
 }
 
 } // namespace evk

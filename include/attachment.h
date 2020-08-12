@@ -53,30 +53,41 @@ class Attachment
         const Device &device,
         uint32_t index,
         const Type &type
-    );
+    ) noexcept;
 
     bool operator==(const Attachment&) const noexcept;
     bool operator!=(const Attachment&) const noexcept;
 
     private:
-    void createFramebuffer();
-    void setFramebufferAttachment();
-    void setColorAttachment(
-        const Device &device
-    );
-    void setDepthAttachment(
-        const Device &device
-    );
-    void recreate(Device &device);
-    void reset();
+    void createFramebuffer() noexcept;
+    void setFramebufferAttachment() noexcept;
+    void setColorAttachment(const Device &device) noexcept;
+    void setDepthAttachment(const Device &device) noexcept;
+    void recreate(Device &device) noexcept;
+    void reset() noexcept;
 
-    VkClearValue clearValue() const { return m_clearValue; };
-    VkAttachmentReference colorReference() const { return m_colorReference; };
-    VkAttachmentReference depthReference() const { return m_depthReference; };
-    VkAttachmentDescription description() const { return m_description; };
-    uint32_t index() const { return m_index; };
-    VkAttachmentReference inputReference() const { return m_inputReference; };
-    VkImageView view() const { return m_imageView; };
+    VkClearValue clearValue() const noexcept { return m_clearValue; };
+    VkAttachmentReference colorReference() const noexcept
+    { 
+        return m_colorReference;
+    };
+    VkAttachmentReference depthReference() const noexcept
+    {
+        return m_depthReference;
+    };
+    VkAttachmentDescription description() const noexcept
+    {
+        return m_description;
+    };
+    uint32_t index() const noexcept { return m_index; };
+    VkAttachmentReference inputReference() const noexcept
+    {
+        return m_inputReference;
+    };
+    VkImageView view() const noexcept
+    {
+        return m_imageView;
+    };
 
     VkImageAspectFlags m_aspectMask;
     VkClearValue m_clearValue={};

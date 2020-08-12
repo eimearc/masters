@@ -69,7 +69,7 @@ class Descriptor
         const uint32_t binding,
         Attachment &attachment,
         const Shader::Stage shaderStage
-    );
+    ) noexcept;
 
     /**
      * Adds a texture sampler binding to the descriptor.
@@ -81,7 +81,7 @@ class Descriptor
         const uint32_t binding,
         const Texture &texture,
         const Shader::Stage shaderStage
-    );
+    ) noexcept;
 
     /**
      * Adds a uniform buffer object (UBO) binding to the descriptor.
@@ -93,7 +93,7 @@ class Descriptor
         const uint32_t binding,
         const Buffer &buffer,
         const Shader::Stage shaderStage
-    );
+    ) noexcept;
     
     private:
     enum class Type{
@@ -102,47 +102,53 @@ class Descriptor
         UNIFORM_BUFFER  
     };
 
+    VkDescriptorType descriptorType(Type type) const noexcept;
+    std::vector<VkDescriptorSetLayout> setLayouts() const noexcept
+    {
+        return m_setLayouts;
+    };
+    std::vector<VkDescriptorSet> sets() const noexcept
+    {
+        return m_sets;
+    };
+
     void addDescriptorSetBinding(
         Type type,
         uint32_t binding,
         Shader::Stage stage
-    );
-    void addPoolSize(Type type);
+    ) noexcept;
+    void addPoolSize(Type type) noexcept;
     void addWriteSetTextureSampler(
         const Texture &texture,
         uint32_t binding,
         Shader::Stage stage
-    );
+    ) noexcept;
     void addWriteSetBuffer(
         VkBuffer buffer,
         VkDeviceSize range,
         uint32_t binding,
         VkDescriptorType type,
         Shader::Stage stage
-    );
+    ) noexcept;
     void addWriteSetInputAttachment(
         const VkImageView &imageView,
         uint32_t binding,
         Shader::Stage stage
-    );
+    ) noexcept;
     void addWriteSet(
         VkWriteDescriptorSet writeSet,
         uint32_t binding,
         Shader::Stage stage
-    );
-    void allocateDescriptorPool();
-    void allocateDescriptorSets();
-    VkDescriptorType descriptorType(Type type);
+    ) noexcept;
+    void allocateDescriptorPool() noexcept;
+    void allocateDescriptorSets() noexcept;
     void destroy() noexcept;
-    void finalize();
-    void initializePoolSize(Type type);
-    void removeEmptyPoolSizes();
-    void removeEmptyWriteSets();
-    void recreate();
-    void reset();
-
-    std::vector<VkDescriptorSetLayout> setLayouts() const { return m_setLayouts; };
-    std::vector<VkDescriptorSet> sets() const { return m_sets; };
+    void finalize() noexcept;
+    void initializePoolSize(Type type) noexcept;
+    void removeEmptyPoolSizes() noexcept;
+    void removeEmptyWriteSets() noexcept;
+    void recreate() noexcept;
+    void reset() noexcept;
 
     std::vector<Attachment*> m_attachments;
     std::vector<std::unique_ptr<VkDescriptorBufferInfo>> m_bufferInfo;
