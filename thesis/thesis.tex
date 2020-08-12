@@ -22,6 +22,7 @@
 \usepackage[titletoc,title]{appendix}
 \usepackage{amsfonts}
 \usepackage[font={it}]{caption}
+\usepackage{afterpage}
 
 \usepackage{lmodern}
 
@@ -122,6 +123,41 @@
   \chapter{Solution}
 
   \chapter{Conclusion}
+
+  \afterpage
+  {
+    \begin{figure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/triangle_draw.png}
+      \end{subfigure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/multipass_draw.png}
+      \end{subfigure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/obj_draw.png}
+      \end{subfigure}
+      \caption{Draw time for different examples over multiple threads.}
+      \label{fig:draw}                        
+    \end{figure}
+
+    \clearpage
+
+    \begin{figure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/triangle_setup.png}
+      \end{subfigure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/multipass_setup.png}
+      \end{subfigure}
+      \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{images/obj_setup.png}
+      \end{subfigure}
+      \caption{Setup time for different examples over multiple threads.}
+      \label{fig:setup}                        
+    \end{figure}
+    
+    \clearpage
+  }
 
   \bibliographystyle{harvardnat}
   \bibliography{thesis.bib}
