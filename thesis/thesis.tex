@@ -25,6 +25,7 @@
 \usepackage{afterpage}
 \usepackage{caption}
 \usepackage{lipsum}
+\usepackage{csquotes}
 
 \usepackage{lmodern}
 
@@ -36,6 +37,13 @@
 
 \newcommand{\figurewidth}{0.6\textwidth}
 \newcommand{\imagewidth}{0.5\textwidth}
+
+\newcommand{\quotebu}[1]
+{
+  \begin{displayquote}
+    \textit{#1}
+  \end{displayquote}
+}
 
 \geometry{
   a4paper,
@@ -124,14 +132,44 @@
     library which is as fast as writing pure Vulkan, however the library
     must be reasonably fast.\\
 
-    \citebu{renderdoc}
-
   \chapter{Previous Work}
 
     While Vulkan is a relatively new API for graphics and compute, many engines
     now support Vulkan, including CryEngine, Valve's Source, Unity and Unreal
     Engine. As a result, there are many libraries and utilities available
     online for Vulkan, each of which serves a different purpose.
+
+    \section{V-EZ}
+
+      AMD created the open-source V-EZ library \citesoftware{vez}. Its main goal is to increase the
+      adoption of Vulkan in the games industry by reducing the complexity of
+      Vulkan. It is a lightweight C API wrapped around the basic Vulkan API.
+      It is part of the GPU-Open initiative. \\
+      
+      It still requires the user to have a good knowledge of Vulkan, making it
+      difficult for beginners to adopt. For example, some rather complex
+      components include semaphores, swapchain creation and lengthy
+      enumerations such as
+
+        \begin{figure}[h!]
+        \centering
+        \verb|VK_BUFFER_USAGE_TRANSFER_DST_BIT|
+        \end{figure}
+
+      While it does remove some of the boilerplate, it is still relatively low
+      level and, as a result, is not perfectly suited to beginners.
+
+    \section{Anvil}
+
+      The goal of Anvil is to reduce the amount of time taken to write Vulkan
+      applications. It is ideal for rapidly prototyping Vulkan applications,
+      but it still requires a large amount of writing. It is stated in the
+      documentation itself that Anvil is not suitable for beginners.
+
+      \quotebu{
+        Anvil is not the right choice for developers who do not have a
+        reasonable understanding of how Vulkan works.
+      }
 
   \chapter{Technical Background}
   
