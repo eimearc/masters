@@ -36,8 +36,8 @@
 \newcommand{\citediagram}[2]{(\citeauthor{#1} \citeyear{#1}, p.#2)}
 \newcommand{\citesoftware}[1]{(\citeauthor{#1} \citeyear{#1})}
 
-\newcommand{\figurewidth}{0.6\textwidth}
-\newcommand{\imagewidth}{0.5\textwidth}
+\newcommand{\figurewidth}{0.55\textwidth}
+\newcommand{\imagewidth}{0.47\textwidth}
 
 \newcommand{\quotebu}[1]
 {
@@ -486,6 +486,13 @@
 
       \subsection{evk::Device}
 
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_device.png}
+          \caption{Device class diagram.}
+          \label{fig:class_device}  
+        \end{wrapfigure}
+
         A device is the basic component of the library. It is the first Vulkan
         component that is constructed in the application. It encapsulates,
         among other things, a VkInstance, VkPhysicalDevice, VkDevice, VkQueues.
@@ -504,7 +511,7 @@
         across multiple threads, each of which records its portion of the
         operation into a separate secondary command buffer. \\
 
-        \begin{figure}[h]
+        \begin{figure}[H]
         \begin{verbatim}
             vkCmdDrawIndexed(
               secondaryCommandBuffer, numIndices,
@@ -516,7 +523,7 @@
         These secondary command buffers are then executed from the primary
         command buffer.
 
-        \begin{figure}[h]
+        \begin{figure}[H]
         \begin{verbatim}
             vkCmdExecuteCommands(
               primaryCommandBuffer,
@@ -526,23 +533,44 @@
         \end{verbatim}
         \end{figure}
 
-        \begin{wrapfigure}{l}{\figurewidth}
-          \centering
-          \includegraphics[width=\imagewidth]{images/class_device.png}
-          \caption{Device class diagram.}
-          \label{fig:class_device}  
-        \end{wrapfigure}
-
       \subsection{evk::Texture}
 
-        \begin{wrapfigure}{l}{\figurewidth}
+        \begin{wrapfigure}{r}{\figurewidth}
           \centering
           \includegraphics[width=\imagewidth]{images/class_texture.png}
           \caption{Texture class diagram.}
           \label{fig:class_texture}  
         \end{wrapfigure}
 
+        A Texture allows a user to load in a texture from a file. It transitions
+        the image to a transfer-optimal format before copying the pixels from
+        the image to device-local memory, allowing for faster GPU access. It
+        then transitions the image to a layout readable by the shader, frees
+        unneeded resources and finally creates a VkImageView and VkSampler. \\
+
+        A VkImageView is required by the Shaders to access images. They
+        represent contiguous ranges of subresources and any metadata
+        required to operate on them. A VkSampler is a handle to an image
+        sampler and is used by the Shader to read image data from Textures
+        and apply filters.
+
       \subsection{evk::Attachment}
+
+        An Attachment represents a resource that can be read from, or written
+        to by a Shader. Each Attachment has a binding location and a Type, one
+        of FRAMEBUFFER, COLOR or DEPTH. Both a FRAMEBUFFER and DEPTH Attachment
+        are required for any program as the shaders must write to the depth
+        buffer and to the screen. For more advanced usages (see the multipass
+        example) a COLOR Attachment is useful. \\
+
+        An Attachment consists of a VkAttachmentDescription, which describes
+        the properties of the Attachment, and multiple VkAttachmentReferences,
+        which allow other stages to refer to these Attachments. For DEPTH and
+        COLOR Attachments, a VkImage is created, while this is already created
+        in the Device creation stage for the FRAMEBUFFER Attachment. \\
+
+        An Attachment also contains a VkClearValue. This value specifies how an
+        Attachment should be cleared when it is reused. \\
 
         \begin{wrapfigure}{l}{\figurewidth}
           \centering
@@ -551,61 +579,261 @@
           \label{fig:class_attachment}  
         \end{wrapfigure}
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_buffer.png}
-    \caption{Buffer class diagram.}
-    \label{fig:class_buffer}  
-  \end{wrapfigure}
+        Attachments are used in Subpasses as either an input attachment, a
+        colour attachment or a depth attachment. A colour or depth attachment
+        is written by the shader, while an input attachment is read into a
+        shader, making it useful for multipass rendering.
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_descriptor.png}
-    \caption{Descriptor class diagram.}
-    \label{fig:class_descriptor}
-  \end{wrapfigure}
+      \subsection{evk::Buffer}
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_subpass.png}
-    \caption{Subpass class diagram.}
-    \label{fig:class_subpass}
-  \end{wrapfigure}
+        A Buffer encapsulates VkBuffer-related structs and methods. It handles
+        the creation and copying of VkBuffers, which are linear arrays of
+        data, along with copying user data into them and updating them after
+        creation. There are two types of Buffers; StaticBuffer and
+        DynamicBuffer. \\
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_renderpass.png}
-    \caption{Renderpass class diagram.}
-    \label{fig:class_renderpass}
-  \end{wrapfigure}
+        \begin{wrapfigure}{r}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_buffer.png}
+          \caption{Buffer class diagram.}
+          \label{fig:class_buffer}  
+        \end{wrapfigure}
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_pipeline.png}
-    \caption{Pipeline class diagram.}
-    \label{fig:class_pipeline}
-  \end{wrapfigure}
+        A StaticBuffer is used when the contents of the Buffer will not be
+        updated after they have been set. This allows for some optimization
+        to take place. The Buffer contents are copied to device-local memory
+        to allow faster GPU-access at draw time. \\
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_shader.png}
-    \caption{Shader class diagram.}
-    \label{fig:class_shader}
-  \end{wrapfigure}
+        A DynamicBuffer is used when the Buffer contents will be updated at
+        draw time. This skips the relatively expensive step of copying the
+        Buffer data to device-local memory, and leaves them in host-visible
+        memory for faster update speeds. A DynamicBuffer can be updated
+        using the update() command.
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_vertexinput.png}
-    \caption{VertexInput class diagram.}
-    \label{fig:class_vertexinput}
-  \end{wrapfigure}
+      \subsection{evk::Descriptor}
 
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/evk_architecture.png}
-    \caption{evulkan architecture.}
-    \label{fig:evulkan_architecture}  
-  \end{figure}
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=0.35\textwidth]{images/class_descriptor.png}
+          \caption{Descriptor class diagram.}
+          \label{fig:class_descriptor}
+        \end{figure}
+
+        A Descriptor is used to describe any resources that will be accessed by
+        the Shader, such as a texture sampler, a uniform buffer or an input
+        attachment. A user constructs a Descriptor and then adds the necessary
+        resources using class methods. Descriptors are bound in advance of draw
+        commands.
+
+        When a user calls one of these functions, for example
+        addTextureSampler(), the following happens:
+
+        \begin{itemize}
+          \item A VkDescriptorSetLayoutBinding is constructed. This describes
+            the shader stage (e.g. a fragment shader) at which the resource
+            will be accessed, in addition to the type of the resource.
+          \item A VkWriteDescriptorSet is constructed, specifying the binding
+            of the resource, along with the type and any other information
+            required for a descriptor set write operation. In this example,
+            extra information includes the texture sampler handle along with
+            the image view handle.
+          \item Later on in the program, during pipeline creation, the
+            finalize() method is called on the Descriptor. This creates the
+            VkDescriptorPool, from which the VkDescriptorSets are allocated.
+            VkDescriptorSets are sets of resources which are bound into the
+            VkPipeline as a group. Finally, the VkWriteDescriptorSets are
+            updated using vkUpdateDescriptorSets() command, binding the
+            resources into the descriptor sets.
+        \end{itemize}
+
+      \subsection{evk::Subpass}
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_subpass.png}
+          \caption{Subpass class diagram.}
+          \label{fig:class_subpass}
+        \end{wrapfigure}
+
+        A Subpass describes a pass, or a phase of operation, within a
+        Renderpass. It can depend on the completion of other Subpasses.
+        It has a set of Attachments, which can be either colour, depth or
+        input Attachments (as described above) along with their references.
+        Contained within the Subpass is a VkSubpassDescription, a struct
+        describing the Subpass. The index of the Subpass indicates when the
+        Subpass will be executed in order.
+
+      \subsection{evk::Renderpass}
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_renderpass.png}
+          \caption{Renderpass class diagram.}
+          \label{fig:class_renderpass}
+        \end{wrapfigure}
+
+        A Renderpass object is a collection of Subpasses, along with their
+        dependencies and attachments. A VkRenderPass is created within the
+        Renderpass by passing in the set of VkSubpassDescriptions,
+        VkAttachmentDescriptions and the VkSubpassDependencies between
+        subpasses.
+
+      \subsection{evk::Pipeline}
+
+        A Pipeline takes all the previous information and generates a
+        VkPipeline - the sequence of operations that take the input vertices
+        and produces the output, to the screen or otherwise. We will only
+        cover graphics pipeline creation here. A Pipeline is associated with
+        exactly one Subpass.
+        
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_pipeline.png}
+          \caption{Pipeline class diagram.}
+          \label{fig:class_pipeline}
+        \end{figure}
+
+        A Pipeline setup call takes the user-provided Shaders, Renderpass and
+        Subpass index, and combines it with automatically generated
+        fixed-function information (input assembly, viewport state,
+        rasterizer, multisampling, colour blending) to create the VkPipeline.
+
+      \subsection{evk::Shader}
+
+        A Shader represents a shader program, which contains operations that
+        execute for each vertex or fragment. A shader contains a
+        VkShaderModule, which contains the shader code, and a
+        VkPipelineShaderStageCreateInfo struct, which is used during
+        Pipeline construction.
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_shader.png}
+          \caption{Shader class diagram.}
+          \label{fig:class_shader}
+        \end{wrapfigure}
+
+        There are two supported Shader stages, vertex and fragment. A
+        vertex Shader operates on each vertex and any associated vertex
+        input attributes, specified using the VertexInput struct. A
+        fragment Shader operates on every fragment. Both a vertex Shader
+        and fragment Shader are required for the evulkan library.
+
+        A user can load in SPIR-V code from a file of their choice. SPIR-V is
+        easily generated from GLSL using the glslc command, which is
+        available for download from https://github.com/google/shaderc, or
+        with the Vulkan SDK from LunarG.
+
+      \subsection{evk::VertexInput}
+
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_vertexinput.png}
+          \caption{VertexInput class diagram.}
+          \label{fig:class_vertexinput}
+        \end{figure}
+
+        A VertexInput object is a wrapper around a VkVertexInputAttributeDescription
+        and a VkVertexInputBindingDescription. It is used for describing vertex
+        attributes that will be bound to the shader, such as colour and normal.
+
+      \subsection{Window System Integration}
+
+        Vulkan is a platform-agnostic API. It is up to the application to
+        specify the extensions required to interface with the window system.
+        The way in which the VkSurfaceKHR object is created also needs to be
+        handled by the application. \\
+
+        To keep the evk library platform-agnostic, the user must register
+        two things: a function which will be called to create the surface
+        and the set of instance extensions required for Vulkan to correctly
+        interface with the surface object. For GLFW, this may result in
+        something like the following
+
+        \begin{centering}
+          \begin{Verbatim}[fontsize=\small]
+auto glfwExtensions = glfwGetRequiredInstanceExtensions(
+                        &glfwExtensionCount
+                      );
+
+std::vector<const char*> surfaceExtensions(
+  glfwExtensions, glfwExtensions + glfwExtensionCount
+);
+
+auto surfaceFunc = [&](){
+  glfwCreateWindowSurface(
+    device.instance(), window, nullptr, &device.surface()
+  );
+};
+
+device.createSurface(surfaceFunc,800,600,surfaceExtensions);
+          \end{Verbatim}
+        \end{centering}
+
+        For SDL, the following would suffice
+
+        \begin{centering}
+          \begin{Verbatim}[fontsize=\small]
+SDL_Vulkan_GetInstanceExtensions(
+  window, &sdlExtensionCount, surfaceExtensions
+);
+
+auto surfaceFunc = [&](){
+  SDL_Vulkan_CreateSurface(
+    window, device.instance(), &device.surface()
+  );
+};
+
+device.createSurface(
+  surfaceFunc,800,600,surfaceExtensions
+);
+          \end{Verbatim}
+        \end{centering}
+
+          When a window is resized, the evk library automatically recreates the
+          required objects (swapchain, framebuffer, input attachments). The
+          window resize triggers a \verb|VK_ERROR_OUT_OF_DATE_KHR| or \verb|VK_SUBOPTIMAL_KHR|
+          result from either the vkAcquireNextImageKHR() function or the
+          vkQueuePresentKHR() function within the draw() method. However,
+          there are times when the platform or driver does not correctly
+          trigger a resize event. As such, it is recommended that the user register
+          a callback function as follows
+
+        \begin{centering}
+          \begin{Verbatim}[fontsize=\small]
+glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+          \end{Verbatim}
+        \end{centering}
+
+      \subsection{Error Handling}
+
+        Error handling is a contentious topic. Different people have different
+        (strong) opinions on which approach to take. Unlike other programming
+        languages, C++ does not have a unified approach to error handling,
+        leading to diverging dialects of the language. \\
+
+        There are two main types of errors: user errors and programming errors.
+        The former are the fault of the person using the library, while the
+        latter are the fault of the library developer. User errors should be
+        reported to the user and the program should continue execution.
+        Programming errors, on the other hand, should halt the program and
+        provide as low level information to help the programmer debug the
+        issue. Such errors would then be fixed before release (ideally). \\
+
+        \subsubsection{Error Return Codes}
+
+        \subsubsection{Exceptions}
+
+        \subsubsection{Assertions}
+
+      \subsection{Architecture}
+
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\textwidth]{images/evk_architecture.png}
+          \caption{evulkan architecture.}
+          \label{fig:evulkan_architecture}  
+        \end{figure}
 
   \chapter{Conclusion}
 
