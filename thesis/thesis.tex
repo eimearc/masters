@@ -32,6 +32,7 @@
 \usepackage{natbib}
 \newcommand{\citebu}[1]{\citeauthor{#1} (\citeyear{#1})}
 \newcommand{\citediagram}[2]{(\citeauthor{#1} \citeyear{#1}, p.#2)}
+\newcommand{\citesoftware}[1]{(\citeauthor{#1} \citeyear{#1})}
 
 \newcommand{\figurewidth}{0.6\textwidth}
 \newcommand{\imagewidth}{0.5\textwidth}
@@ -98,8 +99,8 @@
 
   \chapter{Introduction}
     \pagenumbering{arabic}
-    Vulkan is a cross-platform graphics and compute API, developed by the
-    Khronos Group. It aims to provide higher efficiency than other current
+    Vulkan \citesoftware{vulkan} is a cross-platform graphics and compute API.
+    It aims to provide higher efficiency than other current
     cross-platform APIs, by using the full performance available in today's
     largely-multithreaded machines. Vulkan achieves this by allowing tasks to be
     generated and submitted to the GPU in parallel (multithreaded programming).

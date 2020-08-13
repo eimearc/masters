@@ -65,6 +65,7 @@ ENTRY
     type
     url
     urldate
+    version
     volume
     year
     %doi
@@ -1086,6 +1087,21 @@ FUNCTION {proceedings}
   publisher output
 %  format.isbn output
 %  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {software}
+{ output.bibitem
+  author output
+  format.date "year" output.check
+  new.block
+  format.btitle "title" output.check
+  new.block
+  address output
+  publisher "publisher" output.check.colon
+  version output
   new.block
   note output
   fin.entry
