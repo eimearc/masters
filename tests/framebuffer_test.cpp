@@ -92,11 +92,11 @@ TEST_F(FramebufferTest, ctor)
 
     StaticBuffer indexBuffer(
         device, indices.data(), sizeof(indices[0]), indices.size(),
-        Buffer::INDEX
+        Buffer::Type::INDEX
     );
     StaticBuffer vertexBuffer(
         device, vertices.data(), sizeof(vertices[0]), vertices.size(),
-        Buffer::VERTEX
+        Buffer::Type::VERTEX
     );
 
     Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);

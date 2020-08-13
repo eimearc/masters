@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include "../util.h"
 
+// TODO: Remove this file.
+
 using namespace evk; // TODO: Remove.
 
 int main()

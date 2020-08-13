@@ -57,7 +57,9 @@ TEST_F(BufferTest, ctor)
 {
     struct Data{int a;};
     Data data{0};
-    DynamicBuffer dynamicBuffer(device, &data, sizeof(data), 1, Buffer::UBO);
+    DynamicBuffer dynamicBuffer(
+        device, &data, sizeof(data), 1, Buffer::Type::UBO
+    );
     EXPECT_TRUE(dynamicBuffer.buffer());
     EXPECT_TRUE(dynamicBuffer.m_bufferMemory);
     EXPECT_EQ(dynamicBuffer.m_bufferSize, sizeof(data));
@@ -69,7 +71,9 @@ TEST_F(BufferTest, ctor)
     EXPECT_TRUE(dynamicBuffer==dynamicBuffer);
     EXPECT_FALSE(dynamicBuffer!=dynamicBuffer);
 
-    StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::VERTEX);
+    StaticBuffer staticBuffer(
+        device, &data, sizeof(data), 1, Buffer::Type::VERTEX
+    );
     EXPECT_TRUE(staticBuffer.buffer());
     EXPECT_TRUE(staticBuffer.m_bufferMemory);
     EXPECT_EQ(staticBuffer.m_bufferSize, sizeof(data));
@@ -86,7 +90,7 @@ TEST_F(BufferTest, update)
 {
     struct Data{int a;};
     Data data{0};
-    DynamicBuffer dynamic(device, &data, sizeof(data), 1, Buffer::UBO);
+    DynamicBuffer dynamic(device, &data, sizeof(data), 1, Buffer::Type::UBO);
     ASSERT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, data.a);
     data.a=1;
     EXPECT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 0);
@@ -94,7 +98,9 @@ TEST_F(BufferTest, update)
     EXPECT_EQ(static_cast<Data*>(dynamic.m_bufferData)->a, 1);
 
     data.a=0;
-    StaticBuffer staticBuffer(device, &data, sizeof(data), 1, Buffer::UBO);
+    StaticBuffer staticBuffer(
+        device, &data, sizeof(data), 1, Buffer::Type::UBO
+    );
     ASSERT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, data.a);
     data.a=1;
     EXPECT_EQ(static_cast<Data*>(staticBuffer.m_bufferData)->a, 0);

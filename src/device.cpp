@@ -8,7 +8,8 @@ namespace evk {
 Device::Device(
     uint32_t num_threads,
     const std::vector<const char *> &deviceExtensions,
-    uint32_t swapchainSize)
+    uint32_t swapchainSize
+) noexcept
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
@@ -24,7 +25,8 @@ Device::Device(
     uint32_t num_threads,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize,
-    const std::vector<const char*> &validationLayers)
+    const std::vector<const char*> &validationLayers
+) noexcept
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads = num_threads;

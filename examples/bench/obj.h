@@ -63,7 +63,9 @@ class ObjBench
             glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f
         );
         uboUpdate.proj[1][1] *= -1;
-        ubo = DynamicBuffer(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+        ubo = DynamicBuffer(
+            device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::Type::UBO
+        );
         descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
         vertexInput = VertexInput(sizeof(Vertex));
@@ -73,11 +75,11 @@ class ObjBench
 
         indexBuffer = StaticBuffer(
             device, indices.data(), sizeof(indices[0]), indices.size(),
-            Buffer::INDEX
+            Buffer::Type::INDEX
         );
         vertexBuffer = StaticBuffer(
             device, vertices.data(), sizeof(vertices[0]), vertices.size(),
-            Buffer::VERTEX
+            Buffer::Type::VERTEX
         );
 
         vertexShader = Shader(device, "obj_vert.spv", Shader::Stage::VERTEX);

@@ -44,7 +44,7 @@ namespace evk {
 class Buffer
 {
     public:
-    enum Type{INDEX,VERTEX,UBO};
+    enum class Type{INDEX,VERTEX,UBO};
 
     Buffer()=default;
     Buffer(const Buffer&)=delete; // Class Buffer is not copyable.

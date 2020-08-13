@@ -59,7 +59,7 @@ class Device
         uint32_t numThreads,
         const std::vector<const char *> &deviceExtensions,
         const uint32_t swapchainSize
-    );
+    ) noexcept;
 
     /**
      * Constructs a Device with validation layers turned on. This is useful for
@@ -77,7 +77,7 @@ class Device
         const std::vector<const char *> &deviceExtensions,
         uint32_t swapchainSize,
         const std::vector<const char*> &validationLayers
-    );
+    ) noexcept;
 
     bool operator==(const Device&) const noexcept;
     bool operator!=(const Device&) const noexcept;

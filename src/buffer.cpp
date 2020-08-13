@@ -71,11 +71,11 @@ VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const noexcept
 {
     switch(type)
     {
-        case VERTEX:
+        case Type::VERTEX:
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        case INDEX:
+        case Type::INDEX:
             return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        case UBO:
+        case Type::UBO:
             return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     }
 }

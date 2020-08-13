@@ -85,8 +85,8 @@ TEST_F(DescriptorTest, multipleUniformBuffers)
     UniformBufferA a{'a'};
     UniformBufferB b{3.94};
 
-    DynamicBuffer uboA(device, &a, sizeof(a), 1, Buffer::UBO);
-    DynamicBuffer uboB(device, &b, sizeof(b), 1, Buffer::UBO);
+    DynamicBuffer uboA(device, &a, sizeof(a), 1, Buffer::Type::UBO);
+    DynamicBuffer uboB(device, &b, sizeof(b), 1, Buffer::Type::UBO);
 
     descriptor.addUniformBuffer(0, uboA, Shader::Stage::VERTEX);
     descriptor.addUniformBuffer(1, uboB, Shader::Stage::VERTEX);

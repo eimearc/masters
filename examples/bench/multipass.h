@@ -76,11 +76,11 @@ class MultipassBench
 
         indexBuffer = StaticBuffer(
             device, indices.data(), sizeof(indices[0]), indices.size(),
-            Buffer::INDEX
+            Buffer::Type::INDEX
         );
         vertexBuffer = StaticBuffer(
             device, vertices.data(), sizeof(vertices[0]), vertices.size(),
-            Buffer::VERTEX
+            Buffer::Type::VERTEX
         );
 
         vertexShader0 = Shader(device, "pass_0_vert.spv", Shader::Stage::VERTEX);
