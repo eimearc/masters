@@ -6,16 +6,17 @@
 \contentsline {figure}{\numberline {3.3}{\ignorespaces Vulkan dispatch table (\citeauthor {renderdoc} \citeyear {renderdoc}, p.1).\relax }}{7}
 \contentsline {figure}{\numberline {3.4}{\ignorespaces Vulkan API objects and their interactions (\citeauthor {vez} \citeyear {vez}, p.1).\relax }}{7}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Device class diagram.\relax }}{10}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Texture class diagram.\relax }}{10}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Attachment class diagram.\relax }}{10}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{11}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Device class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Texture class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Attachment class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{12}
 \contentsline {figure}{\numberline {4.6}{\ignorespaces Subpass class diagram.\relax }}{12}
 \contentsline {figure}{\numberline {4.7}{\ignorespaces Renderpass class diagram.\relax }}{12}
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{12}
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{12}
-\contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{13}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{13}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces evulkan architecture.\relax }}{13}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{14}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{14}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{15}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{16}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{17}

@@ -479,30 +479,77 @@
 
   \chapter{The evulkan Library}
 
-  \lipsum[1]
+    \section{How does it work?}
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_device.png}
-    \caption{Device class diagram.}
-    \label{fig:class_device}  
-  \end{wrapfigure}
+      The library exposes a number of components, each of which is a wrapper
+      around one or more Vulkan objects.
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_texture.png}
-    \caption{Texture class diagram.}
-    \label{fig:class_texture}  
-  \end{wrapfigure}
+      \subsection{evk::Device}
 
-  \begin{wrapfigure}{l}{\figurewidth}
-    \centering
-    \includegraphics[width=\imagewidth]{images/class_attachment.png}
-    \caption{Attachment class diagram.}
-    \label{fig:class_attachment}  
-  \end{wrapfigure}
+        A device is the basic component of the library. It is the first Vulkan
+        component that is constructed in the application. It encapsulates,
+        among other things, a VkInstance, VkPhysicalDevice, VkDevice, VkQueues.
+        A user can set up the device with or without validation layers. Leaving
+        validation layers turned off results in a faster application suitable
+        for production. \\
 
-  \lipsum[3]
+        The Device object tracks state across the program. It is used in the
+        creation of other evk Vulkan objects. The Device is responsible for
+        creating a VkInstance, VkPhysicalDevice, VkDevice, VkSwapchainKHR, VkFramebuffer
+        and all the required command buffers. \\
+
+        The Device is multithreaded, making use of Vulkan's multithreading
+        capabilities. For some more intensive operations, such as recording
+        draw operations into the command buffer, it splits the operation
+        across multiple threads, each of which records its portion of the
+        operation into a separate secondary command buffer. \\
+
+        \begin{figure}[h]
+        \begin{verbatim}
+            vkCmdDrawIndexed(
+              secondaryCommandBuffer, numIndices,
+              1, indexOffset, 0, 0
+            );
+        \end{verbatim}
+        \end{figure}
+
+        These secondary command buffers are then executed from the primary
+        command buffer.
+
+        \begin{figure}[h]
+        \begin{verbatim}
+            vkCmdExecuteCommands(
+              primaryCommandBuffer,
+              secondaryCommandBuffers.size(),
+              secondaryCommandBuffers.data()
+            );
+        \end{verbatim}
+        \end{figure}
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_device.png}
+          \caption{Device class diagram.}
+          \label{fig:class_device}  
+        \end{wrapfigure}
+
+      \subsection{evk::Texture}
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_texture.png}
+          \caption{Texture class diagram.}
+          \label{fig:class_texture}  
+        \end{wrapfigure}
+
+      \subsection{evk::Attachment}
+
+        \begin{wrapfigure}{l}{\figurewidth}
+          \centering
+          \includegraphics[width=\imagewidth]{images/class_attachment.png}
+          \caption{Attachment class diagram.}
+          \label{fig:class_attachment}  
+        \end{wrapfigure}
 
   \begin{wrapfigure}{l}{\figurewidth}
     \centering
@@ -552,6 +599,13 @@
     \caption{VertexInput class diagram.}
     \label{fig:class_vertexinput}
   \end{wrapfigure}
+
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/evk_architecture.png}
+    \caption{evulkan architecture.}
+    \label{fig:evulkan_architecture}  
+  \end{figure}
 
   \chapter{Conclusion}
 
