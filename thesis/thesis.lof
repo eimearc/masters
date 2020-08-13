@@ -16,7 +16,7 @@
 \contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{14}
 \contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{14}
 \contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{15}
-\contentsline {figure}{\numberline {4.11}{\ignorespaces evulkan architecture.\relax }}{17}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces evulkan architecture.\relax }}{18}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{19}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{20}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{20}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{21}
