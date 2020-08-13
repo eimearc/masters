@@ -557,6 +557,13 @@ FUNCTION {format.edition}
   if$
 }
 
+FUNCTION {format.version}
+{  version empty$
+    { "" }
+    { new.block version " [computer program]" * }
+  if$
+}
+
 INTEGERS { multiresult }
 
 FUNCTION {multi.page.check}
@@ -1099,9 +1106,10 @@ FUNCTION {software}
   new.block
   format.btitle "title" output.check
   new.block
+  format.version output
+  new.block
   address output
   publisher "publisher" output.check.colon
-  version output
   new.block
   note output
   fin.entry
