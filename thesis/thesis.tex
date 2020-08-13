@@ -31,7 +31,7 @@
 
 % For citing and referencing.
 \usepackage{natbib}
-\newcommand{\citebu}[1]{\citeauthor{#1} (\citeyear{#1})}
+\newcommand{\citebu}[1]{(\citeauthor{#1} \citeyear{#1})}
 \newcommand{\citediagram}[2]{(\citeauthor{#1} \citeyear{#1}, p.#2)}
 \newcommand{\citesoftware}[1]{(\citeauthor{#1} \citeyear{#1})}
 
@@ -192,7 +192,7 @@
 
     \section{Personal Inquiry}
 
-      This library was developed using a previous project as a starting point \citesoftware{personalinquiry}.
+      This library was developed using a previous project as a starting point \citebu{personalinquiry}.
       The base project can be found at http://github.com/eimearc/vulkan.
       It provided the boilerplate to run an instance of Vulkan and it
       saved days of typing 1000 lines of code to simply have a
@@ -200,6 +200,66 @@
       and testing was implemented in this masters project.
 
   \chapter{Technical Background}
+
+    \section{Useful Resources}
+
+      As Vulkan is a relatively complex topic, many resources, both online and
+      in-print, came in useful during this project and may help the reader
+      with their Vulkan understanding.
+
+      \begin{itemize}
+        \item Vulkan Programming Guide \citebu{vulkanbook}
+        \item Sascha Willem's Vulkan examples \citebu{sascha}
+        \item Vulkan Tutorial \citebu{vulkantutorial}
+        \item ARM Vulkan tutorial \citebu{arm}
+      \end{itemize}
+
+    \section{Comparison with OpenGL}
+
+      Vulkan is a low-overhead, cross-platform graphics and computing API.
+      It was developed to allow higher performance and more balanced CPU/GPU
+      usage in comparison to older APIs such as OpenGL. \\
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{images/compare_opengl.png}
+        \caption{OpenGL compared to Vulkan \citediagram{vulkan_guide}{1}.}
+        \label{fig:compare_opengl}  
+      \end{figure}
+
+      While OpenGL acts as a state machine, keeping track of application state,
+      Vulkan requires the developer to keep track of such state. OpenGL requires
+      operations to be submitted in sequence, while Vulkan takes full advantage
+      of modern multicore machines and allows operations to be recorded and
+      submitted in parallel. \\
+
+      OpenGL handles host-device synchronization and memory management in the
+      driver, while Vulkan requires the developer to deal with this. The idea
+      behind this is that the developer knows best how their data will be
+      accessed and, as a result, the developer knows the optimal way to lay out
+      data in memory. While this does result in a more explicit, low level API
+      and longer development times, the advantage becomes apparent in the
+      runtime speedup. There is much less overhead in the Vulkan driver, as the
+      developer provides most of the required detail. Less driver work
+      generally results in faster run times. \\
+
+      OpenGL provides a constant level of error checking. While this is useful
+      during the development phase, once an application is rolled out to
+      production, error checking slows down the application. Vulkan provides
+      a way around this with validation layers that can be registered during
+      development and removed afterwards, further speeding up an application. \\
+
+      OpenGL reads shader code in GLSL and compiles it at run time. This leads
+      to a slower run time in the best case, or run time errors in the worst
+      case when the GLSL is not properly formed. Vulkan requires the developer
+      to compile the shader code to byte code (SPIR-V) ahead of time and to
+      provide as such. This has the dual advantage of ensuring the shader
+      code is correct and speeding up the run time. \\
+
+      The pattern is apparent; Vulkan requires more setup, state tracking and
+      memory management from the developer. This removes much of the required
+      word from the driver, resulting in faster draw speeds in comparison
+      with older APIs such as OpenGL.
   
     \begin{figure}[h]
       \centering
@@ -207,9 +267,6 @@
       \caption{Vulkan API objects and their interactions \citediagram{vez}{1}.}
       \label{fig:interactions}  
     \end{figure}
-
-    \section{Limitations of OpenGL}
-    OpenGL, the current cross-platform industry standard, was first released in 1992.
 
   \chapter{The evulkan Library}
 

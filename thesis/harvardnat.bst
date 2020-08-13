@@ -334,7 +334,7 @@ FUNCTION {format.url}
 FUNCTION {format.urldate}
 { urldate empty$
     { "" }
-    { new.block " [ Accessed " urldate * " ]" * }
+    { new.block " [Accessed " urldate * "]" * }
   if$
 }
 
