@@ -52,18 +52,18 @@ class Texture
         VkBuffer buffer,
         VkImage image,
         VkExtent2D extent
-    );
+    ) noexcept;
     void transitionImageLayout(
         const Device &device,
         VkCommandPool commandPool,
         VkImage image,
         VkFormat format,
         Transition transition
-    );
+    ) noexcept;
     void reset() noexcept;
 
-    VkSampler sampler() const { return m_imageSampler; };
-    VkImageView view() const { return m_imageView; };
+    VkSampler sampler() const noexcept { return m_imageSampler; };
+    VkImageView view() const noexcept { return m_imageView; };
 
     VkDevice m_device=VK_NULL_HANDLE;
     VkImage m_image=VK_NULL_HANDLE;

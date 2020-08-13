@@ -27,7 +27,7 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
     return *this;
 }
 
-void Descriptor::reset()
+void Descriptor::reset() noexcept
 {
     m_bufferInfo.resize(0);
     m_device=VK_NULL_HANDLE;
@@ -44,7 +44,8 @@ void Descriptor::reset()
 
 Descriptor::Descriptor(
     const Device &device,
-    const size_t swapchainSize)
+    const size_t swapchainSize
+) noexcept
 {
     m_device = device.device();
     m_swapchainSize = swapchainSize;
@@ -58,7 +59,7 @@ Descriptor::Descriptor(
     initializePoolSize(Type::UNIFORM_BUFFER);
 }
 
-void Descriptor::initializePoolSize(Type type)
+void Descriptor::initializePoolSize(Type type) noexcept
 {
     uint32_t index = static_cast<uint32_t>(type);
     m_poolSizes[index].descriptorCount=0;
@@ -85,13 +86,13 @@ bool Descriptor::operator!=(const Descriptor &other) const noexcept
     return !(*this==other);
 }
 
-void Descriptor::finalize()
+void Descriptor::finalize() noexcept
 {
     allocateDescriptorPool();
     allocateDescriptorSets();
 }
 
-void Descriptor::allocateDescriptorPool()
+void Descriptor::allocateDescriptorPool() noexcept
 {
     removeEmptyPoolSizes();
 
@@ -105,7 +106,7 @@ void Descriptor::allocateDescriptorPool()
     EVK_ASSERT(result,"failed to create descriptor pool.");
 }
 
-void Descriptor::removeEmptyPoolSizes()
+void Descriptor::removeEmptyPoolSizes() noexcept
 {
     auto isEmpty = [](const VkDescriptorPoolSize &x)
     {
@@ -116,7 +117,7 @@ void Descriptor::removeEmptyPoolSizes()
         m_poolSizes.end());
 }
 
-void Descriptor::removeEmptyWriteSets()
+void Descriptor::removeEmptyWriteSets() noexcept
 {
     auto isEmpty = [](const VkWriteDescriptorSet &x)
     {
@@ -131,7 +132,7 @@ void Descriptor::removeEmptyWriteSets()
 }
 
 // TODO: Handle case where no descriptors have been added.
-void Descriptor::allocateDescriptorSets()
+void Descriptor::allocateDescriptorSets() noexcept
 {
     m_setLayouts.resize(2);
 
@@ -189,7 +190,7 @@ void Descriptor::allocateDescriptorSets()
 void Descriptor::addUniformBuffer(
     const uint32_t binding,
     const Buffer &buffer,
-    const Shader::Stage stage)
+    const Shader::Stage stage) noexcept
 {
     addDescriptorSetBinding(
         Type::UNIFORM_BUFFER, binding, stage
@@ -203,7 +204,7 @@ void Descriptor::addUniformBuffer(
 void Descriptor::addInputAttachment(
     const uint32_t binding,
     Attachment &attachment,
-    const Shader::Stage stage)
+    const Shader::Stage stage) noexcept
 {
     addDescriptorSetBinding(
         Type::INPUT_ATTACHMENT, binding, stage
@@ -215,7 +216,7 @@ void Descriptor::addInputAttachment(
 void Descriptor::addTextureSampler(
     const uint32_t binding,
     const Texture &texture,
-    const Shader::Stage stage)
+    const Shader::Stage stage) noexcept
 {
     addDescriptorSetBinding(
         Type::TEXTURE_SAMPLER, binding, stage
@@ -226,7 +227,7 @@ void Descriptor::addTextureSampler(
 void Descriptor::addDescriptorSetBinding(
     Type type,
     uint32_t binding,
-    Shader::Stage stage)
+    Shader::Stage stage) noexcept
 {
     addPoolSize(type);
 
@@ -239,7 +240,7 @@ void Descriptor::addDescriptorSetBinding(
     m_setBindings.push_back(layoutBinding);   
 }
 
-VkDescriptorType Descriptor::descriptorType(Type type)
+VkDescriptorType Descriptor::descriptorType(Type type) const noexcept
 {
     switch(type)
     {
@@ -252,7 +253,7 @@ VkDescriptorType Descriptor::descriptorType(Type type)
     }
 }
 
-void Descriptor::addPoolSize(Type type)
+void Descriptor::addPoolSize(Type type) noexcept
 {
     uint32_t index=static_cast<uint32_t>(type);
     VkDescriptorPoolSize &poolSize = m_poolSizes[index];
@@ -264,7 +265,7 @@ void Descriptor::addWriteSetBuffer(
     VkDeviceSize range,
     uint32_t binding,
     VkDescriptorType type,
-    Shader::Stage stage)
+    Shader::Stage stage) noexcept
 {
     m_bufferInfo.push_back(
         std::make_unique<VkDescriptorBufferInfo>()
@@ -290,7 +291,7 @@ void Descriptor::addWriteSetBuffer(
 void Descriptor::addWriteSetTextureSampler(
     const Texture &texture,
     uint32_t binding,
-    Shader::Stage stage)
+    Shader::Stage stage) noexcept
 {
     m_textureSamplerInfo.push_back(
         std::make_unique<VkDescriptorImageInfo>()
@@ -315,7 +316,7 @@ void Descriptor::addWriteSetTextureSampler(
 void Descriptor::addWriteSetInputAttachment(
     const VkImageView &imageView,
     uint32_t binding,
-    Shader::Stage stage)
+    Shader::Stage stage) noexcept
 {
     m_inputAttachmentInfo.push_back(
         std::make_unique<VkDescriptorImageInfo>()
@@ -337,7 +338,7 @@ void Descriptor::addWriteSetInputAttachment(
     addWriteSet(descriptor,binding,stage);
 }
 
-void Descriptor::recreate()
+void Descriptor::recreate() noexcept
 {
     int i = 0;
     for (auto &info : m_inputAttachmentInfo)
@@ -350,7 +351,7 @@ void Descriptor::recreate()
 void Descriptor::addWriteSet(
     VkWriteDescriptorSet writeSet,
     uint32_t binding,
-    Shader::Stage stage)
+    Shader::Stage stage) noexcept
 {
     switch(stage)
     {

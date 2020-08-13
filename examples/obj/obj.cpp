@@ -72,7 +72,9 @@ int main(int argc, char **argv)
         glm::radians(45.0f), 800 / (float) 600 , 0.1f, 10.0f
     );
     uboUpdate.proj[1][1] *= -1;
-    DynamicBuffer ubo(device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::UBO);
+    DynamicBuffer ubo(
+        device, &uboUpdate, sizeof(uboUpdate), 1, Buffer::Type::UBO
+    );
     descriptor.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
 
     VertexInput vertexInput(sizeof(Vertex));
@@ -81,10 +83,10 @@ int main(int argc, char **argv)
     vertexInput.setVertexAttributeVec2(2,offsetof(Vertex,texCoord));
 
     StaticBuffer indexBuffer(
-        device, in.data(), sizeof(in[0]), in.size(), Buffer::INDEX
+        device, in.data(), sizeof(in[0]), in.size(), Buffer::Type::INDEX
     );
     StaticBuffer vertexBuffer(
-        device, v.data(), sizeof(v[0]), v.size(), Buffer::VERTEX
+        device, v.data(), sizeof(v[0]), v.size(), Buffer::Type::VERTEX
     );
 
     Shader vertexShader(device, "shader_vert.spv", Shader::Stage::VERTEX);

@@ -50,22 +50,26 @@ class Device
      * Constructs a Device without validation layers.
      * @param[in] numThreads the number of threads the Device should use.
      * @param[in] deviceExtensions the extensions required to create the device.
-     * @param[in] swapchainSize the number of images used by the swapchain,
-     *  generally between two and three.
+     * @param[in] swapchainSize the number of images used by the swapchain. A
+     *  graphics card has a minimum number of images it needs to function, in
+     *  addition to a maximum. The capabilities of a graphics card are
+     *  available to view by running the `vulkaninfo` command.
      */
     Device(
         uint32_t numThreads,
         const std::vector<const char *> &deviceExtensions,
         const uint32_t swapchainSize
-    );
+    ) noexcept;
 
     /**
      * Constructs a Device with validation layers turned on. This is useful for
      *  developing programs.
      * @param[in] numThreads the number of threads the Device should use.
      * @param[in] deviceExtensions the extensions required to create the device.
-     * @param[in] swapchainSize the number of images used by the swapchain,
-     *  generally between two and three.
+     * @param[in] swapchainSize the number of images used by the swapchain. A
+     *  graphics card has a minimum number of images it needs to function, in
+     *  addition to a maximum. The capabilities of a graphics card are
+     *  available to view by running the `vulkaninfo` command.
      * @param[in] validationLayers the layers to use for validation.
      */
     Device(
@@ -73,7 +77,7 @@ class Device
         const std::vector<const char *> &deviceExtensions,
         uint32_t swapchainSize,
         const std::vector<const char*> &validationLayers
-    );
+    ) noexcept;
 
     bool operator==(const Device&) const noexcept;
     bool operator!=(const Device&) const noexcept;
@@ -92,7 +96,7 @@ class Device
         uint32_t width,
         uint32_t height,
         const std::vector<const char *> &windowExtensions
-    );
+    ) noexcept;
 
     /**
      * Finalize the device. This is the last function that is called before
@@ -105,58 +109,100 @@ class Device
         Buffer &indexBuffer,
         Buffer &vertexBuffer,
         std::vector<Pipeline*> &pipelines
-    );
+    ) noexcept;
 
     /**
      * Draw.
      **/
-    void draw();
+    void draw() noexcept;
 
     /**
      * Resize the surface and associated resources during the next draw command.
      **/
     void resizeRequired() noexcept;
 
-    VkInstance instance() const { return m_device->m_instance; }
-    VkSurfaceKHR& surface() const { return m_device->m_surface; }
+    VkInstance instance() const noexcept { return m_device->m_instance; }
+    VkSurfaceKHR& surface() const noexcept { return m_device->m_surface; }
 
     private:
     // Device.
-    VkPhysicalDevice physicalDevice() const { return m_device->m_physicalDevice; }
-    VkDevice device() const { return m_device->m_device; }
-    VkFormat depthFormat() const { return m_device->m_depthFormat; };
-    VkQueue graphicsQueue() const { return m_device->m_graphicsQueue; };
-    VkQueue presentQueue() const { return m_device->m_presentQueue; };
-    uint32_t numThreads() const { return m_numThreads; };
-    std::vector<std::unique_ptr<Thread>>& threads() { return m_threadPool.threads; };
+    VkPhysicalDevice physicalDevice() const noexcept
+    {
+        return m_device->m_physicalDevice;
+    }
+    VkDevice device() const noexcept { return m_device->m_device; }
+    VkFormat depthFormat() const noexcept { return m_device->m_depthFormat; };
+    VkQueue graphicsQueue() const noexcept
+    {
+        return m_device->m_graphicsQueue;
+    };
+    VkQueue presentQueue() const noexcept { return m_device->m_presentQueue; };
+    uint32_t numThreads() const noexcept { return m_numThreads; };
+    std::vector<std::unique_ptr<Thread>>& threads() noexcept
+    {
+        return m_threadPool.threads;
+    };
 
     void finishSetup(
         std::function<void()> windowFunc,
         const std::vector<const char*> &windowExtensions
-    );
-    void record();
-    void resizeWindow();
-    void wait() { m_threadPool.wait(); };
+    ) noexcept;
+    void record() noexcept;
+    void resizeWindow() noexcept;
+    void wait() noexcept { m_threadPool.wait(); };
 
     // Swapchain.
-    VkExtent2D extent() const { return m_swapchain->m_extent; };
-    VkSwapchainKHR swapchain() const { return m_swapchain->m_swapchain; };
-    uint32_t swapchainSize() const { return m_swapchain->m_images.size(); };
-    std::vector<VkImageView> swapchainImageViews() const { return m_swapchain->m_imageViews; };
+    VkExtent2D extent() const noexcept { return m_swapchain->m_extent; };
+    VkSwapchainKHR swapchain() const noexcept
+    {
+        return m_swapchain->m_swapchain;
+    };
+    uint32_t swapchainSize() const noexcept
+    {
+        return m_swapchain->m_images.size();
+    };
+    std::vector<VkImageView> swapchainImageViews() const noexcept
+    {
+        return m_swapchain->m_imageViews;
+    };
 
     // Commands.
-    std::vector<VkCommandPool> commandPools() const { return m_commands->m_commandPools; };
-    std::vector<VkCommandBuffer> primaryCommandBuffers() const { return m_commands->m_primaryCommandBuffers; };
-    std::vector<VkCommandBuffer> secondaryCommandBuffers() const { return m_commands->m_secondaryCommandBuffers; };
+    std::vector<VkCommandPool> commandPools() const noexcept
+    {
+        return m_commands->m_commandPools;
+    };
+    std::vector<VkCommandBuffer> primaryCommandBuffers() const noexcept
+    {
+        return m_commands->m_primaryCommandBuffers;
+    };
+    std::vector<VkCommandBuffer> secondaryCommandBuffers() const noexcept
+    {
+        return m_commands->m_secondaryCommandBuffers;
+    };
 
     // Sync.
-    std::vector<VkFence>& frameFences() const { return m_sync->m_fencesInFlight; };
-    std::vector<VkFence>& imageFences() const { return m_sync->m_imagesInFlight; };
-    std::vector<VkSemaphore>& imageSempahores() const { return m_sync->m_imageAvailableSemaphores; };
-    std::vector<VkSemaphore>& renderSempahores() const { return m_sync->m_renderFinishedSemaphores; };
+    std::vector<VkFence>& frameFences() const noexcept
+    {
+        return m_sync->m_fencesInFlight;
+    };
+    std::vector<VkFence>& imageFences() const noexcept
+    {
+        return m_sync->m_imagesInFlight;
+    };
+    std::vector<VkSemaphore>& imageSempahores() const noexcept
+    {
+        return m_sync->m_imageAvailableSemaphores;
+    };
+    std::vector<VkSemaphore>& renderSempahores() const noexcept
+    {
+        return m_sync->m_renderFinishedSemaphores;
+    };
 
     // Framebuffers.
-    std::vector<VkFramebuffer> framebuffers() const { return m_framebuffer->m_framebuffers; };
+    std::vector<VkFramebuffer> framebuffers() const noexcept
+    {
+        return m_framebuffer->m_framebuffers;
+    };
 
     class _Device
     {
@@ -179,7 +225,7 @@ class Device
         void finishSetup(
             std::function<void()> windowFunc,
             const std::vector<const char *> &windowExtensions
-        );
+        ) noexcept;
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
@@ -194,37 +240,37 @@ class Device
         std::vector<const char *> m_windowExtensions;
 
         private:
-        void createInstance();
-        void pickPhysicalDevice();
-        void createDevice();
+        void createInstance() noexcept;
+        void pickPhysicalDevice() noexcept;
+        void createDevice() noexcept;
         VkResult createDebugUtilsMessengerEXT(
             VkInstance instance,
             const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
             const VkAllocationCallbacks* pAllocator,
             VkDebugUtilsMessengerEXT* pDebugMessenger
-        );
-        void setDepthFormat();
+        ) noexcept;
+        void setDepthFormat() noexcept;
         bool isDeviceSuitable(
             VkPhysicalDevice device,
             VkSurfaceKHR surface,
             std::vector<const char *> deviceExtensions
-        );
+        ) noexcept;
         bool checkDeviceExtensionSupport(
             VkPhysicalDevice device,
             std::vector<const char *> deviceExtensions
-        );
+        ) noexcept;
         void destroyDebugUtilsMessengerEXT(
             VkInstance instance,
             VkDebugUtilsMessengerEXT debugMessenger,
             const VkAllocationCallbacks* pAllocator
-        );
+        ) noexcept;
         void debugMessengerCreateInfo(
             VkDebugUtilsMessengerCreateInfoEXT& createInfo
-        );
+        ) noexcept;
         internal::QueueFamilyIndices getQueueFamilies(
             VkPhysicalDevice device,
             VkSurfaceKHR surface
-        );
+        ) noexcept;
     };
 
     class Swapchain
@@ -245,22 +291,22 @@ class Device
             const uint32_t swapchainSize
         );
 
-        bool operator==(const Swapchain &other) const;
-        bool operator!=(const Swapchain &other) const;
+        bool operator==(const Swapchain &other) const noexcept;
+        bool operator!=(const Swapchain &other) const noexcept;
 
         void reset() noexcept;
-        void recreate();
+        void recreate() noexcept;
         void setup() noexcept;
 
         VkExtent2D chooseSwapExtent(
             const VkSurfaceCapabilitiesKHR& capabilities
-        ) const;
+        ) const noexcept;
         VkPresentModeKHR chooseSwapPresentMode(
             const std::vector<VkPresentModeKHR>& availablePresentModes
-        ) const;
+        ) const noexcept;
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
             const std::vector<VkSurfaceFormatKHR>& availableFormats
-        ) const;
+        ) const noexcept;
         void destroy() noexcept;
 
         VkDevice m_device=VK_NULL_HANDLE;
@@ -346,8 +392,8 @@ class Device
         bool operator==(const Framebuffer &other) const noexcept;
         bool operator!=(const Framebuffer &other) const noexcept;
 
-        void recreate();
-        void setup();
+        void recreate() noexcept;
+        void setup() noexcept;
 
         Device *m_device=nullptr;
         std::vector<VkFramebuffer> m_framebuffers;
@@ -403,7 +449,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData
-);
+) noexcept;
 
 } // namespace evk
 

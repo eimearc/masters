@@ -8,7 +8,8 @@ namespace evk {
 Device::Device(
     uint32_t num_threads,
     const std::vector<const char *> &deviceExtensions,
-    uint32_t swapchainSize)
+    uint32_t swapchainSize
+) noexcept
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads=num_threads;
@@ -24,7 +25,8 @@ Device::Device(
     uint32_t num_threads,
     const std::vector<const char *> &deviceExtensions,
     uint32_t swapchainSize,
-    const std::vector<const char*> &validationLayers)
+    const std::vector<const char*> &validationLayers
+) noexcept
 {
     m_threadPool.setThreadCount(num_threads);
     m_numThreads = num_threads;
@@ -38,7 +40,7 @@ Device::Device(
 void Device::finishSetup(
     std::function<void()> windowFunc,
     const std::vector<const char*> &windowExtensions
-)
+) noexcept
 {
     m_device->finishSetup(windowFunc, windowExtensions);
     m_swapchain=std::make_unique<Swapchain>(
@@ -57,7 +59,7 @@ void Device::createSurface(
     uint32_t width,
     uint32_t height,
     const std::vector<const char*> &windowExtensions
-)
+) noexcept
 {
     m_windowExtent = {width,height};
     finishSetup(surfaceFunc, windowExtensions);
@@ -141,7 +143,7 @@ Device::_Device::_Device(
 void Device::_Device::finishSetup(
     std::function<void()> windowFunc,
     const std::vector<const char *> &windowExtensions
-)
+) noexcept
 {
     m_windowExtensions=windowExtensions;
     createInstance();
@@ -204,7 +206,7 @@ bool Device::_Device::operator!=(const _Device &other) const noexcept
     return !(*this==other);
 }
 
-void Device::_Device::createInstance()
+void Device::_Device::createInstance() noexcept
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -224,10 +226,10 @@ void Device::_Device::createInstance()
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
     if(m_validationLayers.size() > 0)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.enabledLayerCount = m_validationLayers.size();
         createInfo.ppEnabledLayerNames = m_validationLayers.data();
         debugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        createInfo.pNext=(VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
     }
     else
@@ -254,7 +256,7 @@ void Device::_Device::createInstance()
     }
 }
 
-void Device::_Device::pickPhysicalDevice()
+void Device::_Device::pickPhysicalDevice() noexcept
 {
     uint32_t deviceCount = 0;
     const std::string enumerateError =
@@ -278,9 +280,11 @@ void Device::_Device::pickPhysicalDevice()
     )
 }
 
-void Device::_Device::createDevice()
+void Device::_Device::createDevice() noexcept
 {
-    internal::QueueFamilyIndices indices = getQueueFamilies(m_physicalDevice, m_surface);
+    internal::QueueFamilyIndices indices = getQueueFamilies(
+        m_physicalDevice, m_surface
+    );
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {
@@ -326,13 +330,16 @@ void Device::_Device::createDevice()
     vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
 }
 
-VkResult Device::_Device::createDebugUtilsMessengerEXT(VkInstance instance,
+VkResult Device::_Device::createDebugUtilsMessengerEXT(
+    VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
-    VkDebugUtilsMessengerEXT* pDebugMessenger)
+    VkDebugUtilsMessengerEXT* pDebugMessenger
+) noexcept
 {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-        "vkCreateDebugUtilsMessengerEXT");
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+                    instance,"vkCreateDebugUtilsMessengerEXT"
+                );
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     } else {
@@ -340,7 +347,7 @@ VkResult Device::_Device::createDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
-void Device::_Device::setDepthFormat()
+void Device::_Device::setDepthFormat() noexcept
 {
     std::vector<VkFormat> candidates = {
         VK_FORMAT_D32_SFLOAT,VK_FORMAT_D32_SFLOAT_S8_UINT,
@@ -365,7 +372,7 @@ bool Device::_Device::isDeviceSuitable(
     VkPhysicalDevice device,
     VkSurfaceKHR surface,
     std::vector<const char *> deviceExtensions
-)
+) noexcept
 {
     internal::QueueFamilyIndices indices = internal::findQueueFamilies(
         device, surface
@@ -391,14 +398,23 @@ bool Device::_Device::isDeviceSuitable(
         && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
-bool Device::_Device::checkDeviceExtensionSupport(VkPhysicalDevice device, std::vector<const char *> deviceExtensions)
+bool Device::_Device::checkDeviceExtensionSupport(
+    VkPhysicalDevice device,
+    std::vector<const char *> deviceExtensions
+) noexcept
 {
     uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+    vkEnumerateDeviceExtensionProperties(
+        device, nullptr, &extensionCount, nullptr
+    );
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+    vkEnumerateDeviceExtensionProperties(
+        device, nullptr, &extensionCount, availableExtensions.data()
+    );
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> requiredExtensions(
+        deviceExtensions.begin(), deviceExtensions.end()
+    );
 
     for (const auto &extension : availableExtensions)
     {
@@ -408,19 +424,21 @@ bool Device::_Device::checkDeviceExtensionSupport(VkPhysicalDevice device, std::
     return requiredExtensions.empty();
 }
 
-void Device::_Device::destroyDebugUtilsMessengerEXT(VkInstance instance,
+void Device::_Device::destroyDebugUtilsMessengerEXT(
+    VkInstance instance,
     VkDebugUtilsMessengerEXT debugMessenger,
-    const VkAllocationCallbacks* pAllocator)
+    const VkAllocationCallbacks* pAllocator
+) noexcept
 {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-        "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr)
-    {
-        func(instance, debugMessenger, pAllocator);
-    }
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+                    instance, "vkDestroyDebugUtilsMessengerEXT"
+                );
+    if (func != nullptr) func(instance, debugMessenger, pAllocator);
 }
 
-void Device::_Device::debugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+void Device::_Device::debugMessengerCreateInfo(
+    VkDebugUtilsMessengerCreateInfoEXT& createInfo
+) noexcept
 {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -437,14 +455,18 @@ void Device::_Device::debugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEX
 internal::QueueFamilyIndices Device::_Device::getQueueFamilies(
     VkPhysicalDevice device,
     VkSurfaceKHR surface
-)
+) noexcept
 {
     internal::QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        device, &queueFamilyCount, nullptr
+    );
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(
+        device, &queueFamilyCount, queueFamilies.data()
+    );
 
     int i = 0;
     for (const auto& queueFamily : queueFamilies)
@@ -454,11 +476,10 @@ internal::QueueFamilyIndices Device::_Device::getQueueFamilies(
             indices.graphicsFamily = i;
 
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-            if (presentSupport)
-            {
-                indices.presentFamily = i;
-            }
+            vkGetPhysicalDeviceSurfaceSupportKHR(
+                device, i, surface, &presentSupport
+            );
+            if (presentSupport) indices.presentFamily = i;
         }
         if (indices.isComplete())
         {
@@ -474,7 +495,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData)
+    void* pUserData
+) noexcept
 {
     std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 

@@ -1,5 +1,7 @@
 #include "buffer.h"
 
+#include "evk_assert.h"
+
 namespace evk {
 
 Buffer::Buffer(Buffer &&other) noexcept
@@ -10,8 +12,10 @@ Buffer::Buffer(Buffer &&other) noexcept
 Buffer::~Buffer() noexcept
 {
     if (m_bufferData!=nullptr) free(m_bufferData);
-    if (m_buffer!=VK_NULL_HANDLE) vkDestroyBuffer(m_device, m_buffer, nullptr);
-    if (m_bufferMemory!=VK_NULL_HANDLE) vkFreeMemory(m_device, m_bufferMemory, nullptr);
+    if (m_buffer!=VK_NULL_HANDLE)
+        vkDestroyBuffer(m_device, m_buffer, nullptr);
+    if (m_bufferMemory!=VK_NULL_HANDLE)
+        vkFreeMemory(m_device, m_bufferMemory, nullptr);
 }
 
 Buffer& Buffer::operator=(Buffer &&other) noexcept
@@ -63,15 +67,15 @@ bool Buffer::operator!=(const Buffer &other) const noexcept
     return !(*this==other);
 }
 
-VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const
+VkBufferUsageFlags Buffer::typeToFlag(const Type &type) const noexcept
 {
     switch(type)
     {
-        case VERTEX:
+        case Type::VERTEX:
             return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        case INDEX:
+        case Type::INDEX:
             return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        case UBO:
+        case Type::UBO:
             return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     }
 }
@@ -81,7 +85,8 @@ StaticBuffer::StaticBuffer(
     const void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    const Type &type)
+    const Type &type
+) noexcept
 {
     m_elementSize=elementSize;
     m_numElements=numElements;
@@ -100,34 +105,37 @@ StaticBuffer::StaticBuffer(
 
 void StaticBuffer::finalize(
     Device &device,
-    const Type &type)
+    const Type &type
+) noexcept
 {
     const std::vector<VkCommandPool> &commandPools = device.commandPools();
-    const int num_elements_each = m_numElements/m_numThreads;
+
+    size_t numThreadsLocal = m_numThreads;
+    if (m_numElements<numThreadsLocal) numThreadsLocal = m_numElements;
+
+    const int num_elements_each = m_numElements/numThreadsLocal;
     m_bufferSize = m_elementSize*m_numElements;
 
-    std::vector<VkCommandBuffer> commandBuffers(m_numThreads);
-    std::vector<VkBuffer> buffers(m_numThreads);
-    std::vector<VkDeviceMemory> bufferMemory(m_numThreads);
+    std::vector<VkCommandBuffer> commandBuffers(numThreadsLocal);
+    std::vector<VkBuffer> buffers(numThreadsLocal);
+    std::vector<VkDeviceMemory> bufferMemory(numThreadsLocal);
 
     VkBufferUsageFlags usageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     usageFlags |= typeToFlag(type);
 
     // Create the device-local buffer.
     internal::createBuffer(
-        m_device,
-        m_physicalDevice,
-        m_bufferSize,
-        usageFlags,
+        m_device, m_physicalDevice, m_bufferSize, usageFlags,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        &m_buffer, &m_bufferMemory);
+        &m_buffer, &m_bufferMemory
+    );
 
     auto setupCopyFunction = [&](int thread)
     {
         int element_offset = num_elements_each*thread;
 
         int num_elements=num_elements_each;
-        if (thread==(m_numThreads-1)) 
+        if (thread==(numThreadsLocal-1)) 
             num_elements = m_numElements-(thread*num_elements_each);
 
         auto &staging_buffer = buffers[thread];
@@ -144,7 +152,8 @@ void StaticBuffer::finalize(
     int counter = 0;
     for (auto &t: device.threads())
     {
-        t->addJob(std::bind(setupCopyFunction,counter++));
+        if (counter < numThreadsLocal)
+            t->addJob(std::bind(setupCopyFunction,counter++));
     }
     device.wait();
 
@@ -156,7 +165,7 @@ void StaticBuffer::finalize(
     vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(m_queue);
 
-    for (size_t i = 0; i<m_numThreads; ++i)
+    for (size_t i = 0; i<numThreadsLocal; ++i)
     {
         vkFreeCommandBuffers(m_device, commandPools[i], 1, &commandBuffers[i]);
         vkDestroyBuffer(m_device, buffers[i], nullptr);
@@ -175,19 +184,19 @@ void StaticBuffer::copyData(
     const size_t num_elements,
     const VkDeviceSize element_size,
     const size_t element_offset
-) const
+) const noexcept
 {
     const size_t buffer_offset = element_offset*element_size;
     const size_t buffer_size = num_elements*element_size;
 
+    EVK_ASSERT_TRUE(buffer_size>0, "buffer size is 0\n");
+
     // Use a host visible buffer as a staging buffer.
     internal::createBuffer(
-        device,
-        physicalDevice,
-        buffer_size,
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        device, physicalDevice, buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &staging_buffer, &staging_buffer_memory);
+        &staging_buffer, &staging_buffer_memory
+    );
 
     // TODO: Check if below is valid.
     const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_bufferData);
@@ -224,22 +233,21 @@ void StaticBuffer::copyData(
 
 DynamicBuffer::DynamicBuffer(
     const Device &device,
-    const VkDeviceSize &bufferSize) // TODO: Add type!!
+    const VkDeviceSize &bufferSize
+) noexcept // TODO: Add type!!
 {
     m_device = device.device();
     m_bufferSize=bufferSize;
     m_numElements=1;
 
     internal::createBuffer(
-        m_device,
-        device.physicalDevice(),
-        bufferSize,
+        m_device, device.physicalDevice(), bufferSize,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, // TODO: Add type here!!
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &m_buffer, &m_bufferMemory);
 }
 
-void DynamicBuffer::update(const void *srcBuffer)
+void DynamicBuffer::update(const void *srcBuffer) noexcept
 {
     if (m_bufferData!=nullptr) free(m_bufferData);
     m_bufferData = malloc(m_bufferSize);
@@ -256,7 +264,8 @@ DynamicBuffer::DynamicBuffer(
     const void *data,
     const VkDeviceSize &elementSize,
     const size_t numElements,
-    const Type &type)
+    const Type &type
+) noexcept
 {
     m_device = device.device();
     m_physicalDevice=device.physicalDevice();
@@ -271,10 +280,7 @@ DynamicBuffer::DynamicBuffer(
     VkBufferUsageFlags usageFlags = typeToFlag(type);
 
     internal::createBuffer(
-        m_device,
-        device.physicalDevice(),
-        m_bufferSize,
-        usageFlags,
+        m_device, device.physicalDevice(), m_bufferSize, usageFlags,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &m_buffer, &m_bufferMemory);
 
@@ -285,7 +291,7 @@ void Buffer::copyBuffer(
     VkCommandPool commandPool,
     VkQueue queue,
     VkBuffer srcBuffer,
-    VkBuffer dstBuffer) const
+    VkBuffer dstBuffer) const noexcept
 {
     VkCommandBuffer commandBuffer;
     internal::beginSingleTimeCommands(m_device, commandPool, &commandBuffer);

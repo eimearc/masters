@@ -61,8 +61,12 @@ class Shader
     bool operator!=(const Shader&) const noexcept;
 
     private:
-    VkPipelineShaderStageCreateInfo createInfo() const noexcept { return m_createInfo; };
-    static VkShaderStageFlagBits stageFlags(const Stage &stage);
+    static VkShaderStageFlagBits stageFlags(const Stage &stage) noexcept;
+
+    VkPipelineShaderStageCreateInfo createInfo() const noexcept
+    {
+        return m_createInfo;
+    };
     std::vector<char> readFile(const std::string& filename) const;
 
     VkPipelineShaderStageCreateInfo m_createInfo;

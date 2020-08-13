@@ -44,7 +44,7 @@ namespace evk {
 class Buffer
 {
     public:
-    enum Type{INDEX,VERTEX,UBO};
+    enum class Type{INDEX,VERTEX,UBO};
 
     Buffer()=default;
     Buffer(const Buffer&)=delete; // Class Buffer is not copyable.
@@ -57,18 +57,18 @@ class Buffer
     bool operator!=(const Buffer&) const noexcept;
 
     protected:
-    VkBuffer buffer() const { return m_buffer; };
-    size_t numElements() const { return m_numElements; };
-    VkDeviceSize size() const { return m_bufferSize; }; 
+    VkBuffer buffer() const noexcept { return m_buffer; };
+    size_t numElements() const noexcept { return m_numElements; };
+    VkDeviceSize size() const noexcept { return m_bufferSize; }; 
 
     void copyBuffer(
         VkCommandPool commandPool,
         VkQueue queue,
         VkBuffer srcBuffer,
         VkBuffer dstBuffer
-    ) const;
+    ) const noexcept;
     void reset() noexcept;
-    VkBufferUsageFlags typeToFlag(const Type &type) const;
+    VkBufferUsageFlags typeToFlag(const Type &type) const noexcept;
 
     VkBuffer m_buffer=VK_NULL_HANDLE;
     void *m_bufferData=nullptr;
@@ -92,6 +92,7 @@ class Buffer
 class DynamicBuffer : public Buffer
 {
     public:
+    DynamicBuffer()=default;
     /**
      * Creates a DynamicBuffer.
      * @param[in] device the device used to construct the Buffer.
@@ -100,7 +101,7 @@ class DynamicBuffer : public Buffer
     DynamicBuffer(
         const Device &device,
         const VkDeviceSize &bufferSize
-    );
+    ) noexcept;
     /**
      * Creates a DynamicBuffer.
      * @param[in] device the device used to construct the Buffer.
@@ -115,17 +116,18 @@ class DynamicBuffer : public Buffer
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
-    );
+    ) noexcept;
     /**
      * Updates a DynamicBuffer.
      * @param[in] data a pointer to the data which will fill the Buffer.
      **/
-    void update(const void *data);
+    void update(const void *data) noexcept;
 };
 
 class StaticBuffer : public Buffer
 {
     public:
+    StaticBuffer()=default;
     /**
      * Creates a StaticBuffer.
      * @param[in] device the device used to construct the Buffer.
@@ -140,7 +142,7 @@ class StaticBuffer : public Buffer
         const VkDeviceSize &elementSize,
         const size_t numElements,
         const Type &type
-    );
+    ) noexcept;
 
     private:
     void copyData(
@@ -154,11 +156,11 @@ class StaticBuffer : public Buffer
         const size_t num_elements,
         const VkDeviceSize element_size,
         const size_t element_offset
-    ) const;
+    ) const noexcept;
     void finalize(
         Device &device,
         const Type &type
-    );
+    ) noexcept;
 };
 
 } // namespace evk

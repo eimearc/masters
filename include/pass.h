@@ -37,22 +37,28 @@ class Subpass
         const std::vector<Attachment*> &colorAttachments,
         const std::vector<Attachment*> &depthAttachments,
         const std::vector<Attachment*> &inputAttachments
-    );
+    ) noexcept;
 
     bool operator==(const Subpass&) const noexcept;
     bool operator!=(const Subpass&) const noexcept;
 
     private:
-    void addDependency(Dependency dependency);
+    void addDependency(Dependency dependency) noexcept;
     static bool referenceEqual(
         const VkAttachmentReference &a,
         const VkAttachmentReference &b
-    );
+    ) noexcept;
 
-    std::vector<VkSubpassDependency> dependencies() const { return m_dependencies; };
-    VkSubpassDescription description() const { return m_description; };
-    bool hasDepthAttachment() const { return !m_depthAttachments.empty(); };
-    uint32_t index() const { return m_index; };
+    std::vector<VkSubpassDependency> dependencies() const noexcept
+    {
+        return m_dependencies;
+    };
+    VkSubpassDescription description() const noexcept { return m_description; };
+    bool hasDepthAttachment() const noexcept
+    {
+        return !m_depthAttachments.empty();
+    };
+    uint32_t index() const noexcept { return m_index; };
 
     std::vector<Attachment*> m_colorAttachments;
     std::vector<VkAttachmentReference> m_colorReferences;
@@ -94,7 +100,7 @@ class Renderpass
     Renderpass(
         const Device &device,
         std::vector<Subpass*> &subpasses
-    );
+    ) noexcept;
 
     bool operator==(const Renderpass&) const noexcept;
     bool operator!=(const Renderpass&) const noexcept;
@@ -108,16 +114,24 @@ class Renderpass
     };
     static AttachmentInfo attachmentInfo(
         const std::vector<Subpass*> &subpasses
-    );
+    ) noexcept;
     static void setAttachmentInfo(
-        AttachmentInfo &info, Attachment *pAttachment
-    );
+        AttachmentInfo &info,
+        Attachment *pAttachment
+    ) noexcept;
 
-    const std::vector<Attachment*>& attachments() const { return m_attachments; };
-    std::vector<VkClearValue> clearValues() const { return m_clearValues; };
-    VkRenderPass renderpass() const { return m_renderPass; };
-    void reset();
-    std::vector<Subpass*> subpasses() const { return m_subpasses; };
+    const std::vector<Attachment*>& attachments() const noexcept
+    {
+        return m_attachments;
+    };
+    std::vector<VkClearValue> clearValues() const noexcept
+    {
+        return m_clearValues;
+    };
+    VkRenderPass renderpass() const noexcept { return m_renderPass; };
+    std::vector<Subpass*> subpasses() const noexcept { return m_subpasses; };
+
+    void reset() noexcept;
 
     std::vector<Attachment*> m_attachments;
     std::vector<VkClearValue> m_clearValues;

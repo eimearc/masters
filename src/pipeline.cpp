@@ -24,7 +24,7 @@ Pipeline& Pipeline::operator=(Pipeline &&other) noexcept
     return *this;
 }
 
-void Pipeline::reset()
+void Pipeline::reset() noexcept
 {
     m_descriptor=nullptr;
     m_device=nullptr;
@@ -43,7 +43,7 @@ Pipeline::Pipeline(
     const VertexInput &vertexInput,
     Renderpass &renderpass,
     const std::vector<Shader*> &shaders
-)
+) noexcept
 {
     m_device = &device;
     m_vertexInput = vertexInput;
@@ -67,7 +67,7 @@ Pipeline::Pipeline(
     const VertexInput &vertexInput,
     Renderpass &renderpass,
     const std::vector<Shader*> &shaders
-)
+) noexcept
 {
     m_device = &device;
     m_vertexInput = vertexInput;
@@ -81,7 +81,9 @@ Pipeline::Pipeline(
     setup();
 }
 
-void Pipeline::createSetLayout(const std::vector<VkDescriptorSetLayout> &setLayouts)
+void Pipeline::createSetLayout(
+    const std::vector<VkDescriptorSetLayout> &setLayouts
+) noexcept
 {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -125,7 +127,7 @@ bool Pipeline::operator!=(const Pipeline &other) const noexcept
     return !(*this==other);
 }
 
-void Pipeline::setup()
+void Pipeline::setup() noexcept
 {
     const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
@@ -285,7 +287,7 @@ void Pipeline::setup()
     EVK_ASSERT(result, "failed to create graphics pipeline");
 }
 
-void Pipeline::recreate()
+void Pipeline::recreate() noexcept
 {
     if (m_pipeline!=VK_NULL_HANDLE)
         vkDestroyPipeline(m_device->device(), m_pipeline, nullptr);

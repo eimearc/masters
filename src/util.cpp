@@ -15,7 +15,8 @@ void createImage(
     const VkImageUsageFlags &usage,
     const VkMemoryPropertyFlags &properties,
     VkImage *pImage,
-    VkDeviceMemory *pImageMemory)
+    VkDeviceMemory *pImageMemory
+) noexcept
 {
     VkImageCreateInfo imageInfo = {};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -56,7 +57,8 @@ void createImageView(
     const VkImage &image,
     const VkFormat &format,
     const VkImageAspectFlags &aspectMask,
-    VkImageView *pImageView)
+    VkImageView *pImageView
+) noexcept
 {
     VkImageViewCreateInfo viewInfo = {};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -80,7 +82,8 @@ void createBuffer(
     VkBufferUsageFlags usage,
     VkMemoryPropertyFlags properties,
     VkBuffer *pBuffer,
-    VkDeviceMemory *pBufferMemory)
+    VkDeviceMemory *pBufferMemory
+) noexcept
 {
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -97,7 +100,9 @@ void createBuffer(
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+    allocInfo.memoryTypeIndex = findMemoryType(
+        physicalDevice, memRequirements.memoryTypeBits, properties
+    );
 
     result = vkAllocateMemory(device, &allocInfo, nullptr, pBufferMemory);
     EVK_ASSERT(result, "failed to allocate buffer memory");
@@ -109,7 +114,7 @@ uint32_t findMemoryType(
     VkPhysicalDevice physicalDevice,
     uint32_t typeFilter,
     VkMemoryPropertyFlags requiredProperties
-)
+) noexcept
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
@@ -130,7 +135,11 @@ uint32_t findMemoryType(
     EVK_ABORT("failed to find suitable memory type\n");
 }
 
-void beginSingleTimeCommands(VkDevice device, VkCommandPool commandPool, VkCommandBuffer *pCommandBuffer)
+void beginSingleTimeCommands(
+    VkDevice device,
+    VkCommandPool commandPool,
+    VkCommandBuffer *pCommandBuffer
+) noexcept
 {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -147,7 +156,12 @@ void beginSingleTimeCommands(VkDevice device, VkCommandPool commandPool, VkComma
     vkBeginCommandBuffer(*pCommandBuffer, &beginInfo);
 }
 
-void endSingleTimeCommands(VkDevice device, VkQueue queue, VkCommandPool commandPool, VkCommandBuffer commandBuffer)
+void endSingleTimeCommands(
+    VkDevice device,
+    VkQueue queue,
+    VkCommandPool commandPool,
+    VkCommandBuffer commandBuffer
+) noexcept
 {
     vkEndCommandBuffer(commandBuffer);
 
@@ -162,7 +176,10 @@ void endSingleTimeCommands(VkDevice device, VkQueue queue, VkCommandPool command
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
+SwapChainSupportDetails querySwapChainSupport(
+    VkPhysicalDevice device,
+    VkSurfaceKHR surface
+) noexcept
 {
     SwapChainSupportDetails details;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
@@ -198,7 +215,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
 QueueFamilyIndices findQueueFamilies(
     VkPhysicalDevice device,
     VkSurfaceKHR surface
-)
+) noexcept
 {
     QueueFamilyIndices indices;
 
