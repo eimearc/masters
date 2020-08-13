@@ -2,18 +2,20 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces OpenGL compared to Vulkan (\citeauthor {vulkan_guide} \citeyear {vulkan_guide}, p.1).\relax }}{4}
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Vulkan API objects and their interactions (\citeauthor {vez} \citeyear {vez}, p.1).\relax }}{5}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Vulkan dispatch chain (\citeauthor {renderdoc} \citeyear {renderdoc}, p.1).\relax }}{6}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Vulkan dispatch table (\citeauthor {renderdoc} \citeyear {renderdoc}, p.1).\relax }}{7}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Vulkan API objects and their interactions (\citeauthor {vez} \citeyear {vez}, p.1).\relax }}{7}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Device class diagram.\relax }}{6}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Texture class diagram.\relax }}{6}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Attachment class diagram.\relax }}{6}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{7}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{7}
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Subpass class diagram.\relax }}{8}
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Renderpass class diagram.\relax }}{8}
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{8}
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{8}
-\contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{8}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Device class diagram.\relax }}{10}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Texture class diagram.\relax }}{10}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Attachment class diagram.\relax }}{10}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{11}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Subpass class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Renderpass class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{12}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{12}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{10}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{11}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{14}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{15}

@@ -26,6 +26,7 @@
 \usepackage{caption}
 \usepackage{lipsum}
 \usepackage{csquotes}
+\usepackage{fancyvrb}
 
 \usepackage{lmodern}
 
@@ -260,13 +261,221 @@
       memory management from the developer. This removes much of the required
       word from the driver, resulting in faster draw speeds in comparison
       with older APIs such as OpenGL.
-  
-    \begin{figure}[h]
-      \centering
-      \includegraphics[width=\textwidth]{images/interactions.png}
-      \caption{Vulkan API objects and their interactions \citediagram{vez}{1}.}
-      \label{fig:interactions}  
-    \end{figure}
+
+    \section{Vulkan Layers}
+
+      More traditional APIs have a flat structure. Any calls made to the API are
+      forwarded to the driver for more work. If a developer wants to extend the
+      structure and capabilities of the API, they are required to either "hack"
+      together a platform-specific implementation, or have their extension
+      built directly by the API developers into the API and driver. This
+      increases the bulkiness of the API, requiring all users to have
+      this large API when they may only use the minimal number of features.
+      This "all-or-nothing" approach decreases the speed of the application,
+      which is quite important for smaller applications running on embedded
+      systems. \\
+
+      Vulkan, in contrast, is a layered API, using a loader to create this
+      layered architecture. This layered approach results in faster
+      applications, as certain features which are needed in development,
+      such as validation, can be unloaded when releasing an application.
+
+      \subsection{Loader}
+
+      The Vulkan loader is "the central arbiter in the Vulkan runtime" (TODO: quote).
+      The application interfaces with the loader and it is the task of the
+      loader to dispatch incoming requests to the correct subsystem. The
+      loader exposes all of the core Vulkan functions. When an application
+      calls such functions, they are routed through the loader, instead of
+      directly to the driver. \\
+
+      When creating an instance, certain extensions are required. Extensions
+      are grouped into layers. These layers are specific to a system and
+      platform and are registered in a well-known location on that machine
+      in JSON files. These files contain the names of the extensions provided
+      by the layer and where to find the actual library is on the system This
+      means that whenever the Vulkan loader queries for a specific layer, the
+      JSON file is read - the layer module itself does not need to be loaded. \\
+
+      For example, a layer JSON file may be found at \\
+
+      \begin{centering}
+        \begin{Verbatim}[fontsize=\small]
+/usr/local/share/vulkan/explicit_layer.d/VkLayer_khronos_validation.json
+        \end{Verbatim}
+      \end{centering}
+
+      Included in the file may be the following (edited for brevity):
+
+      \begin{centering}
+        \begin{Verbatim}[fontsize=\small]
+"instance_extensions": [
+...
+  {   
+    "spec_version": "1", 
+    "name": "VK_EXT_debug_utils"
+  },
+...
+],
+...
+"library_path": "../../../lib/libVkLayer_khronos_validation.dylib"
+        \end{Verbatim}
+      \end{centering}
+
+
+      \subsection{Dispatch Chains}
+
+      A dispatch chain (figure \ref{fig:loader1}) is the path along which execution flows. The application
+      calls a function, for example \verb|vkCreateInstance|. In the loader code, the
+      layers and extensions are validated. The loader then passes execution
+      along to the first layer, which also calls \verb|vkCreateInstance|, then
+      passing execution along to the following layer. The loader terminates
+      with its own code, before passing off the execution to the ICD
+      (installable client driver). All available drivers are now combined
+      into one unified front.
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{images/loader1.png}
+        \caption{Vulkan dispatch chain \citediagram{renderdoc}{1}.}
+        \label{fig:loader1}  
+      \end{figure}
+
+      This execution style also creates a dispatch table (figure \ref{fig:loader2}), where each layer in
+      the queue calls \verb|vkGetInstanceProcAddr| on the next layer. This long
+      chain of function pointers means that each layer knows how to pass on
+      control to the next layer in the chain. 
+
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{images/loader2.png}
+        \caption{Vulkan dispatch table \citediagram{renderdoc}{1}.}
+        \label{fig:loader2}  
+      \end{figure}
+
+    \section{Vulkan Components}
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{images/interactions.png}
+        \caption{Vulkan API objects and their interactions \citediagram{vez}{1}.}
+        \label{fig:interactions}  
+      \end{figure}
+
+      \subsection{VkInstance}
+      
+        A Vulkan instance is the first Vulkan component a developer creates in
+        their application.  As Vulkan has no global state, all per-application
+        state is contained within a Vulkan instance. By creating a VkInstance,
+        the application loads the Vulkan commands and initializes Vulkan.
+        Within each instance are multiple physical devices. \\
+
+        After the Vulkan instance is created, devices and queues are the main
+        way the application interacts with the Vulkan implementation.
+
+      \subsection{VkPhysicalDevice}
+
+        A physical device represents a single hardware device on the machine
+        which has Vulkan capabilities, such as a GPU.
+
+      \subsection{VkDevice}
+
+        A logical device (simply a "device") is a software abstraction around a
+        physical device. A physical device is queried for its capabilities and,
+        based on required application criteria, a device is created from the
+        suitable physical device. A device represents an instance of a
+        physical device and contains its own state and resources. This is
+        the Vulkan component that is most commonly interacted with and is
+        used in constructing all subsequent components. An application is
+        required to create a different device for each physical device it uses.
+        Each device exposes a number of queues.
+
+      \subsection{VkQueue}
+
+        A queue is where a piece of work is submitted for completion by the GPU,
+        for example a draw command. A queue is created in conjunction with a
+        device and the application queries the device for a suitable queue.
+        Queues are partitioned into a set of families, where each family
+        supports one or more types of functionality. Examples of such
+        functionality include graphics, presentation and compute. For most
+        applications, graphics functionality is required to modify the
+        incoming vertices and presentation support is required to display
+        the resulting images on the screen. 
+
+        Queue submission occurs when work is submitted to a queue using commands
+        such as vkQueueSubmit. Such commands specify a set of underlying
+        operations which are to be executed by the associated physical
+        device. 
+
+        Each queue works asynchronously to other queues, making it suitable for
+        multithreaded use.
+
+      \subsection{VkDeviceMemory}
+
+        Memory is explicitly managed by the application. There are two types of
+        memory in Vulkan, host memory and device memory. Device local memory is
+        physically connected to the device, while host visible memory is
+        visible to the host. Each device exposes the types of memory available
+        to the application. \\
+
+        When creating a buffer, the user must specify both how the buffer will
+        be used and where this buffer will reside. Host-visible memory can be
+        accessible by the CPU through the use of the vkMapMemory command, while
+        the device-local is the most efficient for GPU access.
+
+      \subsection{VkCommandBuffer}
+
+        The application can control the device through the submission of command
+        buffers. Prior to submission, the application records units of work
+        into these command buffers. These command buffers may be constructed
+        over multiple threads and may be reused multiple times. The command
+        buffers are submitted to queues. Command buffers in separate queues
+        may execute in parallel, while command buffers in a single queue
+        execute in respect to queue submission order. Upon command buffer
+        queue submission, control is returned to the application immediately. \\
+
+        There are two different types of command buffers,
+        primary command buffers and secondary command buffers.
+
+        \begin{itemize}
+          \item A primary command buffer is submitted to a queue for execution.
+          It holds references to an array of secondary command buffers.
+          \item A secondary command buffer is not submitted to a queue for
+          execution. Instead, work is recorded into it and a reference to the
+          command buffer is attached to a primary command buffer, along with
+          other secondary command buffers. This allows for multiple threads to
+          construct multiple secondary command buffers in parallel, attach
+          them to a primary command buffer and submit for execution.
+        \end{itemize}
+
+        All of this work can be recorded into the buffers ahead of draw time,
+        resulting in faster draw speeds.
+
+      \subsection{VkSwapchainKHR}
+
+      %TODO
+
+    \section{Vulkan Object Model}
+
+      Vulkan objects (VkInstance, VkDevice and so on) are represented by
+      handles - an abstract reference to a piece of memory that is managed by
+      Vulkan. Handles come in two types; dispatchable and non-dispatchable.
+
+      Dispatchable objects consist of a pointer to an opaque type. These
+      objects internally hold a dispatch table. This table is used by other
+      components of the system to determine what code to execute when the
+      application makes calls to Vulkan. Examples of dispatchable objects
+      include the VkInstance, VkPhysicalDevice, VkDevice, VkCommandBuffer
+      and VkQueue. The first argument to any Vulkan function is a
+      dispatchable object. This excludes VkInstance creation, as this
+      is the first dispatchable Vulkan object created.
+
+      Non-dispatchable objects are 64-bit integer types which are
+      implementation dependent. They either contain a reference to another
+      object, or encode information about the object directly. Objects
+      created on a specific device are private to that device and cannot
+      be used on another device.
 
   \chapter{The evulkan Library}
 
