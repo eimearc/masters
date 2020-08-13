@@ -44,7 +44,8 @@ void Descriptor::reset() noexcept
 
 Descriptor::Descriptor(
     const Device &device,
-    const size_t swapchainSize)
+    const size_t swapchainSize
+) noexcept
 {
     m_device = device.device();
     m_swapchainSize = swapchainSize;

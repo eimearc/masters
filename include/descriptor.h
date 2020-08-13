@@ -54,7 +54,7 @@ class Descriptor
     Descriptor(
         const Device &device,
         const size_t swapchainSize
-    );
+    ) noexcept;
 
     bool operator==(const Descriptor&) const noexcept;
     bool operator!=(const Descriptor&) const noexcept;
