@@ -171,6 +171,34 @@
         reasonable understanding of how Vulkan works.
       }
 
+    \section{GLOVE}
+
+      GLOVE \citesoftware{glove} provides an intermediate layer
+      between an OpenGL ES application and Vulkan. It is easy to build and
+      integrate new features and has a GL interface for developing applications.
+
+      GLOVE is useful for developing Vulkan applications for embedded devices,
+      especially for developers who already have an understanding of GL
+      applications. However, GLOVE is not useful for learning Vulkan
+      as it only provides a GL interface.
+
+    \section{MoltenVK}
+
+      As Apple hardware lacks native Vulkan driver support, MoltenVK
+      \citesoftware{moltenvk} provides an interface over Apple's Metal graphics framework. This provides no
+      speedup in terms of development time, it simply allows Vulkan to
+      be developed and run on macOS. As a result, it does not provide any
+      extra help for beginners to Vulkan.
+
+    \section{Personal Inquiry}
+
+      This library was developed using a previous project as a starting point \citesoftware{personalinquiry}.
+      The base project can be found at http://github.com/eimearc/vulkan.
+      It provided the boilerplate to run an instance of Vulkan and it
+      saved days of typing 1000 lines of code to simply have a
+      starting point. All class construction, library design
+      and testing was implemented in this masters project.
+
   \chapter{Technical Background}
   
     \begin{figure}[h]
