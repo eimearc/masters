@@ -19,6 +19,7 @@
 \usepackage{amsthm}
 \usepackage{verbatimbox}
 \usepackage{multicol}
+\usepackage{multirow}
 \usepackage[titletoc,title]{appendix}
 \usepackage{amsfonts}
 \usepackage[font={it}]{caption}
@@ -28,6 +29,7 @@
 \usepackage{csquotes}
 \usepackage{fancyvrb}
 \usepackage{cprotect}
+\usepackage[table]{xcolor}
 
 \usepackage{lmodern}
 
@@ -42,6 +44,7 @@
 \newcommand{\imagewidth}{0.47\textwidth}
 
 \newcommand{\cpp}{C\texttt{++}}
+\newcommand{\bgcell}{\cellcolor{lightgray}}
 
 \newcommand{\quotebu}[2]
 {
@@ -1015,6 +1018,67 @@ $ make install
         is a good first step.
 
   \chapter{Conclusion}
+
+    This project is a success, resulting in an easy-to-use Vulkan library,
+    removing much of the redundant and repetitive coding from the user
+    while still allowing them access to many common Vulkan features.
+
+    \subsection{Efficiency}
+
+      \subsubsection{Time Profile}
+
+        Using Apple's Instruments application, the library was profiled using
+        the multipass example to check for any bottlenecks. The results are
+        shown below.
+
+        \begin{center}
+          \rowcolors{2}{lightgray!70!white!30}{white}
+          \begin{tabular}{ |c|c|c|c|c } 
+            \hline
+            \rowcolor{lightgray}\multicolumn{2}{|c|}{\%Time} & Method & Library \\
+            \hline
+            \multicolumn{2}{|c|}{95\%} & evk::Device::draw() & libevulkan.dylib \\
+            \bgcell & 77.8\% & vkQueueSubmit & libvulkan.1.2.131.dylib \\
+            \bgcell & 5.8\% & vkQueueWaitIdle & libvulkan.1.2.131.dylib \\
+            \bgcell & 5.5\% & vkQueuePresentKHR & libvulkan.1.2.131.dylib \\
+            \bgcell & 3.1\% & vkAcquireNextImageKHR & libvulkan.1.2.131.dylib \\
+            \bgcell & 1.9\% & vkWaitForFences & libvulkan.1.2.131.dylib \\
+            \bgcell & 0.5\% & vkResetFences & libvulkan.1.2.131.dylib \\
+            \bgcell & 0.1\% & evk::Device::primaryCommandBuffers() const & libevulkan.dylib \\
+            \multicolumn{2}{|c|}{2.3\%} & \_glfwPlatformPollEvents & libglfw.3.dylib \\
+            \multicolumn{2}{|c|}{1.6\%} & evk::DynamicBuffer::update(void const*) & libevulkan.dylib \\
+            % \multirow{3}{4em}{Multiple row} & cell2 & cell3 \\ 
+            % & cell5 & cell6 \\ 
+            % & cell8 & cell9 \\ 
+            \hline
+          \end{tabular}
+        \end{center}
+
+        % TODO: figure
+
+        The column \textbf{\% Time} refers to what percentage of the overall time was
+        spent executing this command. Grey boxes indicate methods nested
+        within other methods and their respective times are calculated in
+        relation to the overall time, not the time of the parent method.
+        For example, 77.8\% of the overall program time was spent executing
+        vkQueueSubmit. The \textbf{library} column indicates the library from which
+        the method originates, either the evulkan library, the official Vulkan
+        library, or the GLFW library. The results are shown in decreasing
+        amount of time spent - if a function is not in the table, it has a
+        negligible cost. \\
+
+        The results indicate the library adds very little overhead to Vulkan.
+        Considering that execution speed was not a goal for the project,
+        this is an attractive bonus. Speed was not greatly affected for
+        ease of use.
+
+      \subsubsection{Benchmark}
+
+      \subsubsection{Comparison with Pure Vulkan}
+
+    \subsection{Usability}
+
+    \subsection{Availability}
 
   \afterpage
   {
