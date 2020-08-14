@@ -1017,11 +1017,7 @@ $ make install
         While this library is not the way to learn everything about Vulkan, it
         is a good first step.
 
-  \chapter{Conclusion}
-
-    This project is a success, resulting in an easy-to-use Vulkan library,
-    removing much of the redundant and repetitive coding from the user
-    while still allowing them access to many common Vulkan features.
+  \chapter{Results}
 
     \subsection{Efficiency}
 
@@ -1033,7 +1029,7 @@ $ make install
 
         \begin{center}
           \rowcolors{2}{lightgray!70!white!30}{white}
-          \begin{tabular}{ |c|c|c|c|c } 
+          \begin{tabular}{ |c c|c|c| } 
             \hline
             \rowcolor{lightgray}\multicolumn{2}{|c|}{\%Time} & Method & Library \\
             \hline
@@ -1061,7 +1057,7 @@ $ make install
         within other methods and their respective times are calculated in
         relation to the overall time, not the time of the parent method.
         For example, 77.8\% of the overall program time was spent executing
-        vkQueueSubmit. The \textbf{library} column indicates the library from which
+        vkQueueSubmit. The \textbf{Library} column indicates the library from which
         the method originates, either the evulkan library, the official Vulkan
         library, or the GLFW library. The results are shown in decreasing
         amount of time spent - if a function is not in the table, it has a
@@ -1074,50 +1070,175 @@ $ make install
 
       \subsubsection{Benchmark}
 
-      \subsubsection{Comparison with Pure Vulkan}
+        In addition to Instruments, a benchmark program was written. It is
+        located at examples/bench/main.cpp. It runs the setup and draw
+        phases of the other example programs multiple times to gather
+        data on timings. These timings were passed into Python to
+        generate graphs. The generated graphs for draw and setup times are available in figures \ref{fig:draw}
+        and \ref{fig:setup}, on pages \pageref{fig:draw} and \pageref{fig:setup} respectively. \\
+
+        A test to compare the set up and draw time of a triangle with and
+        without the evulkan library was also completed. The results are
+        almost identical, with the evulkan taking a few milliseconds
+        longer than a pure Vulkan implementation. See figure \ref{fig:test_describe} 
+        for more details. \\
+
+        \begin{figure}[h]
+          \begin{subfigure}[b]{0.5\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{images/simple_describe.png}
+            \caption{Simple triangle.}
+          \end{subfigure}
+          \begin{subfigure}[b]{0.5\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{images/evk_describe.png}
+            \caption{evulkan triangle.}
+          \end{subfigure}
+          \caption{Test results for simple and evulkan triangles.}
+          \label{fig:test_describe}                        
+        \end{figure}
+
+        The median (50\%) frame draw time for the evulkan Triangle is 0.4ms
+        longer than that for the simple triangle, however the evulkan frame
+        draw time has a shorter tail for the maximum value.  The same is true
+        for the startup time. While the draw and startup times might be
+        slightly longer, they are much more consistent - the standard
+        deviation of the Simple Triangle is 5.289 while that of the evulkan
+        Triangle is 0.824. \\
+
+        Note that the data has been stripped of outlier values (z value larger than 3).
+        The Python code used to generate these results is in examples/bench/Bench.ipynb.
 
     \subsection{Usability}
 
+      This is the main goal of the project. Usability refers to how well a person
+      can use the library effectively. Usability here is measured in
+      documentation, consistency and lines of code. \\
+
+      The code is fully documented with class and method comments. The
+      instructions for how to download, build, install and use the library
+      are available in this document. The code itself uses consistent naming
+      schemes for methods and variables and is consistent with other open source
+      projects, as it uses CMake for distribution and building. The code
+      adheres to the Google Style Guide, has maximum 80 character length
+      lines and it has const and noexcept methods where possible. Using
+      the triangle example for comparison, the pure Vulkan implementation
+      uses approximately 914 lines of code, while the evulkan implementation
+      uses 94, almost a 10x decrease. 
+
     \subsection{Availability}
 
-  \afterpage
-  {
-    \begin{figure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/triangle_draw.png}
-      \end{subfigure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/multipass_draw.png}
-      \end{subfigure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/obj_draw.png}
-      \end{subfigure}
-      \caption{Draw time for different examples over multiple threads.}
-      \label{fig:draw}                        
-    \end{figure}
+      Availability refers to how easily the code is retrieved. The code is
+      available on GitHub, and is structured in the standard open-source
+      manner. It has examples and the full source code available for
+      distributing and building using CMake.
 
-    \clearpage
+  \chapter{Conclusion}
 
-    \begin{figure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/triangle_setup.png}
-      \end{subfigure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/multipass_setup.png}
-      \end{subfigure}
-      \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{images/obj_setup.png}
-      \end{subfigure}
-      \caption{Setup time for different examples over multiple threads.}
-      \label{fig:setup}                        
-    \end{figure}
+    This project is a success, resulting in an easy-to-use Vulkan library,
+    removing much of the redundant and repetitive coding from the user
+    while still allowing them access to many common Vulkan features.
+
+    \section{What Could Have Been Better}
+
+     \subsection{COVID-19}
+
+      Had COVID-19 not been an issue, given access to the lab machines with
+      Linux and Windows, the library could have been tested across different
+      configurations. In addition, it would have been useful to have my
+      classmates test the program and see if they could write a Vulkan
+      program in a limited time frame.
+
+    \subsection{Data-Driven Design}
+
+      While care was taken to ensure this library was designed in a data-friendly
+      manner, much of the time spent was ensuring that the library was easy to
+      use and understand. These two approaches often are in conflict, ease of
+      use was paramount, leaving some cases where the solution is less-than
+      optimal in terms of data access and overall speed. Starting off the
+      project with a better understanding of Vulkan and library writing
+      would have made this step much easier and more fluid.
+
+    \subsection{Mesh Shader}
+
+      There are some new features that would be interesting to integrate with
+      the library, specifically mesh shaders. However, the laptop on which
+      the library was developed is relatively old (2015 MacBook Pro) and,
+      as a result, has a relatively old GPU (Intel Iris Graphics 6100).
+      Without a machine on which these new features can be tested, it
+      is impossible to ensure a feature is correctly integrated.
+
+  \section{Future Developments}
     
-    \clearpage
-  }
+    Possible future developments include exposing more Vulkan features
+    (e.g. compute pipeline), adding more tests and integrating it with
+    NGL.
+
+  \section{Alternatives Considered}
+
+    \subsection{Bazel}
+
+      There were two options for the build system, Bazel and CMake. Bazel is
+      Google's build system. Tests undertaken at the beginning of the
+      project found that, while Bazel is good for large codebases and
+      modeling interdependencies within the codebase, CMake is the
+      standard used for distributing, building and installing
+      open-source code across multiple systems.
+
+    \subsection{Node-Based Graph}
+
+      Instead of having a \cpp{} library, an option was to create a node-based visual
+      library, similar to how Houdini works. The advantages of this include an
+      easier interface for users. \\
+
+      However, this requires using a library to generate the graphs themselves
+      as this is not a trivial exercise. Two open-source solutions were
+      found online, but one of them was failing its build tests. The
+      other (passing) library was an option. However, the author
+      decided to focus on the full testing, documentation and
+      completion of a stable and usable \cpp{} library. Graphics
+      programmers are expected to have a solid understanding
+      of \cpp{} so it is safe to assume that they would be able
+      to set up and use a simple library such as this one.
 
   \bibliographystyle{harvardnat}
   \bibliography{thesis.bib}
 
   \chapter*{Appendices}
+
+    \afterpage
+    {
+      \begin{figure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/triangle_draw.png}
+        \end{subfigure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/multipass_draw.png}
+        \end{subfigure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/obj_draw.png}
+        \end{subfigure}
+        \caption{Draw time for different examples over multiple threads.}
+        \label{fig:draw}                        
+      \end{figure}
+
+      \clearpage
+
+      \begin{figure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/triangle_setup.png}
+        \end{subfigure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/multipass_setup.png}
+        \end{subfigure}
+        \begin{subfigure}[b]{\textwidth}
+          \includegraphics[width=\textwidth]{images/obj_setup.png}
+        \end{subfigure}
+        \caption{Setup time for different examples over multiple threads.}
+        \label{fig:setup}                        
+      \end{figure}
+      
+      \clearpage
+    }
   
 \end{document}

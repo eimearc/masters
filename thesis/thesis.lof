@@ -19,5 +19,7 @@
 \contentsline {figure}{\numberline {4.11}{\ignorespaces evulkan architecture.\relax }}{18}
 \contentsline {figure}{\numberline {4.12}{\ignorespaces instructions for installing evulkan.\relax }}{19}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{23}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{24}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple and evulkan triangles.\relax }}{22}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{27}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{28}
