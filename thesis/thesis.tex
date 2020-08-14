@@ -987,9 +987,32 @@ $ make install
       This library contains well-documented \cpp{} code that adheres to best
       principles (\cpp{} Core Guidelines) and style (Google Style Guide). It
       uses namespacing to prevent name clashes and uses standard header guards
-      instead of the non-standard \verb|#pragma once| directive.The library is unit
+      instead of the non-standard \verb|#pragma once| directive. Many of the
+      functions are properly marked as \verb!const noexcept!. The library is unit
       tested using Google GTest. It uses \cpp14, adhering to the \cpp{}
-      requirements set by the VFX Reference Platform for CY2020.
+      requirements set by the VFX Reference Platform for CY2020. \\
+
+      The source code is available on GitHub and is easily accessible. The CMake
+      file allows for multiple configurations. For example a user can simply
+      build and install the library, or they can build and run the examples
+      and the tests. The library has been statically analyzed using Cppcheck to
+      flag any undefined behaviour and dangerous coding constructs. No issues
+      were found. \\
+
+      Note not all possible Vulkan features are available with this library.
+      As with any library, the goal is to make the most common solutions
+      available to the user. If a developer wants all possible features,
+      they should simply use the Vulkan API.
+
+      \subsection{Things You Don't Need to Learn About}
+
+        While this library is intended to help beginners learn some key Vulkan
+        concepts, and how they interact, many more complex implementation details
+        are purposely hidden from the user, including command buffers creation and
+        use, synchronization of device and host, and swapchain creation. \\
+
+        While this library is not the way to learn everything about Vulkan, it
+        is a good first step.
 
   \chapter{Conclusion}
 
