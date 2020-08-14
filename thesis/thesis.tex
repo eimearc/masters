@@ -101,12 +101,13 @@
 
     \vspace{1cm}
     Thanks to Jon Macey for his help on the \cpp{} side of things and for loaning
-    his Vulkan book.\\
+    me his Vulkan book.\\
     
-    Thanks to my uncle Neil for keeping me going with all the trips to Ealing.
-    It's the number one thing I miss about university. \\ %TODO: elaborate.
+    Many thanks to my uncle Neil for giving me a second home during the year. Those curries
+    and trips to the Glasshouse kept me going through multiple challenging assignments.
+    I'm sorry they were cut short. \\
 
-    Thanks to my mum Kerry, dad Owen, siblings Rory, Aisling, Aoife and Ellie for
+    Finally, thanks to my mum Kerry, dad Owen, siblings Rory, Aisling, Aoife and Ellie for
     their support during the last year. \\
 
   \tableofcontents
@@ -289,7 +290,7 @@
 
       \subsection{Loader}
 
-      The Vulkan loader is "the central arbiter in the Vulkan runtime" (TODO: quote).
+      The Vulkan loader is "the central arbiter in the Vulkan runtime" \citebu{renderdoc}.
       The application interfaces with the loader and it is the task of the
       loader to dispatch incoming requests to the correct subsystem. The
       loader exposes all of the core Vulkan functions. When an application
@@ -461,7 +462,20 @@
 
       \subsection{VkSwapchainKHR}
 
-      %TODO
+        The swapchain is an abstraction around a series of images that are presented
+        to the screen. One image is presented at a time, but at the same time 
+        the application may be writing to another image (double buffering). The
+        minimum and maximum number of images in a swapchain is implementation-dependent.
+        It is possible to query Vulkan (using the \texttt{vulkaninfo} command)
+        to determine the correct number of images to request in a swapchain. For
+        many graphics cards, this number is between 2 and 3 inclusive. \\
+
+        The \texttt{KHR} suffix indicates that this is not a core Vulkan object,
+        but is provided as part of an extension. This is because Vulkan is platform-agnostic
+        and so cannot tie its presentation support to a single window system or presentation engine. \\
+
+        The application acquires an image from the swapchain using the \texttt{vkAcquireNextImageKHR} command
+        and releases it for presentation using the \texttt{vkQueuePresentKHR} command.
 
     \section{Vulkan Object Model}
 
@@ -911,8 +925,6 @@ try
           disabling their use at the compiler level. Instead, they use
           assertions.
 
-          % TODOD: Quote gaming architecture book
-
         \subsubsection{Assertions}
 
           An assertion checks an expression passed to it. If it evaluates to
@@ -1043,14 +1055,9 @@ $ make install
             \bgcell & 0.1\% & evk::Device::primaryCommandBuffers() const & libevulkan.dylib \\
             \multicolumn{2}{|c|}{2.3\%} & \_glfwPlatformPollEvents & libglfw.3.dylib \\
             \multicolumn{2}{|c|}{1.6\%} & evk::DynamicBuffer::update(void const*) & libevulkan.dylib \\
-            % \multirow{3}{4em}{Multiple row} & cell2 & cell3 \\ 
-            % & cell5 & cell6 \\ 
-            % & cell8 & cell9 \\ 
             \hline
           \end{tabular}
         \end{center}
-
-        % TODO: figure
 
         The column \textbf{\% Time} refers to what percentage of the overall time was
         spent executing this command. Grey boxes indicate methods nested
