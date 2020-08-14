@@ -27,21 +27,25 @@
 \usepackage{lipsum}
 \usepackage{csquotes}
 \usepackage{fancyvrb}
+\usepackage{cprotect}
 
 \usepackage{lmodern}
 
 % For citing and referencing.
 \usepackage{natbib}
-\newcommand{\citebu}[1]{(\citeauthor{#1} \citeyear{#1})}
+\newcommand{\citebu}[1]{(\citenoparen{#1})}
+\newcommand{\citenoparen}[1]{\citeauthor{#1} \citeyear{#1}}
 \newcommand{\citediagram}[2]{(\citeauthor{#1} \citeyear{#1}, p.#2)}
 \newcommand{\citesoftware}[1]{(\citeauthor{#1} \citeyear{#1})}
 
 \newcommand{\figurewidth}{0.55\textwidth}
 \newcommand{\imagewidth}{0.47\textwidth}
 
-\newcommand{\quotebu}[1]
+\newcommand{\cpp}{C\texttt{++}}
+
+\newcommand{\quotebu}[2]
 {
-  \begin{displayquote}
+  \begin{displayquote}[\citenoparen{#2}]
     \textit{#1}
   \end{displayquote}
 }
@@ -120,8 +124,8 @@
     This project aims to alleviate this cost by providing a wrapper library for
     Vulkan, which allows a developer to use some of the more common features of
     Vulkan with much less effort than writing an application from scratch. This
-    library is written in C++, using modern C++ features, adheres to both the
-    official C++ Core Guidelines and Google C++ Style Guide and is fully unit
+    library is written in \cpp, using modern \cpp features, adheres to both the
+    official \cpp Core Guidelines and Google \cpp Style Guide and is fully unit
     tested. The library is available for download from GitHub and can be built
     using CMake.\\
 
@@ -170,7 +174,7 @@
       \quotebu{
         Anvil is not the right choice for developers who do not have a
         reasonable understanding of how Vulkan works.
-      }
+      }{anvil}
 
     \section{GLOVE}
 
@@ -809,7 +813,7 @@ glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         Error handling is a contentious topic. Different people have different
         (strong) opinions on which approach to take. Unlike other programming
-        languages, C++ does not have a unified approach to error handling,
+        languages, \cpp{} does not have a unified approach to error handling,
         leading to diverging dialects of the language. \\
 
         There are two main types of errors: user errors and programming errors.
@@ -894,9 +898,39 @@ try
             complicated API (the API now includes all the different exceptions
             that the different functions might call) and significantly
             increasing the mental burden on the caller for very little gain.
-          }
+          }{gamasutra}
+
+          \cpp20 has a proposal in the works for contract-based programming
+          which eliminates many of these problems, but as this library is
+          explicitly being developed for \cpp14, it's out of scope. \\
+
+          Some developers advocate against the use of exceptions completely,
+          disabling their use at the compiler level. Instead, they use
+          assertions.
+
+          % TODOD: Quote gaming architecture book
 
         \subsubsection{Assertions}
+
+          An assertion checks an expression passed to it. If it evaluates to
+          true, nothing happens - if it evaluates to false, the program is
+          halted and some information is displayed to the developer.
+          Assertions can be extended to pass helpful messages to the
+          developer. \\
+
+          Assertions ensure that invariants hold. By placing assertions
+          throughout a code base, potentially difficult to find bugs manifest
+          themselves before they become a problem. The error cannot be ignored
+          as the program has crashed. \\
+
+          Assertions are defined using macros and are used during development.
+          Prior to release, they can be removed to gain some performance. By
+          toggling a variable, assertions can be easily switched on and off. \\
+
+          Assertions are the industry standard for video games, and, as such,
+          they are used in the evulkan library. The Game Engine Architecture Book \citebu{gameEngineBook}
+          has an excellent section discussing the advantages and disadvantages of
+          different kinds of error handling.
 
       \subsection{Architecture}
 
@@ -906,6 +940,56 @@ try
           \caption{evulkan architecture.}
           \label{fig:evulkan_architecture}  
         \end{figure}
+
+    \section{Installation and Use}
+
+        As the library uses CMake, it is relatively easy to install. Follow
+        these instruction in figure \ref{fig:installation} from the root of the directory.
+
+          \begin{figure}
+            \centering
+            \begin{verbatim}
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make install
+            \end{verbatim}
+            \caption{instructions for installing evulkan.}
+            \label{fig:installation}
+          \end{figure}   
+
+    \section{Known Problems}
+
+      \subsection{Colo(u)r}
+
+        Spelling is always an issue in writing code, given the wide-reaching
+        nature of its collaboration. In order to match the spelling of the
+        (mostly American led) Vulkan, American spelling of some words was used,
+        including "color". However, given the audience, within this paper the
+        British spelling is used.
+
+      \subsection{Pointers}
+
+        In order to allow this library to handle the binding of any type of
+        vertex data, \verb|void *| pointers had to be used. Combined with the need to
+        have multithreaded naked pointer arithmetic (\verb|void *dst|).
+
+    \section{Why Should You Use This Library?}
+
+      The idea surfaced when a lecturer was questioning whether or not to teach
+      an introduction to Vulkan next year. A major problem with starting Vulkan
+      is the sheer amount of code you need to write to get it up and running.
+      This library removes that step, changing the process of learning Vulkan
+      from a typing exercise into a graphics lesson. It allows the user to
+      begin to understand basic Vulkan concepts without having to wrangle more
+      complex topics. \\
+
+      This library contains well-documented \cpp{} code that adheres to best
+      principles (\cpp{} Core Guidelines) and style (Google Style Guide). It
+      uses namespacing to prevent name clashes and uses standard header guards
+      instead of the non-standard \verb|#pragma once| directive.The library is unit
+      tested using Google GTest. It uses \cpp14, adhering to the \cpp{}
+      requirements set by the VFX Reference Platform for CY2020.
 
   \chapter{Conclusion}
 
