@@ -143,8 +143,18 @@ void Descriptor::allocateDescriptorSets() noexcept
 
     for (const auto &b : m_setBindings)
     {
-        if (b.stageFlags == VK_SHADER_STAGE_FRAGMENT_BIT) fragmentBindings.push_back(b); // TODO: Change.
-        else vertexBindings.push_back(b);
+        switch (b.stageFlags)
+        {
+        case VK_SHADER_STAGE_FRAGMENT_BIT:
+            fragmentBindings.push_back(b);
+            break;
+        case VK_SHADER_STAGE_VERTEX_BIT:
+            vertexBindings.push_back(b);
+            break;
+        default:
+            EVK_ABORT("Unsupported stage in descriptor set bindings.\n");
+            break;
+        }
     }
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};

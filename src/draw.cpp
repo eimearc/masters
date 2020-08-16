@@ -169,8 +169,8 @@ void Device::record() noexcept
                 allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                auto result = vkAllocateCommandBuffers(  // TODO: Remove this->?
-                        this->device(), &allocInfo, &secondaryCommandBuffer
+                auto result = vkAllocateCommandBuffers(
+                    device(), &allocInfo, &secondaryCommandBuffer
                 );
                 EVK_ASSERT(result,"failed to allocate command buffers");
 
