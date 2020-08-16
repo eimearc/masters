@@ -22,7 +22,7 @@ void Device::Framebuffer::recreate() noexcept
 {
     for (auto &framebuffer : m_framebuffers)
     {
-        vkDestroyFramebuffer(m_device->m_device->m_device, framebuffer, nullptr); // TODO: Tidy
+        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
         framebuffer=VK_NULL_HANDLE;
     }
     auto &attachments = m_renderpass->attachments();
@@ -60,7 +60,7 @@ void Device::Framebuffer::setup() noexcept
         auto result =  vkCreateFramebuffer(
             m_device->device(), &framebufferInfo, nullptr, &framebuffer
         );
-        EVK_ASSERT(result,"failed to create framebuffer"); // TODO: Tidy.
+        EVK_ASSERT(result,"failed to create framebuffer");
     }
 }
 

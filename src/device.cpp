@@ -15,7 +15,7 @@ Device::Device(
     m_numThreads=num_threads;
     m_swapchainSize=swapchainSize;
 
-    const std::vector<const char*> validationLayers; // TODO: Remove.
+    const std::vector<const char*> validationLayers;
     m_device=std::make_unique<_Device>(
         validationLayers, deviceExtensions
     );
@@ -173,7 +173,6 @@ void Device::_Device::finishSetup(
     createDevice();
 }
 
-// TODO: Check is this needed.
 Device::_Device::_Device(_Device&& other) noexcept
 {
     *this=std::move(other);
@@ -216,7 +215,6 @@ void Device::_Device::reset() noexcept
 
 Device::_Device::~_Device() noexcept
 {
-    // TODO: Should wait for idle?
     if (m_device!=VK_NULL_HANDLE) vkDestroyDevice(m_device, nullptr);
     if (m_debugMessenger!=VK_NULL_HANDLE)
         destroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);

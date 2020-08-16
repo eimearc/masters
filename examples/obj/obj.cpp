@@ -3,7 +3,7 @@
 #include "flags.h"
 #include "../util.h"
 
-using namespace evk; // TODO: Remove.
+using namespace evk;
 
 struct UniformBufferObject
 {

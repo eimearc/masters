@@ -53,10 +53,9 @@ Descriptor::Descriptor(
 {
     m_device = device.device();
     m_swapchainSize = swapchainSize;
-    m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
-    m_writeSetFragment = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
+    m_writeSetVertex = std::vector<VkWriteDescriptorSet>();
+    m_writeSetFragment = std::vector<VkWriteDescriptorSet>();
 
-    // TODO: Tidy below.
     m_poolSizes.resize(3);
     initializePoolSize(Type::INPUT_ATTACHMENT);
     initializePoolSize(Type::TEXTURE_SAMPLER);
@@ -135,7 +134,6 @@ void Descriptor::removeEmptyWriteSets() noexcept
         m_writeSetVertex.end());
 }
 
-// TODO: Handle case where no descriptors have been added.
 void Descriptor::allocateDescriptorSets() noexcept
 {
     m_setLayouts.resize(2);
@@ -165,8 +163,6 @@ void Descriptor::allocateDescriptorSets() noexcept
             m_device, &layoutInfo, nullptr, &m_setLayouts[1]
     );
     EVK_ASSERT(result,"failed to create fragment descriptor set layout.");
-
-    // TODO: Start here tomorrow: need a way of updating the input attachment.
 
     // Create descriptor sets.
     m_sets.resize(2);
@@ -369,7 +365,6 @@ void Descriptor::addWriteSet(
                 m_writeSetVertex.resize(binding+1);
             m_writeSetVertex[binding]=writeSet;
             break;
-        // TODO: Handle support for geometry shader.
     }
 }
 

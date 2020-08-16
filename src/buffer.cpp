@@ -199,7 +199,6 @@ void StaticBuffer::copyData(
         &staging_buffer, &staging_buffer_memory
     );
 
-    // TODO: Check if below is valid.
     const unsigned char* bytePtr = reinterpret_cast<const unsigned char*>(m_bufferData);
     auto offset = element_offset*element_size;
 
