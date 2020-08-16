@@ -12,11 +12,13 @@ Descriptor::Descriptor(Descriptor &&other) noexcept
 Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 {
     if (*this==other) return *this;
+    m_attachments=other.m_attachments;
     m_bufferInfo=std::move(other.m_bufferInfo);
     m_device=other.m_device;
     m_inputAttachmentInfo=std::move(other.m_inputAttachmentInfo);
     m_pool=other.m_pool;
     m_poolSizes=other.m_poolSizes;
+    m_setBindings=other.m_setBindings;
     m_setLayouts=other.m_setLayouts;
     m_sets=other.m_sets;
     m_swapchainSize=other.m_swapchainSize;
@@ -29,11 +31,13 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 
 void Descriptor::reset() noexcept
 {
+    m_attachments.resize(0);
     m_bufferInfo.resize(0);
     m_device=VK_NULL_HANDLE;
     m_inputAttachmentInfo.resize(0);
     m_pool=VK_NULL_HANDLE;
     m_poolSizes.resize(0);
+    m_setBindings.resize(0);
     m_setLayouts.resize(0);
     m_sets.resize(0);
     m_swapchainSize=0;

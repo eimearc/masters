@@ -22,14 +22,15 @@ Buffer& Buffer::operator=(Buffer &&other) noexcept
 {
     if (*this==other) return *this;
     m_buffer=other.m_buffer;
+    m_bufferData=other.m_bufferData;
     m_bufferMemory=other.m_bufferMemory;
-    m_numElements=other.m_numElements;
-    m_device=other.m_device;
-    m_physicalDevice=other.m_physicalDevice;
     m_bufferSize=other.m_bufferSize;
-    m_queue=other.m_queue;
-    m_numThreads=other.m_numThreads;
+    m_device=other.m_device;
     m_elementSize=other.m_elementSize;
+    m_physicalDevice=other.m_physicalDevice;
+    m_numElements=other.m_numElements;
+    m_numThreads=other.m_numThreads;
+    m_queue=other.m_queue;
     other.reset();
     return *this;
 }
@@ -37,15 +38,15 @@ Buffer& Buffer::operator=(Buffer &&other) noexcept
 void Buffer::reset() noexcept
 {
     m_buffer=VK_NULL_HANDLE;
-    m_bufferMemory=VK_NULL_HANDLE;
     m_bufferData=nullptr;
-    m_numElements=0;
-    m_device=VK_NULL_HANDLE;
-    m_physicalDevice=VK_NULL_HANDLE;
+    m_bufferMemory=VK_NULL_HANDLE;
     m_bufferSize=0;
-    m_queue=VK_NULL_HANDLE;
-    m_numThreads=1;
+    m_device=VK_NULL_HANDLE;
     m_elementSize=0;
+    m_numElements=0;
+    m_numThreads=1;
+    m_physicalDevice=VK_NULL_HANDLE;
+    m_queue=VK_NULL_HANDLE;
 }
 
 bool Buffer::operator==(const Buffer &other) const noexcept
