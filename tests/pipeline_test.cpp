@@ -128,7 +128,7 @@ TEST_F(PipelineTest,ctor)
     VertexInput empty;
     EXPECT_NE(pipeline0.m_vertexInput, empty);
 
-    DynamicBuffer buffer(device, 10);
+    DynamicBuffer buffer(device, 10, Buffer::Type::UBO);
     Descriptor descriptor(device, 2);
     descriptor.addUniformBuffer(0, buffer, Shader::Stage::VERTEX);
 

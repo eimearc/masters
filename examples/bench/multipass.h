@@ -57,7 +57,9 @@ class MultipassBench
         std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
         renderpass = Renderpass(device,subpasses);
 
-        ubo = DynamicBuffer(device, sizeof(UniformBufferObject));
+        ubo = DynamicBuffer(
+            device, sizeof(UniformBufferObject), Buffer::Type::UBO
+        );
 
         descriptor0 = Descriptor(device, swapchainSize);
         descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);
