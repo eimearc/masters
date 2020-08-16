@@ -60,13 +60,15 @@ class VertexInput
     void setVertexAttributeVec3(uint32_t location, uint32_t offset) noexcept;
 
     private:
+    using AttributeDescriptions =
+        std::vector<VkVertexInputAttributeDescription>;
+        
     static bool pred(
         const VkVertexInputAttributeDescription &a,
         const VkVertexInputAttributeDescription &b
     ) noexcept;
 
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions() const
-    noexcept
+    AttributeDescriptions attributeDescriptions() const noexcept
     { 
         return m_attributeDescriptions;
     };
@@ -81,7 +83,7 @@ class VertexInput
     ) noexcept;
     void setBindingDescription(uint32_t stride) noexcept;  
     
-    std::vector<VkVertexInputAttributeDescription> m_attributeDescriptions;
+    AttributeDescriptions m_attributeDescriptions;
     VkVertexInputBindingDescription m_bindingDescription;
 
     friend class Pipeline;

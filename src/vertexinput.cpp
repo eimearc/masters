@@ -34,12 +34,11 @@ bool VertexInput::pred(
     const VkVertexInputAttributeDescription &b
 ) noexcept
 {
-    bool result=true;
-    result &= (a.binding==b.binding);
-    result &= (a.format==b.format);
-    result &= (a.location==b.location);
-    result &= (a.offset==b.offset);
-    return result;
+    if (a.binding!=b.binding) return false;
+    if (a.format!=b.format) return false;
+    if (a.location!=b.location) return false;
+    if (a.offset!=b.offset) return false;
+    return true;
 }
 
 void VertexInput::setVertexAttributeVec3(

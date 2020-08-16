@@ -110,11 +110,15 @@ Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
 {
     if (*this == other) return *this;
     m_device=other.m_device;
-    m_swapchain=other.m_swapchain;
+    m_extent=other.m_extent;
+    m_format=other.m_format;
     m_images=other.m_images;
     m_imageViews=other.m_imageViews;
-    m_format=other.m_format;
-    m_extent=other.m_extent;
+    m_swapchain=other.m_swapchain;
+    m_swapchainSize=other.m_swapchainSize;
+    m_surface=other.m_surface;
+    m_physicalDevice=other.m_physicalDevice;
+    m_windowExtent=other.m_windowExtent;
     other.reset();
     return *this;
 }
@@ -122,11 +126,15 @@ Device::Swapchain& Device::Swapchain::operator=(Swapchain &&other) noexcept
 void Device::Swapchain::reset() noexcept
 {
     m_device=VK_NULL_HANDLE;
-    m_swapchain=VK_NULL_HANDLE;
-    m_imageViews.resize(0);
-    m_imageViews.resize(0);
-    m_format={};
     m_extent={};
+    m_format={};
+    m_images.resize(0);
+    m_imageViews.resize(0);
+    m_swapchain=VK_NULL_HANDLE;
+    m_swapchainSize=0;
+    m_surface={};
+    m_physicalDevice=VK_NULL_HANDLE;
+    m_windowExtent={};
 }
 
 bool Device::Swapchain::operator==(const Swapchain &other) const noexcept

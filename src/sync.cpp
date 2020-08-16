@@ -50,10 +50,10 @@ Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
 {
     if (*this==other) return *this;
     m_device=other.m_device;
-    m_imageAvailableSemaphores=other.m_imageAvailableSemaphores;
-    m_renderFinishedSemaphores=other.m_renderFinishedSemaphores;
     m_fencesInFlight=other.m_fencesInFlight;
+    m_imageAvailableSemaphores=other.m_imageAvailableSemaphores;
     m_imagesInFlight=other.m_imagesInFlight;
+    m_renderFinishedSemaphores=other.m_renderFinishedSemaphores;
     other.reset();
     return *this;
 }
@@ -61,10 +61,10 @@ Device::Sync& Device::Sync::operator=(Sync &&other) noexcept
 void Device::Sync::reset() noexcept
 {
     m_device=VK_NULL_HANDLE;
-    m_imageAvailableSemaphores.resize(0);
-    m_renderFinishedSemaphores.resize(0);
     m_fencesInFlight.resize(0);
+    m_imageAvailableSemaphores.resize(0);
     m_imagesInFlight.resize(0);
+    m_renderFinishedSemaphores.resize(0);
 }
 
 bool Device::Sync::operator==(const Sync &other) const noexcept

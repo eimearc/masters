@@ -117,13 +117,33 @@ Device& Device::operator=(Device&& other) noexcept
     m_device = std::move(other.m_device);
     m_commands = std::move(other.m_commands);
     m_framebuffer = std::move(other.m_framebuffer);
+    m_indexBuffer=other.m_indexBuffer;
     m_numThreads = other.m_numThreads;
-    other.m_numThreads=1;
+    m_pipelines=other.m_pipelines;
+    m_resizeRequired=other.m_resizeRequired;
     m_swapchain = std::move(other.m_swapchain);
     m_swapchainSize=other.m_swapchainSize;
     m_sync = std::move(other.m_sync);
     m_threadPool = std::move(other.m_threadPool);
+    m_windowExtent=other.m_windowExtent;
+    m_vertexBuffer=other.m_vertexBuffer;
+    other.reset();
     return *this;
+}
+
+void Device::reset() noexcept
+{
+    m_device=nullptr;
+    m_commands=nullptr;
+    m_framebuffer=nullptr;
+    m_indexBuffer=nullptr;
+    m_numThreads=1;
+    m_pipelines.resize(0);
+    m_swapchain = nullptr;
+    m_swapchainSize=0;
+    m_sync = nullptr;
+    m_windowExtent={};
+    m_vertexBuffer=nullptr;
 }
 
 void Device::resizeRequired() noexcept
@@ -163,18 +183,35 @@ Device::_Device& Device::_Device::operator=(_Device&& other) noexcept
 {
     if (*this == other) return *this;
     m_debugMessenger=other.m_debugMessenger;
-    other.m_debugMessenger=VK_NULL_HANDLE;
     m_depthFormat=other.m_depthFormat;
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
+    m_deviceExtensions=other.m_deviceExtensions;
     m_graphicsQueue=other.m_graphicsQueue;
     m_instance=other.m_instance;
-    other.m_instance=VK_NULL_HANDLE;
+    m_surface=other.m_surface;
     m_physicalDevice=other.m_physicalDevice;
     m_presentQueue=other.m_presentQueue;
     m_surface=other.m_surface;
-    other.m_surface=VK_NULL_HANDLE;
+    m_validationLayers=other.m_validationLayers;
+    m_windowExtensions=other.m_windowExtensions;
+    other.reset();
     return *this;
+}
+
+void Device::_Device::reset() noexcept
+{
+    m_debugMessenger=VK_NULL_HANDLE;
+    m_depthFormat={};
+    m_device=VK_NULL_HANDLE;
+    m_deviceExtensions={};
+    m_graphicsQueue=VK_NULL_HANDLE;
+    m_instance=VK_NULL_HANDLE;
+    m_surface=VK_NULL_HANDLE;
+    m_physicalDevice=VK_NULL_HANDLE;
+    m_presentQueue=VK_NULL_HANDLE;
+    m_surface=VK_NULL_HANDLE;
+    m_validationLayers={};
+    m_windowExtensions={};
 }
 
 Device::_Device::~_Device() noexcept

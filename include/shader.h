@@ -60,6 +60,8 @@ class Shader
     bool operator==(const Shader&) const noexcept;
     bool operator!=(const Shader&) const noexcept;
 
+    void reset() noexcept;
+
     private:
     static VkShaderStageFlagBits stageFlags(const Stage &stage) noexcept;
 
