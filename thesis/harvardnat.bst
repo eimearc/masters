@@ -65,6 +65,7 @@ ENTRY
     type
     url
     urldate
+    version
     volume
     year
     %doi
@@ -333,7 +334,7 @@ FUNCTION {format.url}
 FUNCTION {format.urldate}
 { urldate empty$
     { "" }
-    { new.block " [ Accessed " urldate * " ]" * }
+    { new.block " [Accessed " urldate * "]" * }
   if$
 }
 
@@ -553,6 +554,13 @@ FUNCTION {format.edition}
         { edition "t" change.case$ " edition" * }
       if$
     }
+  if$
+}
+
+FUNCTION {format.version}
+{  version empty$
+    { "" }
+    { new.block version " [computer program]" * }
   if$
 }
 
@@ -1086,6 +1094,22 @@ FUNCTION {proceedings}
   publisher output
 %  format.isbn output
 %  format.url output
+  new.block
+  note output
+  fin.entry
+}
+
+FUNCTION {software}
+{ output.bibitem
+  author output
+  format.date "year" output.check
+  new.block
+  format.btitle "title" output.check
+  new.block
+  format.version output
+  new.block
+  address output
+  publisher "publisher" output.check.colon
   new.block
   note output
   fin.entry
