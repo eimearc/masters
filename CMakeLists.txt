@@ -48,12 +48,12 @@ set (SOURCES
     ${VULKAN_INCLUDE}/vertex.h
 )
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib) # TODO: Remove
-set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install) # TODO: Remove
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/_install) # TODO: Remove
+# set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install) # TODO: Remove
 add_library(evulkan SHARED ${SOURCES})
 
 install(TARGETS evulkan DESTINATION lib)
-install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
+install(DIRECTORY ${VULKANROOT}/include/ DESTINATION include/evulkan)
 
 # Build examples.
 if(BUILD_EXAMPLES)
