@@ -7,7 +7,7 @@ set (CMAKE_CXX_STANDARD 14)
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build the tests" ON)
 
-# add_definitions(-DEVK_NDEBUG) # Uncomment to turn off assertations.
+# add_definitions(-DEVK_NDEBUG) # Uncomment to turn off assertions.
 
 set(VULKANROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
