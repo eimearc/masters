@@ -265,7 +265,7 @@ void Device::_Device::createInstance() noexcept
         createInfo.ppEnabledLayerNames = m_validationLayers.data();
         debugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext=(VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // TODO: Is this needed?
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
     else
     {
@@ -282,7 +282,7 @@ void Device::_Device::createInstance() noexcept
     if (m_validationLayers.size() > 0)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
-        debugMessengerCreateInfo(createInfo); //TODO: Why is this duplicate of above?
+        debugMessengerCreateInfo(createInfo);
 
         result = createDebugUtilsMessengerEXT(
             m_instance, &createInfo, nullptr, &m_debugMessenger
