@@ -206,7 +206,7 @@ void StaticBuffer::copyData(
     // accessible memory.
     void *mappedData;
     vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &mappedData);
-    memcpy(mappedData, bytePtr+offset, buffer_size); // Need to offset vertices.
+    memcpy(mappedData, bytePtr+offset, buffer_size); // Offset vertices.
     vkUnmapMemory(device, staging_buffer_memory);
 
     // Copy the vertex data from the staging buffer to the device-local buffer.
