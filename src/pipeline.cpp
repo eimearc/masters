@@ -190,15 +190,16 @@ void Pipeline::setup() noexcept
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};// TODO: Must equal colorAttachmentCount.
-    colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+    colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.colorWriteMask = 0xf;
     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
+    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+    // If writing to a depth attachment, don't blend.
     if (m_subpass->hasDepthAttachment())
     {
         colorBlendAttachment.blendEnable = VK_FALSE;
