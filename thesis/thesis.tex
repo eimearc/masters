@@ -128,8 +128,8 @@
     This project aims to alleviate this cost by providing a wrapper library for
     Vulkan, which allows a developer to use some of the more common features of
     Vulkan with much less effort than writing an application from scratch. This
-    library is written in \cpp, using modern \cpp features, adheres to both the
-    official \cpp Core Guidelines and Google \cpp Style Guide and is fully unit
+    library is written in \cpp{}, using modern \cpp{} features, adheres to both the
+    official \cpp{} Core Guidelines and Google \cpp{} Style Guide and is fully unit
     tested. The library is available for download from GitHub and can be built
     using CMake.\\
 
@@ -144,8 +144,8 @@
   \chapter{Previous Work}
 
     While Vulkan is a relatively new API for graphics and compute, many engines
-    now support Vulkan, including CryEngine, Valve's Source, Unity and Unreal
-    Engine. As a result, there are many libraries and utilities available
+    now support Vulkan, including CryEngine \citebu{cryengine}, Source \citebu{source}, Unity \citebu{unity} and Unreal
+    Engine \citebu{ue4}. As a result, there are many libraries and utilities available
     online for Vulkan, each of which serves a different purpose.
 
     \section{V-EZ}
@@ -261,13 +261,13 @@
       OpenGL reads shader code in GLSL and compiles it at run time. This leads
       to a slower run time in the best case, or run time errors in the worst
       case when the GLSL is not properly formed. Vulkan requires the developer
-      to compile the shader code to byte code (SPIR-V) ahead of time and to
-      provide as such. This has the dual advantage of ensuring the shader
+      to compile the shader code to byte code (SPIR-V) ahead of time. 
+      This has the dual advantage of ensuring the shader
       code is correct and speeding up the run time. \\
 
       The pattern is apparent; Vulkan requires more setup, state tracking and
       memory management from the developer. This removes much of the required
-      word from the driver, resulting in faster draw speeds in comparison
+      work from the driver, resulting in faster draw speeds in comparison
       with older APIs such as OpenGL.
 
     \section{Vulkan Layers}
@@ -318,12 +318,12 @@
       \begin{centering}
         \begin{Verbatim}[fontsize=\small]
 "instance_extensions": [
-...
+  ...
   {   
     "spec_version": "1", 
     "name": "VK_EXT_debug_utils"
   },
-...
+  ...
 ],
 ...
 "library_path": "../../../lib/libVkLayer_khronos_validation.dylib"
@@ -334,12 +334,12 @@
       \subsection{Dispatch Chains}
 
       A dispatch chain (figure \ref{fig:loader1}) is the path along which execution flows. The application
-      calls a function, for example \verb|vkCreateInstance|. In the loader code, the
+      calls a function, for example \texttt{vkCreateInstance}. In the loader code, the
       layers and extensions are validated. The loader then passes execution
-      along to the first layer, which also calls \verb|vkCreateInstance|, then
+      along to the first layer, which also calls \texttt{vkCreateInstance}, then
       passing execution along to the following layer. The loader terminates
       with its own code, before passing off the execution to the ICD
-      (installable client driver). All available drivers are now combined
+      (installable client driver). All available layers are now combined
       into one unified front.
 
       \begin{figure}[h]
@@ -350,7 +350,7 @@
       \end{figure}
 
       This execution style also creates a dispatch table (figure \ref{fig:loader2}), where each layer in
-      the queue calls \verb|vkGetInstanceProcAddr| on the next layer. This long
+      the queue calls \texttt{vkGetInstanceProcAddr} on the next layer. This long
       chain of function pointers means that each layer knows how to pass on
       control to the next layer in the chain. 
 
@@ -377,9 +377,8 @@
         their application.  As Vulkan has no global state, all per-application
         state is contained within a Vulkan instance. By creating a VkInstance,
         the application loads the Vulkan commands and initializes Vulkan.
-        Within each instance are multiple physical devices. \\
-
-        After the Vulkan instance is created, devices and queues are the main
+        Within each instance are multiple physical devices. After the Vulkan
+        instance is created, devices and queues are the main
         way the application interacts with the Vulkan implementation.
 
       \subsection{VkPhysicalDevice}
@@ -389,7 +388,7 @@
 
       \subsection{VkDevice}
 
-        A logical device (simply a "device") is a software abstraction around a
+        A logical device (or simply a "device") is a software abstraction around a
         physical device. A physical device is queried for its capabilities and,
         based on required application criteria, a device is created from the
         suitable physical device. A device represents an instance of a
@@ -409,15 +408,12 @@
         functionality include graphics, presentation and compute. For most
         applications, graphics functionality is required to modify the
         incoming vertices and presentation support is required to display
-        the resulting images on the screen. 
+        the resulting images on the screen. \\
 
         Queue submission occurs when work is submitted to a queue using commands
-        such as vkQueueSubmit. Such commands specify a set of underlying
+        such as \texttt{vkQueueSubmit}. Such commands specify a set of underlying
         operations which are to be executed by the associated physical
-        device. 
-
-        Each queue works asynchronously to other queues, making it suitable for
-        multithreaded use.
+        device. Each queue works asynchronously to other queues.
 
       \subsection{VkDeviceMemory}
 
@@ -428,9 +424,16 @@
         to the application. \\
 
         When creating a buffer, the user must specify both how the buffer will
-        be used and where this buffer will reside. Host-visible memory can be
-        accessible by the CPU through the use of the vkMapMemory command, while
+        be used and where this buffer will reside. Host-visible memory is
+        accessible by the CPU through the use of the \texttt{vkMapMemory} command, while
         the device-local is the most efficient for GPU access.
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{images/pi_hierarchy.png}
+        \caption{Multithreaded command buffer usage \citediagram{personalinquiry}{1}.}
+        \label{fig:command_buffer}  
+      \end{figure}
 
       \subsection{VkCommandBuffer}
 
@@ -443,7 +446,7 @@
         execute in respect to queue submission order. Upon command buffer
         queue submission, control is returned to the application immediately. \\
 
-        There are two different types of command buffers,
+        There are two different types of command buffers (figure \ref{fig:command_buffer}),
         primary command buffers and secondary command buffers.
 
         \begin{itemize}
@@ -474,14 +477,15 @@
         but is provided as part of an extension. This is because Vulkan is platform-agnostic
         and so cannot tie its presentation support to a single window system or presentation engine. \\
 
-        The application acquires an image from the swapchain using the \texttt{vkAcquireNextImageKHR} command
-        and releases it for presentation using the \texttt{vkQueuePresentKHR} command.
+        The application acquires an image from the swapchain using the
+        \texttt{vkAcquireNextImageKHR} command and releases it for presentation using the
+        \texttt{vkQueuePresentKHR} command.
 
     \section{Vulkan Object Model}
 
       Vulkan objects (VkInstance, VkDevice and so on) are represented by
       handles - an abstract reference to a piece of memory that is managed by
-      Vulkan. Handles come in two types; dispatchable and non-dispatchable.
+      Vulkan. Handles come in two types; dispatchable and non-dispatchable. \\
 
       Dispatchable objects consist of a pointer to an opaque type. These
       objects internally hold a dispatch table. This table is used by other
@@ -490,7 +494,7 @@
       include the VkInstance, VkPhysicalDevice, VkDevice, VkCommandBuffer
       and VkQueue. The first argument to any Vulkan function is a
       dispatchable object. This excludes VkInstance creation, as this
-      is the first dispatchable Vulkan object created.
+      is the first dispatchable Vulkan object created. \\
 
       Non-dispatchable objects are 64-bit integer types which are
       implementation dependent. They either contain a reference to another
@@ -623,7 +627,10 @@
         A StaticBuffer is used when the contents of the Buffer will not be
         updated after they have been set. This allows for some optimization
         to take place. The Buffer contents are copied to device-local memory
-        to allow faster GPU-access at draw time. \\
+        to allow faster GPU-access at draw time. A StaticBuffer uses multiple threads
+        to copy the buffer data across to the device-local memory. The user is able
+        to specify the required number of threads to use when copying across the data,
+        allowing for speed ups in the application set up time. \\
 
         A DynamicBuffer is used when the Buffer contents will be updated at
         draw time. This skips the relatively expensive step of copying the
