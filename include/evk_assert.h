@@ -2,8 +2,6 @@
 #define EVK_ASSERT_H_
 
 #include <iostream>
-#define EVK_ABORT(msg) \
-    {std::cerr << "FATAL ERROR: " << msg; std::abort();}
 
 // Used for assert with message at failure.
 #ifndef EVK_NDEBUG
@@ -15,6 +13,9 @@
     #define _EXPECTM(msg) \
         {std::cerr << "Warning: Expect true failed: line " << __LINE__ \
                 << " of file " << __FILE__ << " -- " << msg;}
+
+    #define EVK_ABORT(msg) \
+        {std::cerr << "FATAL ERROR: line " << __LINE__ << " of file " << __FILE__ << " -- " << msg; std::abort();}
     #define EVK_ASSERT(x,msg) \
         {_ASSERTM((x==VK_SUCCESS),msg);}
     #define EVK_ASSERT_TRUE(x,msg) \
@@ -35,6 +36,7 @@
 
 #else
 
+    #define EVK_ABORT(msg);
     #define EVK_ASSERT(x,msg)
     #define EVK_ASSERT_TRUE(x,msg)
     #define EVK_EXPECT_TRUE(x,msg)

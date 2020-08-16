@@ -133,6 +133,7 @@ uint32_t findMemoryType(
     }
 
     EVK_ABORT("failed to find suitable memory type\n");
+    return 0;
 }
 
 void beginSingleTimeCommands(

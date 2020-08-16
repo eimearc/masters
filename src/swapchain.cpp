@@ -210,6 +210,7 @@ VkSurfaceFormatKHR Device::Swapchain::chooseSwapSurfaceFormat(
     }
 
     EVK_ABORT("no suitable surface format found in available formats\n");
+    return {};
 }
 
 void Device::Swapchain::recreate() noexcept
