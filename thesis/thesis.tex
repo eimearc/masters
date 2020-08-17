@@ -703,6 +703,13 @@
         resources using class methods. Descriptors are bound in advance of draw
         commands.
 
+        \begin{usage}{Descriptor}
+  Descriptor descriptor(device, swapchainSize);
+  descriptor.addTextureSampler(
+    1, texture, Shader::Stage::FRAGMENT
+  );
+        \end{usage}
+
         When a user calls one of these functions, for example
         \texttt{addTextureSampler()}, the following happens:
 
@@ -741,6 +748,13 @@
         describing the Subpass. The index of the Subpass indicates when the
         Subpass will be executed, in relation to the other Subpasses.
 
+        \begin{usage}{Subpass}
+  Subpass subpass(
+      0, dependencies, colorAttachments,
+      depthAttachments, inputAttachments
+  );
+        \end{usage}
+
       \subsection{evk::Renderpass}
 
         \begin{wrapfigure}{l}{\figurewidth}
@@ -755,6 +769,10 @@
         Renderpass by passing in the set of VkSubpassDescriptions,
         VkAttachmentDescriptions and the VkSubpassDependencies between
         subpasses.
+
+        \begin{usage}{Renderpass}
+  Renderpass renderpass(device,subpasses);
+        \end{usage}
 
       \subsection{evk::Pipeline}
 
@@ -775,6 +793,13 @@
         Subpass, and combines it with automatically generated
         fixed-function information (input assembly, viewport state,
         rasterizer, multisampling, colour blending) to create the VkPipeline.
+
+        \begin{usage}{Pipeline}
+  Pipeline pipeline(
+    device, subpass, descriptor, vertexInput,
+    renderpass, shaders
+  );
+        \end{usage}
 
         \begin{figure}[h]
           \centering
@@ -802,7 +827,16 @@
         vertex Shader operates on each vertex and any associated vertex
         input attributes, specified using the VertexInput struct. A
         fragment Shader operates on every fragment. Both a vertex Shader
-        and fragment Shader are required for the evulkan library. \\
+        and fragment Shader are required for the evulkan library.
+
+        \begin{usage}{Shader}
+  Shader vertexShader(
+    device, "shader_vert.spv", Shader::Stage::VERTEX
+  );
+  Shader fragmentShader(
+    device, "shader_frag.spv", Shader::Stage::FRAGMENT
+  );
+        \end{usage}
 
         A user can load in SPIR-V code from a file of their choice. SPIR-V is
         easily generated from GLSL using the \texttt{glslc} command, which is
@@ -823,11 +857,15 @@
         and a VkVertexInputBindingDescription. It is used for describing vertex
         attributes that will be bound to the shader, such as colour and normal.
 
-        \begin{lstlisting}[caption=VertexInput usage.]
-VertexInput vertexInput(sizeof(Vertex));
-vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
-vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
-        \end{lstlisting}
+        \begin{usage}{VertexInput}
+  VertexInput vertexInput(sizeof(Vertex));
+  vertexInput.setVertexAttributeVec3(
+    0,offsetof(Vertex,pos)
+  );
+  vertexInput.setVertexAttributeVec3(
+    1,offsetof(Vertex,color)
+  );
+        \end{usage}
 
       \subsection{Window System Integration}
 
@@ -842,45 +880,43 @@ vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
         interface with the surface object. For GLFW, this may result in
         something like the following
 
-        \begin{centering}
-          \begin{Verbatim}[fontsize=\small]
-auto glfwExtensions = glfwGetRequiredInstanceExtensions(
-                        &glfwExtensionCount
-                      );
+        \begin{usage}{GLFW window surface}
+  auto glfwExtensions = glfwGetRequiredInstanceExtensions(
+                          &glfwExtensionCount
+                        );
 
-std::vector<const char*> surfaceExtensions(
-  glfwExtensions, glfwExtensions + glfwExtensionCount
-);
-
-auto surfaceFunc = [&](){
-  glfwCreateWindowSurface(
-    device.instance(), window, nullptr, &device.surface()
+  std::vector<const char*> surfaceExtensions(
+    glfwExtensions, glfwExtensions + glfwExtensionCount
   );
-};
 
-device.createSurface(surfaceFunc,800,600,surfaceExtensions);
-          \end{Verbatim}
-        \end{centering}
+  auto surfaceFunc = [&](){
+    glfwCreateWindowSurface(
+      device.instance(), window, nullptr, &device.surface()
+    );
+  };
+
+  device.createSurface(
+    surfaceFunc,800,600,surfaceExtensions
+  );
+        \end{usage}
 
         For SDL, the following would suffice
 
-        \begin{centering}
-          \begin{Verbatim}[fontsize=\small]
-SDL_Vulkan_GetInstanceExtensions(
-  window, &sdlExtensionCount, surfaceExtensions
-);
-
-auto surfaceFunc = [&](){
-  SDL_Vulkan_CreateSurface(
-    window, device.instance(), &device.surface()
+        \begin{usage}{SDL window surface}
+  SDL_Vulkan_GetInstanceExtensions(
+    window, &sdlExtensionCount, surfaceExtensions
   );
-};
 
-device.createSurface(
-  surfaceFunc,800,600,surfaceExtensions
-);
-          \end{Verbatim}
-        \end{centering}
+  auto surfaceFunc = [&](){
+    SDL_Vulkan_CreateSurface(
+      window, device.instance(), &device.surface()
+    );
+  };
+
+  device.createSurface(
+    surfaceFunc,800,600,surfaceExtensions
+  );
+        \end{usage}
 
           When a window is resized, the evk library automatically recreates the
           required objects (swapchain, framebuffer, input attachments). The
@@ -891,11 +927,11 @@ device.createSurface(
           trigger a resize event. As such, it is recommended that the user register
           a callback function as follows
 
-        \begin{centering}
-          \begin{Verbatim}[fontsize=\small]
-glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-          \end{Verbatim}
-        \end{centering}
+        \begin{usage}{Window resize callback}
+  glfwSetFramebufferSizeCallback(
+    window, framebufferResizeCallback
+  );
+        \end{usage}
 
       \subsection{Error Handling}
 
@@ -917,10 +953,11 @@ glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
           A common way to handle errors is to return a simple type (bool or int)
           which the user can then test to determine if a method succeeded.
 
-          \begin{figure}[h]
-            \centering
-            \verb|bool create_file(const std::string &name);|
-          \end{figure}
+          \vspace{5mm}
+          \begin{lstlisting}
+            bool create_file(const std::string &name);
+          \end{lstlisting}
+          \vspace{5mm}
 
           There are many problems with this approach.
 
@@ -950,9 +987,8 @@ glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
           throwing an error in the body of code and catching it and dealing
           with it somewhere else.
 
-          \begin{figure}[h]
-            \centering
-            \begin{verbatim}
+          \vspace{5mm}
+          \begin{lstlisting}
 void create_file(const std::string &name);
 
 try
@@ -962,8 +998,8 @@ try
 {
   // Handle error.
 }
-            \end{verbatim}
-          \end{figure}
+          \end{lstlisting}
+          \vspace{5mm}
 
           There are some problems with using exceptions:
 
