@@ -10,17 +10,18 @@
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Device class diagram.\relax }}{11}
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Texture class diagram.\relax }}{12}
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Attachment class diagram.\relax }}{13}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{13}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{14}
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Subpass class diagram.\relax }}{14}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Buffer class diagram.\relax }}{14}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Descriptor class diagram.\relax }}{15}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Subpass class diagram.\relax }}{15}
 \contentsline {figure}{\numberline {4.7}{\ignorespaces Renderpass class diagram.\relax }}{15}
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{15}
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Shader class diagram.\relax }}{15}
-\contentsline {figure}{\numberline {4.10}{\ignorespaces VertexInput class diagram.\relax }}{16}
-\contentsline {figure}{\numberline {4.11}{\ignorespaces evulkan architecture.\relax }}{20}
-\contentsline {figure}{\numberline {4.12}{\ignorespaces instructions for installing evulkan.\relax }}{20}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Pipeline class diagram.\relax }}{16}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Vulkan Pipeline (\citeauthor {reference_guide} \citeyear {reference_guide}, p.5).\relax }}{16}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Shader class diagram.\relax }}{17}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces VertexInput class diagram.\relax }}{17}
+\contentsline {figure}{\numberline {4.12}{\ignorespaces evulkan architecture.\relax }}{21}
+\contentsline {figure}{\numberline {4.13}{\ignorespaces instructions for installing evulkan.\relax }}{21}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple and evulkan triangles.\relax }}{23}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple and evulkan triangles.\relax }}{24}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{29}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{30}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{30}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{31}

@@ -53,6 +53,24 @@
   \end{displayquote}
 }
 
+\definecolor{fontcolour}{rgb}{0.2,0.2,0.2}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize\color{fontcolour},
+    language=C++
+}
+\lstset{style=mystyle}
+
+\lstnewenvironment{usage}[1]{
+  \minipage[t]{.9\linewidth}
+  \lstset{caption={#1 usage.}}
+}
+{
+  \endminipage
+  \vspace{5mm}
+}
+
 \geometry{
   a4paper,
   total={170mm,257mm},
@@ -113,6 +131,8 @@
   \tableofcontents
 
   \listoffigures
+
+  \lstlistoflistings
 
   \chapter{Introduction}
     \pagenumbering{arabic}
@@ -511,19 +531,26 @@
 
       \subsection{evk::Device}
 
-        \begin{wrapfigure}{l}{\figurewidth}
+        \begin{figure}[h]
           \centering
           \includegraphics[width=\imagewidth]{images/class_device.png}
           \caption{Device class diagram.}
           \label{fig:class_device}  
-        \end{wrapfigure}
+        \end{figure}
 
         A device is the basic component of the library. It is the first Vulkan
         component that is constructed in the application. It encapsulates,
         among other things, a VkInstance, VkPhysicalDevice, VkDevice, VkQueues.
         A user can set up the device with or without validation layers. Leaving
         validation layers turned off results in a faster application suitable
-        for production. \\
+        for production.
+
+        \begin{usage}{Device}
+  Device device = Device(
+      numThreads, deviceExtensions, swapchainSize,
+      validationLayers
+  );
+        \end{usage}
 
         The Device object tracks state across the program. It is used in the
         creation of other evk Vulkan objects. The Device is responsible for
@@ -534,38 +561,34 @@
         capabilities. For some more intensive operations, such as recording
         draw operations into the command buffer, it splits the operation
         across multiple threads, each of which records its portion of the
-        operation into a separate secondary command buffer. \\
+        operation into a separate secondary command buffer.
 
-        \begin{figure}[H]
-        \begin{verbatim}
-            vkCmdDrawIndexed(
-              secondaryCommandBuffer, numIndices,
-              1, indexOffset, 0, 0
-            );
-        \end{verbatim}
-        \end{figure}
+        \begin{usage}{Secondary command buffer}
+  vkCmdDrawIndexed(
+    secondaryCommandBuffer, numIndices,
+    1, indexOffset, 0, 0
+  );
+        \end{usage}
 
         These secondary command buffers are then executed from the primary
         command buffer.
 
-        \begin{figure}[H]
-        \begin{verbatim}
-            vkCmdExecuteCommands(
-              primaryCommandBuffer,
-              secondaryCommandBuffers.size(),
-              secondaryCommandBuffers.data()
-            );
-        \end{verbatim}
-        \end{figure}
+        \begin{usage}{Primary command buffer}
+  vkCmdExecuteCommands(
+    primaryCommandBuffer,
+    secondaryCommandBuffers.size(),
+    secondaryCommandBuffers.data()
+  );
+        \end{usage}
 
       \subsection{evk::Texture}
 
-        \begin{wrapfigure}{r}{\figurewidth}
+        \begin{figure}[h]
           \centering
           \includegraphics[width=\imagewidth]{images/class_texture.png}
           \caption{Texture class diagram.}
           \label{fig:class_texture}  
-        \end{wrapfigure}
+        \end{figure}
 
         A Texture allows a user to load in a texture from a file. It transitions
         the image to a transfer-optimal format before copying the pixels from
@@ -579,6 +602,10 @@
         sampler and is used by the Shader to read image data from Textures
         and apply filters.
 
+        \begin{usage}{Texture}
+  Texture texture(device, "viking_room.png");
+        \end{usage}
+
       \subsection{evk::Attachment}
 
         An Attachment represents a resource that can be read from, or written
@@ -586,7 +613,16 @@
         of FRAMEBUFFER, COLOR or DEPTH. Both a FRAMEBUFFER and DEPTH Attachment
         are required for any program as the shaders must write to the depth
         buffer and to the screen. For more advanced usages (see the multipass
-        example) a COLOR Attachment is useful. \\
+        example) a COLOR Attachment is useful.
+
+        \begin{usage}{Attachment}
+  Attachment framebufferAttachment(
+    device, 0, Attachment::Type::FRAMEBUFFER
+  );
+  Attachment depthAttachment(
+    device, 1, Attachment::Type::DEPTH
+  );
+        \end{usage}
 
         An Attachment consists of a VkAttachmentDescription, which describes
         the properties of the Attachment, and multiple VkAttachmentReferences,
@@ -597,12 +633,12 @@
         An Attachment also contains a VkClearValue. This value specifies how an
         Attachment should be cleared when it is reused. \\
 
-        \begin{wrapfigure}{l}{\figurewidth}
+        \begin{figure}[h]
           \centering
           \includegraphics[width=\imagewidth]{images/class_attachment.png}
           \caption{Attachment class diagram.}
           \label{fig:class_attachment}  
-        \end{wrapfigure}
+        \end{figure}
 
         Attachments are used in Subpasses as either an input attachment, a
         colour attachment or a depth attachment. A colour or depth attachment
@@ -617,26 +653,40 @@
         creation. There are two types of Buffers; StaticBuffer and
         DynamicBuffer. \\
 
-        \begin{wrapfigure}{r}{\figurewidth}
+        \begin{figure}[h!]
           \centering
           \includegraphics[width=\imagewidth]{images/class_buffer.png}
           \caption{Buffer class diagram.}
           \label{fig:class_buffer}  
-        \end{wrapfigure}
+        \end{figure}
 
-        A StaticBuffer is used when the contents of the Buffer will not be
-        updated after they have been set. This allows for some optimization
+        A StaticBuffer is suitable for a Buffer that will not be
+        updated after it has been created. This allows for some optimization
         to take place. The Buffer contents are copied to device-local memory
-        to allow faster GPU-access at draw time. A StaticBuffer uses multiple threads
+        to allow faster GPU access at draw time. A StaticBuffer uses multiple threads
         to copy the buffer data across to the device-local memory. The user is able
-        to specify the required number of threads to use when copying across the data,
+        to specify the desired number of threads to use when copying across the data,
         allowing for speed ups in the application set up time. \\
 
-        A DynamicBuffer is used when the Buffer contents will be updated at
+        \begin{usage}{StaticBuffer}
+  StaticBuffer indexBuffer(
+    device, in.data(), sizeof(in[0]),
+    in.size(), Buffer::Type::INDEX
+  );
+        \end{usage}
+
+        A DynamicBuffer is suitable for a Buffer where its contents will be updated at
         draw time. This skips the relatively expensive step of copying the
         Buffer data to device-local memory, and leaves them in host-visible
         memory for faster update speeds. A DynamicBuffer can be updated
-        using the update() command.
+        using the \texttt{update()} command.
+
+        \begin{usage}{DynamicBuffer}
+  DynamicBuffer ubo(
+      device, &uboUpdate, sizeof(uboUpdate),
+      1, Buffer::Type::UBO
+  );
+        \end{usage}
 
       \subsection{evk::Descriptor}
 
@@ -654,7 +704,7 @@
         commands.
 
         When a user calls one of these functions, for example
-        addTextureSampler(), the following happens:
+        \texttt{addTextureSampler()}, the following happens:
 
         \begin{itemize}
           \item A VkDescriptorSetLayoutBinding is constructed. This describes
@@ -670,7 +720,7 @@
             VkDescriptorPool, from which the VkDescriptorSets are allocated.
             VkDescriptorSets are sets of resources which are bound into the
             VkPipeline as a group. Finally, the VkWriteDescriptorSets are
-            updated using vkUpdateDescriptorSets() command, binding the
+            updated using \texttt{vkUpdateDescriptorSets()} command, binding the
             resources into the descriptor sets.
         \end{itemize}
 
@@ -689,7 +739,7 @@
         input Attachments (as described above) along with their references.
         Contained within the Subpass is a VkSubpassDescription, a struct
         describing the Subpass. The index of the Subpass indicates when the
-        Subpass will be executed in order.
+        Subpass will be executed, in relation to the other Subpasses.
 
       \subsection{evk::Renderpass}
 
@@ -722,9 +772,16 @@
         \end{figure}
 
         A Pipeline setup call takes the user-provided Shaders, Renderpass and
-        Subpass index, and combines it with automatically generated
+        Subpass, and combines it with automatically generated
         fixed-function information (input assembly, viewport state,
         rasterizer, multisampling, colour blending) to create the VkPipeline.
+
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\textwidth]{images/vulkan_pipeline.png}
+          \caption{Vulkan Pipeline \citediagram{reference_guide}{5}.}
+          \label{fig:vulkan_pipeline}
+        \end{figure}
 
       \subsection{evk::Shader}
 
@@ -741,29 +798,36 @@
           \label{fig:class_shader}
         \end{wrapfigure}
 
-        There are two supported Shader stages, vertex and fragment. A
+        There are two supported Shader stages in the evulkan library, vertex and fragment. A
         vertex Shader operates on each vertex and any associated vertex
         input attributes, specified using the VertexInput struct. A
         fragment Shader operates on every fragment. Both a vertex Shader
-        and fragment Shader are required for the evulkan library.
+        and fragment Shader are required for the evulkan library. \\
 
         A user can load in SPIR-V code from a file of their choice. SPIR-V is
-        easily generated from GLSL using the glslc command, which is
+        easily generated from GLSL using the \texttt{glslc} command, which is
         available for download from https://github.com/google/shaderc, or
         with the Vulkan SDK from LunarG.
 
       \subsection{evk::VertexInput}
 
-        \begin{figure}[h]
-          \centering
+        \begin{figure}[h!]
+          \begin{centering}
           \includegraphics[width=\imagewidth]{images/class_vertexinput.png}
           \caption{VertexInput class diagram.}
+          \end{centering}
           \label{fig:class_vertexinput}
         \end{figure}
 
         A VertexInput object is a wrapper around a VkVertexInputAttributeDescription
         and a VkVertexInputBindingDescription. It is used for describing vertex
         attributes that will be bound to the shader, such as colour and normal.
+
+        \begin{lstlisting}[caption=VertexInput usage.]
+VertexInput vertexInput(sizeof(Vertex));
+vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
+        \end{lstlisting}
 
       \subsection{Window System Integration}
 
