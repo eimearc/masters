@@ -13,6 +13,10 @@
 \citation{reference_guide}
 \citation{vulkan}
 \citation{vulkan}
+\citation{core_guidelines}
+\citation{core_guidelines}
+\citation{style_guide}
+\citation{style_guide}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -26,6 +30,8 @@
 \citation{ue4}
 \citation{vez}
 \citation{vez}
+\citation{anvil}
+\citation{anvil}
 \citation{anvil}
 \citation{anvil}
 \citation{glove}
@@ -95,7 +101,7 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}VkDevice}{8}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.4}VkQueue}{8}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.5}VkDeviceMemory}{8}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Multithreaded command buffer usage (\citeauthor  {personalinquiry} \citeyear  {personalinquiry}, p.1).\relax }}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Multithreaded command buffer usage (\citeauthor  {personalinquiry} \citeyear  {personalinquiry}, p.6).\relax }}{9}}
 \newlabel{fig:command_buffer}{{3.5}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.6}VkCommandBuffer}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4.7}VkSwapchainKHR}{9}}
@@ -143,7 +149,7 @@
 \citation{reference_guide}
 \citation{reference_guide}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.11}Pipeline usage.}{17}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces Vulkan Pipeline (\citeauthor  {reference_guide} \citeyear  {reference_guide}, p.5).\relax }}{17}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces Vulkan pipeline (\citeauthor  {reference_guide} \citeyear  {reference_guide}, p.5).\relax }}{17}}
 \newlabel{fig:vulkan_pipeline}{{4.9}{17}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.9}evk::Shader}{17}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.10}{\ignorespaces Shader class diagram.\relax }}{17}}
@@ -151,7 +157,7 @@
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.12}Shader usage.}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.10}evk::VertexInput}{18}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.11}{\ignorespaces VertexInput class diagram.\relax }}{18}}
-\newlabel{fig:class_vertexinput}{{\caption@xref {fig:class_vertexinput}{ on input line 856}}{18}}
+\newlabel{fig:class_vertexinput}{{\caption@xref {fig:class_vertexinput}{ on input line 855}}{18}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.13}VertexInput usage.}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1.11}Window System Integration}{18}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.14}GLFW window surface usage.}{19}}
@@ -169,9 +175,8 @@
 \@writefile{toc}{\contentsline {subsubsection}{Assertions}{21}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.12}{\ignorespaces evulkan architecture.\relax }}{22}}
 \newlabel{fig:evulkan_architecture}{{4.12}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.13}Architecture}{22}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Installation and Use}{22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.13}{\ignorespaces instructions for installing evulkan.\relax }}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.13}{\ignorespaces Instructions for installing evulkan.\relax }}{22}}
 \newlabel{fig:installation}{{4.13}{22}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4.17}Example program usage.}{22}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.3}Known Problems}{23}}
@@ -185,7 +190,7 @@
 \@writefile{toc}{\contentsline {section}{\numberline {5.1}Efficiency}{25}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}Time Profile}{25}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Benchmark}{25}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple and evulkan triangles.\relax }}{26}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple triangle and evulkan triangle.\relax }}{26}}
 \newlabel{fig:test_describe}{{5.1}{26}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.2}Usability}{26}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.3}Availability}{26}}
@@ -213,18 +218,20 @@
 \bibcite{ue4}{{7}{1998}{{Epic Games}}{{}}}
 \bibcite{gamasutra}{{8}{2012}{{Frykholm}}{{}}}
 \bibcite{bazel}{{9}{2015}{{Google}}{{}}}
-\bibcite{gameEngineBook}{{10}{2014}{{Gregory}}{{}}}
-\bibcite{renderdoc}{{11}{2018}{{Karlsson}}{{}}}
-\bibcite{moltenvk}{{12}{2016{a}}{{Khronos Group}}{{}}}
-\bibcite{vulkan}{{13}{2016{b}}{{Khronos Group}}{{}}}
-\bibcite{vulkan_guide}{{14}{2016{c}}{{Khronos Group}}{{}}}
-\bibcite{reference_guide}{{15}{2016{d}}{{Khronos Group}}{{}}}
-\bibcite{vulkantutorial}{{16}{2020}{{Overvoorde}}{{}}}
-\bibcite{vulkanbook}{{17}{2016}{{Sellers}}{{}}}
-\bibcite{glove}{{18}{2016}{{Think Silicon}}{{}}}
-\bibcite{unity}{{19}{2005}{{Unity Technologies}}{{}}}
-\bibcite{source}{{20}{2004}{{Valve}}{{}}}
-\bibcite{sascha}{{21}{2015}{{Willems}}{{}}}
+\bibcite{style_guide}{{10}{2020}{{Google}}{{}}}
+\bibcite{gameEngineBook}{{11}{2014}{{Gregory}}{{}}}
+\bibcite{renderdoc}{{12}{2018}{{Karlsson}}{{}}}
+\bibcite{moltenvk}{{13}{2016{a}}{{Khronos Group}}{{}}}
+\bibcite{vulkan}{{14}{2016{b}}{{Khronos Group}}{{}}}
+\bibcite{vulkan_guide}{{15}{2016{c}}{{Khronos Group}}{{}}}
+\bibcite{reference_guide}{{16}{2016{d}}{{Khronos Group}}{{}}}
+\bibcite{vulkantutorial}{{17}{2020}{{Overvoorde}}{{}}}
+\bibcite{vulkanbook}{{18}{2016}{{Sellers}}{{}}}
+\bibcite{core_guidelines}{{19}{2020}{{Stroustrup and Sutter}}{{}}}
+\bibcite{glove}{{20}{2016}{{Think Silicon}}{{}}}
+\bibcite{unity}{{21}{2005}{{Unity Technologies}}{{}}}
+\bibcite{source}{{22}{2004}{{Valve}}{{}}}
+\bibcite{sascha}{{23}{2015}{{Willems}}{{}}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {6.1}Triangle drawing with evulkan library.}{31}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {6.2}OBJ drawing with evulkan library.}{33}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {6.3}Multipass drawing with evulkan library.}{36}}
