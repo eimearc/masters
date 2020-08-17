@@ -553,7 +553,7 @@
         \end{usage}
 
         The Device object tracks state across the program. It is used in the
-        creation of other evk Vulkan objects. The Device is responsible for
+        creation of other Vulkan objects. The Device is responsible for
         creating a VkInstance, VkPhysicalDevice, VkDevice, VkSwapchainKHR, VkFramebuffer
         and all the required command buffers. \\
 
@@ -677,7 +677,7 @@
 
         A DynamicBuffer is suitable for a Buffer where its contents will be updated at
         draw time. This skips the relatively expensive step of copying the
-        Buffer data to device-local memory, and leaves them in host-visible
+        Buffer data to device-local memory, and leaves the data in host-visible
         memory for faster update speeds. A DynamicBuffer can be updated
         using the \texttt{update()} command.
 
@@ -686,6 +686,8 @@
       device, &uboUpdate, sizeof(uboUpdate),
       1, Buffer::Type::UBO
   );
+  ...
+  ubo.update(&uboUpdate);
         \end{usage}
 
       \subsection{evk::Descriptor}
@@ -777,7 +779,7 @@
       \subsection{evk::Pipeline}
 
         A Pipeline takes all the previous information and generates a
-        VkPipeline - the sequence of operations that take the input vertices
+        VkPipeline - the sequence of operations that takes the input vertices
         and produces the output, to the screen or otherwise. We will only
         cover graphics pipeline creation here. A Pipeline is associated with
         exactly one Subpass.
@@ -838,6 +840,7 @@
   );
         \end{usage}
 
+        The specified shader code must be in the SPIR-V format. 
         A user can load in SPIR-V code from a file of their choice. SPIR-V is
         easily generated from GLSL using the \texttt{glslc} command, which is
         available for download from https://github.com/google/shaderc, or
@@ -874,7 +877,7 @@
         The way in which the VkSurfaceKHR object is created also needs to be
         handled by the application. \\
 
-        To keep the evk library platform-agnostic, the user must register
+        To keep the evulkan library platform-agnostic, the user must register
         two things: a function which will be called to create the surface
         and the set of instance extensions required for Vulkan to correctly
         interface with the surface object. For GLFW, this may result in
@@ -935,7 +938,7 @@
 
       \subsection{Error Handling}
 
-        Error handling is a contentious topic. Different people have different
+        Error handling is a contentious topic. Different people have varying
         (strong) opinions on which approach to take. Unlike other programming
         languages, \cpp{} does not have a unified approach to error handling,
         leading to diverging dialects of the language. \\
@@ -945,7 +948,7 @@
         latter are the fault of the library developer. User errors should be
         reported to the user and the program should continue execution.
         Programming errors, on the other hand, should halt the program and
-        provide as low level information to help the programmer debug the
+        provide low level information to help the programmer debug the
         issue. Such errors would then be fixed before release (ideally). \\
 
         \subsubsection{Error Return Codes}
@@ -964,7 +967,7 @@
           \begin{itemize}
             \item The return channel is blocked with the error code, meaning
               the function can not return anything else. A solution would be to
-              use out parameters.
+              use "out parameters".
             \item A bool has low information bandwidth - it tells us if an
               operation failed, but it does not tell us how or why it failed.
               Of course, the bool type could be extended to use an unsigned int,
@@ -972,9 +975,9 @@
               determine the correct path to take. This can be messy. Messy code
               is brittle code.
             \item The user can choose to ignore the value and continue on,
-              leading to reduced code safety. A nodiscard keyword could be
-              added here, but only if the error is being returned, not used
-              as an out parameter as specified above.
+              leading to reduced code safety. A \texttt{nodiscard} keyword could be
+              added here, but only if the error is being returned, and could not used
+              if an out parameter is used as specified above.
             \item The code that is written to handle the error can be totally
               unrelated to the code that detects the error. For example, a
               function 30 levels deep into the call stack might generate an
@@ -1024,7 +1027,7 @@ try
             increasing the mental burden on the caller for very little gain.
           }{gamasutra}
 
-          \cpp20 has a proposal in the works for contract-based programming
+          \cpp20 has a proposal in the works for contract-based programming \citebu{contracts}
           which eliminates many of these problems, but as this library is
           explicitly being developed for \cpp14, it's out of scope. \\
 
@@ -1068,7 +1071,7 @@ try
         As the library uses CMake, it is relatively easy to install. Follow
         these instruction in figure \ref{fig:installation} from the root of the directory.
 
-          \begin{figure}
+          \begin{figure}[h!]
             \centering
             \begin{verbatim}
 $ mkdir build
@@ -1082,7 +1085,14 @@ $ make install
           \end{figure}
 
         The library and header file will be installed in \texttt{/usr/local/} by default.
+        Example files can be run from the generated \texttt{build/examples/} directory.
 
+        \begin{usage}{Example program}
+  triangle$ ./triangle
+multiplass$ ./multipass --num_threads 3
+       obj$ ./obj
+        \end{usage}
+        
     \section{Known Problems}
 
       \subsection{Colo(u)r}
@@ -1141,9 +1151,9 @@ $ make install
 
   \chapter{Results}
 
-    \subsection{Efficiency}
+    \section{Efficiency}
 
-      \subsubsection{Time Profile}
+      \subsection{Time Profile}
 
         Using Apple's Instruments application, the library was profiled using
         the multipass example to check for any bottlenecks. The results are
@@ -1185,7 +1195,7 @@ $ make install
         this is an attractive bonus. Speed was not greatly affected for
         ease of use.
 
-      \subsubsection{Benchmark}
+      \subsection{Benchmark}
 
         In addition to Instruments, a benchmark program was written. It is
         located at examples/bench/main.cpp. It runs the setup and draw
@@ -1226,7 +1236,7 @@ $ make install
         Note that the data has been stripped of outlier values (z value larger than 3).
         The Python code used to generate these results is in examples/bench/Bench.ipynb.
 
-    \subsection{Usability}
+    \section{Usability}
 
       This is the main goal of the project. Usability refers to how well a person
       can use the library effectively. Usability here is measured in
@@ -1238,12 +1248,12 @@ $ make install
       schemes for methods and variables and is consistent with other open source
       projects, as it uses CMake for distribution and building. The code
       adheres to the Google Style Guide, has maximum 80 character length
-      lines and it has const and noexcept methods where possible. Using
+      lines and it has \texttt{const} and \texttt{noexcept} methods where possible. Using
       the triangle example for comparison, the pure Vulkan implementation
       uses approximately 914 lines of code, while the evulkan implementation
       uses 94, almost a 10x decrease. 
 
-    \subsection{Availability}
+    \section{Availability}
 
       Availability refers to how easily the code is retrieved. The code is
       available on GitHub, and is structured in the standard open-source
@@ -1262,7 +1272,7 @@ $ make install
 
       Had COVID-19 not been an issue, given access to the lab machines with
       Linux and Windows, the library could have been tested across different
-      configurations. In addition, it would have been useful to have my
+      configurations. In addition, it would have been useful to have
       classmates test the program and see if they could write a Vulkan
       program in a limited time frame.
 
@@ -1270,10 +1280,10 @@ $ make install
 
       While care was taken to ensure this library was designed in a data-friendly
       manner, much of the time spent was ensuring that the library was easy to
-      use and understand. These two approaches often are in conflict, ease of
+      use and understand. While these two approaches often are in conflict, ease of
       use was paramount, leaving some cases where the solution is less-than
       optimal in terms of data access and overall speed. Starting off the
-      project with a better understanding of Vulkan and library writing
+      project with a better understanding of Vulkan and library development
       would have made this step much easier and more fluid.
 
     \subsection{Mesh Shader}
@@ -1288,15 +1298,15 @@ $ make install
   \section{Future Developments}
     
     Possible future developments include exposing more Vulkan features
-    (e.g. compute pipeline), adding more tests and integrating it with
+    (e.g. compute pipeline), adding more tests and integrating the library with
     NGL.
 
   \section{Alternatives Considered}
 
     \subsection{Bazel}
 
-      There were two options for the build system, Bazel and CMake. Bazel is
-      Google's build system. Tests undertaken at the beginning of the
+      There were two options for the build system, Bazel \citebu{bazel} and CMake.
+      Tests undertaken at the beginning of the
       project found that, while Bazel is good for large codebases and
       modeling interdependencies within the codebase, CMake is the
       standard used for distributing, building and installing
@@ -1316,12 +1326,102 @@ $ make install
       completion of a stable and usable \cpp{} library. Graphics
       programmers are expected to have a solid understanding
       of \cpp{} so it is safe to assume that they would be able
-      to set up and use a simple library such as this one.
+      to set up and use a library such as this one.
 
   \bibliographystyle{harvardnat}
   \bibliography{thesis.bib}
 
   \chapter*{Appendices}
+
+    \begin{lstlisting}[caption=Triangle drawing with evulkan library.]
+#include "evulkan/evulkan.h"
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+using namespace evk;
+
+int main()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    GLFWwindow *window=glfwCreateWindow(
+      800, 600, "Vulkan", nullptr, nullptr
+    );
+
+    const uint32_t numThreads = 1;
+    const uint32_t swapchainSize = 2;
+
+    Device device = Device(
+        numThreads, deviceExtensions, swapchainSize,
+        validationLayers
+    );
+
+    WindowResize r;
+    createSurfaceGLFW(device,window,r);
+
+    std::vector<Vertex> vertices=setupVerts();
+    std::vector<uint32_t> indices={0,1,2};
+
+    Attachment framebufferAttachment(
+      device, 0, Attachment::Type::FRAMEBUFFER
+    );
+    Attachment depthAttachment(
+      device, 1, Attachment::Type::DEPTH
+    );
+
+    std::vector<Attachment*> colorAttachments
+      = {&framebufferAttachment};
+    std::vector<Attachment*> depthAttachments
+      = {&depthAttachment};
+    std::vector<Attachment*> inputAttachments;
+    std::vector<Subpass::Dependency> dependencies;
+    
+    Subpass subpass(
+        0, dependencies, colorAttachments,
+        depthAttachments, inputAttachments
+    );
+
+    std::vector<Subpass*> subpasses = {&subpass};
+    Renderpass renderpass(device, subpasses);
+
+    VertexInput vertexInput(sizeof(Vertex));
+    vertexInput.setVertexAttributeVec3(0,offsetof(Vertex,pos));
+    vertexInput.setVertexAttributeVec3(1,offsetof(Vertex,color));
+
+    StaticBuffer indexBuffer(
+        device, indices.data(), sizeof(indices[0]),
+        indices.size(), Buffer::Type::INDEX
+    );
+    StaticBuffer vertexBuffer(
+        device, vertices.data(), sizeof(vertices[0]),
+        vertices.size(), Buffer::Type::VERTEX
+    );
+
+    Shader vertexShader(
+      device, "shader_vert.spv", Shader::Stage::VERTEX
+    );
+    Shader fragmentShader(
+      device, "shader_frag.spv", Shader::Stage::FRAGMENT
+    );
+    std::vector<Shader*> shaders = {&vertexShader,&fragmentShader};
+
+    Pipeline pipeline(
+      device, subpass, vertexInput, renderpass, shaders
+    );
+    std::vector<Pipeline*> pipelines = {&pipeline};
+    
+    device.finalize(indexBuffer,vertexBuffer,pipelines);
+
+    // Main loop.
+    while(!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
+        device.draw();
+    }
+}
+    \end{lstlisting}
 
     \afterpage
     {
