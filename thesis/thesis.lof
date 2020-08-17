@@ -23,5 +23,5 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple and evulkan triangles.\relax }}{26}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{33}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{34}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{40}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{41}
