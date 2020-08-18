@@ -15,6 +15,6 @@
 \contentsline {lstlisting}{\numberline {4.15}SDL window surface usage.}{19}
 \contentsline {lstlisting}{\numberline {4.16}Window resize callback usage.}{19}
 \contentsline {lstlisting}{\numberline {4.17}Example program usage.}{22}
-\contentsline {lstlisting}{\numberline {6.1}Triangle drawing with evulkan library.}{31}
-\contentsline {lstlisting}{\numberline {6.2}OBJ drawing with evulkan library.}{33}
-\contentsline {lstlisting}{\numberline {6.3}Multipass drawing with evulkan library.}{36}
+\contentsline {lstlisting}{\numberline {6.1}Triangle drawing with evulkan library.}{32}
+\contentsline {lstlisting}{\numberline {6.2}OBJ drawing with evulkan library.}{35}
+\contentsline {lstlisting}{\numberline {6.3}Multipass drawing with evulkan library.}{39}

@@ -23,5 +23,8 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Test results for simple triangle and evulkan triangle.\relax }}{26}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{40}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{41}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Triangle example in action.\relax }}{32}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces OBJ example in action.\relax }}{35}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Multipass example in action.\relax }}{39}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Draw time for different examples over multiple threads.\relax }}{43}
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Setup time for different examples over multiple threads.\relax }}{44}

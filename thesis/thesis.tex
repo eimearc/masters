@@ -323,7 +323,7 @@
       are grouped into layers. These layers are specific to a system and
       platform and are registered in a well-known location on that machine
       in JSON files. These files contain the names of the extensions provided
-      by the layer and where to find the actual library is on the system This
+      by the layer and where to find the actual library on the system. This
       means that whenever the Vulkan loader queries for a specific layer, the
       JSON file is read - the layer module itself does not need to be loaded. \\
 
@@ -446,7 +446,7 @@
         When creating a buffer, the user must specify both how the buffer will
         be used and where this buffer will reside. Host-visible memory is
         accessible by the CPU through the use of the \texttt{vkMapMemory} command, while
-        the device-local is the most efficient for GPU access.
+        device-local memory is the most efficient for GPU access.
 
       \begin{figure}[h]
         \centering
@@ -471,7 +471,7 @@
 
         \begin{itemize}
           \item A primary command buffer is submitted to a queue for execution.
-          It holds references to an array of secondary command buffers.
+          It may hold references to an array of secondary command buffers.
           \item A secondary command buffer is not submitted to a queue for
           execution. Instead, work is recorded into it and a reference to the
           command buffer is attached to a primary command buffer, along with
@@ -542,7 +542,7 @@
         component that is constructed in the application. It encapsulates,
         among other things, a VkInstance, VkPhysicalDevice, VkDevice and VkQueues.
         A user can set up the device with or without validation layers. Leaving
-        validation layers turned off results in a faster application suitable
+        validation layers turned off results in a faster application ideal
         for production.
 
         \begin{usage}{Device}
@@ -983,7 +983,7 @@
             \item The code that is written to handle the error can be totally
               unrelated to the code that detects the error. For example, a
               function 30 levels deep into the call stack might generate an
-              error that can only be handled at the top level in main.
+              error that can only be handled at the top level in \texttt{main}.
           \end{itemize}
 
         \subsubsection{Exceptions}
@@ -1068,7 +1068,7 @@
     \section{Installation and Use}
 
         As the library uses CMake, it is relatively easy to install. Follow
-        these instruction in figure \ref{fig:installation} from the root of the directory.
+        the instructions in figure \ref{fig:installation} from the root of the directory.
 
           \begin{figure}[h!]
             \centering
@@ -1107,7 +1107,7 @@ $ make install
         In order to allow this library to handle the binding of any type of
         vertex data, \verb|void *| pointers had to be used. In addition, there is also the need to
         have naked pointer arithmetic (\verb|void *dst|) for offsetting indices when multithreading. This is
-        not a robust solution and should be improved in future patches.
+        not a robust solution and should be improved in future revisions.
 
     \section{Why Should You Use This Library?}
 
@@ -1197,7 +1197,7 @@ $ make install
 
       \subsection{Benchmark}
 
-        In addition to Instruments, a benchmark program was written. It is
+        In addition to Instruments, a benchmarking program was written. It is
         located at examples/bench/main.cpp. It runs the setup and draw
         phases of the other example programs multiple times to gather
         data on timings. These timings were passed into Python to
@@ -1225,15 +1225,16 @@ $ make install
           \label{fig:test_describe}                        
         \end{figure}
 
-        The median (50\%) frame draw time for the evulkan Triangle is 0.4ms
+        The median (50\%) frame draw time for the evulkan triangle is 0.4ms
         longer than that for the simple triangle, however the evulkan frame
         draw time has a shorter tail for the maximum value.  The same is true
         for the startup time. While the draw and startup times might be
         slightly longer, they are much more consistent - the standard
-        deviation of the Simple Triangle is 5.289 while that of the evulkan
-        Triangle is 0.824. \\
+        deviation of the simple triangle is 5.289 while that of the evulkan
+        triangle is 0.824. \\
 
         Note that the data has been stripped of outlier values (z value larger than 3).
+        The experiment itself was run over 100 times for startup and within a startup another 100 times for drawing, resulting in 100,000 times overall.
         The Python code used to generate these results is in examples/bench/Bench.ipynb.
 
     \section{Usability}
@@ -1257,8 +1258,8 @@ $ make install
 
       Availability refers to how easily the code is retrieved. The code is
       available on GitHub, and is structured in the standard open-source
-      manner. It has examples and the full source code available for
-      distributing and building using CMake.
+      manner. It has examples, tests and the full source code available for
+      distributing and building the library using CMake.
 
   \chapter{Conclusion}
 
@@ -1332,6 +1333,13 @@ $ make install
   \bibliography{thesis.bib}
 
   \chapter*{Appendices}
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/triangle_example.png}
+        \caption{Triangle example in action.}
+        \label{fig:triangle_example}  
+      \end{figure}
 
     \begin{lstlisting}[caption=Triangle drawing with evulkan library.]
 #include "evulkan/evulkan.h"
@@ -1424,6 +1432,13 @@ int main()
     \end{lstlisting}
 
     \clearpage
+
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/obj_example.png}
+        \caption{OBJ example in action.}
+        \label{fig:obj_example}  
+      \end{figure}
 
     \begin{lstlisting}[caption=OBJ drawing with evulkan library., showstringspaces=false]
 #include "evulkan/evulkan.h"
@@ -1580,7 +1595,14 @@ int main(int argc, char **argv)
 
     \clearpage
 
-    \begin{lstlisting}[caption=Multipass drawing with evulkan library., showstringspaces=false]
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/multipass_example.png}
+        \caption{Multipass example in action.}
+        \label{fig:multipass_example}  
+      \end{figure}
+
+      \begin{lstlisting}[caption=Multipass drawing with evulkan library., showstringspaces=false]
 #include "evulkan/evulkan.h"
 
 using namespace evk;
