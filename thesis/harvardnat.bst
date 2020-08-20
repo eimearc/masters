@@ -560,7 +560,7 @@ FUNCTION {format.edition}
 FUNCTION {format.version}
 {  version empty$
     { "" }
-    { new.block version " [computer program]" * }
+    { new.block version ". [computer program]" * }
   if$
 }
 
