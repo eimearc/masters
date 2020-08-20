@@ -12,9 +12,6 @@ layout(location = 1) in vec3 inNormal;
 
 layout(location = 0) out vec3 outNormal;
 
-// TODO: Calculate in geometry shader, once per triangle.
-// PBR method, pass in via a map.
-
 void main() {
     gl_Position = ubo.MVP_model * vec4(inPosition, 1.0);
     outNormal = normalize(ubo.MV * vec4(inNormal,0)).xyz;

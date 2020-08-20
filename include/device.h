@@ -148,6 +148,7 @@ class Device
         const std::vector<const char*> &windowExtensions
     ) noexcept;
     void record() noexcept;
+    void reset() noexcept;
     void resizeWindow() noexcept;
     void wait() noexcept { m_threadPool.wait(); };
 
@@ -226,6 +227,7 @@ class Device
             std::function<void()> windowFunc,
             const std::vector<const char *> &windowExtensions
         ) noexcept;
+        void reset() noexcept;
 
         VkDebugUtilsMessengerEXT m_debugMessenger=VK_NULL_HANDLE;
         VkFormat m_depthFormat;
@@ -393,6 +395,7 @@ class Device
         bool operator!=(const Framebuffer &other) const noexcept;
 
         void recreate() noexcept;
+        void reset() noexcept;
         void setup() noexcept;
 
         Device *m_device=nullptr;

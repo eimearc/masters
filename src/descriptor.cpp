@@ -12,11 +12,13 @@ Descriptor::Descriptor(Descriptor &&other) noexcept
 Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 {
     if (*this==other) return *this;
+    m_attachments=other.m_attachments;
     m_bufferInfo=std::move(other.m_bufferInfo);
     m_device=other.m_device;
     m_inputAttachmentInfo=std::move(other.m_inputAttachmentInfo);
     m_pool=other.m_pool;
     m_poolSizes=other.m_poolSizes;
+    m_setBindings=other.m_setBindings;
     m_setLayouts=other.m_setLayouts;
     m_sets=other.m_sets;
     m_swapchainSize=other.m_swapchainSize;
@@ -29,11 +31,13 @@ Descriptor& Descriptor::operator=(Descriptor &&other) noexcept
 
 void Descriptor::reset() noexcept
 {
+    m_attachments.resize(0);
     m_bufferInfo.resize(0);
     m_device=VK_NULL_HANDLE;
     m_inputAttachmentInfo.resize(0);
     m_pool=VK_NULL_HANDLE;
     m_poolSizes.resize(0);
+    m_setBindings.resize(0);
     m_setLayouts.resize(0);
     m_sets.resize(0);
     m_swapchainSize=0;
@@ -49,10 +53,9 @@ Descriptor::Descriptor(
 {
     m_device = device.device();
     m_swapchainSize = swapchainSize;
-    m_writeSetVertex = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
-    m_writeSetFragment = std::vector<VkWriteDescriptorSet>(); // TODO: One per attachment?.
+    m_writeSetVertex = std::vector<VkWriteDescriptorSet>();
+    m_writeSetFragment = std::vector<VkWriteDescriptorSet>();
 
-    // TODO: Tidy below.
     m_poolSizes.resize(3);
     initializePoolSize(Type::INPUT_ATTACHMENT);
     initializePoolSize(Type::TEXTURE_SAMPLER);
@@ -131,7 +134,6 @@ void Descriptor::removeEmptyWriteSets() noexcept
         m_writeSetVertex.end());
 }
 
-// TODO: Handle case where no descriptors have been added.
 void Descriptor::allocateDescriptorSets() noexcept
 {
     m_setLayouts.resize(2);
@@ -141,8 +143,18 @@ void Descriptor::allocateDescriptorSets() noexcept
 
     for (const auto &b : m_setBindings)
     {
-        if (b.stageFlags == VK_SHADER_STAGE_FRAGMENT_BIT) fragmentBindings.push_back(b); // TODO: Change.
-        else vertexBindings.push_back(b);
+        switch (b.stageFlags)
+        {
+        case VK_SHADER_STAGE_FRAGMENT_BIT:
+            fragmentBindings.push_back(b);
+            break;
+        case VK_SHADER_STAGE_VERTEX_BIT:
+            vertexBindings.push_back(b);
+            break;
+        default:
+            EVK_ABORT("Unsupported stage in descriptor set bindings.\n");
+            break;
+        }
     }
 
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
@@ -161,8 +173,6 @@ void Descriptor::allocateDescriptorSets() noexcept
             m_device, &layoutInfo, nullptr, &m_setLayouts[1]
     );
     EVK_ASSERT(result,"failed to create fragment descriptor set layout.");
-
-    // TODO: Start here tomorrow: need a way of updating the input attachment.
 
     // Create descriptor sets.
     m_sets.resize(2);
@@ -365,7 +375,6 @@ void Descriptor::addWriteSet(
                 m_writeSetVertex.resize(binding+1);
             m_writeSetVertex[binding]=writeSet;
             break;
-        // TODO: Handle support for geometry shader.
     }
 }
 

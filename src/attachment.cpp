@@ -10,33 +10,42 @@ Attachment::Attachment(Attachment &&other) noexcept
 Attachment& Attachment::operator=(Attachment &&other) noexcept
 {
     if (*this==other) return *this;
+    m_aspectMask=other.m_aspectMask;
     m_clearValue=other.m_clearValue;
     m_colorReference=other.m_colorReference;
     m_depthReference=other.m_depthReference;
     m_description=other.m_description;
     m_device=other.m_device;
+    m_format=other.m_format;
     m_image=other.m_image;
     m_imageMemory=other.m_imageMemory;
     m_imageView=other.m_imageView;
     m_index=other.m_index;
     m_inputReference=other.m_inputReference;
+    m_properties=other.m_properties;
     m_type=other.m_type;
+    m_tiling=other.m_tiling;
     other.reset();
     return *this;
 }
 
 void Attachment::reset() noexcept
 {
+    m_aspectMask={};
     m_clearValue={};
     m_colorReference={};
     m_depthReference={};
     m_description={};
     m_device=VK_NULL_HANDLE;
+    m_format={};
     m_image=VK_NULL_HANDLE;
     m_imageMemory=VK_NULL_HANDLE;
     m_imageView=VK_NULL_HANDLE;
     m_index=0;
     m_inputReference={};
+    m_properties={};
+    m_type={};
+    m_tiling={};
 }
 
 Attachment::Attachment(

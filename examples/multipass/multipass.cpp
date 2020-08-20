@@ -1,9 +1,10 @@
-#include "evulkan.h"
+#include "evulkan/evulkan.h"
+
 #include "flags.h"
 #include "grid.h"
 #include "../util.h"
 
-using namespace evk; // TODO: Remove.
+using namespace evk;
 
 struct UniformBufferObject
 {
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
     std::vector<Subpass*> subpasses = {&subpass0, &subpass1};
     Renderpass renderpass(device,subpasses);
 
-    DynamicBuffer ubo(device, sizeof(UniformBufferObject));
+    DynamicBuffer ubo(device, sizeof(UniformBufferObject), Buffer::Type::UBO);
 
     Descriptor descriptor0(device, swapchainSize);
     descriptor0.addUniformBuffer(0, ubo, Shader::Stage::VERTEX);

@@ -100,7 +100,8 @@ class DynamicBuffer : public Buffer
      **/
     DynamicBuffer(
         const Device &device,
-        const VkDeviceSize &bufferSize
+        const VkDeviceSize &bufferSize,
+        const Type &type
     ) noexcept;
     /**
      * Creates a DynamicBuffer.

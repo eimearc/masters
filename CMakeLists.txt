@@ -7,7 +7,7 @@ set (CMAKE_CXX_STANDARD 14)
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build the tests" ON)
 
-# add_definitions(-DEVK_NDEBUG) # TODO: Add documentation.
+# add_definitions(-DEVK_NDEBUG) # Uncomment to turn off assertions.
 
 set(VULKANROOT .)
 set(VULKAN_SDK $ENV{VULKAN_SDK})
@@ -48,12 +48,10 @@ set (SOURCES
     ${VULKAN_INCLUDE}/vertex.h
 )
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${VULKANROOT}/lib) # TODO: Remove
-set(CMAKE_INSTALL_PREFIX ${VULKANROOT}/_install) # TODO: Remove
 add_library(evulkan SHARED ${SOURCES})
 
 install(TARGETS evulkan DESTINATION lib)
-install(FILES ${VULKANROOT}/include/evulkan.h DESTINATION include)
+install(DIRECTORY ${VULKANROOT}/include/ DESTINATION include/evulkan)
 
 # Build examples.
 if(BUILD_EXAMPLES)

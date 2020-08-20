@@ -35,10 +35,6 @@ void Device::draw() noexcept
 
     auto &imageFence = imageFences[imageIndex];
 
-    // TODO: Remove
-    // if (currentFrame != imageIndex)
-        // throw std::runtime_error("failed to find imageIndex and currentFrame equal"); // TODO: Remove.
-
     // Check if a previous frame is using this image. If so, wait on its fence.
     if (imageFence != VK_NULL_HANDLE)
     {
@@ -95,9 +91,6 @@ void Device::draw() noexcept
     );
 
     vkQueueWaitIdle(presentQueue);
-
-    // TODO: Remove?
-    // currentFrame = ((currentFrame)+1) % swapchainSize();
 }
 
 void Device::finalize(
@@ -126,7 +119,7 @@ void Device::record() noexcept
     const auto numThreads = this->numThreads();
     const size_t numIndicesEach=m_indexBuffer->numElements()/this->numThreads();
     const auto &framebuffers = this->framebuffers();
-    auto renderpass=m_pipelines[0]->renderpass(); // TODO: Check if this is suitable. Only one renderpass supported. Singleton?
+    auto renderpass=m_pipelines[0]->renderpass();
     const auto &clearValues = renderpass->clearValues();
     
     VkRenderPassBeginInfo renderPassInfo = {};
@@ -176,8 +169,8 @@ void Device::record() noexcept
                 allocInfo.commandPool = commandPools[i];
                 allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
                 allocInfo.commandBufferCount = 1;
-                auto result = vkAllocateCommandBuffers(  // TODO: Remove this->?
-                        this->device(), &allocInfo, &secondaryCommandBuffer
+                auto result = vkAllocateCommandBuffers(
+                    device(), &allocInfo, &secondaryCommandBuffer
                 );
                 EVK_ASSERT(result,"failed to allocate command buffers");
 

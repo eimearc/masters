@@ -1,7 +1,7 @@
 #include "util.h"
 
 #include "evk_assert.h"
-#include <vulkan/vulkan.h> // TODO: Remove.
+#include <vulkan/vulkan.h>
 
 namespace internal
 {
@@ -133,6 +133,7 @@ uint32_t findMemoryType(
     }
 
     EVK_ABORT("failed to find suitable memory type\n");
+    return 0;
 }
 
 void beginSingleTimeCommands(

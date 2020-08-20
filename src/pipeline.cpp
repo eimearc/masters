@@ -129,27 +129,23 @@ bool Pipeline::operator!=(const Pipeline &other) const noexcept
 
 void Pipeline::setup() noexcept
 {
-    const auto &bindingDescription = m_vertexInput.bindingDescription();
     const auto &attributeDescriptions = m_vertexInput.attributeDescriptions();
+    const auto &bindingDescription = m_vertexInput.bindingDescription();
+    const auto &extent = m_device->extent(); 
 
+    // Set up input to vertex shader.
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    // if (m_vertexInput.bindingDescription().stride>0) // TODO: remove this?
-    // {
-        // Set up input to vertex shader.
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-    // }
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     // Set up input assembly.
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-    const auto &extent = m_device->extent(); 
 
     // Set up the viewport.
     VkViewport viewport = {};
@@ -194,25 +190,21 @@ void Pipeline::setup() noexcept
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};// TODO: Must equal colorAttachmentCount.
-    colorBlendAttachment.blendEnable = VK_FALSE;
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+    colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.colorWriteMask = 0xf;
-    // if (m_writeDepth) // GBuffer
-    // {
-    //     colorBlendAttachment.blendEnable = VK_FALSE;
-    //     colorBlendAttachment.colorWriteMask = 0xf;
-    // }
-    // else // Lighting
-    // {
-    //     colorBlendAttachment.blendEnable = VK_TRUE; // TODO: switch this back on when blending.
-    //     colorBlendAttachment.colorWriteMask = 0xf;
-    //     colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    //     colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
-    //     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // TODO: Configure depending on operation.
-    //     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    //     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // TODO: Should be one?
-    //     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;   
-    // }
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+    // If writing to a depth attachment, don't blend.
+    if (m_subpass->hasDepthAttachment())
+    {
+        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.colorWriteMask = 0xf;
+    }
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -222,39 +214,28 @@ void Pipeline::setup() noexcept
     // Set up depth testing.
     VkPipelineDepthStencilStateCreateInfo depthStencil = {};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencil.depthTestEnable = true;
+    depthStencil.depthWriteEnable = false;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    depthStencil.depthBoundsTestEnable = false;
+    depthStencil.stencilTestEnable = true;
+    depthStencil.front.passOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.compareOp = VK_COMPARE_OP_EQUAL;
+    depthStencil.front.compareMask = 0xff;
+    depthStencil.front.writeMask = 0x0;
+    depthStencil.front.reference = 1;
+    depthStencil.back = depthStencil.front;
 
     // If the subpass has a depth attachment, write depth.
-    if (m_subpass->hasDepthAttachment()) // G-Buffer
+    if (m_subpass->hasDepthAttachment())
     {
-        depthStencil.depthTestEnable = true;
         depthStencil.depthWriteEnable = true;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-        depthStencil.depthBoundsTestEnable = false;
-        depthStencil.stencilTestEnable = true;
         depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
-        depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
-        depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
         depthStencil.front.compareOp = VK_COMPARE_OP_ALWAYS;
-        depthStencil.front.compareMask = 0xff;
         depthStencil.front.writeMask = 0xff;
         depthStencil.front.reference = 1;
-        depthStencil.back = depthStencil.front;
-    }
-    else // Lighting
-    {
-        depthStencil.depthTestEnable = true;
-        depthStencil.depthWriteEnable = false;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-        depthStencil.depthBoundsTestEnable = false;
-        depthStencil.stencilTestEnable = true;
-        depthStencil.front.passOp = VK_STENCIL_OP_KEEP;
-        depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
-        depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
-        depthStencil.front.compareOp = VK_COMPARE_OP_EQUAL;
-        depthStencil.front.compareMask = 0xff;
-        depthStencil.front.writeMask = 0x0;
-        depthStencil.front.reference = 1;
-        depthStencil.back = depthStencil.front;
     }
 
     std::vector<VkPipelineShaderStageCreateInfo> shadersCreateInfo;

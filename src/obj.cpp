@@ -21,7 +21,7 @@ void loadOBJ(
         &attrib, &shapes, &materials, &warn, &err, fileName.c_str()
     );
 
-    EVK_EXPECT_TRUE(result, "could not load obj"); // TODO: Add warn and err?
+    EVK_EXPECT_TRUE(result, "could not load obj");
 
     for (const auto &shape : shapes)
     {

@@ -156,8 +156,8 @@ class Descriptor
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_inputAttachmentInfo;
     VkDescriptorPool m_pool=VK_NULL_HANDLE;
     std::vector<VkDescriptorPoolSize> m_poolSizes;
-    std::vector<VkDescriptorSetLayout> m_setLayouts;
     std::vector<VkDescriptorSetLayoutBinding> m_setBindings;
+    std::vector<VkDescriptorSetLayout> m_setLayouts;
     std::vector<VkDescriptorSet> m_sets;
     size_t m_swapchainSize=0;
     std::vector<std::unique_ptr<VkDescriptorImageInfo>> m_textureSamplerInfo;

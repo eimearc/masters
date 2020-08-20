@@ -1,12 +1,10 @@
-#include "evulkan.h"
-
-#include <cassert>
+#include "evulkan/evulkan.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "../util.h"
 
-using namespace evk; // TODO: Remove.
+using namespace evk;
 
 int main()
 {

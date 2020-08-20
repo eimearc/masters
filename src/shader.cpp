@@ -41,12 +41,17 @@ Shader& Shader::operator=(Shader &&other) noexcept
 {
     if (*this==other) return *this;
     m_createInfo=other.m_createInfo;
-    other.m_createInfo={};
     m_device=other.m_device;
-    other.m_device=VK_NULL_HANDLE;
     m_module=other.m_module;
-    other.m_module=VK_NULL_HANDLE;
+    other.reset();
     return *this;
+}
+
+void Shader::reset() noexcept
+{
+    m_createInfo={};
+    m_device=VK_NULL_HANDLE;
+    m_module=VK_NULL_HANDLE;
 }
 
 bool Shader::operator==(const Shader &other) const noexcept

@@ -49,8 +49,8 @@ Device::Commands::Commands(Commands &&other) noexcept
 Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
 {
     if (*this==other) return *this;
-    m_device = other.m_device;
     m_commandPools = other.m_commandPools;
+    m_device = other.m_device;
     m_primaryCommandBuffers = other.m_primaryCommandBuffers;
     m_secondaryCommandBuffers = other.m_secondaryCommandBuffers;
     other.reset();
@@ -59,8 +59,8 @@ Device::Commands& Device::Commands::operator=(Commands &&other) noexcept
 
 void Device::Commands::reset() noexcept
 {
-    m_device=VK_NULL_HANDLE;
     m_commandPools.resize(0);
+    m_device=VK_NULL_HANDLE;
     m_primaryCommandBuffers.resize(0);
     m_secondaryCommandBuffers.resize(0);  
 }

@@ -36,7 +36,7 @@ class Shader
      * VERTEX: A vertex Shader.
      * FRAGMENT: A fragments Shader.
      **/
-    enum class Stage{VERTEX,FRAGMENT}; // TODO: Add support for Geometry shader.
+    enum class Stage{VERTEX,FRAGMENT};
 
     Shader()=default;
     Shader(const Shader&)=delete;
@@ -59,6 +59,8 @@ class Shader
 
     bool operator==(const Shader&) const noexcept;
     bool operator!=(const Shader&) const noexcept;
+
+    void reset() noexcept;
 
     private:
     static VkShaderStageFlagBits stageFlags(const Stage &stage) noexcept;
