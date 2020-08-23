@@ -85,8 +85,8 @@ class Renderpass
 {
     public:
     Renderpass()=default;
-    Renderpass(const Renderpass&)=delete;
-    Renderpass& operator=(const Renderpass&)=delete;
+    Renderpass(const Renderpass&)=delete; // Class Renderpass is non-copyable.
+    Renderpass& operator=(const Renderpass&)=delete; // Class Renderpass is non-copyable.
     Renderpass(Renderpass&&) noexcept;
     Renderpass& operator=(Renderpass&&) noexcept;
     ~Renderpass() noexcept;

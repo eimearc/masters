@@ -39,8 +39,8 @@ class Pipeline
 {
     public:
     Pipeline()=default;
-    Pipeline(const Pipeline&)=delete;
-    Pipeline& operator=(const Pipeline&)=delete;
+    Pipeline(const Pipeline&)=delete; // Class Pipeline is non-copyable.
+    Pipeline& operator=(const Pipeline&)=delete; // Class Pipeline is non-copyable.
     Pipeline(Pipeline&&) noexcept;
     Pipeline& operator=(Pipeline&&) noexcept;
     ~Pipeline() noexcept;

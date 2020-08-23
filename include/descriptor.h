@@ -45,8 +45,8 @@ class Descriptor
 {
     public:
     Descriptor()=default;
-    Descriptor(const Descriptor&)=delete;
-    Descriptor& operator=(const Descriptor&)=delete;
+    Descriptor(const Descriptor&)=delete; // Class Descriptor is non-copyable.
+    Descriptor& operator=(const Descriptor&)=delete; // Class Descriptor is non-copyable.
     Descriptor(Descriptor&&) noexcept;
     Descriptor& operator=(Descriptor&&) noexcept;
     ~Descriptor() noexcept;

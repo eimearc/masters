@@ -24,8 +24,8 @@ class Texture
 {
     public:
     Texture()=default;
-    Texture(const Texture&)=delete;
-    Texture& operator=(const Texture&)=delete;
+    Texture(const Texture&)=delete; // Class Texture is non-copyable.
+    Texture& operator=(const Texture&)=delete; // Class Texture is non-copyable.
     Texture(Texture&&) noexcept;
     Texture& operator=(Texture&&) noexcept;
     ~Texture() noexcept;

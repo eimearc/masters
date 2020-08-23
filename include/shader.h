@@ -39,8 +39,8 @@ class Shader
     enum class Stage{VERTEX,FRAGMENT};
 
     Shader()=default;
-    Shader(const Shader&)=delete;
-    Shader& operator=(const Shader&)=delete;
+    Shader(const Shader&)=delete; // Class Shader is non-copyable.
+    Shader& operator=(const Shader&)=delete; // Class Shader is non-copyable.
     Shader(Shader&&) noexcept;
     Shader& operator=(Shader&&) noexcept;
     ~Shader() noexcept;
