@@ -10,6 +10,11 @@ evulkan is for newcomers to Vulkan and helps with setting up some of the more es
 of Vulkan including the swapchain, synchronization objects and the command buffers. It is suited to
 multithreaded programming.
 
+## Requirements
+
+evulkan requires the tinyobjloader library (https://github.com/tinyobjloader/tinyobjloader) and 
+the stb_image library (https://github.com/nothings/stb).
+
 ## Installation
 
 evulkan is built and installed using CMake. Create a build directory at the root of the folder,
