@@ -7,7 +7,11 @@
 
 std::vector<const char*> validationLayers =
 {
-    "VK_LAYER_LUNARG_standard_validation"
+    // The validation layer below was used in a previous Vulkan SDK, but has
+    // since been deprecated.
+    // https://vulkan.lunarg.com/doc/view/1.1.108.0/mac/validation_layers.html
+    // "VK_LAYER_LUNARG_standard_validation"
+    "VK_LAYER_KHRONOS_validation"
 };
 std::vector<const char*> deviceExtensions = 
 {
